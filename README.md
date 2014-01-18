@@ -28,4 +28,6 @@ temperature in steps (after a number of iterations), we
 gradually reduce sampling space exploration variance
 and converge onto the area of highest probability.
 This process converges on topics much faster than
-sampling with a constant (low) temperature.
+sampling with a constant (low) temperature, which
+is what happens when you sample with the target
+values of hyperparameters from the start.
