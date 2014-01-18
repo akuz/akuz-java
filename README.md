@@ -6,7 +6,7 @@ and additional optimization features described below.
 
 ### Multiprocessor Parallelisation 
 
-For faster inference on machines with multiple processors / cores.
+* For faster inference on machines with multiple processors
 
 The computations necessary for each Gibbs sampling
 iteration are executed on different threads by splitting
@@ -16,7 +16,7 @@ is a negligible operation compared to sampling.
 
 ### Simulated Annealing 
 
-For faster convergence of Gibbs sampling.
+* For faster convergence of Gibbs sampling
 
 The "temperature" parameter influences the ratio of prior
 Dirichlet mass to the expected additional posterior mass. For a high 
