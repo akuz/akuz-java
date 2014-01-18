@@ -1,5 +1,5 @@
-akuz-java-lda
-=============
+akuz-java-nlp-lda
+=================
 
 LDA (Latent Dirichlet Allocation) inference in Java using Gibbs sampling 
 and additional optimization features described below.
