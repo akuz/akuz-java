@@ -19,7 +19,7 @@ is a negligible operation compared to sampling.
 For faster convergence of Gibbs sampling.
 
 The "temperature" parameter influences the ratio of prior
-Dirichlet mass to the expected posterior mass. For a high 
+Dirichlet mass to the expected additional posterior mass. For a high 
 temperature of 1.0 the Dirichlet priors will be modified 
 to be approximatelly of the same mass as the additional
 posterior mass. This allows sampling to initially explore
