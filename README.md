@@ -5,9 +5,8 @@ An implementation of LDA (Latent Dirichlet Allocation)
 in Java using Gibbs sampling inference with additional
 features of:
 
-* Multiprocessor Parallelisation 
-  for faster inference on machines 
-  with multiple processors (cores)
+## Multiprocessor Parallelisation for faster inference 
+on machines with multiple processors (cores)
 
 The computations necessary for each Gibbs sampling
 iteration are executed on different threads by splitting
@@ -15,10 +14,9 @@ the corpus into non-overlapping document sets, and after
 each interation has completed, merging the results, which
 is a negligible operation compared to sampling.
 
-* Simulated Annealing
-  for faster convergence of Gibbs
-  sampling by following a temperature
-  schedule from high to low during sampling
+## Simulated Annealing for faster convergence of Gibbs 
+sampling by following a temperature schedule 
+from high to low during sampling
 
 The "temperature" parameter influences the ratio of prior
 Dirichlet mass to the expected posterior mass. For a high 
