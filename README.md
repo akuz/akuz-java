@@ -3,7 +3,7 @@ akuz-java-lda
 
 An implementation of LDA (Latent Dirichlet Allocation) 
 in Java using Gibbs sampling inference with additional
-features described below.
+features of...
 
 ### Multiprocessor Parallelisation 
 
