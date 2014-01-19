@@ -1,4 +1,4 @@
 akuz-java-core
 ==============
 
-Java core / utility classes useful in many different projects.
+Various core Java classes potentially useful in many different projects.
