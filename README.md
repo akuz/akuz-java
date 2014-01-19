@@ -1,10 +1,10 @@
 akuz-java-nlp-lda
 =================
 
-LDA (Latent Dirichlet Allocation) inference in Java using Gibbs sampling 
-with additional optimization features described below.
+LDA (Latent Dirichlet Allocation) inference in Java using 
+Gibbs sampling, plus additional optimizations described below.
 
-### Multiprocessor Parallelisation 
+### Multiprocessor Parallelization 
 
 * For faster inference on machines with multiple processors
 
