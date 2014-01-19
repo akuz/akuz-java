@@ -1,8 +1,13 @@
-akuz-java-nlp-lda
-=================
+akuz-java-nlp
+=============
 
-LDA (Latent Dirichlet Allocation) inference in Java using 
-Gibbs sampling, plus additional optimizations described below.
+This library contains various NLP classes useful for
+parsing and analysing natural language texts.
+
+## LDA Inference
+
+The optimized Gibbs sampling inference for LDA
+provides the following optimizations.
 
 ### Multiprocessor Parallelization 
 
