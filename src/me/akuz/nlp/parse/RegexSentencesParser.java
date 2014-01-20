@@ -6,7 +6,13 @@ import java.util.regex.Pattern;
 
 import me.akuz.core.Hit;
 
-public final class SentencesParser {
+/**
+ * Finds locations of sentence breaks in the document.
+ * This is a pattern-matching solution, not of a good 
+ * quality; works bad for: "When Mr. Porter looked."
+ *
+ */
+public final class RegexSentencesParser {
 	
 	private final static Pattern _patternSentenceBreak = Pattern.compile(
 			
@@ -40,7 +46,7 @@ public final class SentencesParser {
 			//                ^ lowercase or
 			//                     ^ end
 
-	public SentencesParser() {
+	public RegexSentencesParser() {
 		
 	}
 

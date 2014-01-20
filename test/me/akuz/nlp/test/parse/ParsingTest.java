@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import me.akuz.core.Hit;
-import me.akuz.nlp.parse.SentencesParser;
-import me.akuz.nlp.parse.WordsParser;
+import me.akuz.nlp.parse.RegexSentencesParser;
+import me.akuz.nlp.parse.RegexWordsParser;
 import me.akuz.nlp.porter.PorterStemmer;
 
 import org.junit.Test;
@@ -21,7 +21,7 @@ public final class ParsingTest {
 		
 		String text = getText();
 		
-		SentencesParser sp = new SentencesParser();
+		RegexSentencesParser sp = new RegexSentencesParser();
 		List<Hit> sentenceBounds = new ArrayList<Hit>();
 		sp.parseSentences(text, new Hit(text), sentenceBounds);
 		
@@ -29,7 +29,7 @@ public final class ParsingTest {
 			throw new IllegalStateException("Incorrect sentence count");
 		}
 		
-		WordsParser wp = new WordsParser(porterStemmer);
+		RegexWordsParser wp = new RegexWordsParser(porterStemmer);
 		for (int sentenceIndex=0; sentenceIndex<sentenceBounds.size(); sentenceIndex++) {
 			
 			Hit bounds = sentenceBounds.get(sentenceIndex);

@@ -12,7 +12,13 @@ import me.akuz.core.Hit;
 import me.akuz.core.Pair;
 import me.akuz.nlp.porter.PorterStemmer;
 
-public final class WordsParser {
+/**
+ * Finds words in the text using regular expressions 
+ * (good for filtering out garbage non-words); 
+ * also, this doesn't match numbers.
+ *
+ */
+public final class RegexWordsParser {
 	
 	// regex hint: (?:) means a non-capturing group
 	
@@ -57,11 +63,11 @@ public final class WordsParser {
 	private final PorterStemmer _porterStemmer;
 	private final Set<String> _stopStems;
 
-	public WordsParser(PorterStemmer porterStemmer) {
+	public RegexWordsParser(PorterStemmer porterStemmer) {
 		this(porterStemmer, null);
 	}
 
-	public WordsParser(PorterStemmer porterStemmer, Set<String> stopStems) {
+	public RegexWordsParser(PorterStemmer porterStemmer, Set<String> stopStems) {
 		_porterStemmer = porterStemmer;
 		_stopStems = stopStems;
 	}

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.akuz.core.Hit;
-import me.akuz.nlp.parse.SentencesParser;
+import me.akuz.nlp.parse.RegexSentencesParser;
 
 import org.junit.Test;
 
@@ -14,7 +14,7 @@ public final class SentencesParserTest2 {
 	@Test
 	public void testSentencesParser1() {
 		
-		SentencesParser sp = new SentencesParser();
+		RegexSentencesParser sp = new RegexSentencesParser();
 		
 		String str;
 		Hit hit;

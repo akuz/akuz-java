@@ -7,7 +7,7 @@ import java.util.Set;
 
 import me.akuz.core.Hit;
 import me.akuz.core.StringUtils;
-import me.akuz.nlp.parse.WordsParser;
+import me.akuz.nlp.parse.RegexWordsParser;
 import me.akuz.nlp.porter.PorterStemmer;
 
 import org.junit.Test;
@@ -21,7 +21,7 @@ public final class WordsParserTest {
 
 		Set<String> stopStems = new HashSet<String>();
 		stopStems.add("gag");
-		WordsParser wp = new WordsParser(porterStemmer, stopStems);
+		RegexWordsParser wp = new RegexWordsParser(porterStemmer, stopStems);
 		
 		String str;
 		Hit bounds;
