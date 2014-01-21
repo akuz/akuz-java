@@ -11,13 +11,18 @@ import me.akuz.nlp.corpus.Corpus;
 import me.akuz.nlp.corpus.CorpusDoc;
 import me.akuz.nlp.corpus.CorpusPlace;
 
-public final class LDAGibbsUnstem {
+/**
+ * Unstemmer for the LDA algo, for collecting topic-specific
+ * frequencies of words-by-stem during sampling process.
+ *
+ */
+public final class LDAGibbsUnstemmer {
 	
 	private final Corpus _corpus;
 	private final Map<Integer, Map<Integer, List<Pair<Integer, Integer>>>> _topicStemWordCounts;
 	private Map<Integer, Map<Integer, Integer>> _optimizedTopicStemWord;
 	
-	public LDAGibbsUnstem(Corpus corpus) {
+	public LDAGibbsUnstemmer(Corpus corpus) {
 		_corpus = corpus;
 		_topicStemWordCounts = new HashMap<Integer, Map<Integer,List<Pair<Integer,Integer>>>>();
 	}
@@ -117,9 +122,9 @@ public final class LDAGibbsUnstem {
 		if (_optimizedTopicStemWord == null) {
 			throw new IllegalStateException("Not optimized yet");
 		}
-		Map<Integer, Integer> wordOriginal = _optimizedTopicStemWord.get(topicIndex);
-		if (wordOriginal != null) {
-			return wordOriginal.get(stemIndex);
+		Map<Integer, Integer> stemWordMap = _optimizedTopicStemWord.get(topicIndex);
+		if (stemWordMap != null) {
+			return stemWordMap.get(stemIndex);
 		}
 		return null;
 	}

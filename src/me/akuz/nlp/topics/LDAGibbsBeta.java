@@ -2,21 +2,20 @@ package me.akuz.nlp.topics;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import me.akuz.nlp.corpus.Corpus;
 
 import Jama.Matrix;
 
 /**
- * Builds beta priors for LDA; call setTemperature() to initialize.
+ * Dynamic (changeable via setTemperature()) 
+ * Beta (topic-word) Dirichlet prior for LDA.
  *
  */
 public final class LDAGibbsBeta {
 	
-	private static final double EXCLUDED_STEM_MASS_FRACTION_MULTIPLIER = 0.0000001;
-	
+	private double _priorityMassFraction = 0.5;
+	private double _excludedMassMultiplier = 0.00000001;
 	private final List<LDAGibbsTopic> _topics;
 	private final int _corpusStemCount;
 	private final int _corpusPlaceCount;
@@ -30,6 +29,34 @@ public final class LDAGibbsBeta {
 		_topics = topics;
 		_corpusStemCount = corpus.getStemsIndex().size();
 		_corpusPlaceCount = corpus.getPlaceCount();
+	}
+	
+	public double getPriorityMassFraction() {
+		return _priorityMassFraction;
+	}
+
+	public void setPriorityMassFraction(double fraction) {
+		if (fraction <= 0) {
+			throw new IllegalArgumentException("Priority mass fraction must be positive");
+		}
+		if (fraction >= 1) {
+			throw new IllegalArgumentException("Priority mass fraction must be less than one");
+		}
+		_priorityMassFraction = fraction;
+	}
+	
+	public double getExcludedMassMultiplier() {
+		return _excludedMassMultiplier;
+	}
+
+	public void setExcludedMassMultiplier(double multiplier) {
+		if (multiplier <= 0) {
+			throw new IllegalArgumentException("Excluded mass multiplier must be positive");
+		}
+		if (multiplier >= 1) {
+			throw new IllegalArgumentException("Excluded mass multiplier must be less than one");
+		}
+		_excludedMassMultiplier = multiplier;
 	}
 
 	public Matrix getStemTopicBeta() {
@@ -50,6 +77,7 @@ public final class LDAGibbsBeta {
 		
 		Matrix mStemTopicBeta = _mStemTopicBeta;
 		double[] mSumTopicBeta = _mSumTopicBeta;
+		
 		if (mStemTopicBeta == null) {
 			mStemTopicBeta = new Matrix(_corpusStemCount, _topics.size());
 			mSumTopicBeta = new double[_topics.size()];
@@ -62,29 +90,42 @@ public final class LDAGibbsBeta {
 			LDAGibbsTopic topic = _topics.get(topicIndex);
 			
 			// calculate topic prior mass based on expected posterior mass * temperature
-			double priorMass = _corpusPlaceCount * topic.getTargetCorpusFraction() * temperature;
+			double priorMass = _corpusPlaceCount * topic.getCorpusFraction() * temperature;
 			
 			// calculate prior mass per "remaining" stem (not selected by topic)
-			Map<Integer, Double> priorityStemsMassFractions = topic.getPriorityStemMassMap();
-			Set<Integer> excludedStems = topic.getExcludedStems();
-			int remainingStemsCount = _corpusStemCount - priorityStemsMassFractions.size();
-			if (remainingStemsCount <= 0) {
-				throw new IllegalStateException("Number of priority stems in topic must be < total number of stems in corpus");
-			}
-			double remainingStemMassFraction = (1.0 - topic.getSumPriorityStemMass()) / remainingStemsCount;
+			double priorityStemMass;
+			double remainingStemMass;
+			if (topic.getPriorityStemCount() > 0) {
+				
+				final double priorityMass = priorMass * _priorityMassFraction;
+				priorityStemMass = priorityMass / topic.getPriorityStemCount();
 
+				final double remainingMass = priorMass * (1.0 - _priorityMassFraction);
+				int remainingStemCount = _corpusStemCount - topic.getPriorityStemCount();
+				if (remainingStemCount > 0) {
+					remainingStemMass = remainingMass / remainingStemCount;
+				} else {
+					throw new IllegalStateException("Number of priority stems in topic must be less than total number of stems in corpus");
+				}
+				
+			} else {
+				
+				priorityStemMass = 0;
+				remainingStemMass = priorMass / _corpusStemCount;
+			}
+			
 			// distribute prior mass to stems
-			for (int stemIndex=0; stemIndex<_corpusStemCount; stemIndex++) {
+			for (Integer stemIndex=0; stemIndex<_corpusStemCount; stemIndex++) {
 				
 				double stemPriorMass;
-				Double priorityStemMassFraction = priorityStemsMassFractions.get(stemIndex);
-				if (priorityStemMassFraction != null) {
-					stemPriorMass = priorMass * priorityStemMassFraction;
+
+				if (priorityStemMass > 0 && 
+					topic.isPriorityStem(stemIndex)) {
+					stemPriorMass = priorityStemMass;
 				} else {
-					if (excludedStems.contains(stemIndex)) {
-						stemPriorMass = priorMass * remainingStemMassFraction * EXCLUDED_STEM_MASS_FRACTION_MULTIPLIER;
-					} else {
-						stemPriorMass = priorMass * remainingStemMassFraction;
+					stemPriorMass = remainingStemMass;
+					if (topic.isExcludedStem(stemIndex)) {
+						stemPriorMass /= _excludedMassMultiplier;
 					}
 				}
 				mStemTopicBeta.set(stemIndex, topicIndex, stemPriorMass);

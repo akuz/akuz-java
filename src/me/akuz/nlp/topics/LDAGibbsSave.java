@@ -24,7 +24,7 @@ public final class LDAGibbsSave {
 			List<LDAGibbsTopic> topics,
 			Matrix mTopic, 
 			Matrix mStemTopic,
-			LDAGibbsUnstem unstemmer,
+			LDAGibbsUnstemmer unstemmer,
 			int topicOutputStemsCount,
 			String outputDir) throws Exception {
 
@@ -150,7 +150,7 @@ public final class LDAGibbsSave {
 			Integer stemIndex,
 			Integer topicIndex,
 			Corpus corpus,
-			LDAGibbsUnstem unstemmer) {
+			LDAGibbsUnstemmer unstemmer) {
 		
 		String word;
 		String stem = corpus.getStemsIndex().getValue(stemIndex);

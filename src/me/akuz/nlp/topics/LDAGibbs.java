@@ -1,7 +1,6 @@
 package me.akuz.nlp.topics;
 
 import java.security.InvalidParameterException;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -14,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import me.akuz.core.Rounding;
 import me.akuz.nlp.corpus.Corpus;
 import me.akuz.nlp.corpus.CorpusDoc;
 import me.akuz.nlp.corpus.CorpusPlace;
@@ -22,12 +22,18 @@ import org.apache.commons.lang3.time.StopWatch;
 
 import Jama.Matrix;
 
+/**
+ * Gibbs sampling inference algorithm for Latent Dirichlet Allocation (LDA).
+ * This implementation also includes the following optimizations: 
+ * 1) Multi-threading for faster inference on multi-processor machines
+ * 2) Simulated annealing for faster convergence of Gibbs sampling
+ *
+ */
 public final class LDAGibbs {
 	
-	private static final DecimalFormat _fmtMs = new DecimalFormat("0");
-
-	private final Logger _log;
+	private final Logger _logger;
 	private int _logIterationFrequency = 5;
+	private static final int _msLogDigits = 2;
 	
 	private final int _threadCount;
 	private final List<TopicAllocationBatch> _topicAllocationBatches;
@@ -36,24 +42,25 @@ public final class LDAGibbs {
 	private final List<Future<Boolean>> _batchFutures;
 	private final ExecutorService _executorService;
 	
-	private int    _iterCount;
+	private int _iterCount;
 	private final StopWatch _stopWatch = new StopWatch();
 	private double _iterAllocateAvgMs;
 	private double _iterAcceptAvgMs;
 	private double _iterTotalAvgMs;
-	private int    _calcTopicProbsCount;
-	private int    _calcStemTopicCount;
-	private double _calcStemTopicAvgMs;
-	private int    _calcTopicDocCount;
-	private double _calcTopicDocAvgMs;
+	
+	private int    _sampleTopicCount;
+	private int    _sampleStemTopicCount;
+	private double _sampleStemTopicAvgMs;
+	private int    _sampleTopicDocCount;
+	private double _sampleTopicDocAvgMs;
 	
 	private final List<CorpusDoc> _docs;
 	private final int _placeCount;
 	private final int _topicCount;
 	private final int _stemCount;
 	
-	private final LDAGibbsAlpha _buildAlpha;
-	private final LDAGibbsBeta _buildBeta;
+	private final LDAGibbsAlpha _alpha;
+	private final LDAGibbsBeta _beta;
 	
 	private boolean _isInitialized;
 	private Matrix _topicDocAlpha;
@@ -66,16 +73,16 @@ public final class LDAGibbs {
 	private final double[] _countTopic;
 	
 	public LDAGibbs(
-			Logger log,
-			List<LDAGibbsTopic> buildTopics,
-			LDAGibbsAlpha buildAlpha,
-			LDAGibbsBeta buildBeta,
+			Logger logger,
 			Corpus corpus,
+			List<LDAGibbsTopic> topics,
+			LDAGibbsAlpha alpha,
+			LDAGibbsBeta beta,
 			int threadCount) {
 		
-		_log = log;
+		_logger = logger;
 		
-		if (buildTopics.size() < 2) {
+		if (topics.size() < 2) {
 			throw new IllegalArgumentException("Topic count should be >= 2");
 		}
 		
@@ -88,11 +95,11 @@ public final class LDAGibbs {
 		
 		_docs = corpus.getDocs();
 		_placeCount = corpus.getPlaceCount();
-		_topicCount = buildTopics.size();
+		_topicCount = topics.size();
 		_stemCount = corpus.getStemsIndex().size();
 		
-		_buildAlpha = buildAlpha;
-		_buildBeta = buildBeta;
+		_alpha = alpha;
+		_beta = beta;
 
 		_countDocTopic = new Matrix(_docs.size(), _topicCount);
 		_countTopicStem = new Matrix(_topicCount, _stemCount);
@@ -108,8 +115,8 @@ public final class LDAGibbs {
 		_batchFutures = new ArrayList<>();
 		final int threadDocCount = _docs.size() / _threadCount;
 		final int threadStemCount = _stemCount / _threadCount;
-		if (_log != null) {
-			_log.finest("LDA: batches...");
+		if (_logger != null) {
+			_logger.finest("LDA: batches...");
 		}
 		for (int i=0; i<_threadCount; i++) {
 
@@ -130,8 +137,8 @@ public final class LDAGibbs {
 				TopicAllocationBatch batch = new TopicAllocationBatch(_topicCount, threadDocIndexStart, threadDocIndexEnd);
 				_topicAllocationBatches.add(batch);
 				
-				if (_log != null) {
-					_log.finest("Thread #" + (i+1) + ": " + batch.getClass().getSimpleName() + ": " + batch.getDocCount() + " docs [" + batch._docIndexStart + ", " + batch._docIndexEnd + ")");
+				if (_logger != null) {
+					_logger.finest("Thread #" + (i+1) + ": " + batch.getClass().getSimpleName() + ": " + batch.getDocCount() + " docs [" + batch._docIndexStart + ", " + batch._docIndexEnd + ")");
 				}
 			}
 
@@ -151,8 +158,8 @@ public final class LDAGibbs {
 				
 				TopicDocProbsBatch batch = new TopicDocProbsBatch(threadDocIndexStart, threadDocIndexEnd);
 				_topicDocProbsBatches.add(batch);
-				if (_log != null) {
-					_log.finest("Thread #" + (i+1) + ": " + batch.getClass().getSimpleName() + ": " + batch.getDocCount() + " docs [" + batch._docIndexStart + ", " + batch._docIndexEnd + ")");
+				if (_logger != null) {
+					_logger.finest("Thread #" + (i+1) + ": " + batch.getClass().getSimpleName() + ": " + batch.getDocCount() + " docs [" + batch._docIndexStart + ", " + batch._docIndexEnd + ")");
 				}
 			}
 			
@@ -173,8 +180,8 @@ public final class LDAGibbs {
 				StemTopicProbsBatch batch = new StemTopicProbsBatch(threadStemIndexStart, threadStemIndexEnd);
 				_stemTopicProbsBatches.add(batch);
 
-				if (_log != null) {
-					_log.finest("Thread #" + (i+1) + ": " + batch.getClass().getSimpleName() + ": " + batch.getStemCount() + " stems [" + batch._stemIndexStart + ", " + batch._stemIndexEnd + ")");
+				if (_logger != null) {
+					_logger.finest("Thread #" + (i+1) + ": " + batch.getClass().getSimpleName() + ": " + batch.getStemCount() + " stems [" + batch._stemIndexStart + ", " + batch._stemIndexEnd + ")");
 				}
 			}
 		}
@@ -183,6 +190,7 @@ public final class LDAGibbs {
 			
 			// only create thread pool for multi-threading
 			_executorService = Executors.newFixedThreadPool(_threadCount);
+			
 		} else {
 			
 			// will execute directly on calling thread
@@ -192,18 +200,18 @@ public final class LDAGibbs {
 	
 	public void terminate() {
 		if (_executorService != null) {
-			if (_log != null) {
-				_log.finest("LDA: Terminating executors...");
+			if (_logger != null) {
+				_logger.finest("LDA: Terminating executors...");
 			}
 			_executorService.shutdownNow();
 			try {
 				_executorService.awaitTermination(1, TimeUnit.MINUTES);
-				if (_log != null) {
-					_log.finest("LDA: Executors terminated.");
+				if (_logger != null) {
+					_logger.finest("LDA: Executors terminated.");
 				}
 			} catch (InterruptedException e) {
-				if (_log != null) {
-					_log.log(Level.FINEST, "LDA: Interrupted while waiting for termination.", e);
+				if (_logger != null) {
+					_logger.log(Level.FINEST, "LDA: Interrupted while waiting for termination.", e);
 				}
 			}
 		}
@@ -226,13 +234,13 @@ public final class LDAGibbs {
 	
 	public void setTemperature(double temperature) {
 		
-		_buildAlpha.setTemperature(temperature);
-		_buildBeta.setTemperature(temperature);
+		_alpha.setTemperature(temperature);
+		_beta.setTemperature(temperature);
 		
-		_topicDocAlpha = _buildAlpha.getTopicDocAlpha();
-		_sumDocAlpha = _buildAlpha.getSumDocAlpha();
-		_stemTopicBeta = _buildBeta.getStemTopicBeta();
-		_sumTopicBeta = _buildBeta.getSumTopicBeta();
+		_topicDocAlpha = _alpha.getTopicDocAlpha();
+		_sumDocAlpha = _alpha.getSumDocAlpha();
+		_stemTopicBeta = _beta.getStemTopicBeta();
+		_sumTopicBeta = _beta.getSumTopicBeta();
 		
 		_isInitialized = true;
 	}
@@ -246,8 +254,8 @@ public final class LDAGibbs {
 		int iteration;
 		for (iteration=startIterationNumber; iteration<startIterationNumber+iterationCount; iteration++) {
 			
-			if (_log != null && iteration % _logIterationFrequency == 0) {
-				_log.finest("LDA Iteration: " + iteration + "...");
+			if (_logger != null && iteration % _logIterationFrequency == 0) {
+				_logger.finest("LDA Iteration: " + iteration + "...");
 			}
 
 			_stopWatch.reset();
@@ -301,11 +309,11 @@ public final class LDAGibbs {
 			_iterAcceptAvgMs   = (double)_iterAcceptAvgMs   / (_iterCount) * (_iterCount-1) + (double)iterationAcceptMs   / (_iterCount);
 			_iterTotalAvgMs    = (double)_iterTotalAvgMs    / (_iterCount) * (_iterCount-1) + (double)iterationTotalMs    / (_iterCount);
 
-			if (_log != null && iteration % _logIterationFrequency == 0) {
-				_log.finest("LDA Stats: iteration " + iteration + "...");
-				_log.finest("LDA Stats: iterAllocate ms: " + _fmtMs.format(_iterAllocateAvgMs));
-				_log.finest("LDA Stats: iterAccept   ms: " + _fmtMs.format(_iterAcceptAvgMs));
-				_log.finest("LDA Stats: iterTotal    ms: " + _fmtMs.format(_iterTotalAvgMs));
+			if (_logger != null && iteration % _logIterationFrequency == 0) {
+				_logger.finest("LDA Stats: iteration " + iteration + "...");
+				_logger.finest("LDA Stats: iterAllocate ms: " + Rounding.round(_iterAllocateAvgMs, _msLogDigits));
+				_logger.finest("LDA Stats: iterAccept   ms: " + Rounding.round(_iterAcceptAvgMs, _msLogDigits));
+				_logger.finest("LDA Stats: iterTotal    ms: " + Rounding.round(_iterTotalAvgMs, _msLogDigits));
 			}
 		}
 		return iteration;
@@ -421,9 +429,9 @@ public final class LDAGibbs {
 		return result;
 	}
 
-	public final void calcTopicDoc(Matrix mTopicDoc) {
+	public final void sampleTopicDoc(Matrix mTopicDoc) {
 
-		_calcTopicDocCount += 1;
+		_sampleTopicDocCount += 1;
 		_stopWatch.reset();
 		_stopWatch.start();
 		if (_topicDocProbsBatches.size() == 1) {
@@ -464,16 +472,16 @@ public final class LDAGibbs {
 		}
 		_stopWatch.stop();
 		
-		_calcTopicDocAvgMs = (double)_calcTopicDocAvgMs / (_calcTopicDocCount) * (_calcTopicDocCount-1) + (double)_stopWatch.getTime() / (_calcTopicDocCount);
+		_sampleTopicDocAvgMs = (double)_sampleTopicDocAvgMs / (_sampleTopicDocCount) * (_sampleTopicDocCount-1) + (double)_stopWatch.getTime() / (_sampleTopicDocCount);
 		
-		if (_log != null && _calcTopicDocCount % _logIterationFrequency == 0) {
-			_log.finest("LDA Stats: calcTopicDoc ms: " + _fmtMs.format(_calcTopicDocAvgMs));
+		if (_logger != null && _sampleTopicDocCount % _logIterationFrequency == 0) {
+			_logger.finest("LDA Stats: calcTopicDoc ms: " + Rounding.round(_sampleTopicDocAvgMs, _msLogDigits));
 		}
 	}
 
-	public final void calcStemTopic(Matrix mStemTopic) {
+	public final void sampleStemTopic(Matrix mStemTopic) {
 
-		_calcStemTopicCount += 1;
+		_sampleStemTopicCount += 1;
 		_stopWatch.reset();
 		_stopWatch.start();
 		if (_stemTopicProbsBatches.size() == 1) {
@@ -514,36 +522,36 @@ public final class LDAGibbs {
 		}
 		_stopWatch.stop();
 		
-		_calcStemTopicAvgMs = (double)_calcStemTopicAvgMs / (_calcStemTopicCount) * (_calcStemTopicCount-1) + (double)_stopWatch.getTime() / (_calcStemTopicCount);
+		_sampleStemTopicAvgMs = (double)_sampleStemTopicAvgMs / (_sampleStemTopicCount) * (_sampleStemTopicCount-1) + (double)_stopWatch.getTime() / (_sampleStemTopicCount);
 		
-		if (_log != null && _calcStemTopicCount % _logIterationFrequency == 0) {
-			_log.finest("LDA Stats: calcStemTopic ms: " + _fmtMs.format(_calcStemTopicAvgMs));
+		if (_logger != null && _sampleStemTopicCount % _logIterationFrequency == 0) {
+			_logger.finest("LDA Stats: calcStemTopic ms: " + Rounding.round(_sampleStemTopicAvgMs, _msLogDigits));
 		}
 	}
 
-	public final void calcTopicProbs(Matrix mTopicProbs) {
+	public final void sampleTopic(Matrix mTopic) {
 
-		if (mTopicProbs == null) {
+		if (mTopic == null) {
 			throw new NullPointerException("mTopicProbs");
 		}
-		if (mTopicProbs.getRowDimension() != _topicCount) {
+		if (mTopic.getRowDimension() != _topicCount) {
 			throw new InvalidParameterException("Out matrix row count should be " + _topicCount);
 		}
-		if (mTopicProbs.getColumnDimension() != 1) {
+		if (mTopic.getColumnDimension() != 1) {
 			throw new InvalidParameterException("Out matrix col count should be " + 1);
 		}
 		
-		_calcTopicProbsCount += 1;
+		_sampleTopicCount += 1;
 		for (int topicIndex=0; topicIndex<_topicCount; topicIndex++) {
 			
 			double topicAllocCount = getCountTopic(topicIndex, -1);
 			double value = (double)topicAllocCount / _placeCount;
 
 			double avgValue
-				= mTopicProbs.get(topicIndex, 0) / (_calcTopicProbsCount) * (_calcTopicProbsCount-1)
-				+ value / (_calcTopicProbsCount);
+				= mTopic.get(topicIndex, 0) / (_sampleTopicCount) * (_sampleTopicCount-1)
+				+ value / (_sampleTopicCount);
 			
-			mTopicProbs.set(topicIndex, 0, avgValue);
+			mTopic.set(topicIndex, 0, avgValue);
 		}
 	}
 	
@@ -651,8 +659,8 @@ public final class LDAGibbs {
 						/ (getCountTopic(topicIndex, -1) + _sumTopicBeta[topicIndex]);
 					
 					double avgValue 
-						= _mStemTopic.get(stemIndex, topicIndex) / (_calcStemTopicCount) * (_calcStemTopicCount-1)
-						+ value / (_calcStemTopicCount);
+						= _mStemTopic.get(stemIndex, topicIndex) / (_sampleStemTopicCount) * (_sampleStemTopicCount-1)
+						+ value / (_sampleStemTopicCount);
 					
 					_mStemTopic.set(stemIndex, topicIndex, avgValue);
 				}
@@ -709,8 +717,8 @@ public final class LDAGibbs {
 						/ (docPlaceCount + _sumDocAlpha[docIndex]);
 					
 					double avgValue 
-						= _mTopicDoc.get(topicIndex, docIndex) / (_calcTopicDocCount) * (_calcTopicDocCount-1)
-						+ value / (_calcTopicDocCount);
+						= _mTopicDoc.get(topicIndex, docIndex) / (_sampleTopicDocCount) * (_sampleTopicDocCount-1)
+						+ value / (_sampleTopicDocCount);
 					
 					_mTopicDoc.set(topicIndex, docIndex, avgValue);
 				}
