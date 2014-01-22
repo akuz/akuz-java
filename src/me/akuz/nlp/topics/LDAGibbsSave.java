@@ -2,8 +2,8 @@ package me.akuz.nlp.topics;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
 
 import me.akuz.core.FileUtils;
 import me.akuz.core.Pair;
@@ -20,20 +20,16 @@ public final class LDAGibbsSave {
 	private final static int PROB_DECIMAL_PLACES = 8;
 
 	public LDAGibbsSave(
+			Logger log,
 			Corpus corpus,
 			List<LDAGibbsTopic> topics,
 			Matrix mTopic, 
 			Matrix mStemTopic,
 			LDAGibbsUnstemmer unstemmer,
 			int topicOutputStemsCount,
-			String outputDir) throws Exception {
-
-		// ensure output directories exist
-		if (!FileUtils.isDirExistsOrCreate(outputDir)) {
-			throw new IllegalStateException("Could not open or create output dir: " + outputDir);
-		}
+			String outputFileName) throws Exception {
 		
-		System.out.println("Save: sorting stem by topic probs... " + new Date(System.currentTimeMillis()));
+		log.info("Sorting stem-by-topic probs...");
 		List<List<Pair<Integer, Double>>> topicsSortedStemsLists = new ArrayList<>();
 		{
 			// reusable SelectK algo for selecting top stems
@@ -52,7 +48,7 @@ public final class LDAGibbsSave {
 			}
 		}
 
-		System.out.println("Save: init topic output string buffers... " + new Date(System.currentTimeMillis()));
+		log.info("Init topic output string buffers...");
 
 		// total chars in one line:
 		// 5 - probability, 1 - space, 10 - word = 16
@@ -82,12 +78,10 @@ public final class LDAGibbsSave {
 		sb.append("                       TOTAL TOPICS COUNT: " + topics.size() + "\n");
 		sb.append(separator1 + "\n");
 
-		System.out.println("Save: topics... " + new Date(System.currentTimeMillis()));
+		log.info("Generating topics file...");
 
 		// collect topics and groups
 		for (int topicIndex=0; topicIndex<topics.size(); topicIndex++) {
-			
-			System.out.println("Save: topic #" + (topicIndex+1) + "... " + new Date(System.currentTimeMillis()));
 
 			// get topic data and stems
 			LDAGibbsTopic topic = topics.get(topicIndex);
@@ -137,13 +131,10 @@ public final class LDAGibbsSave {
 		}
 		sb.append("\n");
 
-		// save text
-		System.out.println("Save: writing text file... " + new Date(System.currentTimeMillis()));
-		String outText = sb.toString();
-		String textFileName = StringUtils.concatPath(outputDir, "e_topics_text.txt");
-		FileUtils.writeEntireFile(textFileName, outText);
+		log.info("Writing topics text file...");
+		FileUtils.writeEntireFile(outputFileName, sb.toString());
 		
-		System.out.println("Saved. " + new Date(System.currentTimeMillis()));
+		log.info("Successfully saved.");
 	}
 	
 	private Pair<String, String> getStemAndWord(
