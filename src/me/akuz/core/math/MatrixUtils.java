@@ -1,0 +1,285 @@
+package me.akuz.core.math;
+
+import java.io.IOException;
+import java.security.InvalidParameterException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import me.akuz.core.FileUtils;
+import me.akuz.core.Pair;
+import me.akuz.core.PairComparator;
+import me.akuz.core.SortOrder;
+
+
+import Jama.Matrix;
+
+public final class MatrixUtils {
+
+	public final static void shiftColumnVertical(final Matrix matrix, final int columnIndex, final int shiftBy) {
+		
+		if (shiftBy < 0) {
+			int i;
+			for (i=0; i<matrix.getRowDimension() + shiftBy; i++) {
+				matrix.set(i, columnIndex, matrix.get(i - shiftBy, columnIndex));
+			}
+			for (; i<matrix.getRowDimension(); i++) {
+				matrix.set(i, columnIndex, Double.NaN);
+			}
+		} else if (shiftBy > 0) {
+			int i;
+			for (i=matrix.getRowDimension()-1; i>=shiftBy; i--) {
+				matrix.set(i, columnIndex, matrix.get(i - shiftBy, columnIndex));
+			}
+			for (; i>=0; i--) {
+				matrix.set(i, columnIndex, Double.NaN);
+			}
+		}
+	}
+
+	public final static Matrix combineLeftAndRight(Matrix m1, Matrix m2) {
+		
+		if (m1.getRowDimension() != m2.getRowDimension()) {
+			throw new InvalidParameterException("Matrices should have the same number of rows for combining left to right (got " + m1.getRowDimension() + " != " + m2.getRowDimension() + ")");
+		}
+		
+		Matrix result = new Matrix(m1.getRowDimension(), m1.getColumnDimension() + m2.getColumnDimension());
+		
+		for (int i=0; i<m1.getRowDimension(); i++) {
+			for (int j=0; j<m1.getColumnDimension(); j++) {
+				result.set(i, j, m1.get(i, j));
+			}
+			for (int j=0; j<m2.getColumnDimension(); j++) {
+				result.set(i, j + m1.getColumnDimension(), m2.get(i, j));
+			}
+		}
+		
+		return result;
+	}
+
+	public final static Matrix subtractColumns(Matrix m1, int col1, Matrix m2, int col2) {
+
+		if (m1.getRowDimension() != m2.getRowDimension()) {
+			throw new InvalidParameterException("Matrices should have the same number of rows (got " + m1.getRowDimension() + " != " + m2.getRowDimension() + ")");
+		}
+
+		Matrix result = new Matrix(m1.getRowDimension(),1);
+		
+		for (int i=0; i<m1.getRowDimension(); i++) {
+			result.set(i, 0, m1.get(i, col1) - m2.get(i, col2));
+		}
+		
+		return result;
+	}
+
+	public final static Matrix columnSum(Matrix m1, int col1, Matrix m2, int col2) {
+
+		if (m1.getRowDimension() != m2.getRowDimension()) {
+			throw new InvalidParameterException("Matrices should have the same number of rows (got " + m1.getRowDimension() + " != " + m2.getRowDimension() + ")");
+		}
+
+		Matrix result = new Matrix(m1.getRowDimension(),1);
+		
+		for (int i=0; i<m1.getRowDimension(); i++) {
+			result.set(i, 0, m1.get(i, col1) + m2.get(i, col2));
+		}
+		
+		return result;
+	}
+
+	public final static void columnSet(Matrix mTarget, int columnTarget, Matrix mSource, int columnSource) {
+
+		if (mTarget.getRowDimension() != mSource.getRowDimension()) {
+			throw new InvalidParameterException("Matrices should have the same number of rows (got " + mTarget.getRowDimension() + " != " + mSource.getRowDimension() + ")");
+		}
+
+		for (int i=0; i<mTarget.getRowDimension(); i++) {
+			mTarget.set(i, columnTarget, mSource.get(i, columnSource));
+		}
+	}
+	
+	public final static Matrix log(Matrix m) {
+		Matrix result = new Matrix(m.getRowDimension(), m.getColumnDimension());
+		for (int i=0; i<m.getRowDimension(); i++) {
+			for (int j=0; j<m.getColumnDimension(); j++) {
+				result.set(i, j, Math.log(m.get(i, j)));
+			}
+		}
+		return result;
+	}
+
+	public static Matrix sqrt(Matrix m) {
+		Matrix result = new Matrix(m.getRowDimension(), m.getColumnDimension());
+		for (int i=0; i<m.getRowDimension(); i++) {
+			for (int j=0; j<m.getColumnDimension(); j++) {
+				result.set(i, j, Math.sqrt(m.get(i, j)));
+			}
+		}
+		return result;
+	}
+
+	public static Matrix pow(Matrix m, double power) {
+		Matrix result = new Matrix(m.getRowDimension(), m.getColumnDimension());
+		for (int i=0; i<m.getRowDimension(); i++) {
+			for (int j=0; j<m.getColumnDimension(); j++) {
+				double value = m.get(i, j);
+				result.set(i, j, Math.pow(value, power));
+			}
+		}
+		return result;
+	}
+
+	public static String formatDouble(DecimalFormat fmt, double value) {
+		if (Double.isNaN(value)) {
+			return "NaN";
+		} else if (Double.isInfinite(value)) {
+			if (value > 0) {
+				return "+Inf";
+			} else {
+				return "-Inf";
+			}
+		} else {
+			return fmt.format(value);
+		}
+	}
+
+	public static String toString(Matrix m) {
+		
+		DecimalFormat fmt = new DecimalFormat("0.00000000");
+		StringBuilder sb = new StringBuilder();
+		for (int i=0; i<m.getRowDimension(); i++) {
+			for (int j=0; j<m.getColumnDimension(); j++) {
+				double value = m.get(i, j);
+				if (Double.isNaN(value)) {
+					sb.append("");
+				} else if (Double.isInfinite(value)) {
+					if (value > 0) {
+						sb.append("+Inf");
+					} else {
+						sb.append("-Inf");
+					}
+				} else {
+					sb.append(fmt.format(value));
+				}
+				if (j<m.getColumnDimension()-1) {
+					sb.append(",");
+				}
+			}
+			sb.append("\n");
+		}
+		
+		return sb.toString();
+	}
+
+	public static void writeMatrix(String fileName, Matrix m) throws IOException {
+		
+		FileUtils.writeEntireFile(fileName, toString(m));
+	}
+
+	public static final void columnSet(Matrix m, int columnIndex, double[] columnData) {
+		
+		if (m.getRowDimension() != columnData.length) {
+			throw new InvalidParameterException("Column data length should equal the number of rows in matrix");
+		}
+		
+		for (int i=0; i<m.getRowDimension(); i++) {
+			m.set(i, columnIndex, columnData[i]);
+		}
+	}
+
+	public static final void columnAdd(Matrix m, int columnIndex, double[] columnData) {
+		
+		if (m.getRowDimension() != columnData.length) {
+			throw new InvalidParameterException("Column data length should equal the number of rows in matrix");
+		}
+		
+		for (int i=0; i<m.getRowDimension(); i++) {
+			m.set(i, columnIndex, m.get(i, columnIndex) + columnData[i]);
+		}
+	}
+
+	public final static List<Pair<Integer, Double>> sortColumn(SortOrder sortOrder, Matrix m, int j) {
+		
+		List<Pair<Integer, Double>> sorted = new ArrayList<Pair<Integer,Double>>();
+
+		for (int i=0; i<m.getRowDimension(); i++) {
+			sorted.add(new Pair<Integer, Double>(i, m.get(i, j)));
+		}
+		Collections.sort(sorted, new PairComparator<Integer, Double>(sortOrder));
+		
+		return sorted;
+	}
+	
+	public final static List<Pair<Integer, Double>> compareColumns(SortOrder sortOrder, Matrix m, int j1, int j2) {
+		
+		List<Pair<Integer, Double>> sorted = new ArrayList<Pair<Integer,Double>>();
+
+		for (int i=0; i<m.getRowDimension(); i++) {
+			sorted.add(new Pair<Integer, Double>(i, m.get(i, j1) - m.get(i, j2)));
+		}
+		Collections.sort(sorted, new PairComparator<Integer, Double>(sortOrder));
+		
+		return sorted;
+	}
+
+	public final static List<Pair<Integer, Double>> compareColumnsLog(SortOrder sortOrder, Matrix m, int j1, int j2) {
+		
+		List<Pair<Integer, Double>> sorted = new ArrayList<Pair<Integer,Double>>();
+
+		for (int i=0; i<m.getRowDimension(); i++) {
+			sorted.add(new Pair<Integer, Double>(i, Math.log(m.get(i, j1)) - Math.log(m.get(i, j2))));
+		}
+		Collections.sort(sorted, new PairComparator<Integer, Double>(sortOrder));
+		
+		return sorted;
+	}
+	public final static List<Pair<Integer, Double>> compareColumnsDiv(SortOrder sortOrder, Matrix m, int j1, int j2) {
+		
+		List<Pair<Integer, Double>> sorted = new ArrayList<Pair<Integer,Double>>();
+
+		for (int i=0; i<m.getRowDimension(); i++) {
+			double v1 = m.get(i, j1);
+			double v2 = m.get(i, j2);
+			sorted.add(new Pair<Integer, Double>(i, v1 / v2));
+		}
+		Collections.sort(sorted, new PairComparator<Integer, Double>(sortOrder));
+		
+		return sorted;
+	}
+
+	public static Matrix getRows(Matrix m, int startRow, int endRow) {
+		Matrix res = new Matrix(endRow - startRow, m.getColumnDimension());
+		for (int i=startRow; i<endRow; i++) {
+			for (int j=0; j<m.getColumnDimension(); j++) {
+				res.set(i - startRow, j, m.get(i, j));
+			}
+		}
+		return res;
+	}
+
+	public static Matrix getColumns(Matrix m, int startColumn, int endColumn) {
+		Matrix res = new Matrix(m.getRowDimension(), endColumn - startColumn);
+		for (int i=0; i<m.getRowDimension(); i++) {
+			for (int j=startColumn; j<endColumn; j++) {
+				res.set(i, j - startColumn, m.get(i, j));
+			}
+		}
+		return res;
+	}
+	
+	public static Matrix accumulateRows(Matrix m, int startRow, int endRow) {
+		
+		Matrix res = (Matrix)m.clone();
+
+		for (int i=startRow+1; i<endRow; i++) {
+			
+			for (int j=0; j<m.getColumnDimension(); j++) {
+				
+				res.set(i, j, res.get(i-1, j) + m.get(i, j));
+			}
+		}
+		
+		return res;
+	}
+}
