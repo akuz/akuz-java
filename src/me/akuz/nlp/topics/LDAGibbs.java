@@ -107,7 +107,7 @@ public final class LDAGibbs {
 		
 		// initialize threads
 		if (_docs.size() < _threadCount) {
-			throw new IllegalStateException("Document count (now " + _docs.size() + ") must be > thread count (now " + _threadCount + ")");
+			throw new IllegalStateException("Document count (" + _docs.size() + ") must be > thread count (" + _threadCount + ")");
 		}
 		_topicAllocationBatches = new ArrayList<>(_threadCount);
 		_topicDocProbsBatches = new ArrayList<>(_threadCount);
