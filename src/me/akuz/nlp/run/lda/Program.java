@@ -21,7 +21,7 @@ public class Program {
 			" [ -docLengthForExtraTopic int ] : Document length to assume a first extra topic (default 100)\n" +
 			" [ -threadCount int            ] : Number of threads to use (default 2)\n" +
 			" [ -burnInStartTemp int        ] : Burn in start temperature (default 1.0)\n" +
-			" [ -burnInEndTemp int          ] : Burn in end temperature (default 0.05)\n" +
+			" [ -burnInEndTemp int          ] : Burn in end temperature (default 0.1)\n" +
 			" [ -burnInTempDecay double     ] : Burn in temperature decay (default 0.75)\n" +
 			" [ -burnInTempIter int         ] : Burn in iterations count per temperature (default 10)\n" +
 			" [ -samplingIter int           ] : Sampling iterations count (default 100)\n";
@@ -36,7 +36,7 @@ public class Program {
 		Integer docLengthForExtraTopic = 100;
 		Integer threadCount = 2;
 		Double  burnInStartTemp = 1.0;
-		Double  burnInEndTemp = 0.05;
+		Double  burnInEndTemp = 0.1;
 		Double  burnInTempDecay = 0.75;
 		Integer burnInTempIter = 10;
 		Integer samplingIter = 100;
