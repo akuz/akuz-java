@@ -10,10 +10,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import me.akuz.core.Rounding;
+import me.akuz.core.logs.LocalMonitor;
+import me.akuz.core.logs.Monitor;
 import me.akuz.nlp.corpus.Corpus;
 import me.akuz.nlp.corpus.CorpusDoc;
 import me.akuz.nlp.corpus.CorpusPlace;
@@ -31,7 +31,7 @@ import Jama.Matrix;
  */
 public final class LDAGibbs {
 	
-	private final Logger _logger;
+	private final Monitor _monitor;
 	private int _logIterationFrequency = 5;
 	private static final int _msLogDigits = 2;
 	
@@ -73,14 +73,14 @@ public final class LDAGibbs {
 	private final double[] _countTopic;
 	
 	public LDAGibbs(
-			Logger logger,
+			Monitor parentMonitor,
 			Corpus corpus,
 			List<LDAGibbsTopic> topics,
 			LDAGibbsAlpha alpha,
 			LDAGibbsBeta beta,
 			int threadCount) {
 		
-		_logger = logger;
+		_monitor = parentMonitor == null ? null : new LocalMonitor(this.getClass().getSimpleName(), parentMonitor);
 		
 		if (topics.size() < 2) {
 			throw new IllegalArgumentException("Topic count should be >= 2");
@@ -115,8 +115,8 @@ public final class LDAGibbs {
 		_batchFutures = new ArrayList<>();
 		final int threadDocCount = _docs.size() / _threadCount;
 		final int threadStemCount = _stemCount / _threadCount;
-		if (_logger != null) {
-			_logger.finest("LDA: batches...");
+		if (_monitor != null) {
+			_monitor.write("batches...");
 		}
 		for (int i=0; i<_threadCount; i++) {
 
@@ -137,8 +137,8 @@ public final class LDAGibbs {
 				TopicAllocationBatch batch = new TopicAllocationBatch(_topicCount, threadDocIndexStart, threadDocIndexEnd);
 				_topicAllocationBatches.add(batch);
 				
-				if (_logger != null) {
-					_logger.finest("Thread #" + (i+1) + ": " + batch.getClass().getSimpleName() + ": " + batch.getDocCount() + " docs [" + batch._docIndexStart + ", " + batch._docIndexEnd + ")");
+				if (_monitor != null) {
+					_monitor.write("Thread #" + (i+1) + ": " + batch.getClass().getSimpleName() + ": " + batch.getDocCount() + " docs [" + batch._docIndexStart + ", " + batch._docIndexEnd + ")");
 				}
 			}
 
@@ -158,8 +158,8 @@ public final class LDAGibbs {
 				
 				TopicDocProbsBatch batch = new TopicDocProbsBatch(threadDocIndexStart, threadDocIndexEnd);
 				_topicDocProbsBatches.add(batch);
-				if (_logger != null) {
-					_logger.finest("Thread #" + (i+1) + ": " + batch.getClass().getSimpleName() + ": " + batch.getDocCount() + " docs [" + batch._docIndexStart + ", " + batch._docIndexEnd + ")");
+				if (_monitor != null) {
+					_monitor.write("Thread #" + (i+1) + ": " + batch.getClass().getSimpleName() + ": " + batch.getDocCount() + " docs [" + batch._docIndexStart + ", " + batch._docIndexEnd + ")");
 				}
 			}
 			
@@ -180,8 +180,8 @@ public final class LDAGibbs {
 				StemTopicProbsBatch batch = new StemTopicProbsBatch(threadStemIndexStart, threadStemIndexEnd);
 				_stemTopicProbsBatches.add(batch);
 
-				if (_logger != null) {
-					_logger.finest("Thread #" + (i+1) + ": " + batch.getClass().getSimpleName() + ": " + batch.getStemCount() + " stems [" + batch._stemIndexStart + ", " + batch._stemIndexEnd + ")");
+				if (_monitor != null) {
+					_monitor.write("Thread #" + (i+1) + ": " + batch.getClass().getSimpleName() + ": " + batch.getStemCount() + " stems [" + batch._stemIndexStart + ", " + batch._stemIndexEnd + ")");
 				}
 			}
 		}
@@ -199,19 +199,19 @@ public final class LDAGibbs {
 	}
 	
 	public void terminate() {
-		if (_executorService != null) {
-			if (_logger != null) {
-				_logger.finest("LDA: Terminating executors...");
+		if (!_executorService.isShutdown()) {
+			if (_monitor != null) {
+				_monitor.write("Terminating executors...");
 			}
 			_executorService.shutdownNow();
 			try {
 				_executorService.awaitTermination(1, TimeUnit.MINUTES);
-				if (_logger != null) {
-					_logger.finest("LDA: Executors terminated.");
+				if (_monitor != null) {
+					_monitor.write("Executors terminated.");
 				}
-			} catch (InterruptedException e) {
-				if (_logger != null) {
-					_logger.log(Level.FINEST, "LDA: Interrupted while waiting for termination.", e);
+			} catch (InterruptedException ex) {
+				if (_monitor != null) {
+					_monitor.write("Interrupted while waiting for termination.", ex);
 				}
 			}
 		}
@@ -254,8 +254,8 @@ public final class LDAGibbs {
 		int iteration;
 		for (iteration=startIterationNumber; iteration<startIterationNumber+iterationCount; iteration++) {
 			
-			if (_logger != null && iteration % _logIterationFrequency == 0) {
-				_logger.finest("LDA Iteration: " + iteration + "...");
+			if (_monitor != null && iteration % _logIterationFrequency == 0) {
+				_monitor.write("LDA Iteration: " + iteration + "...");
 			}
 
 			_stopWatch.reset();
@@ -309,11 +309,11 @@ public final class LDAGibbs {
 			_iterAcceptAvgMs   = (double)_iterAcceptAvgMs   / (_iterCount) * (_iterCount-1) + (double)iterationAcceptMs   / (_iterCount);
 			_iterTotalAvgMs    = (double)_iterTotalAvgMs    / (_iterCount) * (_iterCount-1) + (double)iterationTotalMs    / (_iterCount);
 
-			if (_logger != null && iteration % _logIterationFrequency == 0) {
-				_logger.finest("LDA Stats: iteration " + iteration + "...");
-				_logger.finest("LDA Stats: iterAllocate ms: " + Rounding.round(_iterAllocateAvgMs, _msLogDigits));
-				_logger.finest("LDA Stats: iterAccept   ms: " + Rounding.round(_iterAcceptAvgMs, _msLogDigits));
-				_logger.finest("LDA Stats: iterTotal    ms: " + Rounding.round(_iterTotalAvgMs, _msLogDigits));
+			if (_monitor != null && iteration % _logIterationFrequency == 0) {
+				_monitor.write("LDA Stats: iteration " + iteration + "...");
+				_monitor.write("LDA Stats: iterAllocate ms: " + Rounding.round(_iterAllocateAvgMs, _msLogDigits));
+				_monitor.write("LDA Stats: iterAccept   ms: " + Rounding.round(_iterAcceptAvgMs, _msLogDigits));
+				_monitor.write("LDA Stats: iterTotal    ms: " + Rounding.round(_iterTotalAvgMs, _msLogDigits));
 			}
 		}
 		return iteration;
@@ -474,8 +474,8 @@ public final class LDAGibbs {
 		
 		_sampleTopicDocAvgMs = (double)_sampleTopicDocAvgMs / (_sampleTopicDocCount) * (_sampleTopicDocCount-1) + (double)_stopWatch.getTime() / (_sampleTopicDocCount);
 		
-		if (_logger != null && _sampleTopicDocCount % _logIterationFrequency == 0) {
-			_logger.finest("LDA Stats: calcTopicDoc ms: " + Rounding.round(_sampleTopicDocAvgMs, _msLogDigits));
+		if (_monitor != null && _sampleTopicDocCount % _logIterationFrequency == 0) {
+			_monitor.write("LDA Stats: calcTopicDoc ms: " + Rounding.round(_sampleTopicDocAvgMs, _msLogDigits));
 		}
 	}
 
@@ -524,8 +524,8 @@ public final class LDAGibbs {
 		
 		_sampleStemTopicAvgMs = (double)_sampleStemTopicAvgMs / (_sampleStemTopicCount) * (_sampleStemTopicCount-1) + (double)_stopWatch.getTime() / (_sampleStemTopicCount);
 		
-		if (_logger != null && _sampleStemTopicCount % _logIterationFrequency == 0) {
-			_logger.finest("LDA Stats: calcStemTopic ms: " + Rounding.round(_sampleStemTopicAvgMs, _msLogDigits));
+		if (_monitor != null && _sampleStemTopicCount % _logIterationFrequency == 0) {
+			_monitor.write("LDA Stats: calcStemTopic ms: " + Rounding.round(_sampleStemTopicAvgMs, _msLogDigits));
 		}
 	}
 

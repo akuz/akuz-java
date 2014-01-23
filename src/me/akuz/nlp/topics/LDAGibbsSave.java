@@ -3,7 +3,6 @@ package me.akuz.nlp.topics;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 import me.akuz.core.FileUtils;
 import me.akuz.core.Pair;
@@ -11,8 +10,9 @@ import me.akuz.core.Rounding;
 import me.akuz.core.SelectK;
 import me.akuz.core.SortOrder;
 import me.akuz.core.StringUtils;
+import me.akuz.core.logs.Monitor;
+import me.akuz.core.logs.LocalMonitor;
 import me.akuz.nlp.corpus.Corpus;
-
 import Jama.Matrix;
 
 public final class LDAGibbsSave {
@@ -20,7 +20,7 @@ public final class LDAGibbsSave {
 	private final static int PROB_DECIMAL_PLACES = 8;
 
 	public LDAGibbsSave(
-			Logger log,
+			Monitor parentMonitor,
 			Corpus corpus,
 			List<LDAGibbsTopic> topics,
 			Matrix mTopic, 
@@ -29,7 +29,11 @@ public final class LDAGibbsSave {
 			int topicOutputStemsCount,
 			String outputFileName) throws Exception {
 		
-		log.info("Sorting stem-by-topic probs...");
+		LocalMonitor monitor = parentMonitor == null ? null : new LocalMonitor(this.getClass().getSimpleName(), parentMonitor);
+		
+		if (monitor != null) {
+			monitor.write("Sorting stem-by-topic probs...");
+		}
 		List<List<Pair<Integer, Double>>> topicsSortedStemsLists = new ArrayList<>();
 		{
 			// reusable SelectK algo for selecting top stems
@@ -48,7 +52,9 @@ public final class LDAGibbsSave {
 			}
 		}
 
-		log.info("Init topic output string buffers...");
+		if (monitor != null) {
+			monitor.write("Init topic output string buffers...");
+		}
 
 		// total chars in one line:
 		// 5 - probability, 1 - space, 10 - word = 16
@@ -78,7 +84,9 @@ public final class LDAGibbsSave {
 		sb.append("                       TOTAL TOPICS COUNT: " + topics.size() + "\n");
 		sb.append(separator1 + "\n");
 
-		log.info("Generating topics file...");
+		if (monitor != null) {
+			monitor.write("Generating topics file...");
+		}
 
 		// collect topics and groups
 		for (int topicIndex=0; topicIndex<topics.size(); topicIndex++) {
@@ -131,10 +139,14 @@ public final class LDAGibbsSave {
 		}
 		sb.append("\n");
 
-		log.info("Writing topics text file...");
+		if (monitor != null) {
+			monitor.write("Writing topics text file...");
+		}
 		FileUtils.writeEntireFile(outputFileName, sb.toString());
 		
-		log.info("Successfully saved.");
+		if (monitor != null) {
+			monitor.write("Successfully saved.");
+		}
 	}
 	
 	private Pair<String, String> getStemAndWord(
