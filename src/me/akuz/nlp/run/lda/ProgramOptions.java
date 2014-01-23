@@ -1,7 +1,5 @@
 package me.akuz.nlp.run.lda;
 
-import java.util.logging.Level;
-
 import me.akuz.core.Dbo;
 import me.akuz.core.gson.GsonSerializers;
 
@@ -21,7 +19,6 @@ public final class ProgramOptions extends Dbo {
 	private static final String _burnInTempDecay        = "burnInTempDecay";
 	private static final String _burnInTempIter         = "burnInTempIter";
 	private static final String _samplingIter           = "samplingIter";
-	private static final String _logLevel               = "logLevel";
 	
 	public ProgramOptions(
 			String inputDir,
@@ -37,8 +34,7 @@ public final class ProgramOptions extends Dbo {
 			Double burnInEndTemp,
 			Double burnInTempDecay,
 			Integer burnInTempIter,
-			Integer samplingIter,
-			Level logLevel) {
+			Integer samplingIter) {
 		
 		set(_inputDir, inputDir);
 		set(_outputDir, outputDir);
@@ -54,7 +50,6 @@ public final class ProgramOptions extends Dbo {
 		set(_burnInTempDecay, burnInTempDecay);
 		set(_burnInTempIter, burnInTempIter);
 		set(_samplingIter, samplingIter);
-		set(_logLevel, logLevel);
 	}
 	
 	public String getInputDir() {
@@ -98,9 +93,6 @@ public final class ProgramOptions extends Dbo {
 	}
 	public Integer getSamplingIter() {
 		return getInteger(_samplingIter);
-	}
-	public Level getLogLevel() {
-		return getLogLevel(_logLevel);
 	}
 	
 	@Override

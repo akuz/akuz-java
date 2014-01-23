@@ -8,18 +8,18 @@ import me.akuz.core.logs.LogUtils;
 
 public class Program {
     
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) {
 		
 		String usageString = 
 			"ARGUMENTS:\n" + 
 			"   -inputDir string              : Directory containing input text files\n" +
 			"   -outputDir string             : Directory where to save output files\n" +
+			" [ -stopWordsFile string       ] : File with stop words to ignore (default none)\n" +
 			" [ -topicCount int             ] : Number of topics for LDA inference (default 10)\n" +
 			" [ -topicOutputStemsCount int  ] : Number of stems to output for each topic (default 100)\n" +
-			" [ -noiseTopicFrac double      ] : Fraction of corpus for noise topic (default 0)\n" +
+			" [ -noiseTopicFrac double      ] : Fraction of corpus for noise topic (default 0.5)\n" +
 			" [ -docMinTopicCount int       ] : Assumed minimum topics per document (default 2)\n" +
 			" [ -docLengthForExtraTopic int ] : Document length to assume a first extra topic (default 100)\n" +
-			" [ -stopWordsFile string       ] : File with stop words to ignore (default none)\n" +
 			" [ -threadCount int            ] : Number of threads to use (default 2)\n" +
 			" [ -burnInStartTemp int        ] : Burn in start temperature (default 1.0)\n" +
 			" [ -burnInEndTemp int          ] : Burn in end temperature (default 0.05)\n" +
@@ -30,19 +30,18 @@ public class Program {
 
 		String  inputDir = null;
 		String  outputDir = null;
+		String  stopWordsFile = null;
 		Integer topicCount = 10;
 		Integer topicOutputStemsCount = 100;
-		Double  noiseTopicFrac = 0.0;
+		Double  noiseTopicFrac = 0.5;
 		Integer docMinTopicCount = 2;
 		Integer docLengthForExtraTopic = 100;
-		String  stopWordsFile = null;
 		Integer threadCount = 2;
 		Double  burnInStartTemp = 1.0;
 		Double  burnInEndTemp = 0.05;
 		Double  burnInTempDecay = 0.75;
 		Integer burnInTempIter = 10;
 		Integer samplingIter = 100;
-		Level   logLevel = Level.INFO;
 		
 		try {
 			
@@ -57,6 +56,11 @@ public class Program {
 					} else if ("-outputDir".equals(args[i])) {
 						if (i+1 < args.length) {
 							outputDir = StringUtils.unquote(args[i+1]);
+							i++;
+						}
+					} else if ("-stopWordsFile".equals(args[i])) {
+						if (i+1 < args.length) {
+							stopWordsFile = StringUtils.unquote(args[i+1]);
 							i++;
 						}
 					} else if ("-topicCount".equals(args[i])) {
@@ -82,11 +86,6 @@ public class Program {
 					} else if ("-docLengthForExtraTopic".equals(args[i])) {
 						if (i+1 < args.length) {
 							docLengthForExtraTopic = Integer.parseInt(StringUtils.unquote(args[i+1]));
-							i++;
-						}
-					} else if ("-stopWordsFile".equals(args[i])) {
-						if (i+1 < args.length) {
-							stopWordsFile = StringUtils.unquote(args[i+1]);
 							i++;
 						}
 					} else if ("-threadCount".equals(args[i])) {
@@ -119,11 +118,6 @@ public class Program {
 							samplingIter = Integer.parseInt(StringUtils.unquote(args[i+1]));
 							i++;
 						}
-					} else if ("-logLevel".equals(args[i])) {
-						if (i+1 < args.length) {
-							logLevel = Level.parse(StringUtils.unquote(args[i+1]));
-							i++;
-						}
 					}
 				}
 			}
@@ -146,7 +140,7 @@ public class Program {
 		}
 		
 	    // configure logging
-		LogUtils.configure(logLevel);
+		LogUtils.configure(Level.FINEST);
 		Logger log = LogUtils.getLogger(Program.class.getName());
 
 		// create program options
@@ -164,14 +158,17 @@ public class Program {
 				burnInEndTemp,
 				burnInTempDecay,
 				burnInTempIter,
-				samplingIter,
-				logLevel);
+				samplingIter);
 		
 		log.info("OPTIONS: \n" + options);
 		
 		log.info("STARTING...");
 		ProgramLogic logic = new ProgramLogic();
-		logic.execute(options);
+		try {
+			logic.execute(options);
+		} catch (Exception ex) {
+			log.log(Level.SEVERE, "Unhandled exception", ex);
+		}
 		log.info("DONE.");
 	}
 

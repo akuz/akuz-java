@@ -23,12 +23,12 @@
         <artifactId>maven-jar-plugin</artifactId>
         <version>2.4</version>
       	  <configuration>
-            <outputDirectory>jar</outputDirectory>
+            <outputDirectory>build</outputDirectory>
       	  	<archive>
       	  	  <manifest>
       	  	    <addClasspath>true</addClasspath>
       	  	    <classpathPrefix>lib/</classpathPrefix>
-      	  	    <mainClass>me.akuz.java.nlp.run.lda.Program</mainClass>
+      	  	    <mainClass>me.akuz.nlp.run.lda.Program</mainClass>
       	  	  </manifest>
       	  	</archive>
       	 </configuration>
@@ -42,7 +42,7 @@
               <goal>copy-dependencies</goal>
             </goals>
             <configuration>
-              <outputDirectory>jar/lib</outputDirectory>
+              <outputDirectory>build/lib</outputDirectory>
             </configuration>
           </execution>
         </executions>

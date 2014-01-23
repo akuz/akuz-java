@@ -1,16 +1,15 @@
 package me.akuz.nlp.run.lda;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import Jama.Matrix;
-
 import me.akuz.core.FileUtils;
 import me.akuz.core.HashIndex;
 import me.akuz.core.Hit;
@@ -40,6 +39,11 @@ public final class ProgramLogic {
 	public void execute(ProgramOptions options) throws Exception {
 		
 		final Logger log = LogUtils.getLogger(this.getClass().getName());
+		
+		log.info("Checking input dir...");
+		if (!FileUtils.isDirExists(options.getInputDir())) {
+			throw new IOException("Specified input dir does not exist: " + options.getInputDir());
+		}
 
 		log.info("Creating stemmer...");
 		PorterStemmer porterStemmer = new PorterStemmer("_");
@@ -108,7 +112,7 @@ public final class ProgramLogic {
 			}
 			
 			if ((i+1) % 10 == 0) {
-				log.info("Parsed " + (i+1) + "files.");
+				log.info("Parsed " + (i+1) + " files.");
 			}
 		}
 		
@@ -132,10 +136,7 @@ public final class ProgramLogic {
 		LDAGibbsBeta beta = new LDAGibbsBeta(corpus, topics);
 		
 		log.info("Configuring LDA...");
-		Logger ldaLog = null;
-		if (Level.FINEST.equals(options.getLogLevel())) {
-			ldaLog = LogUtils.getLogger(LDAGibbs.class.getName());
-		}
+		Logger ldaLog = LogUtils.getLogger(LDAGibbs.class.getName());
 		final LDAGibbsUnstemmer unstemmer = new LDAGibbsUnstemmer(corpus);
 		final LDAGibbs lda = new LDAGibbs(ldaLog, corpus, topics, alpha, beta, options.getThreadCount());
 
@@ -162,8 +163,12 @@ public final class ProgramLogic {
 		}
 		
 		log.fine("Sampling from Gibbs sampler...");
-		Matrix mTopic = new Matrix(options.getTopicCount(), 1);
-		Matrix mStemTopic = new Matrix(stemsIndex.size(), options.getTopicCount());
+		int totalTopicCount = options.getTopicCount();
+		if (options.getNoiseTopicFraq() > 0) {
+			totalTopicCount += 1;
+		}
+		Matrix mTopic = new Matrix(totalTopicCount, 1);
+		Matrix mStemTopic = new Matrix(stemsIndex.size(), totalTopicCount);
 		lda.setTemperature(options.getBurnInEndTemp());
 		for (int i=0; i<options.getSamplingIter(); i++) {
 			iter = lda.run(iter, 1);
@@ -172,6 +177,7 @@ public final class ProgramLogic {
 			unstemmer.sample();
 		}
 		unstemmer.optimize();
+		lda.terminate();
 		
 		log.fine("Saving results...");
 		FileUtils.writeList(StringUtils.concatPath(options.getOutputDir(), "stems.txt"), stemsIndex.getList());
