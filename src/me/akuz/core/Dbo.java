@@ -45,6 +45,11 @@ public class Dbo {
 		return (String)_map.get(field);
 	}
 	
+	public boolean getBoolean(String field) {
+		Boolean is = (Boolean)_map.get(field);
+		return is != null && is.booleanValue();
+	}
+	
 	public Date getDate(String field) {
 		return (Date)_map.get(field);
 	}
