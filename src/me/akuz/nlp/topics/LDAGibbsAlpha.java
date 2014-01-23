@@ -86,7 +86,7 @@ public final class LDAGibbsAlpha {
 			// calculate total prior mass to distribute between topics
 			// based on the total posterior available * temperature,
 			// and adjusted for the number of topics in this doc
-			double priorMass = docPlaceCount * temperature * docTargetTopicCount;
+			final double priorMass = docPlaceCount * temperature * docTargetTopicCount;
 			
 			// distribute prior mass to the topics
 			// based on their expected corpus places fraction

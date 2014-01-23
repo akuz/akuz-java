@@ -90,7 +90,7 @@ public final class LDAGibbsBeta {
 			LDAGibbsTopic topic = _topics.get(topicIndex);
 			
 			// calculate topic prior mass based on expected posterior mass * temperature
-			double priorMass = _corpusPlaceCount * topic.getCorpusFraction() * temperature;
+			final double priorMass = _corpusPlaceCount * topic.getCorpusFraction() * temperature;
 			
 			// calculate prior mass per "remaining" stem (not selected by topic)
 			double priorityStemMass;
