@@ -1,10 +1,9 @@
 package me.akuz.nlp.run.lda;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import me.akuz.core.StringUtils;
-import me.akuz.core.logs.LogUtils;
+import me.akuz.core.logs.LocalMonitor;
+import me.akuz.core.logs.Monitor;
+import me.akuz.core.logs.SystemOutMonitor;
 
 public class Program {
     
@@ -25,8 +24,7 @@ public class Program {
 			" [ -burnInEndTemp int          ] : Burn in end temperature (default 0.05)\n" +
 			" [ -burnInTempDecay double     ] : Burn in temperature decay (default 0.75)\n" +
 			" [ -burnInTempIter int         ] : Burn in iterations count per temperature (default 10)\n" +
-			" [ -samplingIter int           ] : Sampling iterations count (default 100)\n" +
-			" [ -logLevel                   ] : Java logging level (default INFO)\n";
+			" [ -samplingIter int           ] : Sampling iterations count (default 100)\n";
 
 		String  inputDir = null;
 		String  outputDir = null;
@@ -139,9 +137,9 @@ public class Program {
 			return;
 		}
 		
-	    // configure logging
-		LogUtils.configure(Level.FINEST);
-		Logger log = LogUtils.getLogger(Program.class.getName());
+	    // configure monitor
+		Monitor monitor = new SystemOutMonitor();
+		Monitor programMonitor = new LocalMonitor(Program.class.getSimpleName(), monitor);
 
 		// create program options
 		ProgramOptions options = new ProgramOptions(
@@ -160,16 +158,16 @@ public class Program {
 				burnInTempIter,
 				samplingIter);
 		
-		log.info("OPTIONS: \n" + options);
+		programMonitor.write("OPTIONS: \n" + options);
 		
-		log.info("STARTING...");
+		programMonitor.write("STARTING...");
 		ProgramLogic logic = new ProgramLogic();
 		try {
-			logic.execute(options);
+			logic.execute(monitor, options);
 		} catch (Exception ex) {
-			log.log(Level.SEVERE, "Unhandled exception", ex);
+			programMonitor.write("Unhandled exception", ex);
 		}
-		log.info("DONE.");
+		programMonitor.write("DONE.");
 	}
 
 }

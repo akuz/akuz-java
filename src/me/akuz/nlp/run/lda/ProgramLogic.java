@@ -7,16 +7,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.logging.Logger;
 
-import Jama.Matrix;
 import me.akuz.core.FileUtils;
 import me.akuz.core.HashIndex;
 import me.akuz.core.Hit;
 import me.akuz.core.Index;
 import me.akuz.core.StringUtils;
-import me.akuz.core.logs.LogUtils;
+import me.akuz.core.logs.LocalMonitor;
 import me.akuz.core.logs.ManualResetLogManager;
+import me.akuz.core.logs.Monitor;
 import me.akuz.core.math.MatrixUtils;
 import me.akuz.nlp.corpus.Corpus;
 import me.akuz.nlp.corpus.CorpusDoc;
@@ -30,39 +29,40 @@ import me.akuz.nlp.topics.LDAGibbsBeta;
 import me.akuz.nlp.topics.LDAGibbsSave;
 import me.akuz.nlp.topics.LDAGibbsTopic;
 import me.akuz.nlp.topics.LDAGibbsUnstemmer;
+import Jama.Matrix;
 
 public final class ProgramLogic {
 	
 	public ProgramLogic() {
 	}
 
-	public void execute(ProgramOptions options) throws Exception {
+	public void execute(Monitor parentMonitor, ProgramOptions options) throws Exception {
 		
-		final Logger log = LogUtils.getLogger(this.getClass().getName());
+		final LocalMonitor monitor = new LocalMonitor(this.getClass().getSimpleName(), parentMonitor);
 		
-		log.info("Checking input dir...");
+		monitor.write("Checking input dir...");
 		if (!FileUtils.isDirExists(options.getInputDir())) {
 			throw new IOException("Specified input dir does not exist: " + options.getInputDir());
 		}
 
-		log.info("Creating stemmer...");
+		monitor.write("Creating stemmer...");
 		PorterStemmer porterStemmer = new PorterStemmer("_");
 
 		Set<String> stopStems = null;
 		if (options.getStopWordsFile() != null) {
-			log.info("Loading stop words...");
+			monitor.write("Loading stop words...");
 			stopStems = PorterStopWords.loadStopWordsAndStemThem(porterStemmer, options.getStopWordsFile());
 		} else {
-			log.info("Stop words file not specified.");
+			monitor.write("Stop words file not specified.");
 		}
 		
-		log.info("Checking output dir...");
+		monitor.write("Checking output dir...");
 		FileUtils.isDirExistsOrCreate(options.getOutputDir());
 		
-		log.info("Creating words parser...");
+		monitor.write("Creating words parser...");
 		RegexWordsParser wordsParser = new RegexWordsParser(porterStemmer);
 		
-		log.info("Loading corpus...");
+		monitor.write("Loading corpus...");
 		Index<String> stemsIndex = new HashIndex<>();
 		Index<String> wordsIndex = new HashIndex<>();
 		Corpus corpus = new Corpus(stemsIndex, wordsIndex);
@@ -112,11 +112,11 @@ public final class ProgramLogic {
 			}
 			
 			if ((i+1) % 10 == 0) {
-				log.info("Parsed " + (i+1) + " files.");
+				monitor.write("Parsed " + (i+1) + " files.");
 			}
 		}
 		
-		log.info("Configuring topics...");
+		monitor.write("Configuring topics...");
 		List<LDAGibbsTopic> topics = new ArrayList<>();
 		double normalTopicsCorpusFrac = 1.0;
 		if (options.getNoiseTopicFraq() != null && 
@@ -124,36 +124,33 @@ public final class ProgramLogic {
 			normalTopicsCorpusFrac -= options.getNoiseTopicFraq();
 			LDAGibbsTopic noiseTopic = new LDAGibbsTopic("noise", options.getNoiseTopicFraq());
 			topics.add(noiseTopic);
-			log.info("Added noise topic with corpus fraction " + options.getNoiseTopicFraq());
+			monitor.write("Added noise topic with corpus fraction " + options.getNoiseTopicFraq());
 		}
 		final double perTopicCorpusFrac = normalTopicsCorpusFrac / options.getThreadCount();
 		for (int topicNumber = 1; topicNumber <= options.getTopicCount(); topicNumber++) {
 			LDAGibbsTopic normalTopic = new LDAGibbsTopic("topic" + topicNumber, perTopicCorpusFrac);
 			topics.add(normalTopic);
 		}
-		log.info("Added " + options.getTopicCount() + " topics with total corpus fraction " + normalTopicsCorpusFrac);
+		monitor.write("Added " + options.getTopicCount() + " topics with total corpus fraction " + normalTopicsCorpusFrac);
 		LDAGibbsAlpha alpha = new LDAGibbsAlpha(corpus, topics, options.getDocMinTopicCount(), options.getDocLengthForExtraTopic());
 		LDAGibbsBeta beta = new LDAGibbsBeta(corpus, topics);
 		
-		log.info("Configuring LDA...");
-		Logger ldaLog = LogUtils.getLogger(LDAGibbs.class.getName());
+		monitor.write("Configuring LDA...");
 		final LDAGibbsUnstemmer unstemmer = new LDAGibbsUnstemmer(corpus);
-		final LDAGibbs lda = new LDAGibbs(ldaLog, corpus, topics, alpha, beta, options.getThreadCount());
+		final LDAGibbs lda = new LDAGibbs(parentMonitor, corpus, topics, alpha, beta, options.getThreadCount());
 
-		System.out.println("Adding shutdown handler...");
+		monitor.write("Adding shutdown handler...");
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 		    public void run() {
 		    	try {
-					log.info("Terminating LDA...");
 					lda.terminate();
-					log.info("LDA terminated.");
 		    	} finally {
 		    		ManualResetLogManager.resetFinally();
 		    	}
 		    }
 		});
 		
-		log.fine("Burning in Gibbs sampler...");
+		monitor.write("Burning in Gibbs sampler...");
 		int iter = 1;
 		double temperature = options.getBurnInStartTemp();
 		while (temperature > options.getBurnInEndTemp()) {
@@ -162,7 +159,7 @@ public final class ProgramLogic {
 			temperature *= options.getBurnInTempDecay();
 		}
 		
-		log.fine("Sampling from Gibbs sampler...");
+		monitor.write("Sampling from Gibbs sampler...");
 		int totalTopicCount = options.getTopicCount();
 		if (options.getNoiseTopicFraq() > 0) {
 			totalTopicCount += 1;
@@ -179,13 +176,13 @@ public final class ProgramLogic {
 		unstemmer.optimize();
 		lda.terminate();
 		
-		log.fine("Saving results...");
+		monitor.write("Saving results...");
 		FileUtils.writeList(StringUtils.concatPath(options.getOutputDir(), "stems.txt"), stemsIndex.getList());
 		MatrixUtils.writeMatrix(StringUtils.concatPath(options.getOutputDir(), "mTopic.csv"), mTopic);
 		MatrixUtils.writeMatrix(StringUtils.concatPath(options.getOutputDir(), "mStemTopic.csv"), mStemTopic);
-		new LDAGibbsSave(log, corpus, topics, mTopic, mStemTopic, unstemmer, options.getTopicOutputStemsCount(), 
+		new LDAGibbsSave(parentMonitor, corpus, topics, mTopic, mStemTopic, unstemmer, options.getTopicOutputStemsCount(), 
 				StringUtils.concatPath(options.getOutputDir(), "topics.txt"));
 		
-		log.fine("DONE.");
+		monitor.write("DONE.");
 	}
 }
