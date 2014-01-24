@@ -8,12 +8,11 @@ import java.util.Random;
 import me.akuz.core.ComparableComparator;
 import me.akuz.core.EqualsUtils;
 import me.akuz.core.SortOrder;
-import me.akuz.core.StringUtils;
 import me.akuz.core.sort.HeapSort;
 
 import org.junit.Test;
 
-public final class HeapSortTests {
+public final class HeapSortTest {
 
 	@Test
 	public void test1_quality() {
@@ -40,7 +39,7 @@ public final class HeapSortTests {
 			
 			if (isNaturalOrder) {
 
-				System.out.println(this.getClass().getSimpleName() + " experiment " + experimentNumber + " - natural");
+				//System.out.println(this.getClass().getSimpleName() + " experiment " + experimentNumber + " - natural");
 
 				// natural sort
 				HeapSort.sort(list1);
@@ -51,7 +50,7 @@ public final class HeapSortTests {
 				// sample sort order
 				SortOrder sortOrder = rnd.nextDouble() > 0.5 ? SortOrder.Asc : SortOrder.Desc;
 				
-				System.out.println(this.getClass().getSimpleName() + " experiment " + experimentNumber + " - unnatural - " + sortOrder);
+				//System.out.println(this.getClass().getSimpleName() + " experiment " + experimentNumber + " - unnatural - " + sortOrder);
 
 				// create comparator
 				ComparableComparator<Integer> comparator = new ComparableComparator<>(sortOrder);
@@ -64,9 +63,9 @@ public final class HeapSortTests {
 			// check results
 			if (!EqualsUtils.equalsNullSafe(list1, list2)) {
 				
-				System.out.println("Sorted lists are not the same:" 
-						+ "\n 1) " + StringUtils.collectionToString(list1, ",")
-						+ "\n 2) " + StringUtils.collectionToString(list2, ","));
+				//System.out.println("Sorted lists are not the same:" 
+				//		+ "\n 1) " + StringUtils.collectionToString(list1, ",")
+				//		+ "\n 2) " + StringUtils.collectionToString(list2, ","));
 				
 				throw new IllegalStateException("Sorted lists are not the same");
 			}

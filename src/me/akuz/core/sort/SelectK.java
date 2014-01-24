@@ -10,7 +10,7 @@ import me.akuz.core.PairComparator;
 import me.akuz.core.SortOrder;
 
 /**
- * Selects K largest/smallest from all the items added,
+ * Selects K items from all the items added via add(),
  * providing computational efficiency of O(N*log(K)),
  * where N is the total number of items.
  * 

@@ -7,18 +7,11 @@ import me.akuz.core.ComparableComparator;
 import me.akuz.core.SortOrder;
 
 /**
- * "Heap sort" algorithm implementation.
+ * "Heap Sort" algorithm implementation.
  * 
- * Benefit 1: O(n*log(n)) worst case performance,
- * compared to O(n^2) worst case performance for quick sort.
- * 
- * Benefit 2: Oracle Java documentation for sort says it 
- * allocates a new array for sorting (to avoid performance 
- * problems if List is a LinkedList). However, this implementation
- * of heap sort will do sorting in-place (thus saving memory). 
- * This will cause bad performance is List is a LinkedList, 
- * but one shouldn't use this implementation with 
- * a LinkedList.
+ * Benefit 1: O(n*log(n)) worst case performance.
+ * Benefit 2: Does sorting in-place, requiring no additional memory.
+ * Drawback: Does not take into account regularities in data ("runs").
  *
  */
 public final class HeapSort {
@@ -43,7 +36,7 @@ public final class HeapSort {
 	 * Sort list using the provided items comparator.
 	 * 
 	 */
-	public static final <T> void sort(List<T> list, Comparator<T> comparator) {
+	public static final <T> void sort(final List<T> list, final Comparator<T> comparator) {
 
 		// check if need to sort
 		if (list.size() < 2) {
@@ -70,7 +63,7 @@ public final class HeapSort {
 		}
 	}
 	
-	private static final <T> void siftDown(List<T> list, Comparator<T> comparator, int rootIndex, int length) {
+	private static final <T> void siftDown(final List<T> list, final Comparator<T> comparator, final int rootIndex, final int length) {
 		
 		int index = rootIndex;
 		while (true) {

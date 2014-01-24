@@ -8,7 +8,7 @@ import me.akuz.core.ZlibUtils;
 
 import org.junit.Test;
 
-public final class ZlibUtilsTests {
+public final class ZlibUtilsTest {
 	
 	private static final Charset _encoding = Charset.forName("UTF-8");
 

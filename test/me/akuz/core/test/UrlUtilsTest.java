@@ -4,7 +4,7 @@ import me.akuz.core.UrlUtils;
 
 import org.junit.Test;
 
-public final class UrlUtilsTests {
+public final class UrlUtilsTest {
 
 	@Test
 	public void testUrlUtilsNormalization0() {

@@ -8,7 +8,7 @@ import me.akuz.core.sort.SelectK;
 
 import org.junit.Test;
 
-public final class SelectKTests {
+public final class SelectKTest {
 
 	@Test
 	public void testSelectK_Highest() {
