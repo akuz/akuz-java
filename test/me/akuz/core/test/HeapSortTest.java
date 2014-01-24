@@ -72,4 +72,39 @@ public final class HeapSortTest {
 			}
 		}
 	}
+	
+	@Test
+	public void testPerformance() {
+		
+		final int SAMPLES = 10000;
+		final int LIST_SIZE = 100;
+		final int MAX_VALUE = 100;
+		Random rnd = new Random(System.currentTimeMillis());
+		
+		long ms;
+		ArrayList<Integer> list = new ArrayList<>();
+		
+		ms = System.currentTimeMillis();
+		for (int s=0; s<SAMPLES; s++) {
+			
+			for (int i=0; i<LIST_SIZE; i++) {
+				list.add(rnd.nextInt(MAX_VALUE));
+			}
+			Collections.sort(list);
+			list.clear();
+		}
+		System.out.println("Base sort speed: " + (System.currentTimeMillis() - ms) + " ms");
+		
+		ms = System.currentTimeMillis();
+		for (int s=0; s<SAMPLES; s++) {
+			
+			for (int i=0; i<LIST_SIZE; i++) {
+				list.add(rnd.nextInt(MAX_VALUE));
+			}
+			HeapSort.sort(list);
+			list.clear();
+		}
+		System.out.println("Heap sort speed: " + (System.currentTimeMillis() - ms) + " ms");
+		
+	}
 }
