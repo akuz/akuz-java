@@ -92,7 +92,7 @@ public final class HeapSortTest {
 			Collections.sort(list);
 			list.clear();
 		}
-		System.out.println("Base sort speed: " + (System.currentTimeMillis() - ms) + " ms");
+		System.out.println("System sort speed: " + (System.currentTimeMillis() - ms) + " ms");
 		
 		ms = System.currentTimeMillis();
 		for (int s=0; s<SAMPLES; s++) {

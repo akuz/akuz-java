@@ -47,8 +47,8 @@ public final class BinarySearch {
 		
 		while (left < right) {
 			
-			// find middle
-			final int mid = (left + right) / 2; // integer division
+			// find middle, taking care of integer overflow
+			final int mid = left + (right - left) / 2; // integer division
 			
 			// compare to mid key
 			final T midKey = list.get(mid);

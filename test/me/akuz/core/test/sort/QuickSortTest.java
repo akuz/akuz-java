@@ -8,11 +8,11 @@ import java.util.Random;
 import me.akuz.core.ComparableComparator;
 import me.akuz.core.EqualsUtils;
 import me.akuz.core.SortOrder;
-import me.akuz.core.sort.InsertSort;
+import me.akuz.core.sort.QuickSort;
 
 import org.junit.Test;
 
-public final class InsertSortTest {
+public final class QuickSortTest {
 
 	@Test
 	public void test1_quality() {
@@ -42,7 +42,7 @@ public final class InsertSortTest {
 				//System.out.println(this.getClass().getSimpleName() + " experiment " + experimentNumber + " - natural");
 
 				// natural sort
-				InsertSort.sort(list1);
+				QuickSort.sort(list1);
 				Collections.sort(list2);
 			
 			} else {
@@ -56,7 +56,7 @@ public final class InsertSortTest {
 				ComparableComparator<Integer> comparator = new ComparableComparator<>(sortOrder);
 				
 				// unnatural sort
-				InsertSort.sort(list1, comparator);
+				QuickSort.sort(list1, comparator);
 				Collections.sort(list2, comparator);
 			}
 			
@@ -100,10 +100,10 @@ public final class InsertSortTest {
 			for (int i=0; i<LIST_SIZE; i++) {
 				list.add(rnd.nextInt(MAX_VALUE));
 			}
-			InsertSort.sort(list);
+			QuickSort.sort(list);
 			list.clear();
 		}
-		System.out.println("Insert sort speed: " + (System.currentTimeMillis() - ms) + " ms");
+		System.out.println("Quick sort speed: " + (System.currentTimeMillis() - ms) + " ms");
 		
 	}
 }
