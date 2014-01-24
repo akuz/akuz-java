@@ -1,8 +1,7 @@
 akuz-java-nlp
 =============
 
-This library contains various classes useful for processing
-(parsing and analysing) natural language texts (NLP).
+This library provides various algorithms for natural language processing (NLP).
 
 ## LDA Inference
 
