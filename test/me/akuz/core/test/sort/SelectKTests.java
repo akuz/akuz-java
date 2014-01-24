@@ -1,10 +1,10 @@
-package me.akuz.core.test;
+package me.akuz.core.test.sort;
 
 import java.util.List;
 
 import me.akuz.core.Pair;
-import me.akuz.core.SelectK;
 import me.akuz.core.SortOrder;
+import me.akuz.core.sort.SelectK;
 
 import org.junit.Test;
 

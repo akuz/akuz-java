@@ -1,4 +1,4 @@
-package me.akuz.core.test;
+package me.akuz.core.test.sort;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,16 +7,16 @@ import java.util.Random;
 
 import me.akuz.core.ComparableComparator;
 import me.akuz.core.EqualsUtils;
-import me.akuz.core.HeapSort;
 import me.akuz.core.SortOrder;
 import me.akuz.core.StringUtils;
+import me.akuz.core.sort.HeapSort;
 
 import org.junit.Test;
 
-public final class HeapSortTest {
+public final class HeapSortTests {
 
 	@Test
-	public void testHeapSort() {
+	public void test1_quality() {
 		
 		Random rnd = new Random(System.currentTimeMillis());
 		final int EXPERIMENT_COUNT = 100;
@@ -74,7 +74,7 @@ public final class HeapSortTest {
 	}
 	
 	@Test
-	public void testPerformance() {
+	public void test2_performance() {
 		
 		final int SAMPLES = 10000;
 		final int LIST_SIZE = 100;

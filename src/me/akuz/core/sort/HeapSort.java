@@ -1,19 +1,22 @@
-package me.akuz.core;
+package me.akuz.core.sort;
 
 import java.util.Comparator;
 import java.util.List;
 
+import me.akuz.core.ComparableComparator;
+import me.akuz.core.SortOrder;
+
 /**
- * Implements heap sort algorithm.
+ * "Heap sort" algorithm implementation.
  * 
  * Benefit 1: O(n*log(n)) worst case performance,
  * compared to O(n^2) worst case performance for quick sort.
  * 
- * Benefit 2: Oracle Java implementation allocates
- * a new array for sorting (to avoid performance problems 
- * if List is a LinkedList), but this implementation
- * will do sorting in-place (no using more memory). 
- * This will cause bad performance for LinkedList, 
+ * Benefit 2: Oracle Java documentation for sort says it 
+ * allocates a new array for sorting (to avoid performance 
+ * problems if List is a LinkedList). However, this implementation
+ * of heap sort will do sorting in-place (thus saving memory). 
+ * This will cause bad performance is List is a LinkedList, 
  * but one shouldn't use this implementation with 
  * a LinkedList.
  *
@@ -55,7 +58,7 @@ public final class HeapSort {
 		// perform heap sort
 		for (int i=list.size()-1; i>0; i--) {
 			
-			// record tree head
+			// save heap head
 			{
 				T tmp = list.get(i);
 				list.set(i, list.get(0));
@@ -65,7 +68,6 @@ public final class HeapSort {
 			// ensure heap property
 			siftDown(list, comparator, 0, i);
 		}
-		
 	}
 	
 	private static final <T> void siftDown(List<T> list, Comparator<T> comparator, int rootIndex, int length) {
@@ -138,15 +140,15 @@ public final class HeapSort {
 		}
 	}
 
-	private static final int calcParentIndex(int index) {
+	private static final int calcParentIndex(final int index) {
 		return (index-1) / 2; // integer division
 	}
 
-	private static final int calcLeftChildIndex(int index) {
+	private static final int calcLeftChildIndex(final int index) {
 		return 2 * index + 1;
 	}
 
-	private static final int calcRightChildIndex(int index) {
+	private static final int calcRightChildIndex(final int index) {
 		return 2 * index + 2;
 	}
 

@@ -1,9 +1,13 @@
-package me.akuz.core;
+package me.akuz.core.sort;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.PriorityQueue;
+
+import me.akuz.core.Pair;
+import me.akuz.core.PairComparator;
+import me.akuz.core.SortOrder;
 
 /**
  * Selects K largest/smallest from all the items added,
