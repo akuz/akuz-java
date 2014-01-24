@@ -6,8 +6,16 @@ import java.util.List;
 /**
  * Implements heap sort algorithm.
  * 
- * Main benefit: O(n*log(n)) worst case performance,
+ * Benefit 1: O(n*log(n)) worst case performance,
  * compared to O(n^2) worst case performance for quick sort.
+ * 
+ * Benefit 2: Oracle Java implementation allocates
+ * a new array for sorting (to avoid performance problems 
+ * if List is a LinkedList), but this implementation
+ * will do sorting in-place (no using more memory). 
+ * This will cause bad performance for LinkedList, 
+ * but one shouldn't use this implementation with 
+ * a LinkedList.
  *
  */
 public final class HeapSort {
