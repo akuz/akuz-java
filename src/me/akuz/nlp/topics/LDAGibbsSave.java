@@ -7,11 +7,11 @@ import java.util.List;
 import me.akuz.core.FileUtils;
 import me.akuz.core.Pair;
 import me.akuz.core.Rounding;
-import me.akuz.core.SelectK;
 import me.akuz.core.SortOrder;
 import me.akuz.core.StringUtils;
 import me.akuz.core.logs.Monitor;
 import me.akuz.core.logs.LocalMonitor;
+import me.akuz.core.sort.SelectK;
 import me.akuz.nlp.corpus.Corpus;
 import Jama.Matrix;
 
