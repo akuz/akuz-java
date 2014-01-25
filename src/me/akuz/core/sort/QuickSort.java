@@ -1,9 +1,9 @@
 package me.akuz.core.sort;
 
 import java.util.Comparator;
+import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
 import me.akuz.core.ComparableComparator;
 import me.akuz.core.SortOrder;
@@ -34,14 +34,14 @@ public final class QuickSort {
 			return;
 		}
 		
-		// recursive calls queue
-		final Queue<int[]> queue = new LinkedList<>();
-		queue.add(new int[] {0, list.size()-1});
+		// recursive calls stack
+		final Deque<int[]> stack = new LinkedList<>();
+		stack.add(new int[] {0, list.size()-1});
 		
 		// execute recursive calls
-		while (queue.size() > 0) {
+		while (stack.size() > 0) {
 			
-			final int[] pair = queue.poll();
+			final int[] pair = stack.pollLast();
 			final int leftIndex = pair[0];
 			final int rightIndex = pair[1];
 			
@@ -109,10 +109,10 @@ public final class QuickSort {
 			final int newSmallerEndIndex = largerStartIndex - 1;
 			final int newLargerStartIndex = largerStartIndex + (rightIndex - equalsStartIndex + 1);
 			if (newSmallerEndIndex - leftIndex > 0) {
-				queue.add(new int[] {leftIndex, newSmallerEndIndex});
+				stack.addLast(new int[] {leftIndex, newSmallerEndIndex});
 			}
 			if (rightIndex - newLargerStartIndex >  0) {
-				queue.add(new int[] {newLargerStartIndex, rightIndex});
+				stack.addLast(new int[] {newLargerStartIndex, rightIndex});
 			}
 		}
 	}
