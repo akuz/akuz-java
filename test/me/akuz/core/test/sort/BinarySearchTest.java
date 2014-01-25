@@ -12,6 +12,56 @@ import org.junit.Test;
 public class BinarySearchTest {
 
 	@Test
+	public void test0_simple() {
+		
+		List<Integer> list = new ArrayList<>();
+		list.add(0);
+		list.add(1);
+		list.add(1);
+		list.add(2);
+		list.add(2);
+		list.add(3);
+		list.add(4);
+		list.add(8);
+		list.add(8);
+		list.add(9);
+		list.add(10);
+		list.add(11);
+		list.add(12);
+		
+		if (BinarySearch.find(list, -2) != -1) {
+			throw new IllegalStateException("Binary search failed");
+		}
+		if (BinarySearch.find(list, -1) != -1) {
+			throw new IllegalStateException("Binary search failed");
+		}
+		if (BinarySearch.find(list, 0) != 0) {
+			throw new IllegalStateException("Binary search failed");
+		}
+		if (BinarySearch.find(list, 3) != 5) {
+			throw new IllegalStateException("Binary search failed");
+		}
+		if (BinarySearch.find(list, 4) != 6) {
+			throw new IllegalStateException("Binary search failed");
+		}
+		if (BinarySearch.find(list, 5) != -7 -1) {
+			throw new IllegalStateException("Binary search failed");
+		}
+		if (BinarySearch.find(list, 9) != 9) {
+			throw new IllegalStateException("Binary search failed");
+		}
+		if (BinarySearch.find(list, 12) != 12) {
+			throw new IllegalStateException("Binary search failed");
+		}
+		if (BinarySearch.find(list, 13) != -13 -1) {
+			throw new IllegalStateException("Binary search failed");
+		}
+		if (BinarySearch.find(list, 14) != -13 -1) {
+			throw new IllegalStateException("Binary search failed");
+		}
+	}
+
+	@Test
 	public void test1_existing() {
 		
 		final int EXPERIMENT_COUNT = 1000;

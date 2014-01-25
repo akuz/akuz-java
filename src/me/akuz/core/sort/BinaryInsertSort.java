@@ -7,12 +7,16 @@ import me.akuz.core.ComparableComparator;
 import me.akuz.core.SortOrder;
 
 /**
- * "Insert Sort with Binary Search" algorithm implementation.
+ * "Binary Insert Sort" algorithm implementation (insert sort with binary search).
  * 
- * Benefit compared to "Insert Sort": worst-case calls to compare() is only O(n*log(n)).
+ * Benefit compared to "Insert Sort": worst-case number of comparisons is only O(n*log(n)).
+ * 
  * Drawback compared to "Insert Sort": extra work of O(n*log(n)) for binary searches.
+ * 
  * Benefit 1: Works faster than more complex algorithms for small arrays (N ~ 100).
+ * 
  * Benefit 2: Does sorting in-place, requiring no additional memory.
+ * 
  * Drawback: Worst-case performance of O(n^2).
  *
  */

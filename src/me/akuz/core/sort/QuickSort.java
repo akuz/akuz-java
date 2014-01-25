@@ -9,7 +9,10 @@ import me.akuz.core.ComparableComparator;
 import me.akuz.core.SortOrder;
 
 /**
- * "Quick Sort" algorithm implementation.
+ * "Quick Sort" algorithm implementation, with following optimization:
+ * detecting items equal to the pivot value, and not sorting them further.
+ * 
+ * Benefit: Average performance of O(n*log(n)). Often outperforms other algorithms.
  * 
  * Drawback: Worst-case performance of O(n^2).
  *

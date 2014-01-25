@@ -9,8 +9,10 @@ import me.akuz.core.SortOrder;
 /**
  * "Heap Sort" algorithm implementation.
  * 
- * Benefit 1: O(n*log(n)) worst case performance.
+ * Benefit 1: O(n*log(n)) average and worst-case performance.
+ * 
  * Benefit 2: Does sorting in-place, requiring no additional memory.
+ * 
  * Drawback: Does not take into account regularities in data ("runs").
  *
  */
