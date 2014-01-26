@@ -98,7 +98,7 @@ public final class AllSortsTest {
 	@Test
 	public void test2_performance() {
 		
-		final int SAMPLES = 1000000;
+		final int SAMPLES = 10000;
 		final int LIST_SIZE = 100;
 		final int MAX_VALUE = 100;
 		Random rnd = new Random(System.currentTimeMillis());
