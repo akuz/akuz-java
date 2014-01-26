@@ -22,12 +22,9 @@ public final class LDAGibbsAlpha {
 	
 	public LDAGibbsAlpha(
 			Corpus corpus,
-			List<LDAGibbsTopic> topics,
-			double docMinTopicCount,
-			double docExtraTopicPlaceCount) {
+			List<LDAGibbsTopic> topics) {
 		
 		_topics = topics;
-		
 		_docLengths = new int[corpus.getDocCount()];
 		
 		List<CorpusDoc> docs = corpus.getDocs();
