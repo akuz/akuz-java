@@ -3,7 +3,6 @@ package me.akuz.nlp.topics;
 import java.util.Arrays;
 import java.util.List;
 
-import me.akuz.core.math.StatsUtils;
 import me.akuz.nlp.corpus.Corpus;
 import me.akuz.nlp.corpus.CorpusDoc;
 
@@ -17,8 +16,7 @@ import Jama.Matrix;
 public final class LDAGibbsAlpha {
 	
 	private final List<LDAGibbsTopic> _topics;
-	private final int[] _docPlaceCounts;
-	private final double[] _docTargetTopicCounts;
+	private final int[] _docLengths;
 	private Matrix _mTopicDocAlpha;
 	private double[] _mSumDocAlpha;
 	
@@ -30,26 +28,14 @@ public final class LDAGibbsAlpha {
 		
 		_topics = topics;
 		
-		_docPlaceCounts = new int[corpus.getDocCount()];
-		_docTargetTopicCounts = new double[corpus.getDocCount()];
+		_docLengths = new int[corpus.getDocCount()];
 		
 		List<CorpusDoc> docs = corpus.getDocs();
 		for (int docIndex=0; docIndex<docs.size(); docIndex++) {
 			
 			CorpusDoc doc = docs.get(docIndex);
 			int docLength = doc.getPlaceCount();
-			
-			_docPlaceCounts[docIndex] = docLength;
-			
-			// calculate number of topics we expect encounter
-			// in this document based on the document length
-			double docTargetTopicCount = docMinTopicCount + 
-					StatsUtils.log2(
-							1.0 + 
-							(double)docLength/
-							(double)docExtraTopicPlaceCount);
-			
-			_docTargetTopicCounts[docIndex] = docTargetTopicCount;
+			_docLengths[docIndex] = docLength;
 		}
 	}
 	
@@ -72,30 +58,29 @@ public final class LDAGibbsAlpha {
 		Matrix mTopicDocAlpha = _mTopicDocAlpha;
 		double[] mSumDocAlpha = _mSumDocAlpha;
 		if (mTopicDocAlpha == null) {
-			mTopicDocAlpha = new Matrix(_topics.size(), _docPlaceCounts.length);
-			mSumDocAlpha = new double[_docPlaceCounts.length];
+			mTopicDocAlpha = new Matrix(_topics.size(), _docLengths.length);
+			mSumDocAlpha = new double[_docLengths.length];
 		} else {
 			Arrays.fill(mSumDocAlpha, 0);
 		}
 		
-		for (int docIndex=0; docIndex<_docPlaceCounts.length; docIndex++) {
+		for (int docIndex=0; docIndex<_docLengths.length; docIndex++) {
 			
-			int docPlaceCount = _docPlaceCounts[docIndex];
-			double docTargetTopicCount = _docTargetTopicCounts[docIndex];
+			int docLength = _docLengths[docIndex];
 			
 			// calculate total prior mass to distribute between topics
 			// based on the total posterior available * temperature,
 			// and adjusted for the number of topics in this doc
-			final double priorMass = docPlaceCount * temperature * docTargetTopicCount;
+			final double docPriorMass = docLength * temperature;
 			
 			// distribute prior mass to the topics
 			// based on their expected corpus places fraction
 			for (int topicIndex=0; topicIndex<_topics.size(); topicIndex++) {
 				
 				LDAGibbsTopic topic = _topics.get(topicIndex);
-				double topicPriorMass = priorMass * topic.getCorpusFraction();
-				mTopicDocAlpha.set(topicIndex, docIndex, topicPriorMass);
-				mSumDocAlpha[docIndex] += topicPriorMass;
+				double docTopicPriorMass = docPriorMass * topic.getCorpusFraction();
+				mTopicDocAlpha.set(topicIndex, docIndex, docTopicPriorMass);
+				mSumDocAlpha[docIndex] += docTopicPriorMass;
 			}
 		}
 		

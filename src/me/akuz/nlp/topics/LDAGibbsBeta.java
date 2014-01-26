@@ -90,17 +90,17 @@ public final class LDAGibbsBeta {
 			LDAGibbsTopic topic = _topics.get(topicIndex);
 			
 			// calculate topic prior mass based on expected posterior mass * temperature
-			final double priorMass = _corpusPlaceCount * topic.getCorpusFraction() * temperature;
+			final double topicPriorMass = _corpusPlaceCount * topic.getCorpusFraction() * temperature;
 			
 			// calculate prior mass per "remaining" stem (not selected by topic)
 			double priorityStemMass;
 			double remainingStemMass;
 			if (topic.getPriorityStemCount() > 0) {
 				
-				final double priorityMass = priorMass * _priorityMassFraction;
+				final double priorityMass = topicPriorMass * _priorityMassFraction;
 				priorityStemMass = priorityMass / topic.getPriorityStemCount();
 
-				final double remainingMass = priorMass * (1.0 - _priorityMassFraction);
+				final double remainingMass = topicPriorMass * (1.0 - _priorityMassFraction);
 				int remainingStemCount = _corpusStemCount - topic.getPriorityStemCount();
 				if (remainingStemCount > 0) {
 					remainingStemMass = remainingMass / remainingStemCount;
@@ -111,7 +111,7 @@ public final class LDAGibbsBeta {
 			} else {
 				
 				priorityStemMass = 0;
-				remainingStemMass = priorMass / _corpusStemCount;
+				remainingStemMass = topicPriorMass / _corpusStemCount;
 			}
 			
 			// distribute prior mass to stems
