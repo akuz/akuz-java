@@ -10,8 +10,6 @@ public final class ProgramOptions extends Dbo {
 	private static final String _topicCount             = "topicCount";
 	private static final String _topicOutputStemsCount  = "topicOutputStemsCount";
 	private static final String _noiseTopicFrac         = "noiseTopicFrac";
-	private static final String _docMinTopicCount       = "docMinTopicCount";
-	private static final String _docLengthForExtraTopic = "docLengthForExtraTopic";
 	private static final String _stopWordsFile          = "stopWordsFile";
 	private static final String _threadCount            = "threadCount";
 	private static final String _burnInStartTemp        = "burnInStartTemp";
@@ -26,8 +24,6 @@ public final class ProgramOptions extends Dbo {
 			Integer topicCount,
 			Integer topicOutputStemsCount,
 			Double noiseTopicFrac,
-			Integer docMinTopicCount,
-			Integer docLengthForExtraTopic,
 			String stopWordsFile,
 			Integer threadCount,
 			Double burnInStartTemp,
@@ -41,8 +37,6 @@ public final class ProgramOptions extends Dbo {
 		set(_topicCount, topicCount);
 		set(_topicOutputStemsCount, topicOutputStemsCount);
 		set(_noiseTopicFrac, noiseTopicFrac);
-		set(_docMinTopicCount, docMinTopicCount);
-		set(_docLengthForExtraTopic, docLengthForExtraTopic);
 		set(_stopWordsFile, stopWordsFile);
 		set(_threadCount, threadCount);
 		set(_burnInStartTemp, burnInStartTemp);
@@ -66,12 +60,6 @@ public final class ProgramOptions extends Dbo {
 	}
 	public Double getNoiseTopicFraq() {
 		return getDouble(_noiseTopicFrac);
-	}
-	public Integer getDocMinTopicCount() {
-		return getInteger(_docMinTopicCount);
-	}
-	public Integer getDocLengthForExtraTopic() {
-		return getInteger(_docLengthForExtraTopic);
 	}
 	public String getStopWordsFile() {
 		return getString(_stopWordsFile);

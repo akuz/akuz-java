@@ -11,20 +11,18 @@ public class Program {
 		
 		String usageString = 
 			"ARGUMENTS:\n" + 
-			"   -inputDir string              : Directory containing input text files\n" +
-			"   -outputDir string             : Directory where to save output files\n" +
-			" [ -stopWordsFile string       ] : File with stop words to ignore (default none)\n" +
-			" [ -topicCount int             ] : Number of topics for LDA inference (default 10)\n" +
-			" [ -topicOutputStemsCount int  ] : Number of stems to output for each topic (default 100)\n" +
-			" [ -noiseTopicFrac double      ] : Fraction of corpus for noise topic (default 0.5)\n" +
-			" [ -docMinTopicCount int       ] : Assumed minimum topics per document (default 2)\n" +
-			" [ -docLengthForExtraTopic int ] : Document length to assume a first extra topic (default 100)\n" +
-			" [ -threadCount int            ] : Number of threads to use (default 2)\n" +
-			" [ -burnInStartTemp int        ] : Burn in start temperature (default 1.0)\n" +
-			" [ -burnInEndTemp int          ] : Burn in end temperature (default 0.1)\n" +
-			" [ -burnInTempDecay double     ] : Burn in temperature decay (default 0.75)\n" +
-			" [ -burnInTempIter int         ] : Burn in iterations count per temperature (default 10)\n" +
-			" [ -samplingIter int           ] : Sampling iterations count (default 100)\n";
+			"   -inputDir string               : Directory containing input text files\n" +
+			"   -outputDir string              : Directory where to save output files\n" +
+			" [ -stopWordsFile string        ] : File with stop words to ignore (default none)\n" +
+			" [ -topicCount int              ] : Number of topics for LDA inference (default 10)\n" +
+			" [ -topicOutputStemsCount int   ] : Number of stems to output for each topic (default 100)\n" +
+			" [ -noiseTopicProportion double ] : Noise topic proportion (default 0.5)\n" +
+			" [ -threadCount int             ] : Number of threads to use (default 2)\n" +
+			" [ -burnInStartTemp int         ] : Burn in start temperature (default 1.0)\n" +
+			" [ -burnInEndTemp int           ] : Burn in end temperature (default 0.1)\n" +
+			" [ -burnInTempDecay double      ] : Burn in temperature decay (default 0.75)\n" +
+			" [ -burnInTempIter int          ] : Burn in iterations count per temperature (default 10)\n" +
+			" [ -samplingIter int            ] : Sampling iterations count (default 100)\n";
 
 		String  inputDir = null;
 		String  outputDir = null;
@@ -32,8 +30,6 @@ public class Program {
 		Integer topicCount = 10;
 		Integer topicOutputStemsCount = 100;
 		Double  noiseTopicFrac = 0.5;
-		Integer docMinTopicCount = 2;
-		Integer docLengthForExtraTopic = 100;
 		Integer threadCount = 2;
 		Double  burnInStartTemp = 1.0;
 		Double  burnInEndTemp = 0.1;
@@ -74,16 +70,6 @@ public class Program {
 					} else if ("-noiseTopicFrac".equals(args[i])) {
 						if (i+1 < args.length) {
 							noiseTopicFrac = Double.parseDouble(StringUtils.unquote(args[i+1]));
-							i++;
-						}
-					} else if ("-docMinTopicCount".equals(args[i])) {
-						if (i+1 < args.length) {
-							docMinTopicCount = Integer.parseInt(StringUtils.unquote(args[i+1]));
-							i++;
-						}
-					} else if ("-docLengthForExtraTopic".equals(args[i])) {
-						if (i+1 < args.length) {
-							docLengthForExtraTopic = Integer.parseInt(StringUtils.unquote(args[i+1]));
 							i++;
 						}
 					} else if ("-threadCount".equals(args[i])) {
@@ -148,8 +134,6 @@ public class Program {
 				topicCount,
 				topicOutputStemsCount,
 				noiseTopicFrac,
-				docMinTopicCount,
-				docLengthForExtraTopic,
 				stopWordsFile,
 				threadCount,
 				burnInStartTemp,

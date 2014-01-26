@@ -132,7 +132,7 @@ public final class ProgramLogic {
 			topics.add(normalTopic);
 		}
 		monitor.write("Added " + options.getTopicCount() + " topics with total corpus fraction " + normalTopicsCorpusFrac);
-		LDAGibbsAlpha alpha = new LDAGibbsAlpha(corpus, topics, options.getDocMinTopicCount(), options.getDocLengthForExtraTopic());
+		LDAGibbsAlpha alpha = new LDAGibbsAlpha(corpus, topics);
 		LDAGibbsBeta beta = new LDAGibbsBeta(corpus, topics);
 		
 		monitor.write("Configuring LDA...");
