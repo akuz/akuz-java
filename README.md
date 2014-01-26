@@ -3,7 +3,12 @@ akuz-java-nlp-run-lda
 
 Executable jar for running optimised LDA Gibbs sampling on a set of text files.
 
-### Optimizations
+This project depends on other `akuz` libraries:
+
+  * `akuz-java-core`
+  * `akuz-java-nlp`
+
+### LDA Gibbs Sampling Optimizations
 
 The optimized Gibbs sampling inference for LDA
 provides the following optimizations.
