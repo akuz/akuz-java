@@ -9,8 +9,7 @@ import me.akuz.nlp.corpus.CorpusDoc;
 import Jama.Matrix;
 
 /**
- * Dynamic (changeable via setTemperature()) 
- * Alpha (document-topic) Dirichlet prior for LDA.
+ * Dynamic, changeable via setTemperature(), alpha (document-topic) Dirichlet prior for LDA.
  *
  */
 public final class LDAGibbsAlpha {
@@ -36,29 +35,27 @@ public final class LDAGibbsAlpha {
 		}
 	}
 	
-	public Matrix getTopicDocAlpha() {
+	public double getTopicDocAlpha(int topicIndex, int docIndex) {
 		if (_mTopicDocAlpha == null) {
-			throw new IllegalStateException("Prior not initialized, call setTemperature() first");
+			throw new IllegalStateException(this.getClass().getSimpleName() + " not initialized, call setTemperature() first");
 		}
-		return _mTopicDocAlpha;
+		return _mTopicDocAlpha.get(topicIndex, docIndex);
 	}
 	
-	public double[] getSumDocAlpha() {
+	public double getSumDocAlpha(int docIndex) {
 		if (_mSumDocAlpha == null) {
-			throw new IllegalStateException("Prior not initialized, call setTemperature() first");
+			throw new IllegalStateException(this.getClass().getSimpleName() + " not initialized, call setTemperature() first");
 		}
-		return _mSumDocAlpha;
+		return _mSumDocAlpha[docIndex];
 	}
 	
 	public void setTemperature(double temperature) {
 
-		Matrix mTopicDocAlpha = _mTopicDocAlpha;
-		double[] mSumDocAlpha = _mSumDocAlpha;
-		if (mTopicDocAlpha == null) {
-			mTopicDocAlpha = new Matrix(_topics.size(), _docLengths.length);
-			mSumDocAlpha = new double[_docLengths.length];
+		if (_mTopicDocAlpha == null) {
+			_mTopicDocAlpha = new Matrix(_topics.size(), _docLengths.length);
+			_mSumDocAlpha = new double[_docLengths.length];
 		} else {
-			Arrays.fill(mSumDocAlpha, 0);
+			Arrays.fill(_mSumDocAlpha, 0);
 		}
 		
 		for (int docIndex=0; docIndex<_docLengths.length; docIndex++) {
@@ -75,14 +72,11 @@ public final class LDAGibbsAlpha {
 			for (int topicIndex=0; topicIndex<_topics.size(); topicIndex++) {
 				
 				LDAGibbsTopic topic = _topics.get(topicIndex);
-				double docTopicPriorMass = docPriorMass * topic.getCorpusFraction();
-				mTopicDocAlpha.set(topicIndex, docIndex, docTopicPriorMass);
-				mSumDocAlpha[docIndex] += docTopicPriorMass;
+				double docTopicPriorMass = docPriorMass * topic.getProportion();
+				_mTopicDocAlpha.set(topicIndex, docIndex, docTopicPriorMass);
+				_mSumDocAlpha[docIndex] += docTopicPriorMass;
 			}
 		}
-		
-		_mTopicDocAlpha = mTopicDocAlpha;
-		_mSumDocAlpha = mSumDocAlpha;
 	}
 
 }

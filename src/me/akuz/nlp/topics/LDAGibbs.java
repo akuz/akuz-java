@@ -62,12 +62,6 @@ public final class LDAGibbs {
 	private final LDAGibbsAlpha _alpha;
 	private final LDAGibbsBeta _beta;
 	
-	private boolean _isInitialized;
-	private Matrix _topicDocAlpha;
-	private double[] _sumDocAlpha;
-	private Matrix _stemTopicBeta;
-	private double[] _sumTopicBeta;
-	
 	private final Matrix _countDocTopic;
 	private final Matrix _countTopicStem;
 	private final double[] _countTopic;
@@ -231,31 +225,14 @@ public final class LDAGibbs {
 		}
 		_logIterationFrequency = frequency;
 	}
-	
-	public void setTemperature(double temperature) {
-		
-		_alpha.setTemperature(temperature);
-		_beta.setTemperature(temperature);
-		
-		_topicDocAlpha = _alpha.getTopicDocAlpha();
-		_sumDocAlpha = _alpha.getSumDocAlpha();
-		_stemTopicBeta = _beta.getStemTopicBeta();
-		_sumTopicBeta = _beta.getSumTopicBeta();
-		
-		_isInitialized = true;
-	}
 
 	public int run(int startIterationNumber, int iterationCount) {
-		
-		if (!_isInitialized) {
-			throw new IllegalStateException("Not initialized, call setTemperature() first");
-		}
 
 		int iteration;
 		for (iteration=startIterationNumber; iteration<startIterationNumber+iterationCount; iteration++) {
 			
 			if (_monitor != null && iteration % _logIterationFrequency == 0) {
-				_monitor.write("LDA Iteration: " + iteration + "...");
+				_monitor.write("Iteration: " + iteration + "...");
 			}
 
 			_stopWatch.reset();
@@ -310,10 +287,10 @@ public final class LDAGibbs {
 			_iterTotalAvgMs    = (double)_iterTotalAvgMs    / (_iterCount) * (_iterCount-1) + (double)iterationTotalMs    / (_iterCount);
 
 			if (_monitor != null && iteration % _logIterationFrequency == 0) {
-				_monitor.write("LDA Stats: iteration " + iteration + "...");
-				_monitor.write("LDA Stats: iterAllocate ms: " + Rounding.round(_iterAllocateAvgMs, _msLogDigits));
-				_monitor.write("LDA Stats: iterAccept   ms: " + Rounding.round(_iterAcceptAvgMs, _msLogDigits));
-				_monitor.write("LDA Stats: iterTotal    ms: " + Rounding.round(_iterTotalAvgMs, _msLogDigits));
+				_monitor.write("Stats: iteration " + iteration + "...");
+				_monitor.write("Stats: iterAllocate ms: " + Rounding.round(_iterAllocateAvgMs, _msLogDigits));
+				_monitor.write("Stats: iterAccept   ms: " + Rounding.round(_iterAcceptAvgMs, _msLogDigits));
+				_monitor.write("Stats: iterTotal    ms: " + Rounding.round(_iterTotalAvgMs, _msLogDigits));
 			}
 		}
 		return iteration;
@@ -378,9 +355,9 @@ public final class LDAGibbs {
 		double cdf = 0.0;
 		for (int topicIndex=0; topicIndex<_topicCount; topicIndex++) {
 			cdf = cdf 
-				+ (getCountDocTopic(docIndex, topicIndex, prevTopicIndex) + _topicDocAlpha.get(topicIndex, docIndex))
-				* (getCountTopicStem(topicIndex, stemIndex, prevTopicIndex) + _stemTopicBeta.get(stemIndex, topicIndex))
-				/ (getCountTopic(topicIndex, prevTopicIndex) + _sumTopicBeta[topicIndex]);
+				+ (getCountDocTopic(docIndex, topicIndex, prevTopicIndex) + _alpha.getTopicDocAlpha(topicIndex, docIndex))
+				* (getCountTopicStem(topicIndex, stemIndex, prevTopicIndex) + _beta.getStemTopicBeta(stemIndex, topicIndex))
+				/ (getCountTopic(topicIndex, prevTopicIndex) + _beta.getSumTopicBeta(topicIndex));
 			reusedTopicCDF[topicIndex] = cdf;
 		}
 		
@@ -475,7 +452,7 @@ public final class LDAGibbs {
 		_sampleTopicDocAvgMs = (double)_sampleTopicDocAvgMs / (_sampleTopicDocCount) * (_sampleTopicDocCount-1) + (double)_stopWatch.getTime() / (_sampleTopicDocCount);
 		
 		if (_monitor != null && _sampleTopicDocCount % _logIterationFrequency == 0) {
-			_monitor.write("LDA Stats: calcTopicDoc ms: " + Rounding.round(_sampleTopicDocAvgMs, _msLogDigits));
+			_monitor.write("Stats: calcTopicDoc ms: " + Rounding.round(_sampleTopicDocAvgMs, _msLogDigits));
 		}
 	}
 
@@ -525,7 +502,7 @@ public final class LDAGibbs {
 		_sampleStemTopicAvgMs = (double)_sampleStemTopicAvgMs / (_sampleStemTopicCount) * (_sampleStemTopicCount-1) + (double)_stopWatch.getTime() / (_sampleStemTopicCount);
 		
 		if (_monitor != null && _sampleStemTopicCount % _logIterationFrequency == 0) {
-			_monitor.write("LDA Stats: calcStemTopic ms: " + Rounding.round(_sampleStemTopicAvgMs, _msLogDigits));
+			_monitor.write("Stats: calcStemTopic ms: " + Rounding.round(_sampleStemTopicAvgMs, _msLogDigits));
 		}
 	}
 
@@ -655,8 +632,8 @@ public final class LDAGibbs {
 				for (int topicIndex=0; topicIndex<_topicCount; topicIndex++) {
 					
 					double value 
-						= (getCountTopicStem(topicIndex, stemIndex, -1) + _stemTopicBeta.get(stemIndex, topicIndex))
-						/ (getCountTopic(topicIndex, -1) + _sumTopicBeta[topicIndex]);
+						= (getCountTopicStem(topicIndex, stemIndex, -1) + _beta.getStemTopicBeta(stemIndex, topicIndex))
+						/ (getCountTopic(topicIndex, -1) + _beta.getSumTopicBeta(topicIndex));
 					
 					double avgValue 
 						= _mStemTopic.get(stemIndex, topicIndex) / (_sampleStemTopicCount) * (_sampleStemTopicCount-1)
@@ -713,8 +690,8 @@ public final class LDAGibbs {
 				for (int topicIndex=0; topicIndex<_topicCount; topicIndex++) {
 					
 					double value 
-						= (getCountDocTopic(docIndex, topicIndex, -1) + _topicDocAlpha.get(topicIndex, docIndex))
-						/ (docPlaceCount + _sumDocAlpha[docIndex]);
+						= (getCountDocTopic(docIndex, topicIndex, -1) + _alpha.getTopicDocAlpha(topicIndex, docIndex))
+						/ (docPlaceCount + _alpha.getSumDocAlpha(docIndex));
 					
 					double avgValue 
 						= _mTopicDoc.get(topicIndex, docIndex) / (_sampleTopicDocCount) * (_sampleTopicDocCount-1)

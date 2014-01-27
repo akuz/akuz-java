@@ -3,43 +3,42 @@ package me.akuz.nlp.topics;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Specifies a topic to be inferred by LDA.
+ * 
+ * Topic proportion is used to distribute more mass 
+ * of the Dirichlet priors to the topics with higher
+ * proportion. This essentially allows specifying 
+ * asymmetric priors on p(t | d), and scaling
+ * betas for priors on p(w | t) proportionally.
+ *
+ */
 public final class LDAGibbsTopic {
 	
 	private final String _topicId;
-	private final double _corpusFraction;
+	private final double _proportion;
 	private final Set<Integer> _priorityStems;
 	private final Set<Integer> _excludedStems;
-	private final boolean _isTransient;
-	
-	public LDAGibbsTopic(
-			String topicId,
-			double corpusFraction) {
-		
-		this(topicId, corpusFraction, false);
-	}
 	
 	public LDAGibbsTopic(
 			String topicId, 
-			double corpusFraction, 
-			boolean isTransient) {
+			double proportion) {
 		
+		if (proportion <= 0 || proportion >= 1) {
+			throw new IllegalArgumentException("Topic proportion must be within the interval (0, 1)");
+		}
 		_topicId = topicId;
-		_corpusFraction = corpusFraction;
+		_proportion = proportion;
 		_priorityStems = new HashSet<>();
 		_excludedStems = new HashSet<>();
-		_isTransient = isTransient;
 	}
 	
 	public String getTopicId() {
 		return _topicId;
 	}
 	
-	public boolean isTransient() {
-		return _isTransient;
-	}
-	
-	public double getCorpusFraction() {
-		return _corpusFraction;
+	public double getProportion() {
+		return _proportion;
 	}
 	
 	public int getPriorityStemCount() {
