@@ -9,7 +9,7 @@ public final class ProgramOptions extends Dbo {
 	private static final String _outputDir              = "outputDir";
 	private static final String _topicCount             = "topicCount";
 	private static final String _topicOutputStemsCount  = "topicOutputStemsCount";
-	private static final String _noiseTopicFrac         = "noiseTopicFrac";
+	private static final String _noiseTopicProportion   = "noiseTopicProportion";
 	private static final String _stopWordsFile          = "stopWordsFile";
 	private static final String _threadCount            = "threadCount";
 	private static final String _burnInStartTemp        = "burnInStartTemp";
@@ -23,7 +23,7 @@ public final class ProgramOptions extends Dbo {
 			String outputDir,
 			Integer topicCount,
 			Integer topicOutputStemsCount,
-			Double noiseTopicFrac,
+			Double noiseTopicProportion,
 			String stopWordsFile,
 			Integer threadCount,
 			Double burnInStartTemp,
@@ -36,7 +36,7 @@ public final class ProgramOptions extends Dbo {
 		set(_outputDir, outputDir);
 		set(_topicCount, topicCount);
 		set(_topicOutputStemsCount, topicOutputStemsCount);
-		set(_noiseTopicFrac, noiseTopicFrac);
+		set(_noiseTopicProportion, noiseTopicProportion);
 		set(_stopWordsFile, stopWordsFile);
 		set(_threadCount, threadCount);
 		set(_burnInStartTemp, burnInStartTemp);
@@ -58,8 +58,8 @@ public final class ProgramOptions extends Dbo {
 	public Integer getTopicOutputStemsCount() {
 		return getInteger(_topicOutputStemsCount);
 	}
-	public Double getNoiseTopicFraq() {
-		return getDouble(_noiseTopicFrac);
+	public Double getNoiseTopicProportion() {
+		return getDouble(_noiseTopicProportion);
 	}
 	public String getStopWordsFile() {
 		return getString(_stopWordsFile);

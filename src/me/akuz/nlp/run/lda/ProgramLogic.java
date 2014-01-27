@@ -118,20 +118,20 @@ public final class ProgramLogic {
 		
 		monitor.write("Configuring topics...");
 		List<LDAGibbsTopic> topics = new ArrayList<>();
-		double normalTopicsCorpusFrac = 1.0;
-		if (options.getNoiseTopicFraq() != null && 
-			options.getNoiseTopicFraq() > 0) {
-			normalTopicsCorpusFrac -= options.getNoiseTopicFraq();
-			LDAGibbsTopic noiseTopic = new LDAGibbsTopic("noise", options.getNoiseTopicFraq());
+		double allNormalTopicsProportion = 1.0;
+		if (options.getNoiseTopicProportion() != null && 
+			options.getNoiseTopicProportion() > 0) {
+			allNormalTopicsProportion -= options.getNoiseTopicProportion();
+			LDAGibbsTopic noiseTopic = new LDAGibbsTopic("noise", options.getNoiseTopicProportion());
 			topics.add(noiseTopic);
-			monitor.write("Added noise topic with corpus fraction " + options.getNoiseTopicFraq());
+			monitor.write("Added noise topic with proportion " + options.getNoiseTopicProportion());
 		}
-		final double perTopicCorpusFrac = normalTopicsCorpusFrac / options.getThreadCount();
+		final double normalTopicProportion = allNormalTopicsProportion / options.getTopicCount();
 		for (int topicNumber = 1; topicNumber <= options.getTopicCount(); topicNumber++) {
-			LDAGibbsTopic normalTopic = new LDAGibbsTopic("topic" + topicNumber, perTopicCorpusFrac);
+			LDAGibbsTopic normalTopic = new LDAGibbsTopic("topic" + topicNumber, normalTopicProportion);
 			topics.add(normalTopic);
 		}
-		monitor.write("Added " + options.getTopicCount() + " topics with total corpus fraction " + normalTopicsCorpusFrac);
+		monitor.write("Added " + options.getTopicCount() + " topics with total proportion " + allNormalTopicsProportion);
 		LDAGibbsAlpha alpha = new LDAGibbsAlpha(corpus, topics);
 		LDAGibbsBeta beta = new LDAGibbsBeta(corpus, topics);
 		
@@ -154,19 +154,21 @@ public final class ProgramLogic {
 		int iter = 1;
 		double temperature = options.getBurnInStartTemp();
 		while (temperature > options.getBurnInEndTemp()) {
-			lda.setTemperature(temperature);
+			alpha.setTemperature(temperature);
+			beta.setTemperature(temperature);
 			iter = lda.run(iter, options.getBurnInTempIter());
 			temperature *= options.getBurnInTempDecay();
 		}
 		
 		monitor.write("Sampling from Gibbs sampler...");
 		int totalTopicCount = options.getTopicCount();
-		if (options.getNoiseTopicFraq() > 0) {
+		if (options.getNoiseTopicProportion() > 0) {
 			totalTopicCount += 1;
 		}
 		Matrix mTopic = new Matrix(totalTopicCount, 1);
 		Matrix mStemTopic = new Matrix(stemsIndex.size(), totalTopicCount);
-		lda.setTemperature(options.getBurnInEndTemp());
+		alpha.setTemperature(options.getBurnInEndTemp());
+		beta.setTemperature(options.getBurnInEndTemp());
 		for (int i=0; i<options.getSamplingIter(); i++) {
 			iter = lda.run(iter, 1);
 			lda.sampleTopic(mTopic);

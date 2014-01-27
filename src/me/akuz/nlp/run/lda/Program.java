@@ -29,7 +29,7 @@ public class Program {
 		String  stopWordsFile = null;
 		Integer topicCount = 10;
 		Integer topicOutputStemsCount = 100;
-		Double  noiseTopicFrac = 0.5;
+		Double  noiseTopicProportion = 0.5;
 		Integer threadCount = 2;
 		Double  burnInStartTemp = 1.0;
 		Double  burnInEndTemp = 0.1;
@@ -67,9 +67,9 @@ public class Program {
 							topicOutputStemsCount = Integer.parseInt(StringUtils.unquote(args[i+1]));
 							i++;
 						}
-					} else if ("-noiseTopicFrac".equals(args[i])) {
+					} else if ("-noiseTopicProportion".equals(args[i])) {
 						if (i+1 < args.length) {
-							noiseTopicFrac = Double.parseDouble(StringUtils.unquote(args[i+1]));
+							noiseTopicProportion = Double.parseDouble(StringUtils.unquote(args[i+1]));
 							i++;
 						}
 					} else if ("-threadCount".equals(args[i])) {
@@ -112,6 +112,9 @@ public class Program {
 			if (outputDir == null) {
 				throw new IllegalArgumentException("Output directory not specified");
 			}
+			if (noiseTopicProportion != null && (noiseTopicProportion < 0 || noiseTopicProportion >= 1)) {
+				throw new IllegalArgumentException("Argument noiseTopicProportion must be within interval [0, 1)");
+			}
 
 
 		} catch (Exception e) {
@@ -133,7 +136,7 @@ public class Program {
 				outputDir,
 				topicCount,
 				topicOutputStemsCount,
-				noiseTopicFrac,
+				noiseTopicProportion,
 				stopWordsFile,
 				threadCount,
 				burnInStartTemp,
