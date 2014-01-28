@@ -27,7 +27,7 @@
 		]
 	},
 	{
-		"id" : "normal",
+		"id" : "other",
 		"count": 20,
 		"proportion": 0.025
 	}
