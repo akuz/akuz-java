@@ -13,7 +13,6 @@ import Jama.Matrix;
  */
 public final class LDAGibbsBeta {
 	
-	private double _priorityMassFraction = 0.5;
 	private double _excludedMassMultiplier = 0.00000001;
 	private final List<LDAGibbsTopic> _topics;
 	private final int _corpusStemCount;
@@ -28,34 +27,6 @@ public final class LDAGibbsBeta {
 		_topics = topics;
 		_corpusStemCount = corpus.getStemsIndex().size();
 		_corpusPlaceCount = corpus.getPlaceCount();
-	}
-	
-	public double getPriorityMassFraction() {
-		return _priorityMassFraction;
-	}
-
-	public void setPriorityMassFraction(double fraction) {
-		if (fraction <= 0) {
-			throw new IllegalArgumentException("Priority mass fraction must be positive");
-		}
-		if (fraction >= 1) {
-			throw new IllegalArgumentException("Priority mass fraction must be less than one");
-		}
-		_priorityMassFraction = fraction;
-	}
-	
-	public double getExcludedMassMultiplier() {
-		return _excludedMassMultiplier;
-	}
-
-	public void setExcludedMassMultiplier(double multiplier) {
-		if (multiplier <= 0) {
-			throw new IllegalArgumentException("Excluded mass multiplier must be positive");
-		}
-		if (multiplier >= 1) {
-			throw new IllegalArgumentException("Excluded mass multiplier must be less than one");
-		}
-		_excludedMassMultiplier = multiplier;
 	}
 
 	public double getStemTopicBeta(int stemIndex, int topicIndex) {
@@ -93,10 +64,10 @@ public final class LDAGibbsBeta {
 			double remainingStemMass;
 			if (topic.getPriorityStemCount() > 0) {
 				
-				final double priorityMass = topicPriorMass * _priorityMassFraction;
+				final double priorityMass = topicPriorMass * topic.getPriorityWordsProportion();
 				priorityStemMass = priorityMass / topic.getPriorityStemCount();
 
-				final double remainingMass = topicPriorMass * (1.0 - _priorityMassFraction);
+				final double remainingMass = topicPriorMass * (1.0 - topic.getPriorityWordsProportion());
 				int remainingStemCount = _corpusStemCount - topic.getPriorityStemCount();
 				if (remainingStemCount > 0) {
 					remainingStemMass = remainingMass / remainingStemCount;
