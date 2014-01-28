@@ -45,4 +45,4 @@ values of hyperparameters from the start.
 
 For details on how to run it, please see `README` of individual releases.
 
-For algorithms documentation and articles, please see <http://akuz.me>
+For documentation and articles, please see <http://akuz.me>
