@@ -1,0 +1,34 @@
+[
+	{
+		"id": "noise",
+		"proportion": 0.5
+	},
+	{
+		"id" : "movies",
+		"proportion": 0.025,
+		"priorityWords": [
+			"movie",
+			"film",
+			"star",
+			"actor",
+			"red",
+			"carpet"
+		]
+	},
+	{
+		"id" : "sports",
+		"proportion": 0.025,
+		"priorityWords": [
+			"player",
+			"football",
+			"score",
+			"match",
+			"game"
+		]
+	},
+	{
+		"id" : "normal",
+		"count": 20,
+		"proportion": 0.025
+	}
+]
