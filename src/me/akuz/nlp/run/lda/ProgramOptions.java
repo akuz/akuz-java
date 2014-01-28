@@ -7,9 +7,8 @@ public final class ProgramOptions extends Dbo {
 
 	private static final String _inputDir               = "inputDir";
 	private static final String _outputDir              = "outputDir";
-	private static final String _topicCount             = "topicCount";
+	private static final String _topicsConfigFile       = "topicsConfigFile";
 	private static final String _topicOutputStemsCount  = "topicOutputStemsCount";
-	private static final String _noiseTopicProportion   = "noiseTopicProportion";
 	private static final String _stopWordsFile          = "stopWordsFile";
 	private static final String _threadCount            = "threadCount";
 	private static final String _burnInStartTemp        = "burnInStartTemp";
@@ -21,9 +20,8 @@ public final class ProgramOptions extends Dbo {
 	public ProgramOptions(
 			String inputDir,
 			String outputDir,
-			Integer topicCount,
+			String topicsConfigFile,
 			Integer topicOutputStemsCount,
-			Double noiseTopicProportion,
 			String stopWordsFile,
 			Integer threadCount,
 			Double burnInStartTemp,
@@ -34,9 +32,8 @@ public final class ProgramOptions extends Dbo {
 		
 		set(_inputDir, inputDir);
 		set(_outputDir, outputDir);
-		set(_topicCount, topicCount);
+		set(_topicsConfigFile, topicsConfigFile);
 		set(_topicOutputStemsCount, topicOutputStemsCount);
-		set(_noiseTopicProportion, noiseTopicProportion);
 		set(_stopWordsFile, stopWordsFile);
 		set(_threadCount, threadCount);
 		set(_burnInStartTemp, burnInStartTemp);
@@ -52,14 +49,11 @@ public final class ProgramOptions extends Dbo {
 	public String getOutputDir() {
 		return getString(_outputDir);
 	}
-	public Integer getTopicCount() {
-		return getInteger(_topicCount);
+	public String getTopicsConfigFile() {
+		return getString(_topicsConfigFile);
 	}
 	public Integer getTopicOutputStemsCount() {
 		return getInteger(_topicOutputStemsCount);
-	}
-	public Double getNoiseTopicProportion() {
-		return getDouble(_noiseTopicProportion);
 	}
 	public String getStopWordsFile() {
 		return getString(_stopWordsFile);

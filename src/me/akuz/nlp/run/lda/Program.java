@@ -13,10 +13,9 @@ public class Program {
 			"ARGUMENTS:\n" + 
 			"   -inputDir string               : Directory containing input text files\n" +
 			"   -outputDir string              : Directory where to save output files\n" +
-			" [ -stopWordsFile string        ] : File with stop words to ignore (default none)\n" +
-			" [ -topicCount int              ] : Number of topics for LDA inference (default 10)\n" +
+			"   -topicsConfigFile string       : Path to the topics configuration file\n" +
 			" [ -topicOutputStemsCount int   ] : Number of stems to output for each topic (default 100)\n" +
-			" [ -noiseTopicProportion double ] : Noise topic proportion (default 0.5)\n" +
+			" [ -stopWordsFile string        ] : File with stop words to ignore (default none)\n" +
 			" [ -threadCount int             ] : Number of threads to use (default 2)\n" +
 			" [ -burnInStartTemp int         ] : Burn in start temperature (default 1.0)\n" +
 			" [ -burnInEndTemp int           ] : Burn in end temperature (default 0.1)\n" +
@@ -26,10 +25,9 @@ public class Program {
 
 		String  inputDir = null;
 		String  outputDir = null;
-		String  stopWordsFile = null;
-		Integer topicCount = 10;
+		String  topicsConfigFile = null;
 		Integer topicOutputStemsCount = 100;
-		Double  noiseTopicProportion = 0.5;
+		String  stopWordsFile = null;
 		Integer threadCount = 2;
 		Double  burnInStartTemp = 1.0;
 		Double  burnInEndTemp = 0.1;
@@ -52,24 +50,19 @@ public class Program {
 							outputDir = StringUtils.unquote(args[i+1]);
 							i++;
 						}
+					} else if ("-topicsConfigFile".equals(args[i])) {
+						if (i+1 < args.length) {
+							topicsConfigFile = StringUtils.unquote(args[i+1]);
+							i++;
+						}
 					} else if ("-stopWordsFile".equals(args[i])) {
 						if (i+1 < args.length) {
 							stopWordsFile = StringUtils.unquote(args[i+1]);
 							i++;
 						}
-					} else if ("-topicCount".equals(args[i])) {
-						if (i+1 < args.length) {
-							topicCount = Integer.parseInt(StringUtils.unquote(args[i+1]));
-							i++;
-						}
 					} else if ("-topicOutputStemsCount".equals(args[i])) {
 						if (i+1 < args.length) {
 							topicOutputStemsCount = Integer.parseInt(StringUtils.unquote(args[i+1]));
-							i++;
-						}
-					} else if ("-noiseTopicProportion".equals(args[i])) {
-						if (i+1 < args.length) {
-							noiseTopicProportion = Double.parseDouble(StringUtils.unquote(args[i+1]));
 							i++;
 						}
 					} else if ("-threadCount".equals(args[i])) {
@@ -112,10 +105,9 @@ public class Program {
 			if (outputDir == null) {
 				throw new IllegalArgumentException("Output directory not specified");
 			}
-			if (noiseTopicProportion != null && (noiseTopicProportion < 0 || noiseTopicProportion >= 1)) {
-				throw new IllegalArgumentException("Argument noiseTopicProportion must be within interval [0, 1)");
+			if (topicsConfigFile == null) {
+				throw new IllegalArgumentException("Topics config file not specified");
 			}
-
 
 		} catch (Exception e) {
 			
@@ -134,9 +126,8 @@ public class Program {
 		ProgramOptions options = new ProgramOptions(
 				inputDir,
 				outputDir,
-				topicCount,
+				topicsConfigFile,
 				topicOutputStemsCount,
-				noiseTopicProportion,
 				stopWordsFile,
 				threadCount,
 				burnInStartTemp,

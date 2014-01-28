@@ -84,7 +84,12 @@ Then run it as follows:
 
 `./akuz-java-nlp-run-lda.sh`
 
+Please check `README` in the release you're using, as the
+parameters might have been different at the time of release.
+
 ### Resources
+
 
 To read relevant blog articles or to get the test data,
 please see <http://akuz.me>
+

@@ -2,7 +2,6 @@ package me.akuz.nlp.run.lda;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -117,21 +116,8 @@ public final class ProgramLogic {
 		}
 		
 		monitor.write("Configuring topics...");
-		List<LDAGibbsTopic> topics = new ArrayList<>();
-		double allNormalTopicsProportion = 1.0;
-		if (options.getNoiseTopicProportion() != null && 
-			options.getNoiseTopicProportion() > 0) {
-			allNormalTopicsProportion -= options.getNoiseTopicProportion();
-			LDAGibbsTopic noiseTopic = new LDAGibbsTopic("noise", options.getNoiseTopicProportion());
-			topics.add(noiseTopic);
-			monitor.write("Added noise topic with proportion " + options.getNoiseTopicProportion());
-		}
-		final double normalTopicProportion = allNormalTopicsProportion / options.getTopicCount();
-		for (int topicNumber = 1; topicNumber <= options.getTopicCount(); topicNumber++) {
-			LDAGibbsTopic normalTopic = new LDAGibbsTopic("topic" + topicNumber, normalTopicProportion);
-			topics.add(normalTopic);
-		}
-		monitor.write("Added " + options.getTopicCount() + " topics with total proportion " + allNormalTopicsProportion);
+		List<LDAGibbsTopic> topics = TopicConfigLoader.load(options.getTopicsConfigFile(), porterStemmer, stemsIndex);
+		monitor.write("Configured " + topics.size() + " topics.");
 		LDAGibbsAlpha alpha = new LDAGibbsAlpha(corpus, topics);
 		LDAGibbsBeta beta = new LDAGibbsBeta(corpus, topics);
 		
@@ -161,12 +147,8 @@ public final class ProgramLogic {
 		}
 		
 		monitor.write("Sampling from Gibbs sampler...");
-		int totalTopicCount = options.getTopicCount();
-		if (options.getNoiseTopicProportion() > 0) {
-			totalTopicCount += 1;
-		}
-		Matrix mTopic = new Matrix(totalTopicCount, 1);
-		Matrix mStemTopic = new Matrix(stemsIndex.size(), totalTopicCount);
+		Matrix mTopic = new Matrix(topics.size(), 1);
+		Matrix mStemTopic = new Matrix(stemsIndex.size(), topics.size());
 		alpha.setTemperature(options.getBurnInEndTemp());
 		beta.setTemperature(options.getBurnInEndTemp());
 		for (int i=0; i<options.getSamplingIter(); i++) {
