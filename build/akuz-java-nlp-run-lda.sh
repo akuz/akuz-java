@@ -5,7 +5,7 @@ echo START: akuz-java-nlp-run-lda...
 java -Xms256m -Xmx4g \
         -Dfile.encoding=UTF-8 \
         -jar ./akuz-java-nlp-run-lda-0.0.1.jar \
-        -inputDir ./input/news10k \
+        --inputDir ./input/news10k \
         -outputDir ./output \
         -stopWordsFile ./stop_words.txt \
         -topicCount 20 \
