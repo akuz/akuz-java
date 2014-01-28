@@ -44,7 +44,7 @@ sampling with a constant (low) temperature, which
 is what happens when you sample with the target
 values of hyperparameters from the start.
 
-#### Topic Words Priors
+#### Topic Keywords
 
 Benefit: specify keywords for individual topics.
 
