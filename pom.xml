@@ -4,7 +4,7 @@
   <name>Akuz Java Core</name>
   <groupId>me.akuz</groupId>
   <artifactId>akuz-java-core</artifactId>
-  <version>0.0.1</version>
+  <version>0.0.2</version>
   <description>Core classes useful in various projects.</description>
   <build>
     <sourceDirectory>src</sourceDirectory>
