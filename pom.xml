@@ -4,7 +4,7 @@
   <name>Akuz Java NLP run LDA</name>
   <groupId>me.akuz</groupId>
   <artifactId>akuz-java-nlp-run-lda</artifactId>
-  <version>0.0.1</version>
+  <version>0.0.2</version>
   <description>Run LDA inference using akuz-java-nlp library.</description>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -89,12 +89,12 @@
   	<dependency>
   		<groupId>me.akuz</groupId>
   		<artifactId>akuz-java-core</artifactId>
-  		<version>0.0.1</version>
+  		<version>0.0.2</version>
   	</dependency>
   	<dependency>
   		<groupId>me.akuz</groupId>
   		<artifactId>akuz-java-nlp</artifactId>
-  		<version>0.0.1</version>
+  		<version>0.0.2</version>
   	</dependency>
   </dependencies>
  </project>

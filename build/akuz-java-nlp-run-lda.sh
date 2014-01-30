@@ -4,7 +4,7 @@ echo START: akuz-java-nlp-run-lda...
 
 java -Xms256m -Xmx4g \
         -Dfile.encoding=UTF-8 \
-        -jar ./akuz-java-nlp-run-lda-0.0.1.jar \
+        -jar ./akuz-java-nlp-run-lda-0.0.2.jar \
         -inputDir ./input/news_10k \
         -outputDir ./output \
         -topicsConfigFile ./topics_config.txt \
