@@ -59,11 +59,17 @@ public final class ProgramLogic {
 					digits.add(digit);
 				}
 				counter += 1;
+				
+				if (counter >= 1000) {
+					break;
+				}
 			}
 		}
 		
-		System.gc();
-		System.out.println("Press any key...");
+		monitor.write("Interring 2x2 blocks...");
+		new Infer2x2(digits, 16);
+		
+		monitor.write("Press any key to exit...");
 		System.in.read();
 		
 		monitor.write("DONE.");
