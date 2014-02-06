@@ -9,8 +9,8 @@ java -Xms256m -Xmx4g \
         -outputDir ./output \
         -topicsConfigFile ./topics_config.txt \
         -stopWordsFile ./stop_words.txt \
-	-burnInTempIter 10 \
-	-samplingIter 100 \
+	-burnInTempIter 25 \
+	-samplingIter 250 \
         -threadCount 4 \
 
 if [ "$?" -ne "0" ]; then
