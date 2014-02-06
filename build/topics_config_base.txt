@@ -1,0 +1,11 @@
+[
+	{
+		"id": "noise",
+		"proportion": 0.5
+	},
+	{
+		"id" : "other",
+		"count": 20,
+		"proportion": 0.025
+	}
+]
