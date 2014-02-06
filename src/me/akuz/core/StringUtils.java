@@ -81,6 +81,18 @@ public final class StringUtils {
 		return sb.toString();
 	}
 
+	public static String arrayToString(double[] c, String separator) {
+		StringBuffer sb = new StringBuffer();
+		
+		for (int i=0; i<c.length; i++) {
+			if (i > 0) {
+				sb.append(separator);
+			}
+			sb.append(c[i]);
+		}
+		return sb.toString();
+	}
+
 	public final static String trimBySpace(String str, int maxLen) {
 		
 		final String elipsis = " ...";
