@@ -60,14 +60,14 @@ public final class ProgramLogic {
 				}
 				counter += 1;
 				
-				if (counter >= 1000) {
+				if (counter >= 5000) {
 					break;
 				}
 			}
 		}
 		
 		monitor.write("Interring 2x2 blocks...");
-		new Infer2x2(digits, 16);
+		new Infer2x2(digits, 8);
 		
 		monitor.write("Press any key to exit...");
 		System.in.read();
