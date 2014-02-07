@@ -211,4 +211,18 @@ public final class FileUtils {
 			return true;
 		}
 	}
+
+	public static void cleanDir(String path) throws IOException {
+		
+		File dir = new File(path);
+		if (dir.exists()) {
+			if (!dir.isDirectory()) {
+				throw new IOException("Path is not a directory: " + path);
+			}
+			for(File file: dir.listFiles()) {
+				file.delete();
+			}
+		}
+		
+	}
 }
