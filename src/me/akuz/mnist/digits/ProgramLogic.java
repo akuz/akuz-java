@@ -1,13 +1,21 @@
 package me.akuz.mnist.digits;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import javax.imageio.ImageIO;
+
 import me.akuz.core.FileUtils;
+import me.akuz.core.StringUtils;
 import me.akuz.core.logs.LocalMonitor;
 import me.akuz.core.logs.Monitor;
+import me.akuz.core.math.NKPDist;
 
 public final class ProgramLogic {
 	
@@ -67,10 +75,46 @@ public final class ProgramLogic {
 		}
 		
 		monitor.write("Interring 2x2 blocks...");
-		new Infer2x2(digits, 8);
+		Infer2x2 infer2x2 = new Infer2x2(digits, 8);
 		
-		monitor.write("Press any key to exit...");
-		System.in.read();
+		monitor.write("Cleaning output dir...");
+		FileUtils.cleanDir(options.getOutputDir());
+		
+		monitor.write("Saving results to output dir...");
+		NKPDist[][] blocks2x2 = infer2x2.getBlocks();
+		for (int k=0; k<infer2x2.getLatentDim(); k++) {
+			
+			NKPDist[] block2x2 = blocks2x2[k];
+			
+			BufferedImage img = new BufferedImage(40, 40, BufferedImage.TYPE_INT_RGB);
+			Graphics2D g = img.createGraphics();
+			
+			for (int i=0; i<4; i++) {
+				NKPDist dist = block2x2[i];
+				double myu = dist.getPredictiveMyu();
+				int remove = 255 - (int)(255 * myu);
+				Color color = new Color(remove, remove, 255);
+				g.setColor(color);
+				if (i==0) {
+					g.fillRect(0, 0, 20, 20);
+				} else if (i==1) {
+					g.fillRect(20, 0, 20, 20);
+				} else if (i==2) {
+					g.fillRect(0, 20, 20, 20);
+				} else if (i==3) {
+					g.fillRect(20, 20, 20, 20);
+				}
+				Color border = new Color(63, 63, 63);
+				g.setColor(border);
+				g.drawRect(0, 0, 39, 39);
+			}
+			
+			File imgFile = new File(StringUtils.concatPath(options.getOutputDir(), "2x2_" + (k+1) + ".png"));
+		    ImageIO.write(img, "png", imgFile);
+		}
+		
+//		monitor.write("Press any key to exit...");
+//		System.in.read();
 		
 		monitor.write("DONE.");
 	}
