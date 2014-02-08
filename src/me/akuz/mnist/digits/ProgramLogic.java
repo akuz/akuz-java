@@ -26,10 +26,13 @@ public final class ProgramLogic {
 	private final int ITER2 = 5;
 	
 	private final int DIM4  = 16;
-	private final int ITER4 = 5;
+	private final int ITER4 = 10;
 	
 	private final int DIM8  = 32;
-	private final int ITER8 = 5;
+	private final int ITER8 = 10;
+	
+	private final int DIM16  = 64;
+	private final int ITER16 = 20;
 	
 	private final double LOG_LIKE_CHANGE_THRESHOLD = 0.001;
 	
@@ -310,8 +313,148 @@ public final class ProgramLogic {
 		    ImageIO.write(img, "png", imgFile);
 		}
 
-		monitor.write("Press any key to exit...");
-		System.in.read();
+		monitor.write("Interring 16x16 blocks...");
+		InferHDP infer16x16 = new InferHDP(monitor, infer8x8.getFeatureImages(), 8, DIM8, DIM16, ITER16, LOG_LIKE_CHANGE_THRESHOLD);
+		
+		monitor.write("Saving 16x16 features...");
+		DirDist[][] blocks16x16 = infer16x16.getFeatureBlocks();
+		for (int k16=0; k16<blocks16x16.length; k16++) {
+			
+			DirDist[] block16x16 = blocks16x16[k16];
+			
+			// calculate expected pixel values
+			double[][] myus = new double[16][16];
+			
+			for (int l16=0; l16<4; l16++) {
+				
+				final int row16;
+				final int col16;
+				switch (l16) {
+				case 0:
+					row16 = 0;
+					col16 = 0;
+					break;
+				case 1:
+					row16 = 0;
+					col16 = 8;
+					break;
+				case 2:
+					row16 = 8;
+					col16 = 0;
+					break;
+				case 3:
+					row16 = 8;
+					col16 = 8;
+					break;
+				default:
+					throw new IllegalStateException();
+				}
+
+				double[] block8x8Probs = block16x16[l16].getPosterior();
+				
+				for (int k8=0; k8<blocks8x8.length; k8++) {
+					
+					for (int l8=0; l8<4; l8++) {
+						
+						final int row8;
+						final int col8;
+						switch (l8) {
+						case 0:
+							row8 = 0;
+							col8 = 0;
+							break;
+						case 1:
+							row8 = 0;
+							col8 = 4;
+							break;
+						case 2:
+							row8 = 4;
+							col8 = 0;
+							break;
+						case 3:
+							row8 = 4;
+							col8 = 4;
+							break;
+						default:
+							throw new IllegalStateException();
+						}
+						
+						double[] block4x4Probs = blocks8x8[k8][l8].getPosterior();
+						
+						for (int k4=0; k4<blocks4x4.length; k4++) {
+		
+							for (int l4=0; l4<4; l4++) {
+								
+								final int row4;
+								final int col4;
+								switch (l4) {
+								case 0:
+									row4 = 0;
+									col4 = 0;
+									break;
+								case 1:
+									row4 = 0;
+									col4 = 2;
+									break;
+								case 2:
+									row4 = 2;
+									col4 = 0;
+									break;
+								case 3:
+									row4 = 2;
+									col4 = 2;
+									break;
+								default:
+									throw new IllegalStateException();
+								}
+								
+								double[] block2x2Probs = blocks4x4[k4][l4].getPosterior();
+								
+								for (int k2=0; k2<block2x2Probs.length; k2++) {
+									
+									double pixelProb = block8x8Probs[k8] * block4x4Probs[k4] * block2x2Probs[k2];
+									
+									for (int l2=0; l2<4; l2++) {
+										
+										double myu = blocks2x2[k2][l2].getPosteriorMyu();
+										
+										final int row2 = l2 / 2;
+										final int col2 = l2 % 2;
+										
+										myus[row16 + row8 + row4 + row2][col16 + col8 + col4 + col2] += pixelProb * myu;
+									}
+								}
+							}
+						}
+					}
+					
+				}
+			}
+			
+			BufferedImage img = new BufferedImage(320, 320, BufferedImage.TYPE_INT_RGB);
+			Graphics2D g = img.createGraphics();
+			
+			for (int row=0; row<16; row++) {
+				for (int col=0; col<16; col++) {
+					double myu = myus[row][col];
+					int remove = 255 - (int)(255 * myu);
+					Color color = new Color(remove, remove, 255);
+					g.setColor(color);
+					final int x = col * 20;
+					final int y = row * 20;
+					g.fillRect(x, y, 20, 20);
+				}
+				Color border = new Color(63, 63, 63);
+				g.setColor(border);
+				g.drawRect(0, 0, 319, 319);
+			}
+			
+			File imgFile = new File(StringUtils.concatPath(options.getOutputDir(), "XxX_" + (k16+1) + ".png"));
+		    ImageIO.write(img, "png", imgFile);
+		}
+
+//		monitor.write("Press any key to exit...");
+//		System.in.read();
 		
 		monitor.write("DONE.");
 	}
