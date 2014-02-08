@@ -1,11 +1,11 @@
 package me.akuz.mnist.digits;
 
-public final class Digit {
+public final class ByteImage {
 
 	private byte _symbol;
 	private byte[][] _data;
 	
-	public Digit(byte symbol, byte[][] data) {
+	public ByteImage(byte symbol, byte[][] data) {
 		if (data.length == 0) {
 			throw new IllegalArgumentException("Data has no rows");
 		}

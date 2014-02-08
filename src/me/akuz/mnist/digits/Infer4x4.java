@@ -9,24 +9,24 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import me.akuz.core.logs.LocalMonitor;
 import me.akuz.core.logs.Monitor;
-import me.akuz.core.math.NKPDist;
+import me.akuz.core.math.DirDist;
 import me.akuz.core.math.StatsUtils;
 
-public final class Infer2x2 {
+public final class Infer4x4 {
 	
-	private static final double PRIOR_MEAN = 0.5;
-	private static final double PRIOR_MEAN_PRECISION = Math.pow(0.5, -2);
-	private static final double PRECISION = Math.pow(0.1, -2);
-	private static final double INIT_WEIGHT = 0.1;
+	private static final double HIER_DIR_ALPHA = 1.0;
+	private static final double PARENT_DIST_ALPHA = 0.1;
+	private static final double PARENT_DIST_ALPHA_INIT = 0.1;
 	
 	private final int _dim;
 	private final double[] _featureProbs;
-	private final NKPDist[][] _featureBlocks;
+	private final DirDist[][] _featureBlocks;
 	private final List<FeatureImage> _featureImages;
 	
-	public Infer2x2(
+	public Infer4x4(
 			final Monitor parentMonitor, 
-			final List<ByteImage> images, 
+			final List<FeatureImage> images, 
+			final int inputDim,
 			final int dim,
 			final int maxIterationCount,
 			final double logLikeChangeThreshold) {
@@ -49,8 +49,8 @@ public final class Infer2x2 {
 		
 		_featureImages = new ArrayList<>();
 		for (int i=0; i<images.size(); i++) {
-			ByteImage image = images.get(i);
-			FeatureImage featureImage = new FeatureImage(image.getRowCount()-1, image.getColCount()-1, dim);
+			FeatureImage byteImage = images.get(i);
+			FeatureImage featureImage = new FeatureImage(byteImage.getRowCount()-2, byteImage.getColCount()-2, dim);
 			_featureImages.add(featureImage);
 		}
 		
@@ -60,18 +60,21 @@ public final class Infer2x2 {
 		double[] nextProbs = new double[_dim];
 		Arrays.fill(nextProbs, 0);
 		
-		NKPDist[][] currBlocks = new NKPDist[_dim][4];
+		DirDist[][] currBlocks = new DirDist[_dim][4];
 		for (int k=0; k<_dim; k++) {
 			for (int l=0; l<4; l++) {
-				currBlocks[k][l] = new NKPDist(PRIOR_MEAN, PRIOR_MEAN_PRECISION, PRECISION);
-				currBlocks[k][l].addObservation(rnd.nextDouble(), INIT_WEIGHT);
+				currBlocks[k][l] = new DirDist(inputDim, PARENT_DIST_ALPHA);
+				for (int d=0; d<inputDim; d++) {
+					currBlocks[k][l].addObservation(d, PARENT_DIST_ALPHA_INIT * rnd.nextDouble());
+				}
+				currBlocks[k][l].normalize();
 			}
 		}
 		
-		NKPDist[][] nextBlocks = new NKPDist[_dim][4];
+		DirDist[][] nextBlocks = new DirDist[_dim][4];
 		for (int k=0; k<_dim; k++) {
 			for (int l=0; l<4; l++) {
-				nextBlocks[k][l] = new NKPDist(PRIOR_MEAN, PRIOR_MEAN_PRECISION, PRECISION);
+				nextBlocks[k][l] = new DirDist(inputDim, PARENT_DIST_ALPHA);
 			}
 		}
 		
@@ -109,12 +112,11 @@ public final class Infer2x2 {
 					}
 				}
 				
-				final ByteImage image = images.get(imageIndex);
+				final FeatureImage image = images.get(imageIndex);
 				final FeatureImage featureImage = _featureImages.get(imageIndex);
 				
-				byte[][] data = image.getData();
-				for (int row=0; row<image.getRowCount()-1; row++) {
-					for (int col=0; col<image.getColCount()-1; col++) {
+				for (int row=0; row<image.getRowCount()-2; row++) {
+					for (int col=0; col<image.getColCount()-2; col++) {
 
 						// init log likes
 						for (int k=0; k<_dim; k++) {
@@ -124,24 +126,32 @@ public final class Infer2x2 {
 						// add data log likes
 						for (int k=0; k<_dim; k++) {
 							{
-								final int intValue = (int)(data[row][col] & 0xFF);
-								final double value = intValue / 255.0;
-								logLikes[k] += currBlocks[k][0].getLogProb(value);
+								final double[] parentProbs = currBlocks[k][0].getPosterior();
+								final double[] probs = image.getFeatureProbs(row, col);
+								for (int d=0; d<probs.length; d++) {
+									logLikes[k] += (parentProbs[d]*HIER_DIR_ALPHA - 1) * Math.log(probs[d]);
+								}
 							}
 							{
-								final int intValue = (int)(data[row][col+1] & 0xFF);
-								final double value = intValue / 255.0;
-								logLikes[k] += currBlocks[k][1].getLogProb(value);
+								final double[] parentProbs = currBlocks[k][1].getPosterior();
+								final double[] probs = image.getFeatureProbs(row, col+2);
+								for (int d=0; d<probs.length; d++) {
+									logLikes[k] += (parentProbs[d]*HIER_DIR_ALPHA - 1) * Math.log(probs[d]);
+								}
 							}
 							{
-								final int intValue = (int)(data[row+1][col] & 0xFF);
-								final double value = intValue / 255.0;
-								logLikes[k] += currBlocks[k][2].getLogProb(value);
+								final double[] parentProbs = currBlocks[k][2].getPosterior();
+								final double[] probs = image.getFeatureProbs(row+2, col);
+								for (int d=0; d<probs.length; d++) {
+									logLikes[k] += (parentProbs[d]*HIER_DIR_ALPHA - 1) * Math.log(probs[d]);
+								}
 							}
 							{
-								final int intValue = (int)(data[row+1][col+1] & 0xFF);
-								final double value = intValue / 255.0;
-								logLikes[k] += currBlocks[k][3].getLogProb(value);
+								final double[] parentProbs = currBlocks[k][3].getPosterior();
+								final double[] probs = image.getFeatureProbs(row+2, col+2);
+								for (int d=0; d<probs.length; d++) {
+									logLikes[k] += (parentProbs[d]*HIER_DIR_ALPHA - 1) * Math.log(probs[d]);
+								}
 							}
 						}
 						
@@ -164,24 +174,20 @@ public final class Infer2x2 {
 						for (int k=0; k<_dim; k++) {
 							if (logLikes[k] > 0) {
 								{
-									final int intValue = (int)(data[row][col] & 0xFF);
-									final double value = intValue / 255.0;
-									nextBlocks[k][0].addObservation(value, logLikes[k]);
+									double[] probs = image.getFeatureProbs(row, col);
+									nextBlocks[k][0].addObservation(probs, logLikes[k]);
 								}
 								{
-									final int intValue = (int)(data[row][col+1] & 0xFF);
-									final double value = intValue / 255.0;
-									nextBlocks[k][1].addObservation(value, logLikes[k]);
+									double[] probs = image.getFeatureProbs(row, col+2);
+									nextBlocks[k][1].addObservation(probs, logLikes[k]);
 								}
 								{
-									final int intValue = (int)(data[row+1][col] & 0xFF);
-									final double value = intValue / 255.0;
-									nextBlocks[k][2].addObservation(value, logLikes[k]);
+									double[] probs = image.getFeatureProbs(row+2, col);
+									nextBlocks[k][2].addObservation(probs, logLikes[k]);
 								}
 								{
-									final int intValue = (int)(data[row+1][col+1] & 0xFF);
-									final double value = intValue / 255.0;
-									nextBlocks[k][3].addObservation(value, logLikes[k]);
+									double[] probs = image.getFeatureProbs(row+2, col+2);
+									nextBlocks[k][3].addObservation(probs, logLikes[k]);
 								}
 							}
 						}
@@ -195,6 +201,11 @@ public final class Infer2x2 {
 			
 			// normalize next probs
 			StatsUtils.normalize(nextProbs);
+			for (int k=0; k<nextBlocks.length; k++) {
+				for (int l=0; l<4; l++) {
+					nextBlocks[k][l].normalize();
+				}
+			}
 			
 			// update current probs
 			{
@@ -204,12 +215,12 @@ public final class Infer2x2 {
 				Arrays.fill(nextProbs, 0);
 			}
 			{
-				NKPDist[][] tmp = currBlocks;
+				DirDist[][] tmp = currBlocks;
 				currBlocks = nextBlocks;
 				nextBlocks = tmp;
 				for (int k=0; k<_dim; k++) {
 					for (int l=0; l<4; l++) {
-						nextBlocks[k][l] = new NKPDist(PRIOR_MEAN, PRIOR_MEAN_PRECISION, PRECISION);
+						nextBlocks[k][l] = new DirDist(inputDim, PARENT_DIST_ALPHA);
 					}
 				}
 			}
@@ -259,7 +270,7 @@ public final class Infer2x2 {
 		return _featureProbs;
 	}
 	
-	public NKPDist[][] getFeatureBlocks() {
+	public DirDist[][] getFeatureBlocks() {
 		return _featureBlocks;
 	}
 	
