@@ -19,11 +19,19 @@ import me.akuz.core.math.DirDist;
 import me.akuz.core.math.NKPDist;
 
 public final class ProgramLogic {
-	
-	private final int DIM2 = 8;
-	private final int DIM4 = 16;
-	private final int DIM8 = 32;
+
 	private final int IMAGE_SIZE = 28;
+	
+	private final int DIM2  = 8;
+	private final int ITER2 = 5;
+	
+	private final int DIM4  = 16;
+	private final int ITER4 = 5;
+	
+	private final int DIM8  = 32;
+	private final int ITER8 = 5;
+	
+	private final double LOG_LIKE_CHANGE_THRESHOLD = 0.001;
 	
 	public ProgramLogic() {
 	}
@@ -79,7 +87,7 @@ public final class ProgramLogic {
 		}
 		
 		monitor.write("Interring 2x2 blocks...");
-		InferNKP infer2x2 = new InferNKP(monitor, digits, 1, DIM2, 5, 0.001);
+		InferNKP infer2x2 = new InferNKP(monitor, digits, 1, DIM2, ITER2, LOG_LIKE_CHANGE_THRESHOLD);
 		
 		monitor.write("Cleaning output dir...");
 		FileUtils.cleanDir(options.getOutputDir());
@@ -114,7 +122,7 @@ public final class ProgramLogic {
 		}
 		
 		monitor.write("Interring 4x4 blocks...");
-		InferHDP infer4x4 = new InferHDP(monitor, infer2x2.getFeatureImages(), 2, DIM2, DIM4, 5, 0.001);
+		InferHDP infer4x4 = new InferHDP(monitor, infer2x2.getFeatureImages(), 2, DIM2, DIM4, ITER4, LOG_LIKE_CHANGE_THRESHOLD);
 		
 		monitor.write("Saving 4x4 features...");
 		DirDist[][] blocks4x4 = infer4x4.getFeatureBlocks();
@@ -194,7 +202,7 @@ public final class ProgramLogic {
 
 		
 		monitor.write("Interring 8x8 blocks...");
-		InferHDP infer8x8 = new InferHDP(monitor, infer4x4.getFeatureImages(), 4, DIM4, DIM8, 5, 0.001);
+		InferHDP infer8x8 = new InferHDP(monitor, infer4x4.getFeatureImages(), 4, DIM4, DIM8, ITER8, LOG_LIKE_CHANGE_THRESHOLD);
 		
 		monitor.write("Saving 8x8 features...");
 		DirDist[][] blocks8x8 = infer8x8.getFeatureBlocks();
