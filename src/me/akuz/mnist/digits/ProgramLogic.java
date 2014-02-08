@@ -20,8 +20,9 @@ import me.akuz.core.math.NKPDist;
 
 public final class ProgramLogic {
 	
-	private final int DIM2 = 16;
-	private final int DIM4 = 32;
+	private final int DIM2 = 8;
+	private final int DIM4 = 16;
+	private final int DIM8 = 32;
 	private final int IMAGE_SIZE = 28;
 	
 	public ProgramLogic() {
@@ -78,7 +79,7 @@ public final class ProgramLogic {
 		}
 		
 		monitor.write("Interring 2x2 blocks...");
-		Infer2x2 infer2x2 = new Infer2x2(monitor, digits, DIM2, 5, 0.001);
+		InferNKP infer2x2 = new InferNKP(monitor, digits, 1, DIM2, 5, 0.001);
 		
 		monitor.write("Cleaning output dir...");
 		FileUtils.cleanDir(options.getOutputDir());
@@ -113,7 +114,7 @@ public final class ProgramLogic {
 		}
 		
 		monitor.write("Interring 4x4 blocks...");
-		Infer4x4 infer4x4 = new Infer4x4(monitor, infer2x2.getFeatureImages(), DIM2, DIM4, 5, 0.001);
+		InferHDP infer4x4 = new InferHDP(monitor, infer2x2.getFeatureImages(), 2, DIM2, DIM4, 5, 0.001);
 		
 		monitor.write("Saving 4x4 features...");
 		DirDist[][] blocks4x4 = infer4x4.getFeatureBlocks();
@@ -188,6 +189,116 @@ public final class ProgramLogic {
 			}
 			
 			File imgFile = new File(StringUtils.concatPath(options.getOutputDir(), "4x4_" + (k+1) + ".png"));
+		    ImageIO.write(img, "png", imgFile);
+		}
+
+		
+		monitor.write("Interring 8x8 blocks...");
+		InferHDP infer8x8 = new InferHDP(monitor, infer4x4.getFeatureImages(), 4, DIM4, DIM8, 5, 0.001);
+		
+		monitor.write("Saving 8x8 features...");
+		DirDist[][] blocks8x8 = infer8x8.getFeatureBlocks();
+		for (int k8=0; k8<blocks8x8.length; k8++) {
+			
+			DirDist[] block8x8 = blocks8x8[k8];
+			
+			// calculate expected pixel values
+			double[][] myus = new double[8][8];
+			
+			for (int l8=0; l8<4; l8++) {
+				
+				final int row8;
+				final int col8;
+				switch (l8) {
+				case 0:
+					row8 = 0;
+					col8 = 0;
+					break;
+				case 1:
+					row8 = 0;
+					col8 = 4;
+					break;
+				case 2:
+					row8 = 4;
+					col8 = 0;
+					break;
+				case 3:
+					row8 = 4;
+					col8 = 4;
+					break;
+				default:
+					throw new IllegalStateException();
+				}
+				
+				double[] block4x4Probs = block8x8[l8].getPosterior();
+				
+				for (int k4=0; k4<blocks4x4.length; k4++) {
+
+					for (int l4=0; l4<4; l4++) {
+						
+						final int row4;
+						final int col4;
+						switch (l4) {
+						case 0:
+							row4 = 0;
+							col4 = 0;
+							break;
+						case 1:
+							row4 = 0;
+							col4 = 2;
+							break;
+						case 2:
+							row4 = 2;
+							col4 = 0;
+							break;
+						case 3:
+							row4 = 2;
+							col4 = 2;
+							break;
+						default:
+							throw new IllegalStateException();
+						}
+						
+						double[] block2x2Probs = blocks4x4[k4][l4].getPosterior();
+						
+						for (int k2=0; k2<block2x2Probs.length; k2++) {
+							
+							double pixelProb = block4x4Probs[k4] * block2x2Probs[k2];
+							
+							for (int l2=0; l2<4; l2++) {
+								
+								double myu = blocks2x2[k2][l2].getPosteriorMyu();
+								
+								final int row2 = l2 / 2;
+								final int col2 = l2 % 2;
+								
+								myus[row8 + row4 + row2][col8 + col4 + col2] += pixelProb * myu;
+							}
+						}
+					}
+				}
+			}
+			
+			
+			BufferedImage img = new BufferedImage(160, 160, BufferedImage.TYPE_INT_RGB);
+			Graphics2D g = img.createGraphics();
+			
+			for (int row=0; row<8; row++) {
+				for (int col=0; col<8; col++) {
+					double myu = myus[row][col];
+					int remove = 255 - (int)(255 * myu);
+					Color color = new Color(remove, remove, 255);
+					g.setColor(color);
+					final int x = col * 20;
+					final int y = row * 20;
+					g.fillRect(x, y, 20, 20);
+				}
+				Color border = new Color(63, 63, 63);
+				g.setColor(border);
+				g.drawRect(0, 0, 159, 159);
+			}
+			
+			File imgFile = new File(StringUtils.concatPath(options.getOutputDir(), "8x8_" + (k8+1) + ".png"));
 		    ImageIO.write(img, "png", imgFile);
 		}
 

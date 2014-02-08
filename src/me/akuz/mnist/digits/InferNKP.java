@@ -12,7 +12,7 @@ import me.akuz.core.logs.Monitor;
 import me.akuz.core.math.NKPDist;
 import me.akuz.core.math.StatsUtils;
 
-public final class Infer2x2 {
+public final class InferNKP {
 	
 	private static final double PRIOR_MEAN = 0.5;
 	private static final double PRIOR_MEAN_PRECISION = Math.pow(0.5, -2);
@@ -24,13 +24,17 @@ public final class Infer2x2 {
 	private final NKPDist[][] _featureBlocks;
 	private final List<FeatureImage> _featureImages;
 	
-	public Infer2x2(
+	public InferNKP(
 			final Monitor parentMonitor, 
 			final List<ByteImage> images, 
+			final int inputShift,
 			final int dim,
 			final int maxIterationCount,
 			final double logLikeChangeThreshold) {
 		
+		if (inputShift < 1) {
+			throw new IllegalArgumentException("Input shift must be positive");
+		}
 		if (dim < 2) {
 			throw new IllegalArgumentException("Feature dimensionality must be >= 2");
 		}
@@ -41,7 +45,7 @@ public final class Infer2x2 {
 			throw new IllegalArgumentException("LogLike change threshold must be positive");
 		}
 
-		final Monitor monitor = parentMonitor == null ? null : new LocalMonitor(this.getClass().getSimpleName(), parentMonitor);
+		final Monitor monitor = parentMonitor == null ? null : new LocalMonitor(this.getClass().getSimpleName() + " (shift " + inputShift + ")", parentMonitor);
 		DecimalFormat fmt = new DecimalFormat("' '0.00000000;'-'0.00000000");
 
 		_dim = dim;
@@ -50,7 +54,7 @@ public final class Infer2x2 {
 		_featureImages = new ArrayList<>();
 		for (int i=0; i<images.size(); i++) {
 			ByteImage image = images.get(i);
-			FeatureImage featureImage = new FeatureImage(image.getRowCount()-1, image.getColCount()-1, dim);
+			FeatureImage featureImage = new FeatureImage(image.getRowCount()-inputShift, image.getColCount()-inputShift, dim);
 			_featureImages.add(featureImage);
 		}
 		
@@ -113,8 +117,8 @@ public final class Infer2x2 {
 				final FeatureImage featureImage = _featureImages.get(imageIndex);
 				
 				byte[][] data = image.getData();
-				for (int row=0; row<image.getRowCount()-1; row++) {
-					for (int col=0; col<image.getColCount()-1; col++) {
+				for (int row=0; row<image.getRowCount()-inputShift; row++) {
+					for (int col=0; col<image.getColCount()-inputShift; col++) {
 
 						// init log likes
 						for (int k=0; k<_dim; k++) {
@@ -129,17 +133,17 @@ public final class Infer2x2 {
 								logLikes[k] += currBlocks[k][0].getLogProb(value);
 							}
 							{
-								final int intValue = (int)(data[row][col+1] & 0xFF);
+								final int intValue = (int)(data[row][col+inputShift] & 0xFF);
 								final double value = intValue / 255.0;
 								logLikes[k] += currBlocks[k][1].getLogProb(value);
 							}
 							{
-								final int intValue = (int)(data[row+1][col] & 0xFF);
+								final int intValue = (int)(data[row+inputShift][col] & 0xFF);
 								final double value = intValue / 255.0;
 								logLikes[k] += currBlocks[k][2].getLogProb(value);
 							}
 							{
-								final int intValue = (int)(data[row+1][col+1] & 0xFF);
+								final int intValue = (int)(data[row+inputShift][col+inputShift] & 0xFF);
 								final double value = intValue / 255.0;
 								logLikes[k] += currBlocks[k][3].getLogProb(value);
 							}
@@ -169,17 +173,17 @@ public final class Infer2x2 {
 									nextBlocks[k][0].addObservation(value, logLikes[k]);
 								}
 								{
-									final int intValue = (int)(data[row][col+1] & 0xFF);
+									final int intValue = (int)(data[row][col+inputShift] & 0xFF);
 									final double value = intValue / 255.0;
 									nextBlocks[k][1].addObservation(value, logLikes[k]);
 								}
 								{
-									final int intValue = (int)(data[row+1][col] & 0xFF);
+									final int intValue = (int)(data[row+inputShift][col] & 0xFF);
 									final double value = intValue / 255.0;
 									nextBlocks[k][2].addObservation(value, logLikes[k]);
 								}
 								{
-									final int intValue = (int)(data[row+1][col+1] & 0xFF);
+									final int intValue = (int)(data[row+inputShift][col+inputShift] & 0xFF);
 									final double value = intValue / 255.0;
 									nextBlocks[k][3].addObservation(value, logLikes[k]);
 								}
@@ -266,6 +270,5 @@ public final class Infer2x2 {
 	public List<FeatureImage> getFeatureImages() {
 		return _featureImages;
 	}
-	
 
 }

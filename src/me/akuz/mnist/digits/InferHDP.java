@@ -12,7 +12,7 @@ import me.akuz.core.logs.Monitor;
 import me.akuz.core.math.DirDist;
 import me.akuz.core.math.StatsUtils;
 
-public final class Infer4x4 {
+public final class InferHDP {
 	
 	private static final double HIER_DIR_ALPHA = 1.0;
 	private static final double PARENT_DIST_ALPHA = 0.1;
@@ -23,14 +23,21 @@ public final class Infer4x4 {
 	private final DirDist[][] _featureBlocks;
 	private final List<FeatureImage> _featureImages;
 	
-	public Infer4x4(
+	public InferHDP(
 			final Monitor parentMonitor, 
 			final List<FeatureImage> images, 
+			final int inputShift,
 			final int inputDim,
 			final int dim,
 			final int maxIterationCount,
 			final double logLikeChangeThreshold) {
 		
+		if (inputShift < 1) {
+			throw new IllegalArgumentException("Input shift must be positive");
+		}
+		if (inputDim < 2) {
+			throw new IllegalArgumentException("Input feature dimensionality must be >= 2");
+		}
 		if (dim < 2) {
 			throw new IllegalArgumentException("Feature dimensionality must be >= 2");
 		}
@@ -41,7 +48,7 @@ public final class Infer4x4 {
 			throw new IllegalArgumentException("LogLike change threshold must be positive");
 		}
 
-		final Monitor monitor = parentMonitor == null ? null : new LocalMonitor(this.getClass().getSimpleName(), parentMonitor);
+		final Monitor monitor = parentMonitor == null ? null : new LocalMonitor(this.getClass().getSimpleName() + " (shift " + inputShift + ")", parentMonitor);
 		DecimalFormat fmt = new DecimalFormat("' '0.00000000;'-'0.00000000");
 
 		_dim = dim;
@@ -49,8 +56,8 @@ public final class Infer4x4 {
 		
 		_featureImages = new ArrayList<>();
 		for (int i=0; i<images.size(); i++) {
-			FeatureImage byteImage = images.get(i);
-			FeatureImage featureImage = new FeatureImage(byteImage.getRowCount()-2, byteImage.getColCount()-2, dim);
+			FeatureImage image = images.get(i);
+			FeatureImage featureImage = new FeatureImage(image.getRowCount()-inputShift, image.getColCount()-inputShift, dim);
 			_featureImages.add(featureImage);
 		}
 		
@@ -115,8 +122,8 @@ public final class Infer4x4 {
 				final FeatureImage image = images.get(imageIndex);
 				final FeatureImage featureImage = _featureImages.get(imageIndex);
 				
-				for (int row=0; row<image.getRowCount()-2; row++) {
-					for (int col=0; col<image.getColCount()-2; col++) {
+				for (int row=0; row<image.getRowCount()-inputShift; row++) {
+					for (int col=0; col<image.getColCount()-inputShift; col++) {
 
 						// init log likes
 						for (int k=0; k<_dim; k++) {
@@ -134,21 +141,21 @@ public final class Infer4x4 {
 							}
 							{
 								final double[] parentProbs = currBlocks[k][1].getPosterior();
-								final double[] probs = image.getFeatureProbs(row, col+2);
+								final double[] probs = image.getFeatureProbs(row, col+inputShift);
 								for (int d=0; d<probs.length; d++) {
 									logLikes[k] += (parentProbs[d]*HIER_DIR_ALPHA - 1) * Math.log(probs[d]);
 								}
 							}
 							{
 								final double[] parentProbs = currBlocks[k][2].getPosterior();
-								final double[] probs = image.getFeatureProbs(row+2, col);
+								final double[] probs = image.getFeatureProbs(row+inputShift, col);
 								for (int d=0; d<probs.length; d++) {
 									logLikes[k] += (parentProbs[d]*HIER_DIR_ALPHA - 1) * Math.log(probs[d]);
 								}
 							}
 							{
 								final double[] parentProbs = currBlocks[k][3].getPosterior();
-								final double[] probs = image.getFeatureProbs(row+2, col+2);
+								final double[] probs = image.getFeatureProbs(row+inputShift, col+inputShift);
 								for (int d=0; d<probs.length; d++) {
 									logLikes[k] += (parentProbs[d]*HIER_DIR_ALPHA - 1) * Math.log(probs[d]);
 								}
@@ -178,15 +185,15 @@ public final class Infer4x4 {
 									nextBlocks[k][0].addObservation(probs, logLikes[k]);
 								}
 								{
-									double[] probs = image.getFeatureProbs(row, col+2);
+									double[] probs = image.getFeatureProbs(row, col+inputShift);
 									nextBlocks[k][1].addObservation(probs, logLikes[k]);
 								}
 								{
-									double[] probs = image.getFeatureProbs(row+2, col);
+									double[] probs = image.getFeatureProbs(row+inputShift, col);
 									nextBlocks[k][2].addObservation(probs, logLikes[k]);
 								}
 								{
-									double[] probs = image.getFeatureProbs(row+2, col+2);
+									double[] probs = image.getFeatureProbs(row+inputShift, col+inputShift);
 									nextBlocks[k][3].addObservation(probs, logLikes[k]);
 								}
 							}
@@ -277,6 +284,5 @@ public final class Infer4x4 {
 	public List<FeatureImage> getFeatureImages() {
 		return _featureImages;
 	}
-	
 
 }
