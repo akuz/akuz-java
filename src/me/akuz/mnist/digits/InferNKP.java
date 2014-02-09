@@ -193,10 +193,6 @@ public final class InferNKP {
 				}
 			}
 			
-			if (monitor != null) {
-				monitor.write("LogLike: " + currLogLike);
-			}
-			
 			// normalize next probs
 			StatsUtils.normalize(nextProbs);
 			
@@ -226,13 +222,28 @@ public final class InferNKP {
 						monitor.write("  Block #" + (l+1) + ": " + currBlocks[k][l]);
 					}
 				}
+				monitor.write("LogLike: " + currLogLike + " (" + prevLogLike + ")");
+			}
+
+			// check log like error
+			if (Double.isNaN(currLogLike)) {
+				if (monitor != null) {
+					monitor.write("Log likelihood error.");
+				}
+				break;
+			}
+			
+			// check if converged
+			if (currLogLike < prevLogLike) {
+				if (monitor != null) {
+					monitor.write("Log likelihood fell.");
+				}
+				break;
 			}
 			
 			// check if converged
 			if (Double.isNaN(prevLogLike) == false &&
-				(currLogLike < prevLogLike ||
-				 Math.abs(prevLogLike - currLogLike) < logLikeChangeThreshold)) {
-				
+				Math.abs(prevLogLike - currLogLike) < logLikeChangeThreshold) {
 				if (monitor != null) {
 					monitor.write("Log likelihood converged.");
 				}
@@ -241,7 +252,6 @@ public final class InferNKP {
 			
 			// check if max iterations
 			if (iter >= maxIterationCount) {
-
 				if (monitor != null) {
 					monitor.write("Done max iterations (" + iter + ").");
 				}

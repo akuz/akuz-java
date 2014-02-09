@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -20,21 +21,23 @@ import me.akuz.core.math.NKPDist;
 
 public final class ProgramLogic {
 
-	private final int IMAGE_SIZE = 28;
+	private static final int IMAGE_SIZE = 28;
+	private static final int MAX_IMAGE_COUNT = 2000;
 	
-	private final int DIM2  = 8;
-	private final int ITER2 = 5;
+	private static final int DIM2  = 8;
+	private static final int ITER2 = 5;
 	
-	private final int DIM4  = 16;
-	private final int ITER4 = 10;
+	private static final int DIM4  = 16;
+	private static final int ITER4 = 10;
 	
-	private final int DIM8  = 32;
-	private final int ITER8 = 10;
+	private static final int DIM8  = 32;
+	private static final int ITER8 = 15;
 	
-	private final int DIM16  = 64;
-	private final int ITER16 = 20;
+	private static final int DIM16  = 64;
+	private static final int ITER16 = 20;
 	
-	private final double LOG_LIKE_CHANGE_THRESHOLD = 0.001;
+	private static final double LOG_LIKE_CHANGE_THRESHOLD = 0.001;
+	private static final DecimalFormat fmt = new DecimalFormat("0.00000000");
 	
 	public ProgramLogic() {
 	}
@@ -49,7 +52,7 @@ public final class ProgramLogic {
 		}
 		
 		monitor.write("Loading training data...");
-		List<ByteImage> digits = new ArrayList<>();
+		List<ByteImage> images = new ArrayList<>();
 		try (Scanner scanner = FileUtils.openScanner(options.getTrainFile())) {
 			
 			// skip first line
@@ -79,27 +82,27 @@ public final class ProgramLogic {
 						data[row][col] = (byte)val;
 					}
 					ByteImage digit = new ByteImage(symbol, data);
-					digits.add(digit);
+					images.add(digit);
 				}
 				counter += 1;
 				
-				if (counter >= 5000) {
+				if (images.size() >= MAX_IMAGE_COUNT) {
 					break;
 				}
 			}
 		}
 		
 		monitor.write("Interring 2x2 blocks...");
-		InferNKP infer2x2 = new InferNKP(monitor, digits, 1, DIM2, ITER2, LOG_LIKE_CHANGE_THRESHOLD);
+		InferNKP infer2x2 = new InferNKP(monitor, images, 1, DIM2, ITER2, LOG_LIKE_CHANGE_THRESHOLD);
 		
 		monitor.write("Cleaning output dir...");
 		FileUtils.cleanDir(options.getOutputDir());
 		
 		monitor.write("Saving 2x2 features...");
 		NKPDist[][] blocks2x2 = infer2x2.getFeatureBlocks();
-		for (int k=0; k<blocks2x2.length; k++) {
+		for (int k2=0; k2<blocks2x2.length; k2++) {
 			
-			NKPDist[] block2x2 = blocks2x2[k];
+			NKPDist[] block2x2 = blocks2x2[k2];
 			
 			BufferedImage img = new BufferedImage(40, 40, BufferedImage.TYPE_INT_RGB);
 			Graphics2D g = img.createGraphics();
@@ -120,7 +123,7 @@ public final class ProgramLogic {
 				g.drawRect(0, 0, 39, 39);
 			}
 			
-			File imgFile = new File(StringUtils.concatPath(options.getOutputDir(), "2x2_" + (k+1) + ".png"));
+			File imgFile = new File(StringUtils.concatPath(options.getOutputDir(), "2x2_" + fmt.format(infer2x2.getFeatureProbs()[k2]) + "_" + (k2+1) + ".png"));
 		    ImageIO.write(img, "png", imgFile);
 		}
 		
@@ -129,9 +132,9 @@ public final class ProgramLogic {
 		
 		monitor.write("Saving 4x4 features...");
 		DirDist[][] blocks4x4 = infer4x4.getFeatureBlocks();
-		for (int k=0; k<blocks4x4.length; k++) {
+		for (int k4=0; k4<blocks4x4.length; k4++) {
 			
-			DirDist[] block4x4 = blocks4x4[k];
+			DirDist[] block4x4 = blocks4x4[k4];
 			
 			// calculate expected pixel values
 			double[][] myus = new double[4][4];
@@ -199,7 +202,7 @@ public final class ProgramLogic {
 				g.drawRect(0, 0, 79, 79);
 			}
 			
-			File imgFile = new File(StringUtils.concatPath(options.getOutputDir(), "4x4_" + (k+1) + ".png"));
+			File imgFile = new File(StringUtils.concatPath(options.getOutputDir(), "4x4_" + fmt.format(infer4x4.getFeatureProbs()[k4]) + "_" + (k4+1) + ".png"));
 		    ImageIO.write(img, "png", imgFile);
 		}
 
@@ -309,7 +312,7 @@ public final class ProgramLogic {
 				g.drawRect(0, 0, 159, 159);
 			}
 			
-			File imgFile = new File(StringUtils.concatPath(options.getOutputDir(), "8x8_" + (k8+1) + ".png"));
+			File imgFile = new File(StringUtils.concatPath(options.getOutputDir(), "8x8_" + fmt.format(infer8x8.getFeatureProbs()[k8]) + "_" + (k8+1) + ".png"));
 		    ImageIO.write(img, "png", imgFile);
 		}
 
@@ -449,7 +452,7 @@ public final class ProgramLogic {
 				g.drawRect(0, 0, 319, 319);
 			}
 			
-			File imgFile = new File(StringUtils.concatPath(options.getOutputDir(), "XxX_" + (k16+1) + ".png"));
+			File imgFile = new File(StringUtils.concatPath(options.getOutputDir(), "XxX_" + fmt.format(infer16x16.getFeatureProbs()[k16]) + "_" + (k16+1) + ".png"));
 		    ImageIO.write(img, "png", imgFile);
 		}
 

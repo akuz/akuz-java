@@ -17,6 +17,7 @@ public final class InferHDP {
 	private static final double HIER_DIR_ALPHA = 1.0;
 	private static final double PARENT_DIST_ALPHA = 0.1;
 	private static final double PARENT_DIST_ALPHA_INIT = 0.1;
+	private static final double LOG_INSURANCE = 0.000000000000000000000001;
 	
 	private final int _dim;
 	private final double[] _featureProbs;
@@ -136,28 +137,28 @@ public final class InferHDP {
 								final double[] parentProbs = currBlocks[k][0].getPosterior();
 								final double[] probs = image.getFeatureProbs(row, col);
 								for (int d=0; d<probs.length; d++) {
-									logLikes[k] += (parentProbs[d]*HIER_DIR_ALPHA - 1) * Math.log(probs[d]);
+									logLikes[k] += (parentProbs[d]*HIER_DIR_ALPHA - 1) * Math.log(LOG_INSURANCE + probs[d]);
 								}
 							}
 							{
 								final double[] parentProbs = currBlocks[k][1].getPosterior();
 								final double[] probs = image.getFeatureProbs(row, col+inputShift);
 								for (int d=0; d<probs.length; d++) {
-									logLikes[k] += (parentProbs[d]*HIER_DIR_ALPHA - 1) * Math.log(probs[d]);
+									logLikes[k] += (parentProbs[d]*HIER_DIR_ALPHA - 1) * Math.log(LOG_INSURANCE + probs[d]);
 								}
 							}
 							{
 								final double[] parentProbs = currBlocks[k][2].getPosterior();
 								final double[] probs = image.getFeatureProbs(row+inputShift, col);
 								for (int d=0; d<probs.length; d++) {
-									logLikes[k] += (parentProbs[d]*HIER_DIR_ALPHA - 1) * Math.log(probs[d]);
+									logLikes[k] += (parentProbs[d]*HIER_DIR_ALPHA - 1) * Math.log(LOG_INSURANCE + probs[d]);
 								}
 							}
 							{
 								final double[] parentProbs = currBlocks[k][3].getPosterior();
 								final double[] probs = image.getFeatureProbs(row+inputShift, col+inputShift);
 								for (int d=0; d<probs.length; d++) {
-									logLikes[k] += (parentProbs[d]*HIER_DIR_ALPHA - 1) * Math.log(probs[d]);
+									logLikes[k] += (parentProbs[d]*HIER_DIR_ALPHA - 1) * Math.log(LOG_INSURANCE + probs[d]);
 								}
 							}
 						}
@@ -202,10 +203,6 @@ public final class InferHDP {
 				}
 			}
 			
-			if (monitor != null) {
-				monitor.write("LogLike: " + currLogLike);
-			}
-			
 			// normalize next probs
 			StatsUtils.normalize(nextProbs);
 			for (int k=0; k<nextBlocks.length; k++) {
@@ -240,26 +237,41 @@ public final class InferHDP {
 						monitor.write("  Block #" + (l+1) + ": " + currBlocks[k][l]);
 					}
 				}
+				monitor.write("LogLike: " + currLogLike + " (" + prevLogLike + ")");
 			}
 			
-			// check if converged
-			if (Double.isNaN(prevLogLike) == false &&
-				(currLogLike < prevLogLike ||
-				 Math.abs(prevLogLike - currLogLike) < logLikeChangeThreshold)) {
+			// check log like error
+			if (Double.isNaN(currLogLike)) {
+				if (monitor != null) {
+					monitor.write("Log likelihood error.");
+				}
+				break;
+			}
+			
+			// check log like
+			if (currLogLike < prevLogLike) {
+				if (monitor != null) {
+					monitor.write("Log likelihood fell, but we don't stop because of the LOG_INSURANCE");
+				}
 				
-				if (monitor != null) {
-					monitor.write("Log likelihood converged.");
-				}
-				break;
-			}
+			} else {
 			
-			// check if max iterations
-			if (iter >= maxIterationCount) {
-
-				if (monitor != null) {
-					monitor.write("Done max iterations (" + iter + ").");
+				// check if converged
+				if (Double.isNaN(prevLogLike) == false &&
+					Math.abs(prevLogLike - currLogLike) < logLikeChangeThreshold) {
+					if (monitor != null) {
+						monitor.write("Log likelihood converged.");
+					}
+					break;
 				}
-				break;
+				
+				// check if max iterations
+				if (iter >= maxIterationCount) {
+					if (monitor != null) {
+						monitor.write("Done max iterations (" + iter + ").");
+					}
+					break;
+				}
 			}
 			
 			prevLogLike = currLogLike;
