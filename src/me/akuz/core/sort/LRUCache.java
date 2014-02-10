@@ -36,20 +36,30 @@ public final class LRUCache<K, V> {
 	}
 	
 	public void add(K key, V value) {
-		if (_map.containsKey(key)) {
-			throw new IllegalStateException("Key already contained in cache");
-		}
 		
-		// add new heap entry
-		HeapEntry<Long, K> heapEntry = _heap.add(_counter++, key);
-		LRUCacheEntry<K, V> entry = new LRUCacheEntry<>(heapEntry, value);
-		_map.put(key, entry);
+		LRUCacheEntry<K, V> entry = _map.get(key);
+		if (entry != null) {
+			
+			entry.getHeapEntry().setKey(_counter++);
+			_heap.update(entry.getHeapEntry());
+
+		} else {
 		
-		// clean up heap
-		while (_heap.size() > _maxSize) {
-			HeapEntry<Long, K> top = _heap.getTop();
-			_map.remove(top.getValue());
-			_heap.remove(top);
+			if (_map.containsKey(key)) {
+				throw new IllegalStateException("Key already present in cache");
+			}
+			
+			// add new heap entry
+			HeapEntry<Long, K> heapEntry = _heap.add(_counter++, key);
+			entry = new LRUCacheEntry<>(heapEntry, value);
+			_map.put(key, entry);
+			
+			// clean up heap
+			while (_heap.size() > _maxSize) {
+				HeapEntry<Long, K> top = _heap.getTop();
+				_map.remove(top.getValue());
+				_heap.remove(top);
+			}
 		}
 	}
 	

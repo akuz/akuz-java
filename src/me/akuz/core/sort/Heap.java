@@ -22,63 +22,31 @@ public final class Heap<K extends Comparable<K>, V> {
 		return entry;
 	}
 	
-	public void update(HeapEntry<K, V> entry) {
+	public void update(HeapEntry<K, V> updatedEntry) {
+		
+		int index = updatedEntry.getIndex();
 		
 		while (true) {
 			
-			// compare with parent
-			if (entry.getIndex() > 0) {
+			siftDown(_list.get(index));
+			
+			if (index > 0) {
 				
-				int parentIndex = getParentIndex(entry.getIndex());
+				int parentIndex = getParentIndex(index);
 				HeapEntry<K, V> parentEntry = _list.get(parentIndex);
-				int cmp = parentEntry.getKey().compareTo(entry.getKey());
-				if (cmp > 0) {
-					
-					_list.set(parentEntry.getIndex(), entry);
-					_list.set(entry.getIndex(), parentEntry);
-					
-					parentEntry.setIndex(entry.getIndex());
-					entry.setIndex(parentIndex);
-					continue;
-				}
-			}
-			
-			// compare with left child
-			int leftChildIndex = getLeftChildIndex(entry.getIndex());
-			if (leftChildIndex < _list.size()) {
+				HeapEntry<K, V> childEntry = _list.get(index);
 				
-				HeapEntry<K, V> leftChildEntry = _list.get(leftChildIndex);
-				int cmp = entry.getKey().compareTo(leftChildEntry.getKey());
-				if (cmp > 0) {
+				if (parentEntry.getKey().compareTo(childEntry.getKey()) > 0) {
 					
-					_list.set(leftChildIndex, entry);
-					_list.set(entry.getIndex(), leftChildEntry);
-					
-					leftChildEntry.setIndex(entry.getIndex());
-					entry.setIndex(leftChildIndex);
+					index = parentIndex;
 					continue;
+
+				} else {
+					break;
 				}
+			} else {
+				break;
 			}
-			
-			// compare with right child
-			int rightChildIndex = getRightChildIndex(entry.getIndex());
-			if (rightChildIndex < _list.size()) {
-				
-				HeapEntry<K, V> rightChildEntry = _list.get(rightChildIndex);
-				int cmp = entry.getKey().compareTo(rightChildEntry.getKey());
-				if (cmp > 0) {
-					
-					_list.set(rightChildIndex, entry);
-					_list.set(entry.getIndex(), rightChildEntry);
-					
-					rightChildEntry.setIndex(entry.getIndex());
-					entry.setIndex(rightChildIndex);
-					continue;
-				}
-			}
-			
-			// no changes
-			break;
 		}
 	}
 	
@@ -100,6 +68,83 @@ public final class Heap<K extends Comparable<K>, V> {
 			update(lastEntry);
 		}
 	}
+	
+
+	private void siftDown(HeapEntry<K, V> entry) {
+		
+		int index = entry.getIndex();
+		while (true) {
+			
+			int leftChildIndex = getLeftChildIndex(index);
+			if (leftChildIndex >= _list.size()) {
+				
+				// no left child,
+				// so we reached
+				// bottom of tree
+				break;
+			}
+			
+			int rightChildIndex = getRightChildIndex(index);
+			if (rightChildIndex >= _list.size()) {
+				
+				// no right child, so we will
+				// compare with left child only
+				HeapEntry<K, V> leftChildEntry = _list.get(leftChildIndex);
+				if (entry.getKey().compareTo(leftChildEntry.getKey()) > 0) {
+					
+					// exchange nodes
+					_list.set(index, leftChildEntry);
+					_list.set(leftChildIndex, entry);
+					
+					leftChildEntry.setIndex(index);
+					entry.setIndex(leftChildIndex);
+				}
+				
+				// finish, as this is 
+				// the last level because
+				/// there is no right child
+				break;
+			}
+			
+			// choose largest index
+			int smallestIndex = index;
+			{
+				HeapEntry<K, V> smallestEntry = _list.get(smallestIndex);
+				HeapEntry<K, V> leftChildEntry = _list.get(leftChildIndex);
+				if (smallestEntry.getKey().compareTo(leftChildEntry.getKey()) > 0) {
+					smallestIndex = leftChildIndex;
+				}
+			}
+			{
+				HeapEntry<K, V> smallestEntry = _list.get(smallestIndex);
+				HeapEntry<K, V> rightChildEntry = _list.get(rightChildIndex);
+				if (smallestEntry.getKey().compareTo(rightChildEntry.getKey()) > 0) {
+					smallestIndex = rightChildIndex;
+				}
+			}
+			
+			// check if need to exchange
+			if (index != smallestIndex) {
+				
+				// exchange nodes
+				HeapEntry<K, V> smallestEntry = _list.get(smallestIndex);
+				_list.set(index, smallestEntry);
+				_list.set(smallestIndex, entry);
+				
+				smallestEntry.setIndex(index);
+				entry.setIndex(smallestIndex);
+				
+				// go deeper
+				index = smallestIndex;
+
+			} else {
+				
+				// sifted
+				break;
+			}
+		}
+	}
+	
 	
 	public int size() {
 		return _list.size();

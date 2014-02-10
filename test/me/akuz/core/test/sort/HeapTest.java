@@ -15,7 +15,7 @@ public class HeapTest {
 		
 		heap.add(5, null);
 		heap.add(4, null);
-		heap.add(3, null);
+		HeapEntry<Integer, Object> thrEntry1 = heap.add(3, null);
 		HeapEntry<Integer, Object> twoEntry1 = heap.add(2, null);
 		
 		System.out.println("Heap: " + StringUtils.collectionToString(heap.getList(), ", "));
@@ -41,7 +41,7 @@ public class HeapTest {
 
 		HeapEntry<Integer, Object> oneEntry2 = heap.add(1, null);
 		HeapEntry<Integer, Object> twoEntry2 = heap.add(2, null);
-		heap.add(3, null);
+		HeapEntry<Integer, Object> thrEntry2 = heap.add(3, null);
 		heap.add(4, null);
 		heap.add(5, null);
 		
@@ -86,6 +86,18 @@ public class HeapTest {
 			throw new IllegalStateException("Heap test error");
 		}
 		if (heap.getTop().getKey().equals(3) == false) {
+			throw new IllegalStateException("Heap test error");
+		}
+		
+		heap.remove(thrEntry1);
+		heap.remove(thrEntry2);
+		
+		System.out.println("Heap: " + StringUtils.collectionToString(heap.getList(), ", "));
+		
+		if (heap.size() != 4) {
+			throw new IllegalStateException("Heap test error");
+		}
+		if (heap.getTop().getKey().equals(4) == false) {
 			throw new IllegalStateException("Heap test error");
 		}
 	}
