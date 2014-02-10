@@ -3,6 +3,11 @@ package me.akuz.core.sort;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * "Least Recently Used" cache implementation based on the heap data structure.
+ * Both, get() and set(), have O(log(n)) complexity.
+ *
+ */
 public final class LRUCache<K, V> {
 	
 	private long _counter;
