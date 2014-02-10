@@ -145,7 +145,6 @@ public final class Heap<K extends Comparable<K>, V> {
 		}
 	}
 	
-	
 	public int size() {
 		return _list.size();
 	}
