@@ -34,49 +34,51 @@ public final class CharBufferStub {
 			return "";
 		}
 		
-		int tmpCursor = _cursor;
-		final int startCursor = tmpCursor;
+		int movingCursor = _cursor;
+		final int startCursor = movingCursor;
 		final StringBuffer sb = new StringBuffer();
 		
 		while (true) {
 			
-			final int len = ((_data[tmpCursor] >> 6) & 3);
+			final int len = ((_data[movingCursor] >> 6) & 3);
 			
 			if (len == 0) {
 				break; // nothing more in buffer
 			}
 
-			boolean isReachedEnd = false;
-			
+			boolean gotFullChar = true;
 			for (int i=0; i<len; i++) {
 
 				// copy byte for char creation
-				_tmp[i] = _data[tmpCursor];
+				_tmp[i] = _data[movingCursor];
 				
 				// move back
-				tmpCursor--;
-				if (tmpCursor < 0) {
-					tmpCursor = _data.length-1;
+				movingCursor--;
+				if (movingCursor < 0) {
+					movingCursor = _data.length-1;
 				}
 				
-				// if need more bytes
+				// if will need more bytes
 				if (i < len-1) {
 					
 					// check if reached end
-					if (tmpCursor == startCursor) {
-						isReachedEnd = true;
+					if (movingCursor == startCursor) {
+						gotFullChar = false;
 					}
 				}
 			}
 			
-			// check if reached end
-			if (isReachedEnd) {
-				break;
+			if (gotFullChar) {
+				
+				// convert to char from bytes
+				char ch = getChar(_tmp, len);
+				sb.append(ch);
 			}
 			
-			// convert to char from bytes
-			char ch = getChar(_tmp, len);
-			sb.append(ch);
+			// check if reached end
+			if (movingCursor == startCursor) {
+				break;
+			}
 		}
 		
 		// reverse and to string
