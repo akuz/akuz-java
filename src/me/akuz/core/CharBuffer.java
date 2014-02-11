@@ -46,7 +46,7 @@ public final class CharBuffer {
 				break; // nothing more in buffer
 			}
 
-			for (int i=0; i<len; i--) {
+			for (int i=0; i<len; i++) {
 				
 				// copy byte for char creation
 				_tmp[i] = _data[tmpCursor];
