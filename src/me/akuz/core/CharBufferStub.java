@@ -46,29 +46,31 @@ public final class CharBufferStub {
 				break; // nothing more in buffer
 			}
 
+			boolean isReachedEnd = false;
+			
 			for (int i=0; i<len; i++) {
-				
+
 				// copy byte for char creation
 				_tmp[i] = _data[tmpCursor];
 				
-				// if more bytes in this char
-				if (i<len-1) {
+				// move back
+				tmpCursor--;
+				if (tmpCursor < 0) {
+					tmpCursor = _data.length-1;
+				}
+				
+				// if need more bytes
+				if (i < len-1) {
 					
-					// move
-					tmpCursor--;
-					if (tmpCursor < 0) {
-						tmpCursor = _data.length-1;
-					}
-					
-					// check if reached start cursor
+					// check if reached end
 					if (tmpCursor == startCursor) {
-						break;
+						isReachedEnd = true;
 					}
 				}
 			}
 			
-			// check if reached start cursor
-			if (tmpCursor == startCursor) {
+			// check if reached end
+			if (isReachedEnd) {
 				break;
 			}
 			
