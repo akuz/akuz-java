@@ -5,13 +5,13 @@ package me.akuz.core;
  * @author andrey
  *
  */
-public final class CharBuffer {
+public final class CharBufferStub {
 	
 	private final byte[] _tmp;
 	private final byte[] _data;
 	private int _cursor;
 	
-	public CharBuffer(int size) {
+	public CharBufferStub(int size) {
 		if (size < 3) {
 			throw new IllegalArgumentException("Size must >= 3");
 		}
