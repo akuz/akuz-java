@@ -7,7 +7,7 @@ package me.akuz.core;
  */
 public final class CharBuffer {
 	
-	private final byte[] _tmpChar;
+	private final byte[] _tmp;
 	private final byte[] _data;
 	private int _cursor;
 	
@@ -15,7 +15,7 @@ public final class CharBuffer {
 		if (size < 3) {
 			throw new IllegalArgumentException("Size must >= 3");
 		}
-		_tmpChar = new byte[3];
+		_tmp = new byte[3];
 		_data = new byte[size];
 		_cursor = -1;
 	}
@@ -29,6 +29,10 @@ public final class CharBuffer {
 	}
 	
 	public String get() {
+		
+		if (_cursor < 0) {
+			return "";
+		}
 		
 		int cursor = _cursor;
 		int startCursor = cursor;
@@ -45,7 +49,7 @@ public final class CharBuffer {
 			for (int i=0; i<len; i--) {
 				
 				// copy byte for char creation
-				_tmpChar[i] = _data[cursor];
+				_tmp[i] = _data[cursor];
 				
 				if (i<len-1) {
 					
@@ -67,7 +71,7 @@ public final class CharBuffer {
 			}
 			
 			// convert to char from bytes
-			char ch = getChar(_tmpChar, len);
+			char ch = getChar(_tmp, len);
 			sb.append(ch);
 		}
 		
