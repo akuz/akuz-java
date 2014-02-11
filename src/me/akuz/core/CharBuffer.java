@@ -34,13 +34,13 @@ public final class CharBuffer {
 			return "";
 		}
 		
-		int cursor = _cursor;
-		int startCursor = cursor;
-		StringBuffer sb = new StringBuffer();
+		int tmpCursor = _cursor;
+		final int startCursor = tmpCursor;
+		final StringBuffer sb = new StringBuffer();
 		
 		while (true) {
 			
-			int len = ((_data[cursor] >> 6) & 3);
+			final int len = ((_data[tmpCursor] >> 6) & 3);
 			
 			if (len == 0) {
 				break; // nothing more in buffer
@@ -49,24 +49,26 @@ public final class CharBuffer {
 			for (int i=0; i<len; i--) {
 				
 				// copy byte for char creation
-				_tmp[i] = _data[cursor];
+				_tmp[i] = _data[tmpCursor];
 				
+				// if more bytes in this char
 				if (i<len-1) {
 					
-					cursor--;
-					if (cursor < 0) {
-						cursor = _data.length-1;
+					// move
+					tmpCursor--;
+					if (tmpCursor < 0) {
+						tmpCursor = _data.length-1;
 					}
 					
 					// check if reached start cursor
-					if (cursor == startCursor) {
+					if (tmpCursor == startCursor) {
 						break;
 					}
 				}
 			}
 			
 			// check if reached start cursor
-			if (cursor == startCursor) {
+			if (tmpCursor == startCursor) {
 				break;
 			}
 			
