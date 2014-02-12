@@ -26,13 +26,13 @@ public final class NIGDist implements Cloneable, Distribution {
 	public NIGDist(
 			double priorMean, 
 			double priorMeanSamples, 
-			double priorVariance, 
-			double priorVarianceSamples) {
+			double priorVar, 
+			double priorVarSamples) {
 		
 		_lyamdaPrior = priorMean;
 		_vegaPrior = priorMeanSamples;
-		_alphaPrior = priorVarianceSamples / 2.0;
-		_betaPrior = priorVariance * priorVarianceSamples / 2.0;
+		_alphaPrior = priorVarSamples / 2.0;
+		_betaPrior = priorVar * priorVarSamples / 2.0;
 		
 		reset();
 	}
@@ -57,7 +57,7 @@ public final class NIGDist implements Cloneable, Distribution {
 		return _lyamdaPosterior;
 	}
 	
-	public double getVarianceMode() {
+	public double getVarMode() {
 		return _betaPosterior / (_alphaPosterior + 1.0);
 	}
 	
@@ -184,7 +184,7 @@ public final class NIGDist implements Cloneable, Distribution {
 	public String toString() {
 		DecimalFormat fmt = new DecimalFormat("' '0.00000000;'-'0.00000000");
 		double meanMode = getMeanMode();
-		double varianceMode = getVarianceMode();
+		double varianceMode = getVarMode();
 		double meanVar = varianceMode / _vegaPosterior;
 		double meanStd = Math.sqrt(meanVar);
 		return "<NIG> mean: " + fmt.format(meanMode) + ",  std: " + fmt.format(Math.sqrt(varianceMode)) + "  (s:" + fmt.format(meanStd) + ", a:" + fmt.format(_alphaPosterior) + ", b:" + fmt.format(_betaPosterior) + ")";
