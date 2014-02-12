@@ -40,5 +40,13 @@ public final class ByteImage {
 	public int getColCount() {
 		return _data[0].length;
 	}
+	
+	/**
+	 * Converts byte value at a given position to a (double) intensity value within interval [0, 1].
+	 * 
+	 */
+	public double getIntensity(int i, int j) {
+		return (_data[i][j] & 0xFF) / 255.0;
+	}
 
 }
