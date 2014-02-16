@@ -19,43 +19,37 @@ public final class InferHDP {
 	private static final double PARENT_DIST_ALPHA_INIT = 0.1;
 	private static final double LOG_INSURANCE = 0.000000000000000000000001;
 	
+	private final List<FeatureImage> _images;
+	private final int _inputDim;
+	private int _parentFeatureShift;
+	private DirDist[][] _parentFeatureBlocks;
+	private List<FeatureImage> _parentFeatureImages;
 	private final int _featureDim;
 	private final int _featureShift;
-	private final double[] _featureProbs;
-	private final DirDist[][] _featureBlocks;
 	private final List<FeatureImage> _featureImages;
+	private DirDist[][] _featureBlocks;
+	private double[] _featureProbs;
 	
 	public InferHDP(
-			final Monitor parentMonitor, 
-			final List<FeatureImage> images, 
+			final List<FeatureImage> images,
+			final int inputDim, 
 			final int featureDim,
-			final int featureShift,
-			final int inputDim,
-			final int maxIterationCount,
-			final double logLikeChangeThreshold) {
+			final int featureShift) {
 		
+		if (inputDim < 2) {
+			throw new IllegalArgumentException("Input feature dimensionality must be >= 2");
+		}
 		if (featureDim < 2) {
 			throw new IllegalArgumentException("Feature dimensionality must be >= 2");
 		}
 		if (featureShift < 1) {
 			throw new IllegalArgumentException("Feature shift must be positive");
 		}
-		if (inputDim < 2) {
-			throw new IllegalArgumentException("Input feature dimensionality must be >= 2");
-		}
-		if (maxIterationCount <= 0) {
-			throw new IllegalArgumentException("Max iteration count must be positive");
-		}
-		if (logLikeChangeThreshold <= 0) {
-			throw new IllegalArgumentException("LogLike change threshold must be positive");
-		}
 
-		final Monitor monitor = parentMonitor == null ? null : new LocalMonitor(this.getClass().getSimpleName() + " (shift " + featureShift + ")", parentMonitor);
-		DecimalFormat fmt = new DecimalFormat("' '0.00000000;'-'0.00000000");
-
+		_images = images;
+		_inputDim = inputDim;
 		_featureDim = featureDim;
 		_featureShift = featureShift;
-		final Random rnd = ThreadLocalRandom.current();
 		
 		_featureImages = new ArrayList<>();
 		for (int i=0; i<images.size(); i++) {
@@ -63,6 +57,49 @@ public final class InferHDP {
 			FeatureImage featureImage = new FeatureImage(image.getRowCount()-featureShift, image.getColCount()-featureShift, featureDim);
 			_featureImages.add(featureImage);
 		}
+	}
+
+	public void setParentFeatureImages(int parentFeatureShift, DirDist[][] parentFeatureBlocks, List<FeatureImage> parentFeatureImages) {
+		if (parentFeatureShift < 1) {
+			throw new IllegalArgumentException("Feature shift must be positive");
+		}
+		if (_images.size() != parentFeatureImages.size()) {
+			throw new IllegalArgumentException("Numbers of images and parent feature images do not match");
+		}
+		if (parentFeatureBlocks.length < 2) {
+			throw new IllegalArgumentException("Parent feature dim must be >= 2");
+		}
+		for (int f2=0; f2<parentFeatureBlocks.length; f2++) {
+			if (parentFeatureBlocks[f2].length != 4) {
+				throw new IllegalArgumentException("Parent feature blocks are not 2x2");
+			}
+			for (int l=0; l<parentFeatureBlocks[f2].length; l++) {
+				if (parentFeatureBlocks[f2][l].getDim() != _featureDim) {
+					throw new IllegalArgumentException("Parent feature blocks have incompatible child dimensionality");
+				}
+			}
+		}
+		_parentFeatureShift = parentFeatureShift;
+		_parentFeatureBlocks = parentFeatureBlocks;
+		_parentFeatureImages = parentFeatureImages;
+	}
+	
+	public void execute(
+			final Monitor parentMonitor,
+			final int maxIterationCount,
+			final double logLikeChangeThreshold) {
+		
+		if (maxIterationCount <= 0) {
+			throw new IllegalArgumentException("Max iteration count must be positive");
+		}
+		if (logLikeChangeThreshold <= 0) {
+			throw new IllegalArgumentException("LogLike change threshold must be positive");
+		}
+
+		final Monitor monitor = parentMonitor == null ? null : new LocalMonitor(this.getClass().getSimpleName() + " (shift " + _featureShift + ")", parentMonitor);
+		DecimalFormat fmt = new DecimalFormat("' '0.00000000;'-'0.00000000");
+
+		final Random rnd = ThreadLocalRandom.current();
 		
 		double[] currProbs = new double[_featureDim];
 		Arrays.fill(currProbs, 1.0 / _featureDim);
@@ -73,8 +110,8 @@ public final class InferHDP {
 		DirDist[][] currBlocks = new DirDist[_featureDim][4];
 		for (int k=0; k<_featureDim; k++) {
 			for (int l=0; l<4; l++) {
-				currBlocks[k][l] = new DirDist(inputDim, PARENT_DIST_ALPHA);
-				for (int d=0; d<inputDim; d++) {
+				currBlocks[k][l] = new DirDist(_inputDim, PARENT_DIST_ALPHA);
+				for (int d=0; d<_inputDim; d++) {
 					currBlocks[k][l].addObservation(d, PARENT_DIST_ALPHA_INIT * rnd.nextDouble());
 				}
 				currBlocks[k][l].normalize();
@@ -84,7 +121,7 @@ public final class InferHDP {
 		DirDist[][] nextBlocks = new DirDist[_featureDim][4];
 		for (int k=0; k<_featureDim; k++) {
 			for (int l=0; l<4; l++) {
-				nextBlocks[k][l] = new DirDist(inputDim, PARENT_DIST_ALPHA);
+				nextBlocks[k][l] = new DirDist(_inputDim, PARENT_DIST_ALPHA);
 			}
 		}
 		
@@ -93,7 +130,7 @@ public final class InferHDP {
 		double[] logLikes = new double[_featureDim];
 		
 		if (monitor != null) {
-			monitor.write("Total " + images.size() + " images");
+			monitor.write("Total " + _images.size() + " images");
 			monitor.write("Starting with:");
 			for (int k=0; k<_featureDim; k++) {
 				monitor.write("Latent state #" + (k+1));
@@ -114,7 +151,7 @@ public final class InferHDP {
 			
 			double currLogLike = 0;
 			
-			for (int imageIndex=0; imageIndex<images.size(); imageIndex++) {
+			for (int imageIndex=0; imageIndex<_images.size(); imageIndex++) {
 				
 				if (monitor != null) {
 					if (imageIndex % 100 == 0) {
@@ -122,17 +159,124 @@ public final class InferHDP {
 					}
 				}
 				
-				final FeatureImage image = images.get(imageIndex);
+				final FeatureImage image = _images.get(imageIndex);
 				final FeatureImage featureImage = _featureImages.get(imageIndex);
+				final FeatureImage parentFeatureImage = _parentFeatureImages != null ? _parentFeatureImages.get(imageIndex) : null;
 				
-				for (int row=0; row<image.getRowCount()-featureShift; row++) {
-					for (int col=0; col<image.getColCount()-featureShift; col++) {
+				for (int row=0; row<image.getRowCount()-_featureShift; row++) {
+					for (int col=0; col<image.getColCount()-_featureShift; col++) {
+
 
 						// init log likes
-						for (int k=0; k<_featureDim; k++) {
-							logLikes[k] = Math.log(currProbs[k]);
+						if (parentFeatureImage != null) {
+							
+							Arrays.fill(logLikes, 0);
+							
+							// top-left of parent
+							{
+								final int parentIdx = 0;
+								final int parentRow = row;
+								final int parentCol = col;
+								if (parentRow >= 0 && 
+									parentCol >= 0 &&
+									parentRow < parentFeatureImage.getRowCount() && 
+									parentCol < parentFeatureImage.getColCount()) {
+									
+									double[] parentBlockFeatureProbs = parentFeatureImage.getFeatureProbs(parentRow, parentCol);
+									for (int f2=0; f2<parentBlockFeatureProbs.length; f2++) {
+										
+										double parentProb = parentBlockFeatureProbs[f2];
+										double[] parentPosterior = _parentFeatureBlocks[f2][parentIdx].getPosterior();
+										
+										for (int f=0; f<_featureDim; f++) {
+											logLikes[f] += parentProb * parentPosterior[f];
+										}
+									}
+								}
+							}
+
+							// top-right of parent
+							{
+								final int parentIdx = 1;
+								final int parentRow = row;
+								final int parentCol = col - _parentFeatureShift;
+								if (parentRow >= 0 && 
+									parentCol >= 0 &&
+									parentRow < parentFeatureImage.getRowCount() && 
+									parentCol < parentFeatureImage.getColCount()) {
+									
+									double[] parentBlockFeatureProbs = parentFeatureImage.getFeatureProbs(parentRow, parentCol);
+									for (int f2=0; f2<parentBlockFeatureProbs.length; f2++) {
+										
+										double parentProb = parentBlockFeatureProbs[f2];
+										double[] parentPosterior = _parentFeatureBlocks[f2][parentIdx].getPosterior();
+										
+										for (int f=0; f<_featureDim; f++) {
+											logLikes[f] += parentProb * parentPosterior[f];
+										}
+									}
+								}
+							}
+
+							// bottom-left of parent
+							{
+								final int parentIdx = 2;
+								final int parentRow = row - _parentFeatureShift;
+								final int parentCol = col;
+								if (parentRow >= 0 && 
+									parentCol >= 0 &&
+									parentRow < parentFeatureImage.getRowCount() && 
+									parentCol < parentFeatureImage.getColCount()) {
+									
+									double[] parentBlockFeatureProbs = parentFeatureImage.getFeatureProbs(parentRow, parentCol);
+									for (int f2=0; f2<parentBlockFeatureProbs.length; f2++) {
+										
+										double parentProb = parentBlockFeatureProbs[f2];
+										double[] parentPosterior = _parentFeatureBlocks[f2][parentIdx].getPosterior();
+										
+										for (int f=0; f<_featureDim; f++) {
+											logLikes[f] += parentProb * parentPosterior[f];
+										}
+									}
+								}
+							}
+
+							// bottom-right of parent
+							{
+								final int parentIdx = 3;
+								final int parentRow = row - _parentFeatureShift;
+								final int parentCol = col - _parentFeatureShift;
+								if (parentRow >= 0 && 
+									parentCol >= 0 &&
+									parentRow < parentFeatureImage.getRowCount() && 
+									parentCol < parentFeatureImage.getColCount()) {
+									
+									double[] parentBlockFeatureProbs = parentFeatureImage.getFeatureProbs(parentRow, parentCol);
+									for (int f2=0; f2<parentBlockFeatureProbs.length; f2++) {
+										
+										double parentProb = parentBlockFeatureProbs[f2];
+										double[] parentPosterior = _parentFeatureBlocks[f2][parentIdx].getPosterior();
+										
+										for (int f=0; f<_featureDim; f++) {
+											logLikes[f] += parentProb * parentPosterior[f];
+										}
+									}
+								}
+							}
+							
+							// log parent induced priors
+							for (int f=0; f<_featureDim; f++) {
+								logLikes[f] = Math.log(logLikes[f]);
+							}
+							
+						} else {
+							
+							// log frequency based priors
+							for (int k=0; k<_featureDim; k++) {
+								logLikes[k] = Math.log(currProbs[k]);
+							}
 						}
-						
+												
 						// add data log likes
 						for (int k=0; k<_featureDim; k++) {
 							{
@@ -144,21 +288,21 @@ public final class InferHDP {
 							}
 							{
 								final double[] parentProbs = currBlocks[k][1].getPosterior();
-								final double[] probs = image.getFeatureProbs(row, col+featureShift);
+								final double[] probs = image.getFeatureProbs(row, col+_featureShift);
 								for (int d=0; d<probs.length; d++) {
 									logLikes[k] += (parentProbs[d]*HIER_DIR_ALPHA - 1) * Math.log(LOG_INSURANCE + probs[d]);
 								}
 							}
 							{
 								final double[] parentProbs = currBlocks[k][2].getPosterior();
-								final double[] probs = image.getFeatureProbs(row+featureShift, col);
+								final double[] probs = image.getFeatureProbs(row+_featureShift, col);
 								for (int d=0; d<probs.length; d++) {
 									logLikes[k] += (parentProbs[d]*HIER_DIR_ALPHA - 1) * Math.log(LOG_INSURANCE + probs[d]);
 								}
 							}
 							{
 								final double[] parentProbs = currBlocks[k][3].getPosterior();
-								final double[] probs = image.getFeatureProbs(row+featureShift, col+featureShift);
+								final double[] probs = image.getFeatureProbs(row+_featureShift, col+_featureShift);
 								for (int d=0; d<probs.length; d++) {
 									logLikes[k] += (parentProbs[d]*HIER_DIR_ALPHA - 1) * Math.log(LOG_INSURANCE + probs[d]);
 								}
@@ -173,7 +317,7 @@ public final class InferHDP {
 						
 						// save feature probs to feature image
 						double[] featureProbs = featureImage.getFeatureProbs(row, col);
-						for (int f=0; f<featureDim; f++) {
+						for (int f=0; f<_featureDim; f++) {
 							featureProbs[f] = logLikes[f];
 						}
 
@@ -188,15 +332,15 @@ public final class InferHDP {
 									nextBlocks[k][0].addObservation(probs, logLikes[k]);
 								}
 								{
-									double[] probs = image.getFeatureProbs(row, col+featureShift);
+									double[] probs = image.getFeatureProbs(row, col+_featureShift);
 									nextBlocks[k][1].addObservation(probs, logLikes[k]);
 								}
 								{
-									double[] probs = image.getFeatureProbs(row+featureShift, col);
+									double[] probs = image.getFeatureProbs(row+_featureShift, col);
 									nextBlocks[k][2].addObservation(probs, logLikes[k]);
 								}
 								{
-									double[] probs = image.getFeatureProbs(row+featureShift, col+featureShift);
+									double[] probs = image.getFeatureProbs(row+_featureShift, col+_featureShift);
 									nextBlocks[k][3].addObservation(probs, logLikes[k]);
 								}
 							}
@@ -226,7 +370,7 @@ public final class InferHDP {
 				nextBlocks = tmp;
 				for (int k=0; k<_featureDim; k++) {
 					for (int l=0; l<4; l++) {
-						nextBlocks[k][l] = new DirDist(inputDim, PARENT_DIST_ALPHA);
+						nextBlocks[k][l] = new DirDist(_inputDim, PARENT_DIST_ALPHA);
 					}
 				}
 			}

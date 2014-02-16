@@ -22,18 +22,18 @@ import me.akuz.core.math.NKPDist;
 public final class ProgramLogic {
 
 	private static final int IMAGE_SIZE = 28;
-	private static final int MAX_IMAGE_COUNT = 2000;
+	private static final int MAX_IMAGE_COUNT = 200;
 	
-	private static final int DIM2  = 8;
+	private static final int DIM2  = 12;
 	private static final int ITER2 = 2;
 	
 	private static final int DIM4  = 16;
 	private static final int ITER4 = 2;
 	
-	private static final int DIM8  = 32;
+	private static final int DIM8  = 24;
 	private static final int ITER8 = 2;
 	
-	private static final int DIM16  = 64;
+	private static final int DIM16  = 40;
 	private static final int ITER16 = 2;
 	
 	private static final double LOG_LIKE_CHANGE_THRESHOLD = 0.001;
@@ -129,7 +129,8 @@ public final class ProgramLogic {
 		}
 		
 		monitor.write("Interring 4x4 blocks...");
-		InferHDP infer4x4 = new InferHDP(monitor, infer2x2.getFeatureImages(), DIM4, 2, DIM2, ITER4, LOG_LIKE_CHANGE_THRESHOLD);
+		InferHDP infer4x4 = new InferHDP(infer2x2.getFeatureImages(), DIM2, DIM4, 2);
+		infer4x4.execute(monitor, ITER4, LOG_LIKE_CHANGE_THRESHOLD);
 		
 		monitor.write("Saving 4x4 features...");
 		DirDist[][] blocks4x4 = infer4x4.getFeatureBlocks();
@@ -241,7 +242,7 @@ public final class ProgramLogic {
 		}
 
 		monitor.write("Interring 4x4 blocks (loop 2)...");
-		infer4x4 = new InferHDP(monitor, infer2x2.getFeatureImages(), DIM4, 2, DIM2, ITER4, LOG_LIKE_CHANGE_THRESHOLD);
+		infer4x4.execute(monitor, ITER4, LOG_LIKE_CHANGE_THRESHOLD);
 		
 		monitor.write("Saving 4x4 features (loop 2)...");
 		blocks4x4 = infer4x4.getFeatureBlocks();
@@ -320,7 +321,8 @@ public final class ProgramLogic {
 		}
 
 		monitor.write("Interring 8x8 blocks...");
-		InferHDP infer8x8 = new InferHDP(monitor, infer4x4.getFeatureImages(), DIM8, 4, DIM4, ITER8, LOG_LIKE_CHANGE_THRESHOLD);
+		InferHDP infer8x8 = new InferHDP(infer4x4.getFeatureImages(), DIM4, DIM8, 4);
+		infer8x8.execute(monitor, ITER8, LOG_LIKE_CHANGE_THRESHOLD);
 		
 		monitor.write("Saving 8x8 features...");
 		DirDist[][] blocks8x8 = infer8x8.getFeatureBlocks();
@@ -429,7 +431,8 @@ public final class ProgramLogic {
 		}
 
 		monitor.write("Interring 16x16 blocks...");
-		InferHDP infer16x16 = new InferHDP(monitor, infer8x8.getFeatureImages(), DIM16, 8, DIM8, ITER16, LOG_LIKE_CHANGE_THRESHOLD);
+		InferHDP infer16x16 = new InferHDP(infer8x8.getFeatureImages(), DIM8, DIM16, 8);
+		infer16x16.execute(monitor, ITER16, LOG_LIKE_CHANGE_THRESHOLD);
 		
 		monitor.write("Saving 16x16 features...");
 		DirDist[][] blocks16x16 = infer16x16.getFeatureBlocks();
