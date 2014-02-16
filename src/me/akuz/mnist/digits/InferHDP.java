@@ -19,7 +19,8 @@ public final class InferHDP {
 	private static final double PARENT_DIST_ALPHA_INIT = 0.1;
 	private static final double LOG_INSURANCE = 0.000000000000000000000001;
 	
-	private final int _dim;
+	private final int _featureDim;
+	private final int _featureShift;
 	private final double[] _featureProbs;
 	private final DirDist[][] _featureBlocks;
 	private final List<FeatureImage> _featureImages;
@@ -27,20 +28,20 @@ public final class InferHDP {
 	public InferHDP(
 			final Monitor parentMonitor, 
 			final List<FeatureImage> images, 
-			final int inputShift,
+			final int featureDim,
+			final int featureShift,
 			final int inputDim,
-			final int dim,
 			final int maxIterationCount,
 			final double logLikeChangeThreshold) {
 		
-		if (inputShift < 1) {
-			throw new IllegalArgumentException("Input shift must be positive");
+		if (featureDim < 2) {
+			throw new IllegalArgumentException("Feature dimensionality must be >= 2");
+		}
+		if (featureShift < 1) {
+			throw new IllegalArgumentException("Feature shift must be positive");
 		}
 		if (inputDim < 2) {
 			throw new IllegalArgumentException("Input feature dimensionality must be >= 2");
-		}
-		if (dim < 2) {
-			throw new IllegalArgumentException("Feature dimensionality must be >= 2");
 		}
 		if (maxIterationCount <= 0) {
 			throw new IllegalArgumentException("Max iteration count must be positive");
@@ -49,27 +50,28 @@ public final class InferHDP {
 			throw new IllegalArgumentException("LogLike change threshold must be positive");
 		}
 
-		final Monitor monitor = parentMonitor == null ? null : new LocalMonitor(this.getClass().getSimpleName() + " (shift " + inputShift + ")", parentMonitor);
+		final Monitor monitor = parentMonitor == null ? null : new LocalMonitor(this.getClass().getSimpleName() + " (shift " + featureShift + ")", parentMonitor);
 		DecimalFormat fmt = new DecimalFormat("' '0.00000000;'-'0.00000000");
 
-		_dim = dim;
+		_featureDim = featureDim;
+		_featureShift = featureShift;
 		final Random rnd = ThreadLocalRandom.current();
 		
 		_featureImages = new ArrayList<>();
 		for (int i=0; i<images.size(); i++) {
 			FeatureImage image = images.get(i);
-			FeatureImage featureImage = new FeatureImage(image.getRowCount()-inputShift, image.getColCount()-inputShift, dim);
+			FeatureImage featureImage = new FeatureImage(image.getRowCount()-featureShift, image.getColCount()-featureShift, featureDim);
 			_featureImages.add(featureImage);
 		}
 		
-		double[] currProbs = new double[_dim];
-		Arrays.fill(currProbs, 1.0 / _dim);
+		double[] currProbs = new double[_featureDim];
+		Arrays.fill(currProbs, 1.0 / _featureDim);
 		
-		double[] nextProbs = new double[_dim];
+		double[] nextProbs = new double[_featureDim];
 		Arrays.fill(nextProbs, 0);
 		
-		DirDist[][] currBlocks = new DirDist[_dim][4];
-		for (int k=0; k<_dim; k++) {
+		DirDist[][] currBlocks = new DirDist[_featureDim][4];
+		for (int k=0; k<_featureDim; k++) {
 			for (int l=0; l<4; l++) {
 				currBlocks[k][l] = new DirDist(inputDim, PARENT_DIST_ALPHA);
 				for (int d=0; d<inputDim; d++) {
@@ -79,8 +81,8 @@ public final class InferHDP {
 			}
 		}
 		
-		DirDist[][] nextBlocks = new DirDist[_dim][4];
-		for (int k=0; k<_dim; k++) {
+		DirDist[][] nextBlocks = new DirDist[_featureDim][4];
+		for (int k=0; k<_featureDim; k++) {
 			for (int l=0; l<4; l++) {
 				nextBlocks[k][l] = new DirDist(inputDim, PARENT_DIST_ALPHA);
 			}
@@ -88,12 +90,12 @@ public final class InferHDP {
 		
 		int iter = 0;
 		double prevLogLike = Double.NaN;
-		double[] logLikes = new double[_dim];
+		double[] logLikes = new double[_featureDim];
 		
 		if (monitor != null) {
 			monitor.write("Total " + images.size() + " images");
 			monitor.write("Starting with:");
-			for (int k=0; k<_dim; k++) {
+			for (int k=0; k<_featureDim; k++) {
 				monitor.write("Latent state #" + (k+1));
 				monitor.write("  Prob: " + fmt.format(currProbs[k]));
 				for (int l=0; l<4; l++) {
@@ -123,16 +125,16 @@ public final class InferHDP {
 				final FeatureImage image = images.get(imageIndex);
 				final FeatureImage featureImage = _featureImages.get(imageIndex);
 				
-				for (int row=0; row<image.getRowCount()-inputShift; row++) {
-					for (int col=0; col<image.getColCount()-inputShift; col++) {
+				for (int row=0; row<image.getRowCount()-featureShift; row++) {
+					for (int col=0; col<image.getColCount()-featureShift; col++) {
 
 						// init log likes
-						for (int k=0; k<_dim; k++) {
+						for (int k=0; k<_featureDim; k++) {
 							logLikes[k] = Math.log(currProbs[k]);
 						}
 						
 						// add data log likes
-						for (int k=0; k<_dim; k++) {
+						for (int k=0; k<_featureDim; k++) {
 							{
 								final double[] parentProbs = currBlocks[k][0].getPosterior();
 								final double[] probs = image.getFeatureProbs(row, col);
@@ -142,21 +144,21 @@ public final class InferHDP {
 							}
 							{
 								final double[] parentProbs = currBlocks[k][1].getPosterior();
-								final double[] probs = image.getFeatureProbs(row, col+inputShift);
+								final double[] probs = image.getFeatureProbs(row, col+featureShift);
 								for (int d=0; d<probs.length; d++) {
 									logLikes[k] += (parentProbs[d]*HIER_DIR_ALPHA - 1) * Math.log(LOG_INSURANCE + probs[d]);
 								}
 							}
 							{
 								final double[] parentProbs = currBlocks[k][2].getPosterior();
-								final double[] probs = image.getFeatureProbs(row+inputShift, col);
+								final double[] probs = image.getFeatureProbs(row+featureShift, col);
 								for (int d=0; d<probs.length; d++) {
 									logLikes[k] += (parentProbs[d]*HIER_DIR_ALPHA - 1) * Math.log(LOG_INSURANCE + probs[d]);
 								}
 							}
 							{
 								final double[] parentProbs = currBlocks[k][3].getPosterior();
-								final double[] probs = image.getFeatureProbs(row+inputShift, col+inputShift);
+								final double[] probs = image.getFeatureProbs(row+featureShift, col+featureShift);
 								for (int d=0; d<probs.length; d++) {
 									logLikes[k] += (parentProbs[d]*HIER_DIR_ALPHA - 1) * Math.log(LOG_INSURANCE + probs[d]);
 								}
@@ -171,30 +173,30 @@ public final class InferHDP {
 						
 						// save feature probs to feature image
 						double[] featureProbs = featureImage.getFeatureProbs(row, col);
-						for (int f=0; f<dim; f++) {
+						for (int f=0; f<featureDim; f++) {
 							featureProbs[f] = logLikes[f];
 						}
 
 						// add to next probs
-						for (int k=0; k<_dim; k++) {
+						for (int k=0; k<_featureDim; k++) {
 							nextProbs[k] += logLikes[k];
 						}
-						for (int k=0; k<_dim; k++) {
+						for (int k=0; k<_featureDim; k++) {
 							if (logLikes[k] > 0) {
 								{
 									double[] probs = image.getFeatureProbs(row, col);
 									nextBlocks[k][0].addObservation(probs, logLikes[k]);
 								}
 								{
-									double[] probs = image.getFeatureProbs(row, col+inputShift);
+									double[] probs = image.getFeatureProbs(row, col+featureShift);
 									nextBlocks[k][1].addObservation(probs, logLikes[k]);
 								}
 								{
-									double[] probs = image.getFeatureProbs(row+inputShift, col);
+									double[] probs = image.getFeatureProbs(row+featureShift, col);
 									nextBlocks[k][2].addObservation(probs, logLikes[k]);
 								}
 								{
-									double[] probs = image.getFeatureProbs(row+inputShift, col+inputShift);
+									double[] probs = image.getFeatureProbs(row+featureShift, col+featureShift);
 									nextBlocks[k][3].addObservation(probs, logLikes[k]);
 								}
 							}
@@ -222,7 +224,7 @@ public final class InferHDP {
 				DirDist[][] tmp = currBlocks;
 				currBlocks = nextBlocks;
 				nextBlocks = tmp;
-				for (int k=0; k<_dim; k++) {
+				for (int k=0; k<_featureDim; k++) {
 					for (int l=0; l<4; l++) {
 						nextBlocks[k][l] = new DirDist(inputDim, PARENT_DIST_ALPHA);
 					}
@@ -230,7 +232,7 @@ public final class InferHDP {
 			}
 
 			if (monitor != null) {
-				for (int k=0; k<_dim; k++) {
+				for (int k=0; k<_featureDim; k++) {
 					monitor.write("Latent state #" + (k+1));
 					monitor.write("  Prob: " + fmt.format(currProbs[k]));
 					for (int l=0; l<4; l++) {
@@ -281,8 +283,12 @@ public final class InferHDP {
 		_featureBlocks = currBlocks;
 	}
 	
-	public int getDim() {
-		return _dim;
+	public int getFeatureDim() {
+		return _featureDim;
+	}
+	
+	public int getFeatureShift() {
+		return _featureShift;
 	}
 	
 	public double[] getFeatureProbs() {
