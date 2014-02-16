@@ -101,23 +101,32 @@ public final class InferHDP {
 
 		final Random rnd = ThreadLocalRandom.current();
 		
-		double[] currProbs = new double[_featureDim];
-		Arrays.fill(currProbs, 1.0 / _featureDim);
+		double[] currProbs;
+		if (_featureProbs != null) {
+			currProbs = _featureProbs;
+		} else {
+			currProbs = new double[_featureDim];
+			Arrays.fill(currProbs, 1.0 / _featureDim);
+		}
 		
 		double[] nextProbs = new double[_featureDim];
 		Arrays.fill(nextProbs, 0);
 		
-		DirDist[][] currBlocks = new DirDist[_featureDim][4];
-		for (int k=0; k<_featureDim; k++) {
-			for (int l=0; l<4; l++) {
-				currBlocks[k][l] = new DirDist(_inputDim, PARENT_DIST_ALPHA);
-				for (int d=0; d<_inputDim; d++) {
-					currBlocks[k][l].addObservation(d, PARENT_DIST_ALPHA_INIT * rnd.nextDouble());
+		DirDist[][] currBlocks;
+		if (_featureBlocks != null) {
+			currBlocks = _featureBlocks;
+		} else {
+			currBlocks = new DirDist[_featureDim][4];
+			for (int k=0; k<_featureDim; k++) {
+				for (int l=0; l<4; l++) {
+					currBlocks[k][l] = new DirDist(_inputDim, PARENT_DIST_ALPHA);
+					for (int d=0; d<_inputDim; d++) {
+						currBlocks[k][l].addObservation(d, PARENT_DIST_ALPHA_INIT * rnd.nextDouble());
+					}
+					currBlocks[k][l].normalize();
 				}
-				currBlocks[k][l].normalize();
 			}
 		}
-		
 		DirDist[][] nextBlocks = new DirDist[_featureDim][4];
 		for (int k=0; k<_featureDim; k++) {
 			for (int l=0; l<4; l++) {

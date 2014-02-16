@@ -95,17 +95,27 @@ public final class InferNKP {
 
 		final Random rnd = ThreadLocalRandom.current();
 		
-		double[] currProbs = new double[_featureDim];
-		Arrays.fill(currProbs, 1.0 / _featureDim);
+		double[] currProbs;
+		if (_featureProbs != null) {
+			currProbs = _featureProbs;
+		} else {
+			currProbs = new double[_featureDim];
+			Arrays.fill(currProbs, 1.0 / _featureDim);
+		}
 		
 		double[] nextProbs = new double[_featureDim];
 		Arrays.fill(nextProbs, 0);
 		
-		NKPDist[][] currBlocks = new NKPDist[_featureDim][4];
-		for (int k=0; k<_featureDim; k++) {
-			for (int l=0; l<4; l++) {
-				currBlocks[k][l] = new NKPDist(PRIOR_MEAN, PRIOR_MEAN_PRECISION, PRECISION);
-				currBlocks[k][l].addObservation(rnd.nextDouble(), INIT_WEIGHT);
+		NKPDist[][] currBlocks;
+		if (_featureBlocks != null) {
+			currBlocks = _featureBlocks;
+		} else {
+			currBlocks = new NKPDist[_featureDim][4];
+			for (int k=0; k<_featureDim; k++) {
+				for (int l=0; l<4; l++) {
+					currBlocks[k][l] = new NKPDist(PRIOR_MEAN, PRIOR_MEAN_PRECISION, PRECISION);
+					currBlocks[k][l].addObservation(rnd.nextDouble(), INIT_WEIGHT);
+				}
 			}
 		}
 		
