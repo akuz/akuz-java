@@ -48,6 +48,10 @@ public final class Feature {
 		}
 	}
 	
+	public int getWidthFromMid() {
+		return _mid;
+	}
+	
 	/**
 	 * Add pixel intensity observation, given shifts from the mid pixel.
 	 * 
