@@ -1,7 +1,6 @@
 package me.akuz.mnist.digits;
 
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -28,7 +27,6 @@ public final class ProgramLogic {
 	private static final int ITER16 = 2;
 	
 	private static final double LOG_LIKE_CHANGE_THRESHOLD = 0.001;
-	private static final DecimalFormat fmt = new DecimalFormat("0.00000000");
 	
 	public ProgramLogic() {
 	}
