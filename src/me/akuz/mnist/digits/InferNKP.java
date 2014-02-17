@@ -369,23 +369,24 @@ public final class InferNKP {
 				break;
 			}
 			
-			// check if converged
+			// check log like
 			if (currLogLike < prevLogLike) {
 				if (monitor != null) {
-					monitor.write("Log likelihood fell.");
+					monitor.write("Log likelihood fell, but we don't stop");
 				}
-				break;
-			}
+				
+			} else {
 			
-			// check if converged
-			if (Double.isNaN(prevLogLike) == false &&
-				Math.abs(prevLogLike - currLogLike) < logLikeChangeThreshold) {
-				if (monitor != null) {
-					monitor.write("Log likelihood converged.");
+				// check if converged
+				if (Double.isNaN(prevLogLike) == false &&
+					Math.abs(prevLogLike - currLogLike) < logLikeChangeThreshold) {
+					if (monitor != null) {
+						monitor.write("Log likelihood converged.");
+					}
+					break;
 				}
-				break;
 			}
-			
+
 			// check if max iterations
 			if (iter >= maxIterationCount) {
 				if (monitor != null) {

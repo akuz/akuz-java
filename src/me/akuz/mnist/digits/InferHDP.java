@@ -406,7 +406,7 @@ public final class InferHDP {
 			// check log like
 			if (currLogLike < prevLogLike) {
 				if (monitor != null) {
-					monitor.write("Log likelihood fell, but we don't stop because of the LOG_INSURANCE");
+					monitor.write("Log likelihood fell, but we don't stop");
 				}
 				
 			} else {
@@ -419,14 +419,14 @@ public final class InferHDP {
 					}
 					break;
 				}
-				
-				// check if max iterations
-				if (iter >= maxIterationCount) {
-					if (monitor != null) {
-						monitor.write("Done max iterations (" + iter + ").");
-					}
-					break;
+			}
+
+			// check if max iterations
+			if (iter >= maxIterationCount) {
+				if (monitor != null) {
+					monitor.write("Done max iterations (" + iter + ").");
 				}
+				break;
 			}
 			
 			prevLogLike = currLogLike;
