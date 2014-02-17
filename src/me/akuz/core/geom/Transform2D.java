@@ -1,4 +1,4 @@
-package me.akuz.core.math.geom;
+package me.akuz.core.geom;
 
 /**
  * Transformation of 2D points.

@@ -1,4 +1,4 @@
-package me.akuz.core.math.geom;
+package me.akuz.core.geom;
 
 public final class StretchTransform2D implements Transform2D {
 

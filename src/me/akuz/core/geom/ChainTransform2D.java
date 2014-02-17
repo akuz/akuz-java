@@ -1,4 +1,4 @@
-package me.akuz.core.math.geom;
+package me.akuz.core.geom;
 
 import java.util.ArrayList;
 import java.util.List;
