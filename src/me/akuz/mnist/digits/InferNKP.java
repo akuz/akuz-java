@@ -96,20 +96,20 @@ public final class InferNKP {
 		final Random rnd = ThreadLocalRandom.current();
 		
 		double[] currProbs;
-		if (_featureProbs != null) {
-			currProbs = _featureProbs;
-		} else {
+//		if (_featureProbs != null) {
+//			currProbs = _featureProbs;
+//		} else {
 			currProbs = new double[_featureDim];
 			Arrays.fill(currProbs, 1.0 / _featureDim);
-		}
+//		}
 		
 		double[] nextProbs = new double[_featureDim];
 		Arrays.fill(nextProbs, 0);
 		
 		NKPDist[][] currBlocks;
-		if (_featureBlocks != null) {
-			currBlocks = _featureBlocks;
-		} else {
+//		if (_featureBlocks != null) {
+//			currBlocks = _featureBlocks;
+//		} else {
 			currBlocks = new NKPDist[_featureDim][4];
 			for (int k=0; k<_featureDim; k++) {
 				for (int l=0; l<4; l++) {
@@ -117,7 +117,7 @@ public final class InferNKP {
 					currBlocks[k][l].addObservation(rnd.nextDouble(), INIT_WEIGHT);
 				}
 			}
-		}
+//		}
 		
 		NKPDist[][] nextBlocks = new NKPDist[_featureDim][4];
 		for (int k=0; k<_featureDim; k++) {
@@ -155,8 +155,8 @@ public final class InferNKP {
 			for (int imageIndex=0; imageIndex<_images.size(); imageIndex++) {
 				
 				if (monitor != null) {
-					if (imageIndex % 100 == 0) {
-						monitor.write(imageIndex + " digit index");
+					if ((imageIndex+1) % 100 == 0) {
+						monitor.write((imageIndex+1) + " images processed");
 					}
 				}
 				

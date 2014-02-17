@@ -12,18 +12,18 @@ import me.akuz.core.logs.Monitor;
 public final class ProgramLogic {
 
 	private static final int IMAGE_SIZE = 28;
-	private static final int MAX_IMAGE_COUNT = 5000;
+	private static final int MAX_IMAGE_COUNT = 1000;
 	
 	private static final int LAYER_ITER_COUNT = 20;
 	private static final double LOG_LIKE_CHANGE_THRESHOLD = 0.001;
 	
-	private static final int DIM2  = 16;
+	private static final int DIM2  = 32;
 	private static final int ITER2 = 5;
 	
-	private static final int DIM4  = 32;
+	private static final int DIM4  = 48;
 	private static final int ITER4 = 5;
 	
-	private static final int DIM8  = 48;
+	private static final int DIM8  = 64;
 	private static final int ITER8 = 5;
 	
 	private static final int DIM16  = 64;
@@ -86,7 +86,7 @@ public final class ProgramLogic {
 		FileUtils.cleanDir(options.getOutputDir());
 		
 		// initialize inferences
-		InferNKP infer2x2   = null;
+		InferNIG infer2x2   = null;
 		InferHDP infer4x4   = null;
 		InferHDP infer8x8   = null;
 		InferHDP infer16x16 = null;
@@ -95,7 +95,7 @@ public final class ProgramLogic {
 			
 			monitor.write("Interring 2x2 blocks [" + iter + ">>] ...");
 			if (infer2x2 == null) {
-				infer2x2 = new InferNKP(monitor, images, DIM2, 1);
+				infer2x2 = new InferNIG(monitor, images, DIM2, 1);
 			}
 			if (infer4x4 != null) {
 				infer2x2.setParentFeatureImages(
@@ -106,7 +106,7 @@ public final class ProgramLogic {
 			infer2x2.execute(monitor, ITER2, LOG_LIKE_CHANGE_THRESHOLD);
 			
 			monitor.write("Saving 2x2 features [" + iter + ">>] ...");
-			SaveBlocks.save2x2(
+			SaveBlocksNIG.save2x2(
 					infer2x2.getFeatureProbs(),
 					infer2x2.getFeatureBlocks(),
 					options.getOutputDir());
@@ -124,7 +124,7 @@ public final class ProgramLogic {
 			infer4x4.execute(monitor, ITER4, LOG_LIKE_CHANGE_THRESHOLD);
 			
 			monitor.write("Saving 4x4 features [" + iter + ">>] ...");
-			SaveBlocks.save4x4(
+			SaveBlocksNIG.save4x4(
 					infer4x4.getFeatureProbs(),
 					infer4x4.getFeatureBlocks(), 
 					infer2x2.getFeatureBlocks(), 
@@ -143,7 +143,7 @@ public final class ProgramLogic {
 			infer8x8.execute(monitor, ITER8, LOG_LIKE_CHANGE_THRESHOLD);
 			
 			monitor.write("Saving 8x8 features [" + iter + ">>] ...");
-			SaveBlocks.save8x8(
+			SaveBlocksNIG.save8x8(
 					infer8x8.getFeatureProbs(), 
 					infer8x8.getFeatureBlocks(), 
 					infer4x4.getFeatureBlocks(), 
@@ -157,7 +157,7 @@ public final class ProgramLogic {
 			infer16x16.execute(monitor, ITER16, LOG_LIKE_CHANGE_THRESHOLD);
 			
 			monitor.write("Saving 16x16 features [" + iter + ">>] ...");
-			SaveBlocks.save16x16(
+			SaveBlocksNIG.save16x16(
 					infer16x16.getFeatureProbs(), 
 					infer16x16.getFeatureBlocks(), 
 					infer8x8.getFeatureBlocks(), 
@@ -173,7 +173,7 @@ public final class ProgramLogic {
 			infer8x8.execute(monitor, ITER8, LOG_LIKE_CHANGE_THRESHOLD);
 			
 			monitor.write("Saving 8x8 features [" + iter + "<<] ...");
-			SaveBlocks.save8x8(
+			SaveBlocksNIG.save8x8(
 					infer8x8.getFeatureProbs(), 
 					infer8x8.getFeatureBlocks(), 
 					infer4x4.getFeatureBlocks(), 
@@ -188,7 +188,7 @@ public final class ProgramLogic {
 			infer4x4.execute(monitor, ITER4, LOG_LIKE_CHANGE_THRESHOLD);
 			
 			monitor.write("Saving 4x4 features [" + iter + "<<] ...");
-			SaveBlocks.save4x4(
+			SaveBlocksNIG.save4x4(
 					infer4x4.getFeatureProbs(), 
 					infer4x4.getFeatureBlocks(), 
 					infer2x2.getFeatureBlocks(),

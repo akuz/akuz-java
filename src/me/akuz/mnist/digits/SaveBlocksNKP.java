@@ -21,7 +21,7 @@ import me.akuz.core.StringUtils;
 import me.akuz.core.math.DirDist;
 import me.akuz.core.math.NKPDist;
 
-public final class SaveBlocks {
+public final class SaveBlocksNKP {
 
 	private static final DecimalFormat fmt = new DecimalFormat("00");
 
