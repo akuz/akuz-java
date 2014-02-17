@@ -14,6 +14,7 @@ import javax.imageio.ImageIO;
 
 import me.akuz.core.FileUtils;
 import me.akuz.core.StringUtils;
+import me.akuz.core.geom.ByteImage;
 import me.akuz.core.logs.LocalMonitor;
 import me.akuz.core.logs.Monitor;
 import me.akuz.core.math.DirDist;
@@ -71,7 +72,7 @@ public final class ProgramLogicOld {
 					if (parts.length != requiredEntryCount) {
 						throw new IOException("Incorrect number of entries in line #" + counter + ": " + line);
 					}
-					byte symbol = Byte.parseByte(parts[0]);
+//					byte symbol = Byte.parseByte(parts[0]);
 					byte[][] data = new byte[IMAGE_SIZE][IMAGE_SIZE];
 					for (int i=1; i<parts.length; i++) {
 						
@@ -81,7 +82,7 @@ public final class ProgramLogicOld {
 						final int col = index % IMAGE_SIZE;
 						data[row][col] = (byte)val;
 					}
-					ByteImage digit = new ByteImage(symbol, data);
+					ByteImage digit = new ByteImage(data);
 					images.add(digit);
 				}
 				counter += 1;

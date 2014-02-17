@@ -4,7 +4,7 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import me.akuz.core.StringUtils;
-import me.akuz.mnist.digits.ByteImage;
+import me.akuz.core.geom.ByteImage;
 import me.akuz.mnist.digits.Feature;
 import me.akuz.mnist.digits.InferBlocks;
 
@@ -42,7 +42,7 @@ public class InferBlocksSpeedTest {
 			}
 		}
 		
-		ByteImage image = new ByteImage((byte)0, data);
+		ByteImage image = new ByteImage(data);
 		InferBlocks inferBlocks = new InferBlocks(IMAGE_SIZE, BLOCK_COUNT, features);
 		
 		System.out.println("Calculating time...");
