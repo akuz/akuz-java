@@ -332,4 +332,20 @@ public final class MatrixUtils {
 		}
 		return res;
 	}
+
+	public static double[] columnToArray(Matrix m, int j) {
+		double[] arr = new double[m.getRowDimension()];
+		for (int i=0; i<m.getRowDimension(); i++) {
+			arr[i] = m.get(i, j);
+		}
+		return arr;
+	}
+
+	public static double[] rowToArray(Matrix m, int i) {
+		double[] arr = new double[m.getColumnDimension()];
+		for (int j=0; j<m.getColumnDimension(); j++) {
+			arr[j] = m.get(i, j);
+		}
+		return arr;
+	}
 }
