@@ -11,8 +11,6 @@ import me.akuz.core.FileUtils;
 import me.akuz.core.Pair;
 import me.akuz.core.PairComparator;
 import me.akuz.core.SortOrder;
-
-
 import Jama.Matrix;
 
 public final class MatrixUtils {
@@ -280,6 +278,58 @@ public final class MatrixUtils {
 			}
 		}
 		
+		return res;
+	}
+
+	public static void normalizeColumns(Matrix m) {
+		for (int j=0; j<m.getColumnDimension(); j++) {
+			normalizeColumn(m, j);
+		}
+	}
+
+	public static void normalizeColumn(Matrix m, int j) {
+		double sum = 0;
+		for (int i=0; i<m.getRowDimension(); i++) {
+			sum += Math.abs(m.get(i, j));
+		}
+		for (int i=0; i<m.getRowDimension(); i++) {
+			m.set(i, j, m.get(i, j) / sum);
+		}
+	}
+
+	public final static void normalizeRows(Matrix m) {
+		for (int i=0; i<m.getRowDimension(); i++) {
+			normalizeRow(m, i);
+		}
+	}
+
+	public final static void normalizeRow(Matrix m, int i) {
+		double sum = 0;
+		for (int j=0; j<m.getColumnDimension(); j++) {
+			sum += Math.abs(m.get(i, j));
+		}
+		for (int j=0; j<m.getColumnDimension(); j++) {
+			m.set(i, j, m.get(i, j) / sum);
+		}
+	}
+
+	public static Matrix sumRows(Matrix m) {
+		Matrix res = new Matrix(1, m.getColumnDimension());
+		for (int j=0; j<m.getColumnDimension(); j++) {
+			for (int i=0; i<m.getRowDimension(); i++) {
+				res.set(0, j, res.get(0, j) + m.get(i, j));
+			}
+		}
+		return res;
+	}
+
+	public static Matrix sumColumns(Matrix m) {
+		Matrix res = new Matrix(m.getRowDimension(), 1);
+		for (int i=0; i<m.getRowDimension(); i++) {
+			for (int j=0; j<m.getColumnDimension(); j++) {
+				res.set(i, 0, res.get(i, 0) + m.get(i, j));
+			}
+		}
 		return res;
 	}
 }
