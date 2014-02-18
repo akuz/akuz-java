@@ -19,7 +19,7 @@ import me.akuz.core.math.MatrixUtils;
 import me.akuz.nlp.corpus.Corpus;
 import me.akuz.nlp.corpus.CorpusDoc;
 import me.akuz.nlp.corpus.CorpusPlace;
-import me.akuz.nlp.parse.RegexWordsParser;
+import me.akuz.nlp.detect.WordsDetector;
 import me.akuz.nlp.porter.PorterStemmer;
 import me.akuz.nlp.porter.PorterStopWords;
 import me.akuz.nlp.topics.LDAGibbs;
@@ -58,8 +58,8 @@ public final class ProgramLogic {
 		monitor.write("Checking output dir...");
 		FileUtils.isDirExistsOrCreate(options.getOutputDir());
 		
-		monitor.write("Creating words parser...");
-		RegexWordsParser wordsParser = new RegexWordsParser(porterStemmer);
+		monitor.write("Creating words detector...");
+		WordsDetector wordsDetector = new WordsDetector(porterStemmer);
 		
 		monitor.write("Loading corpus...");
 		Index<String> stemsIndex = new HashIndex<>();
@@ -80,7 +80,7 @@ public final class ProgramLogic {
 			}
 
 			String str = FileUtils.readEntireFile(file);
-			Map<String, List<Hit>> hitsByStem = wordsParser.extractHitsByStem(str, new Hit(0, str.length()));
+			Map<String, List<Hit>> hitsByStem = wordsDetector.extractHitsByStem(str, new Hit(0, str.length()));
 			
 			if (hitsByStem != null && hitsByStem.size() > 0) {
 				
