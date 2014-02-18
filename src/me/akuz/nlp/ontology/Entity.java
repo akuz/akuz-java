@@ -9,7 +9,7 @@ import com.google.gson.JsonObject;
  * Pattern that can be detected in text, possibly with multiple different regular expressions.
  *
  */
-public final class Pattern {
+public final class Entity {
 	
 	public static final String NameField = "name";
 	public static final String StemField = "stem";
@@ -17,7 +17,7 @@ public final class Pattern {
 	
 	private final JsonObject _obj;
 	
-	public Pattern(JsonObject obj) {
+	public Entity(JsonObject obj) {
 		_obj = obj;
 	}
 	
@@ -27,6 +27,10 @@ public final class Pattern {
 	
 	public String getStem() {
 		return _obj.get(StemField).getAsString();
+	}
+
+	public void setStem(String stem) {
+		_obj.addProperty(StemField, stem);
 	}
 	
 	public JsonArray getRegx() {

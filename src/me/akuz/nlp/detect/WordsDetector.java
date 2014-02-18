@@ -1,4 +1,4 @@
-package me.akuz.nlp.parse;
+package me.akuz.nlp.detect;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,7 +18,7 @@ import me.akuz.nlp.porter.PorterStemmer;
  * also, this doesn't match numbers.
  *
  */
-public final class RegexWordsParser {
+public final class WordsDetector {
 	
 	// regex hint: (?:) means a non-capturing group
 	
@@ -63,11 +63,11 @@ public final class RegexWordsParser {
 	private final PorterStemmer _porterStemmer;
 	private final Set<String> _stopStems;
 
-	public RegexWordsParser(PorterStemmer porterStemmer) {
+	public WordsDetector(PorterStemmer porterStemmer) {
 		this(porterStemmer, null);
 	}
 
-	public RegexWordsParser(PorterStemmer porterStemmer, Set<String> stopStems) {
+	public WordsDetector(PorterStemmer porterStemmer, Set<String> stopStems) {
 		_porterStemmer = porterStemmer;
 		_stopStems = stopStems;
 	}

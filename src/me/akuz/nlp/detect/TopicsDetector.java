@@ -1,4 +1,4 @@
-package me.akuz.nlp.topics.detect;
+package me.akuz.nlp.detect;
 
 import java.util.Arrays;
 import java.util.List;
@@ -21,7 +21,7 @@ import Jama.Matrix;
  * for a document (and each word-place within the document).
  * 
  */
-public final class TopicsAnalyser {
+public final class TopicsDetector {
 
 	private final Monitor _monitor;
 	private final Index<String> _docsStemsIndex;
@@ -32,7 +32,7 @@ public final class TopicsAnalyser {
 	private final double _stopDeltaLogLike;
 	private final int _topProbsCount;
 
-	public TopicsAnalyser(
+	public TopicsDetector(
 			Monitor parentMonitor,
 			Index<String> docsStemsIndex,
 			TopicModel topicModel,

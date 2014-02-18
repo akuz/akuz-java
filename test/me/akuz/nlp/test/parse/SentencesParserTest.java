@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.akuz.core.Hit;
-import me.akuz.nlp.parse.RegexSentencesParser;
+import me.akuz.nlp.detect.SentencesDetector;
 
 import org.junit.Test;
 
@@ -12,7 +12,7 @@ import org.junit.Test;
 public final class SentencesParserTest {
 	
 	private static final List<Hit> parse(String text) {
-		RegexSentencesParser sp = new RegexSentencesParser();
+		SentencesDetector sp = new SentencesDetector();
 		List<Hit> sentenceBounds = new ArrayList<Hit>();
 		sp.parseSentences(text, new Hit(text), sentenceBounds);
 		return sentenceBounds;

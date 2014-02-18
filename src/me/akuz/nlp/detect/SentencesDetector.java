@@ -1,4 +1,4 @@
-package me.akuz.nlp.parse;
+package me.akuz.nlp.detect;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -12,7 +12,7 @@ import me.akuz.core.Hit;
  * quality; works bad for: "When Mr. Porter looked."
  *
  */
-public final class RegexSentencesParser {
+public final class SentencesDetector {
 	
 	private final static Pattern _patternSentenceBreak = Pattern.compile(
 			
@@ -46,7 +46,7 @@ public final class RegexSentencesParser {
 			//                ^ lowercase or
 			//                     ^ end
 
-	public RegexSentencesParser() {
+	public SentencesDetector() {
 		
 	}
 

@@ -6,17 +6,17 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 /**
- * Collection of {@link Topic}s with the same starting stem.
+ * Collection of {@link Entity}s with the same starting stem.
  *
  */
-public final class TopicColl {
+public final class EntityColl {
 	
 	private static final String StemField = "stem";
 	private static final String ListField = "list";
 	
 	private final JsonObject _obj;
 	
-	public TopicColl(JsonObject obj) {
+	public EntityColl(JsonObject obj) {
 		_obj = obj;
 	}
 	
@@ -32,8 +32,8 @@ public final class TopicColl {
 		String parentStem = getStem();
 		JsonArray list = getList();
 		for (int i=0; i<list.size(); i++) {
-			Topic topic = new Topic(list.get(i).getAsJsonObject());
-			topic.setStem(parentStem + "/" + topic.getStem());
+			Entity entity = new Entity(list.get(i).getAsJsonObject());
+			entity.setStem(parentStem + "/" + entity.getStem());
 		}
 	}
 
