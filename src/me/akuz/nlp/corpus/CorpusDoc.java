@@ -30,6 +30,13 @@ public final class CorpusDoc {
 	public void addPlace(CorpusPlace place) {
 		_places.add(place);
 	}
+	
+	public void clearTags() {
+		for (int i=0; i<_places.size(); i++) {
+			_places.get(i).setTag(null);
+		}
+		setTag(null);
+	}
 
 	public Object getTag() {
 		return _tag;
