@@ -78,9 +78,6 @@ public final class TopicsDetector {
 		double[] mTopicProb = MatrixUtils.columnToArray(_topicModel.getTopicProb(), 0);
 		doc.setTag(mTopicProb);
 		
-		// initialize log likelihood
-		double currLogLike = Double.NaN;
-
 		// prepare doc
 		doc.clearTags();
 
@@ -93,7 +90,7 @@ public final class TopicsDetector {
 			iter += 1;
 
 			// expectation
-			currLogLike = 0;
+			double currLogLike = 0;
 			for (int topicIndex=0; topicIndex<mTopicProb.length; topicIndex++) {
 				currLogLike += _alphaMinus1 * Math.log(mTopicProb[topicIndex]);
 			}
