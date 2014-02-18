@@ -20,10 +20,10 @@ import me.akuz.nlp.ontology.Entity;
 import me.akuz.nlp.ontology.EntityModel;
 
 /**
- * Detects pattern entities occurrences.
+ * Detects occurrences of entities.
  *
  */
-public final class PatternsDetector {
+public final class EntitiesDetector {
 
 	private final Monitor _monitor;
 	private final List<Entity> _entities;
@@ -32,11 +32,11 @@ public final class PatternsDetector {
 	private int _nextOptimizationDetectedEntitiesCount;
 	private final Pattern _entitiesRegex;
 	
-	public PatternsDetector(Monitor parentMonitor, EntityModel entityModel) {
+	public EntitiesDetector(Monitor parentMonitor, EntityModel entityModel) {
 		this(parentMonitor, entityModel, false);
 	}
 
-	public PatternsDetector(Monitor parentMonitor, EntityModel entityModel, boolean caseInsensitive) {
+	public EntitiesDetector(Monitor parentMonitor, EntityModel entityModel, boolean caseInsensitive) {
 		
 		_monitor = parentMonitor != null ? new LocalMonitor(this.getClass().getSimpleName(), parentMonitor) : null;
 		_entities = entityModel.getEntities();

@@ -70,7 +70,7 @@ public final class TopicsDetector {
 	 * returns a corpus doc object which contains the output, with probs in tags:
 	 * tags contain List<Pair<Integer, Double>> of top topic indices with probs.
 	 */
-	public void step1_calcTopicProbs(final CorpusDoc doc) {
+	public void execute(final CorpusDoc doc) {
 		
 		// init expectation optimization
 		double prevLogLike = Double.NaN;
