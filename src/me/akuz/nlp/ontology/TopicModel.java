@@ -19,6 +19,7 @@ import me.akuz.core.math.MatrixUtils;
  */
 public final class TopicModel {
 	
+	private static final double VALIDATION_EPSILON = 0.0000001;
 	private static final double MISSING_WORD_MIN_PROB_TIMES = 0.001;
 	
 	private final List<Topic> _topics;
@@ -26,16 +27,14 @@ public final class TopicModel {
 	private final Matrix _mTopicProb;
 	private final Matrix _mStemTopicProb;
 
-	public TopicModel(TopicColl topicColl) {
+	public TopicModel(JsonArray topicList) {
 		
 		_topics = new ArrayList<>();
 		_stemsIndex = new HashIndex<>();
 
 		double minWordProb = Double.MAX_VALUE;
-		JsonArray topicList = topicColl.getList();
-		
 		if (topicList.size() == 0) {
-			throw new IllegalArgumentException("Topic collection contains no topics");
+			throw new IllegalArgumentException("Topic list contains no topics");
 		}
 		
 		for (int topicIndex=0; topicIndex<topicList.size(); topicIndex++) {
@@ -83,14 +82,14 @@ public final class TopicModel {
 	public void validate() {
 		
 		Matrix mSumTopicProb = MatrixUtils.sumRows(_mTopicProb);
-		if (Math.abs(mSumTopicProb.get(0, 0) - 1.0) > 0.0001) {
-			throw new IllegalStateException("Topic probabilities do not sum up to one");
+		if (Math.abs(mSumTopicProb.get(0, 0) - 1.0) > VALIDATION_EPSILON) {
+			throw new IllegalStateException("Topic probabilities p(topic) do not sum up to one");
 		}
 		
 		Matrix mSumStemTopicProb = MatrixUtils.sumRows(_mStemTopicProb);
 		for (int j=0; j<mSumStemTopicProb.getColumnDimension(); j++) {
-			if (Math.abs(mSumStemTopicProb.get(0, j) - 1.0) > 0.0001) {
-				throw new IllegalStateException("Topic (index " + j + ") stems probabilities do not sum up to one");
+			if (Math.abs(mSumStemTopicProb.get(0, j) - 1.0) > VALIDATION_EPSILON) {
+				throw new IllegalStateException("Topic (index " + j + ") stem probabilities p(stem|topic) do not sum up to one");
 			}
 		}
 	}
