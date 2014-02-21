@@ -127,4 +127,12 @@ public final class FactorEM {
 		return _pFactorBias;
 	}
 	
+	public Matrix getVariableBias() {
+		return _pVariableBias;
+	}
+	
+	public Matrix getW() {
+		return _pW;
+	}
+	
 }
