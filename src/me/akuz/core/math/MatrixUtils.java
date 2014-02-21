@@ -348,4 +348,59 @@ public final class MatrixUtils {
 		}
 		return arr;
 	}
+
+	public static Matrix subtractEachRow(Matrix m, Matrix subtractRow, int startRow, int endRow) {
+		Matrix res = (Matrix)m.clone();
+		subtractEachRow_inPlace(res, subtractRow, startRow, endRow);
+		return res;
+	}
+
+	public static void subtractEachRow_inPlace(Matrix m, Matrix subtractRow, int startRow, int endRow) {
+		if (m.getColumnDimension() != subtractRow.getColumnDimension()) {
+			throw new IllegalArgumentException("Column dimensions don't match");
+		}
+		if (subtractRow.getRowDimension() != 1) {
+			throw new IllegalArgumentException("Matrix subtractRow must have only one row");
+		}
+		for (int i=startRow; i<endRow; i++) {
+			for (int j=0; j<m.getColumnDimension(); j++) {
+				m.set(i, j, m.get(i, j) - subtractRow.get(0, j));
+			}
+		}
+	}
+
+	public static Matrix addEachRow(Matrix m, Matrix addRow, int startRow, int endRow) {
+		Matrix res = (Matrix)m.clone();
+		addEachRow_inPlace(res, addRow, startRow, endRow);
+		return res;
+	}
+
+	public static void addEachRow_inPlace(Matrix m, Matrix addRow, int startRow, int endRow) {
+		if (m.getColumnDimension() != addRow.getColumnDimension()) {
+			throw new IllegalArgumentException("Column dimensions don't match");
+		}
+		if (addRow.getRowDimension() != 1) {
+			throw new IllegalArgumentException("Matrix subtractRow must have only one row");
+		}
+		for (int i=startRow; i<endRow; i++) {
+			for (int j=0; j<m.getColumnDimension(); j++) {
+				m.set(i, j, m.get(i, j) + addRow.get(0, j));
+			}
+		}
+	}
+
+	public static Matrix averageRows(Matrix m) {
+		return averageRows(m, 0, m.getRowDimension());
+	}
+
+	public static Matrix averageRows(Matrix m, int startRow, int endRow) {
+		int rowCount = endRow - startRow;
+		Matrix res = new Matrix(1, m.getColumnDimension());
+		for (int i=startRow; i<endRow; i++) {
+			for (int j=0; j<m.getColumnDimension(); j++) {
+				res.set(0, j, res.get(0, j) + m.get(i, j) / rowCount);
+			}
+		}
+		return res;
+	}
 }
