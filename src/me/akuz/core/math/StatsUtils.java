@@ -162,10 +162,10 @@ public final class StatsUtils {
 		return result;
 	}
 	
-	public static final Matrix calcSampleCovarianceMatrix(Matrix x) {
+	public static final Matrix calcSampleCovarianceMatrix(final Matrix x, final int startRow, final int endRow) {
 		
 		Matrix s = new Matrix(x.getColumnDimension(), x.getColumnDimension());
-		for (int i=0; i<x.getRowDimension(); i++) {
+		for (int i=startRow; i<endRow; i++) {
 			for (int j=0; j<x.getColumnDimension(); j++) {
 				for (int k=0; k<x.getColumnDimension(); k++) {
 					s.set(j, k, 
