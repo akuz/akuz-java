@@ -3,6 +3,8 @@ package me.akuz.core.math;
 import java.security.InvalidParameterException;
 import java.util.Random;
 
+import Jama.Matrix;
+
 public final class StatsUtils {
 	
 	private static final double _naturalLogOfTwo = Math.log(2);
@@ -158,6 +160,21 @@ public final class StatsUtils {
 			throw new IllegalStateException("Could not generate random multinomial");
 		}
 		return result;
+	}
+	
+	public static final Matrix calcSampleCovarianceMatrix(Matrix x) {
+		
+		Matrix s = new Matrix(x.getColumnDimension(), x.getColumnDimension());
+		for (int i=0; i<x.getRowDimension(); i++) {
+			for (int j=0; j<x.getColumnDimension(); j++) {
+				for (int k=0; k<x.getColumnDimension(); k++) {
+					s.set(j, k, 
+							s.get(j, k) + 
+							x.get(i, j) * x.get(i, k) / x.getRowDimension());
+				}
+			}
+		}
+		return s;
 	}
 
 }
