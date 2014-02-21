@@ -19,6 +19,8 @@ public final class FactorEM {
 	private static final double INIT_COV_RAND = 0.05;
 
 	private final Matrix _mX;
+	private final int _startRow;
+	private final int _endRow;
 	private final Matrix _mS;
 	private final int _factorCount;
 	private final int _variableCount;
@@ -31,7 +33,11 @@ public final class FactorEM {
 	private Matrix _pVariableBias;
 	private DiagMatrix _pVariableKsi;
 	
-	public FactorEM(Matrix mX, int factorCount) {
+	public FactorEM(
+			final Matrix mX, 
+			final int startRow, 
+			final int endRow, 
+			final int factorCount) {
 		
 		if (mX == null || mX.getRowDimension() == 0 || mX.getColumnDimension() == 0) {
 			throw new IllegalArgumentException("Matrix X must not be null or empty");
@@ -40,21 +46,23 @@ public final class FactorEM {
 			throw new IllegalArgumentException("Factor count must be positive");
 		}
 		_mX = mX;
-		_mS = StatsUtils.calcSampleCovarianceMatrix(mX);
+		_startRow = startRow;
+		_endRow = endRow;
+		_mS = StatsUtils.calcSampleCovarianceMatrix(mX, startRow, endRow);
 		_factorCount = factorCount;
 		_variableCount = mX.getColumnDimension();
-		_sampleCount = mX.getRowDimension();
+		_sampleCount = endRow - startRow;
 		
 		// init parameters
 		final Random rnd = ThreadLocalRandom.current();
-		_pFactorBias = new Matrix(factorCount, 1);
+		_pFactorBias = new Matrix(_factorCount, 1);
 		_pFactorPhi = new DiagMatrix(_factorCount);
 		for (int f=0; f<_factorCount; f++) {
 			_pFactorPhi.setDiag(f, INIT_COV_BASE + INIT_COV_RAND * rnd.nextDouble());
 		}
-		_pW = new Matrix(_variableCount, factorCount);
+		_pW = new Matrix(_variableCount, _factorCount);
 		for (int v=0; v<_variableCount; v++) {
-			for (int f=0; f<factorCount; f++) {
+			for (int f=0; f<_factorCount; f++) {
 				_pW.set(v, f, INIT_W_RANGE * (1.0 - 2.0 * rnd.nextDouble()));
 			}
 		}
@@ -78,7 +86,7 @@ public final class FactorEM {
 			// expectation
 			Matrix G = _pFactorPhi.inverse().plus(_pVariableKsi.inverse().timesOnLeft(_pW.transpose()).times(_pW)).inverse();
 			Matrix WTranKsiInv = _pVariableKsi.inverse().timesOnLeft(_pW.transpose());
-			for (int n=0; n<_xExpectedFactor.length; n++) {
+			for (int n=_startRow; n<_endRow; n++) {
 
 				Matrix x_n = MatrixUtils.getRows(_mX, n, n+1).transpose();
 				_xExpectedFactor[n] = G.times(WTranKsiInv.times(x_n.minus(_pVariableBias)).plus(_pFactorPhi.inverse().timesOnRight(_pFactorBias)));
@@ -90,7 +98,7 @@ public final class FactorEM {
 			_pFactorBias = new Matrix(_factorCount, 1);
 			Matrix factorSampleCovariance = new Matrix(_factorCount, _factorCount);
 			_pVariableBias = new Matrix(_variableCount, 1);
-			for (int n=0; n<_xExpectedFactor.length; n++) {
+			for (int n=_startRow; n<_endRow; n++) {
 				
 				Matrix x_n = MatrixUtils.getRows(_mX, n, n+1).transpose();
 				_pFactorBias.plusEquals(_xExpectedFactor[n].times(1.0/_sampleCount));
@@ -100,7 +108,7 @@ public final class FactorEM {
 			_pFactorPhi = new DiagMatrix(factorSampleCovariance.minus(_pFactorBias.times(_pFactorBias.transpose())));
 			Matrix leftW = new Matrix(_variableCount, _factorCount);
 			Matrix rightW = new Matrix(_factorCount, _factorCount);
-			for (int n=0; n<_xExpectedFactor.length; n++) {
+			for (int n=_startRow; n<_endRow; n++) {
 				
 				Matrix x_n = MatrixUtils.getRows(_mX, n, n+1).transpose();
 				leftW.plusEquals(x_n.minus(_pVariableBias).times(_xExpectedFactor[n].transpose()));
@@ -114,8 +122,8 @@ public final class FactorEM {
 	
 	public Matrix collectFactorHistory() {
 		
-		Matrix res = new Matrix(_sampleCount, _factorCount);
-		for (int n=0; n<_sampleCount; n++) {
+		Matrix res = new Matrix(_xExpectedFactor.length, _factorCount);
+		for (int n=_startRow; n<_endRow; n++) {
 			for (int k=0; k<_factorCount; k++) {
 				res.set(n, k, _xExpectedFactor[n].get(k, 0));
 			}
@@ -127,12 +135,20 @@ public final class FactorEM {
 		return _pFactorBias;
 	}
 	
-	public Matrix getVariableBias() {
-		return _pVariableBias;
+	public DiagMatrix getFactorPhi() {
+		return _pFactorPhi;
 	}
 	
 	public Matrix getW() {
 		return _pW;
+	}
+	
+	public Matrix getVariableBias() {
+		return _pVariableBias;
+	}
+	
+	public DiagMatrix getVariableKsi() {
+		return _pVariableKsi;
 	}
 	
 }
