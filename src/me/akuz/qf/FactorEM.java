@@ -131,6 +131,10 @@ public final class FactorEM {
 		return res;
 	}
 	
+	public Matrix getS() {
+		return _mS;
+	}
+	
 	public Matrix getFactorBias() {
 		return _pFactorBias;
 	}
