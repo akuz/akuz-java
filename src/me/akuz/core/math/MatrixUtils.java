@@ -380,11 +380,31 @@ public final class MatrixUtils {
 			throw new IllegalArgumentException("Column dimensions don't match");
 		}
 		if (addRow.getRowDimension() != 1) {
-			throw new IllegalArgumentException("Matrix subtractRow must have only one row");
+			throw new IllegalArgumentException("Matrix addRow must have only one row");
 		}
 		for (int i=startRow; i<endRow; i++) {
 			for (int j=0; j<m.getColumnDimension(); j++) {
 				m.set(i, j, m.get(i, j) + addRow.get(0, j));
+			}
+		}
+	}
+
+	public static Matrix addEachColumn(Matrix m, Matrix addCol, int startCol, int endCol) {
+		Matrix res = (Matrix)m.clone();
+		addEachColumn_inPlace(res, addCol, startCol, endCol);
+		return res;
+	}
+
+	public static void addEachColumn_inPlace(Matrix m, Matrix addCol, int startCol, int endCol) {
+		if (m.getRowDimension() != addCol.getRowDimension()) {
+			throw new IllegalArgumentException("Row dimensions don't match");
+		}
+		if (addCol.getColumnDimension() != 1) {
+			throw new IllegalArgumentException("Matrix addCol must have only one column");
+		}
+		for (int j=startCol; j<endCol; j++) {
+			for (int i=0; i<m.getRowDimension(); i++) {
+				m.set(i, j, m.get(i, j) + addCol.get(j, 0));
 			}
 		}
 	}
