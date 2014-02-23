@@ -26,6 +26,6 @@ public final class Out<T> {
 	
 	@Override
 	public String toString() {
-		return "Out(" + (_value != null ? _value.toString() : "null") + ")";
+		return _value != null ? _value.toString() : "";
 	}
 }

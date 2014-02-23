@@ -369,6 +369,26 @@ public final class MatrixUtils {
 		}
 	}
 
+	public static Matrix subtractEachColumn(Matrix m, Matrix subtractCol, int startCol, int endCol) {
+		Matrix res = (Matrix)m.clone();
+		subtractEachColumn_inPlace(res, subtractCol, startCol, endCol);
+		return res;
+	}
+
+	public static void subtractEachColumn_inPlace(Matrix m, Matrix subtractCol, int startCol, int endCol) {
+		if (m.getRowDimension() != subtractCol.getRowDimension()) {
+			throw new IllegalArgumentException("Row dimensions don't match");
+		}
+		if (subtractCol.getColumnDimension() != 1) {
+			throw new IllegalArgumentException("Matrix subtractCol must have only one column");
+		}
+		for (int i=0; i<m.getRowDimension(); i++) {
+			for (int j=startCol; j<endCol; j++) {
+				m.set(i, j, m.get(i, j) - subtractCol.get(i, 0));
+			}
+		}
+	}
+
 	public static Matrix addEachRow(Matrix m, Matrix addRow, int startRow, int endRow) {
 		Matrix res = (Matrix)m.clone();
 		addEachRow_inPlace(res, addRow, startRow, endRow);
