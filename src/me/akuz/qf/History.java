@@ -105,6 +105,15 @@ public final class History<K, T extends Comparable<T>, V> {
 	}
 	
 	/**
+	 * Get chronological list of values for a given key.
+	 * 
+	 */
+	public Pair<T, V> getByKeyLast(K key) {
+		List<Pair<T, V>> list = _map.get(key);
+		return list != null && list.size() > 0 ? list.get(list.size()-1) : null;
+	}
+	
+	/**
 	 * Align data into a matrix.
 	 * 
 	 * @param keysIndex - Must have indices for all keys added to history, these indices will be used to identify matrix columns.

@@ -4,12 +4,13 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import me.akuz.core.math.DiagMatrix;
+import me.akuz.core.math.GaussianFunc;
 import me.akuz.core.math.MatrixUtils;
 import me.akuz.core.math.StatsUtils;
 import Jama.Matrix;
 
 /**
- * Expectation Maximization (EM) inference for the factor model with non-zero factor bias.
+ * Factor model EM inference.
  *
  */
 public final class FactorEM {
@@ -32,6 +33,7 @@ public final class FactorEM {
 	private Matrix _pW;
 	private Matrix _pVariableBias;
 	private DiagMatrix _pVariableKsi;
+	private double _logLike;
 	
 	public FactorEM(
 			final Matrix mX, 
@@ -71,6 +73,7 @@ public final class FactorEM {
 		for (int v=0; v<_variableCount; v++) {
 			_pVariableKsi.setDiag(v, INIT_COV_BASE + INIT_COV_RAND * rnd.nextDouble());
 		}
+		_logLike = Double.NaN;
 	}
 	
 	public void execute(final int iterationCount) {
@@ -86,11 +89,24 @@ public final class FactorEM {
 			// expectation
 			Matrix G = _pFactorPhi.inverse().plus(_pVariableKsi.inverse().timesOnLeft(_pW.transpose()).times(_pW)).inverse();
 			Matrix WTranKsiInv = _pVariableKsi.inverse().timesOnLeft(_pW.transpose());
-			for (int n=_startRow; n<_endRow; n++) {
-
-				Matrix x_n = MatrixUtils.getRows(_mX, n, n+1).transpose();
-				_xExpectedFactor[n] = G.times(WTranKsiInv.times(x_n.minus(_pVariableBias)).plus(_pFactorPhi.inverse().timesOnRight(_pFactorBias)));
-				_xExpectedFactorFactor[n] = G.plus(_xExpectedFactor[n].times(_xExpectedFactor[n].transpose()));
+			{
+				double currLogLike = 0;
+				Matrix xMean = _pW.times(_pFactorBias).plus(_pVariableBias);
+				Matrix xCov = _pVariableKsi.plus(_pFactorPhi.timesOnLeft(_pW).times(_pW.transpose()));
+				Matrix xInverseCov = StatsUtils.generalizedInverse(xCov);
+				
+				final double logPseudoNormalizer = GaussianFunc.calcLogPseudoNormalizer(xMean, xCov);
+				
+				for (int n=_startRow; n<_endRow; n++) {
+	
+					Matrix x_n = MatrixUtils.getRows(_mX, n, n+1).transpose();
+					_xExpectedFactor[n] = G.times(WTranKsiInv.times(x_n.minus(_pVariableBias)).plus(_pFactorPhi.inverse().timesOnRight(_pFactorBias)));
+					_xExpectedFactorFactor[n] = G.plus(_xExpectedFactor[n].times(_xExpectedFactor[n].transpose()));
+					
+					currLogLike += logPseudoNormalizer + GaussianFunc.calcLogUnnormalizedPdf(xMean, xInverseCov, x_n);
+				}
+//				System.out.println("LogLike: " + currLogLike);
+				_logLike = currLogLike;
 			}
 			
 			// ************
@@ -153,6 +169,10 @@ public final class FactorEM {
 	
 	public DiagMatrix getVariableKsi() {
 		return _pVariableKsi;
+	}
+	
+	public double getLogLike() {
+		return _logLike;
 	}
 	
 }
