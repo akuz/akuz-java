@@ -431,4 +431,20 @@ public final class MatrixUtils {
 			}
 		}
 	}
+
+	public static void setRangeRows(Matrix m, int startRow, int endRow, double value) {
+		for (int i=startRow; i<endRow; i++) {
+			for (int j=0; j<m.getColumnDimension(); j++) {
+				m.set(i, j, value);
+			}
+		}
+	}
+
+	public static void setRangeColumns(Matrix m, int startCol, int endCol, double value) {
+		for (int i=0; i<m.getRowDimension(); i++) {
+			for (int j=startCol; j<endCol; j++) {
+				m.set(i, j, value);
+			}
+		}
+	}
 }
