@@ -4,6 +4,7 @@ import java.security.InvalidParameterException;
 import java.util.Random;
 
 import Jama.Matrix;
+import Jama.SingularValueDecomposition;
 
 public final class StatsUtils {
 	
@@ -175,6 +176,51 @@ public final class StatsUtils {
 			}
 		}
 		return s;
+	}
+	
+	public static final Matrix generalizedInverse(Matrix m) {
+		
+		SingularValueDecomposition svd = new SingularValueDecomposition(m);
+		
+		// will modify in-place
+		Matrix inverseS = svd.getS();
+		
+		for (int i=0; i<inverseS.getRowDimension(); i++) {
+			double value = inverseS.get(i, i);
+			if (value > 0) {
+				inverseS.set(i, i, 1.0 / value);
+			} else {
+				break;
+			}
+		}
+		
+		return svd.getV().times(inverseS).times(svd.getU().transpose());
+	}
+	
+	public static final double pseudoDeterminant(Matrix m) {
+
+		return pseudoDeterminant(m, 1.0);
+	}
+
+	public static final double pseudoDeterminant(Matrix m, double matrixMultiplier) {
+		
+		SingularValueDecomposition svd = new SingularValueDecomposition(m);
+		Matrix S = svd.getS();
+		
+		double det = 1;
+		for (int i=0; i<S.getRowDimension(); i++) {
+
+			double singularValue = S.get(i, i);
+			if (singularValue > 0) {
+				
+				det *= matrixMultiplier * singularValue;
+				
+			} else {
+				break;
+			}
+		}
+
+		return det;
 	}
 
 }

@@ -423,4 +423,12 @@ public final class MatrixUtils {
 		}
 		return res;
 	}
+
+	public static void setRange(Matrix m, int startRow, int endRow, int startCol, int endCol, double value) {
+		for (int i=startRow; i<endRow; i++) {
+			for (int j=startCol; j<endCol; j++) {
+				m.set(i, j, value);
+			}
+		}
+	}
 }
