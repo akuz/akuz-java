@@ -1,14 +1,16 @@
 package me.akuz.qf;
 
+import me.akuz.core.math.DiagMatrix;
 import me.akuz.core.math.MatrixUtils;
+
 import Jama.Matrix;
 import Jama.SingularValueDecomposition;
 
 /**
- * Probabilistic PCA (closed form solution).
+ * Probabilistic PCA (closed form solution) with re-normalization.
  *
  */
-public final class ProbPCA {
+public final class ProbPCAR {
 	
 	private final Matrix _X;
 	private final int _startRow;
@@ -16,13 +18,15 @@ public final class ProbPCA {
 	private final int _factorCount;
 	private final Matrix _myu;
 	private final Matrix _S;
+	private final Matrix _norm;
+	private final Matrix _normS;
+	private final Matrix _normW;
 	private final Matrix _W;
+	private final DiagMatrix _Ksi;
 	private final Matrix _C;
-	private final Matrix _M;
-	private final Matrix _invM;
-	private final Matrix _invM_tranW;
+	private final Matrix _GTranWInvKsi;
 	
-	public ProbPCA(
+	public ProbPCAR(
 			final Matrix mX, 
 			final int factorCount) {
 		
@@ -33,7 +37,7 @@ public final class ProbPCA {
 			factorCount);
 	}
 	
-	public ProbPCA(
+	public ProbPCAR(
 			final Matrix X, 
 			final int startRow,
 			final int endRow,
@@ -77,40 +81,66 @@ public final class ProbPCA {
 				}
 			}
 		}
-		
-		final SingularValueDecomposition svd = new SingularValueDecomposition(_S);
-		final Matrix svdS = svd.getS();
-		final Matrix U = MatrixUtils.getColumns(svd.getU(), 0, factorCount);
-		final Matrix L = new Matrix(factorCount, factorCount);
-		for (int k=0; k<factorCount; k++) {
-			L.set(k, k, svdS.get(k, k));
+		_norm = new Matrix(dataDim, 1);
+		for (int i=0; i<dataDim; i++) {
+			_norm.set(i, 0, Math.sqrt(_S.get(i, i)));
+		}
+		_normS = new Matrix(dataDim, dataDim);
+		for (int i=0; i<dataDim; i++) {
+			
+			final double norm_i = _norm.get(i, 0);
+			_normS.set(i, i, _S.get(i, i) / norm_i / norm_i);
+			
+			for (int j=i+1; j<dataDim; j++) {
+				
+				final double norm_j = _norm.get(j, 0);
+				_normS.set(i, j, _S.get(i, j) / norm_i / norm_j);
+				_normS.set(j, i, _S.get(j, i) / norm_i / norm_j);
+			}
 		}
 		
-		double sigma = 0;
+		final SingularValueDecomposition normSvd = new SingularValueDecomposition(_normS);
+		final Matrix normSvdS = normSvd.getS();
+		final Matrix normU = MatrixUtils.getColumns(normSvd.getU(), 0, factorCount);
+		final Matrix normL = new Matrix(factorCount, factorCount);
+		for (int k=0; k<factorCount; k++) {
+			normL.set(k, k, normSvdS.get(k, k));
+		}
+		
+		double normSigma = 0;
 		for (int k=factorCount; k<dataDim; k++) {
-			sigma += svdS.get(k, k);
+			normSigma += normSvdS.get(k, k);
 		}
-		sigma /= (dataDim - factorCount);
-		final double sigmaSq = sigma*sigma;
+		normSigma /= (dataDim - factorCount);
+		double normSigmaSq = normSigma*normSigma;
 		
-		final Matrix rightW = new Matrix(factorCount, factorCount);
+		final Matrix rightNormW = new Matrix(factorCount, factorCount);
 		for (int k=0; k<factorCount; k++) {
-			rightW.set(k, k, Math.sqrt(L.get(k, k) - sigmaSq));
+			rightNormW.set(k, k, Math.sqrt(normL.get(k, k) - normSigmaSq));
 		}
-		_W = U.times(rightW);
+		_normW = normU.times(rightNormW);
+		
+		_W = new Matrix(dataDim, factorCount);
+		for (int i=0; i<dataDim; i++) {
+			for (int j=0; j<factorCount; j++) {
+				_W.set(i, j, _normW.get(i, j) * _norm.get(i, 0));
+			}
+		}
+		
+		_Ksi = new DiagMatrix(dataDim);
+		for (int i=0; i<dataDim; i++) {
+			_Ksi.setDiag(i, normSigmaSq * _norm.get(i, 0));
+		}
 
-		_C = _W.times(_W.transpose());
-		for (int j=0; j<dataDim; j++) {
-			_C.set(j, j, _C.get(j, j) + sigmaSq);
-		}
+		_C = _Ksi.plus(_W.times(_W.transpose()));
 		
-		_M = _W.transpose().times(_W);
-		for (int k=0; k<factorCount; k++) {
-			_M.set(k, k, _M.get(k, k) + sigmaSq);
+		Matrix invG = _Ksi.inverse().timesOnLeft(_W.transpose()).times(_W);
+		for (int i=0; i<invG.getRowDimension(); i++) {
+			invG.set(i, i, invG.get(i, i) + 1);
 		}
+		Matrix G = invG.inverse();
 		
-		_invM = _M.inverse();
-		_invM_tranW = _invM.times(_W.transpose());
+		_GTranWInvKsi = G.times(_Ksi.inverse().timesOnLeft(_W.transpose()));
 	}
 
 	public Matrix getMyu() {
@@ -136,7 +166,7 @@ public final class ProbPCA {
 			final Matrix x_n = MatrixUtils.getRows(_X, n, n+1).transpose();
 			MatrixUtils.subtractEachColumn_inPlace(x_n, _myu);
 			
-			final Matrix f_n = _invM_tranW.times(x_n);
+			final Matrix f_n = _GTranWInvKsi.times(x_n);
 			for (int f=0; f<_factorCount; f++) {
 				F.set(n, f, f_n.get(f, 0));
 			}
