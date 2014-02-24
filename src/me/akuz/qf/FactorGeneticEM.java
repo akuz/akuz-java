@@ -17,6 +17,27 @@ public final class FactorGeneticEM {
 	
 	public FactorGeneticEM(
 			final Matrix mX, 
+			final int factorCount,
+			final int firstCandidateCount,
+			final int firstIterationCount,
+			final int secondCandidateCount,
+			final int secondIterationCount,
+			final int finalIterationCount) {
+		
+		this(
+			mX,
+			0,
+			mX.getRowDimension(),
+			factorCount,
+			firstCandidateCount,
+			firstIterationCount,
+			secondCandidateCount,
+			secondIterationCount,
+			finalIterationCount);
+	}
+	
+	public FactorGeneticEM(
+			final Matrix mX, 
 			final int startRow, 
 			final int endRow, 
 			final int factorCount,

@@ -37,6 +37,17 @@ public final class FactorEM {
 	
 	public FactorEM(
 			final Matrix mX, 
+			final int factorCount) {
+		
+		this(
+			mX,
+			0,
+			mX.getRowDimension(),
+			factorCount);
+	}
+	
+	public FactorEM(
+			final Matrix mX, 
 			final int startRow, 
 			final int endRow, 
 			final int factorCount) {
