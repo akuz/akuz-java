@@ -35,8 +35,16 @@ public final class DiagMatrix {
 		return _diag.length;
 	}
 	
+	public Matrix getDiagAsColumn() {
+		return MatrixUtils.arrayAsColumn(_diag);
+	}
+	
 	public double getDiag(int k) {
 		return _diag[k];
+	}
+	
+	public void setDiag(int k, double value) {
+		_diag[k] = value;
 	}
 	
 	public double get(int i, int j) {
@@ -44,10 +52,6 @@ public final class DiagMatrix {
 			throw new IndexOutOfBoundsException();
 		}
 		return (i == j) ? _diag[i] : 0.0;
-	}
-	
-	public void setDiag(int k, double value) {
-		_diag[k] = value;
 	}
 	
 	public void set(int i, int j, double value) {

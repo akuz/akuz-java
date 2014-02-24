@@ -503,4 +503,20 @@ public final class MatrixUtils {
 			}
 		}
 	}
+
+	public static Matrix arrayAsColumn(double[] arr) {
+		final Matrix m = new Matrix(arr.length, 1);
+		for (int i=0; i<arr.length; i++) {
+			m.set(i, 0, arr[i]);
+		}
+		return m;
+	}
+
+	public static Matrix arrayAsRow(double[] arr) {
+		final Matrix m = new Matrix(1, arr.length);
+		for (int j=0; j<arr.length; j++) {
+			m.set(0, j, arr[j]);
+		}
+		return m;
+	}
 }
