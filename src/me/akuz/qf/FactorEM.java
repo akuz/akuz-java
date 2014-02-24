@@ -147,7 +147,11 @@ public final class FactorEM {
 		}
 	}
 	
-	public Matrix collectFactorHistory() {
+	/**
+	 * Calculate factor history (expected values of factors | X).
+	 * 
+	 */
+	public Matrix calcF() {
 		
 		Matrix res = new Matrix(_xExpectedFactor.length, _factorCount);
 		for (int n=_startRow; n<_endRow; n++) {
