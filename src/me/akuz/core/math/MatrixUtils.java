@@ -266,6 +266,10 @@ public final class MatrixUtils {
 		return res;
 	}
 	
+	public static Matrix accumulateRows(Matrix m) {
+		return accumulateRows(m, 0, m.getRowDimension());
+	}
+	
 	public static Matrix accumulateRows(Matrix m, int startRow, int endRow) {
 		
 		Matrix res = (Matrix)m.clone();
@@ -349,10 +353,18 @@ public final class MatrixUtils {
 		return arr;
 	}
 
+	public static Matrix subtractEachRow(Matrix m, Matrix subtractRow) {
+		return subtractEachRow(m, subtractRow, 0, m.getRowDimension());
+	}
+
 	public static Matrix subtractEachRow(Matrix m, Matrix subtractRow, int startRow, int endRow) {
 		Matrix res = (Matrix)m.clone();
 		subtractEachRow_inPlace(res, subtractRow, startRow, endRow);
 		return res;
+	}
+	
+	public static void subtractEachRow_inPlace(Matrix m, Matrix subtractRow) {
+		subtractEachRow_inPlace(m, subtractRow, 0, m.getRowDimension());
 	}
 
 	public static void subtractEachRow_inPlace(Matrix m, Matrix subtractRow, int startRow, int endRow) {
@@ -389,10 +401,18 @@ public final class MatrixUtils {
 		}
 	}
 
+	public static Matrix addEachRow(Matrix m, Matrix addRow) {
+		return addEachRow(m, addRow, 0, m.getRowDimension());
+	}
+
 	public static Matrix addEachRow(Matrix m, Matrix addRow, int startRow, int endRow) {
 		Matrix res = (Matrix)m.clone();
 		addEachRow_inPlace(res, addRow, startRow, endRow);
 		return res;
+	}
+
+	public static void addEachRow_inPlace(Matrix m, Matrix addRow) {
+		addEachRow_inPlace(m, addRow, 0, m.getRowDimension());
 	}
 
 	public static void addEachRow_inPlace(Matrix m, Matrix addRow, int startRow, int endRow) {
@@ -409,10 +429,18 @@ public final class MatrixUtils {
 		}
 	}
 
+	public static Matrix addEachColumn(Matrix m, Matrix addCol) {
+		return addEachColumn(m, addCol, 0, m.getColumnDimension());
+	}
+
 	public static Matrix addEachColumn(Matrix m, Matrix addCol, int startCol, int endCol) {
 		Matrix res = (Matrix)m.clone();
 		addEachColumn_inPlace(res, addCol, startCol, endCol);
 		return res;
+	}
+
+	public static void addEachColumn_inPlace(Matrix m, Matrix addCol) {
+		addEachColumn_inPlace(m, addCol, 0, m.getColumnDimension());
 	}
 
 	public static void addEachColumn_inPlace(Matrix m, Matrix addCol, int startCol, int endCol) {
