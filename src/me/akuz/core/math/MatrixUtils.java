@@ -381,10 +381,18 @@ public final class MatrixUtils {
 		}
 	}
 
+	public static Matrix subtractEachColumn(Matrix m, Matrix subtractCol) {
+		return subtractEachColumn(m, subtractCol, 0, m.getColumnDimension());
+	}
+
 	public static Matrix subtractEachColumn(Matrix m, Matrix subtractCol, int startCol, int endCol) {
 		Matrix res = (Matrix)m.clone();
 		subtractEachColumn_inPlace(res, subtractCol, startCol, endCol);
 		return res;
+	}
+
+	public static void subtractEachColumn_inPlace(Matrix m, Matrix subtractCol) {
+		subtractEachColumn_inPlace(m, subtractCol, 0, m.getColumnDimension());
 	}
 
 	public static void subtractEachColumn_inPlace(Matrix m, Matrix subtractCol, int startCol, int endCol) {
