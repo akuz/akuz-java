@@ -98,18 +98,15 @@ public final class FactorEM {
 		
 		Matrix W = new Matrix(_variableCount, _factorCount);
 		
-		for (int i=0; i<_variableCount; i++) {
-			W.set(i, 0, 1.0);
-		}
-		for (int j=1; j<_factorCount; j++) {
+		for (int j=0; j<_factorCount; j++) {
 
-			final double lenPi = _variableCount / (double)(j+1);
+			final double lenPi = 2.0 * _variableCount / (double)(j+1);
 			
 			for (int i=0; i<_variableCount; i++) {
 				
 				final double rad = Math.PI / lenPi * (double)i;
 				
-				final double value = Math.cos(rad);
+				final double value = 1.0 / Math.log(Math.E + j) + Math.cos(rad);
 				
 				W.set(i, j, value);
 			}
