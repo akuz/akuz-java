@@ -16,8 +16,6 @@ import Jama.Matrix;
 public final class FactorEM {
 	
 	private static final double INIT_W_RANGE = 0.3;
-	private static final double INIT_COV_BASE = 0.1;
-	private static final double INIT_COV_RAND = 0.05;
 
 	private final Matrix _mX;
 	private final int _startRow;
@@ -38,20 +36,23 @@ public final class FactorEM {
 	
 	public FactorEM(
 			final Matrix mX, 
-			final int factorCount) {
+			final int factorCount,
+			final boolean randomW) {
 		
 		this(
 			mX,
 			0,
 			mX.getRowDimension(),
-			factorCount);
+			factorCount,
+			randomW);
 	}
 	
 	public FactorEM(
 			final Matrix mX, 
 			final int startRow, 
 			final int endRow, 
-			final int factorCount) {
+			final int factorCount,
+			final boolean randomW) {
 		
 		if (mX == null || mX.getRowDimension() == 0 || mX.getColumnDimension() == 0) {
 			throw new IllegalArgumentException("Matrix X must not be null or empty");
@@ -72,21 +73,49 @@ public final class FactorEM {
 		_pFactorBias = new Matrix(_factorCount, 1);
 		_pFactorPhi = new DiagMatrix(_factorCount);
 		for (int f=0; f<_factorCount; f++) {
-			_pFactorPhi.setDiag(f, INIT_COV_BASE + INIT_COV_RAND * rnd.nextDouble());
+			_pFactorPhi.setDiag(f, 1.0);
 		}
-		_pW = new Matrix(_variableCount, _factorCount);
-		for (int v=0; v<_variableCount; v++) {
-			for (int f=0; f<_factorCount; f++) {
-				_pW.set(v, f, INIT_W_RANGE * (1.0 - 2.0 * rnd.nextDouble()));
+		if (randomW) {
+			_pW = new Matrix(_variableCount, _factorCount);
+			for (int v=0; v<_variableCount; v++) {
+				for (int f=0; f<_factorCount; f++) {
+					_pW.set(v, f, INIT_W_RANGE * (1.0 - 2.0 * rnd.nextDouble()));
+				}
 			}
+		} else {
+			_pW = initW();
 		}
 		_pVariableBias = new Matrix(_variableCount, 1);
 		_pVariableKsi = new DiagMatrix(_variableCount);
 		for (int v=0; v<_variableCount; v++) {
-			_pVariableKsi.setDiag(v, INIT_COV_BASE + INIT_COV_RAND * rnd.nextDouble());
+			_pVariableKsi.setDiag(v, 1.0);
 		}
 		updateC();
 		_logLike = Double.NaN;
+	}
+	
+	public final Matrix initW() {
+		
+		Matrix W = new Matrix(_variableCount, _factorCount);
+		
+		for (int i=0; i<_variableCount; i++) {
+			W.set(i, 0, 1.0);
+		}
+		for (int j=1; j<_factorCount; j++) {
+
+			final double lenPi = _variableCount / (double)(j+1);
+			
+			for (int i=0; i<_variableCount; i++) {
+				
+				final double rad = Math.PI / lenPi * (double)i;
+				
+				final double value = Math.cos(rad);
+				
+				W.set(i, j, value);
+			}
+		}
+		
+		return W;
 	}
 	
 	public void execute(final int iterationCount) {

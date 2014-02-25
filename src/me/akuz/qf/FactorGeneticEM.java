@@ -51,7 +51,7 @@ public final class FactorGeneticEM {
 		
 		for (int i=0; i<firstCandidateCount; i++) {
 			
-			FactorEM secondCandidate = new FactorEM(mX, startRow, endRow, factorCount);
+			FactorEM secondCandidate = new FactorEM(mX, startRow, endRow, factorCount, true);
 			secondCandidate.execute(firstIterationCount);
 			
 			selectSecond.add(new Pair<FactorEM, Double>(secondCandidate, secondCandidate.getLogLike()));
