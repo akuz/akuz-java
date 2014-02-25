@@ -33,6 +33,7 @@ public final class FactorEM {
 	private Matrix _pW;
 	private Matrix _pVariableBias;
 	private DiagMatrix _pVariableKsi;
+	private Matrix _C;
 	private double _logLike;
 	
 	public FactorEM(
@@ -84,6 +85,7 @@ public final class FactorEM {
 		for (int v=0; v<_variableCount; v++) {
 			_pVariableKsi.setDiag(v, INIT_COV_BASE + INIT_COV_RAND * rnd.nextDouble());
 		}
+		updateC();
 		_logLike = Double.NaN;
 	}
 	
@@ -144,6 +146,8 @@ public final class FactorEM {
 			_pW = leftW.times(rightW.inverse());
 			Matrix rightKsi = leftW.transpose().timesEquals(1.0/_sampleCount);
 			_pVariableKsi = new DiagMatrix(_mS.minus(_pW.times(rightKsi)));
+			
+			updateC();
 		}
 	}
 	
@@ -184,6 +188,14 @@ public final class FactorEM {
 	
 	public DiagMatrix getVariableKsi() {
 		return _pVariableKsi;
+	}
+	
+	private void updateC() {
+		_C = _pVariableKsi.plus(_pFactorPhi.timesOnLeft(_pW).times(_pW.transpose()));		
+	}
+	
+	public Matrix getC() {
+		return _C;
 	}
 	
 	public double getLogLike() {
