@@ -13,43 +13,25 @@ import Jama.Matrix;
  * Factor model EM inference.
  *
  */
-public final class FactorEM {
+public final class FactorEM2 {
 	
 	private static final double INIT_W_RANGE = 0.3;
 
 	private final Matrix _mX;
-	private final int _startRow;
-	private final int _endRow;
-	private final int _factorCount;
-	private final int _variableCount;
-	private final int _sampleCount;
-	private Matrix[] _xExpectedFactor;
-	private Matrix[] _xExpectedFactorFactor;
-	private Matrix _pFactorBias;
-	private DiagMatrix _pFactorPhi;
-	private Matrix _pW;
-	private Matrix _pVariableBias;
-	private DiagMatrix _pVariableKsi;
-	private Matrix _C;
-	private double _logLike;
+	private final int    _factorCount;
+	private final int    _variableCount;
+	private Matrix[]     _xExpectedFactor;
+	private Matrix[]     _xExpectedFactorFactor;
+	private Matrix       _pFactorBias;
+	private DiagMatrix   _pFactorPhi;
+	private Matrix       _pW;
+	private Matrix       _pVariableBias;
+	private DiagMatrix   _pVariableKsi;
+	private Matrix       _C;
+	private double       _logLike;
 	
-	public FactorEM(
+	public FactorEM2(
 			final Matrix mX, 
-			final int factorCount,
-			final boolean randomW) {
-		
-		this(
-			mX,
-			0,
-			mX.getRowDimension(),
-			factorCount,
-			randomW);
-	}
-	
-	public FactorEM(
-			final Matrix mX, 
-			final int startRow, 
-			final int endRow, 
 			final int factorCount,
 			final boolean randomW) {
 		
@@ -60,11 +42,8 @@ public final class FactorEM {
 			throw new IllegalArgumentException("Factor count must be positive");
 		}
 		_mX = mX;
-		_startRow = startRow;
-		_endRow = endRow;
 		_factorCount = factorCount;
 		_variableCount = mX.getColumnDimension();
-		_sampleCount = endRow - startRow;
 		
 		// init parameters
 		final Random rnd = ThreadLocalRandom.current();
@@ -81,7 +60,7 @@ public final class FactorEM {
 				}
 			}
 		} else {
-			_pW = initW();
+			_pW = initNonRandomW();
 		}
 		_pVariableBias = new Matrix(_variableCount, 1);
 		_pVariableKsi = new DiagMatrix(_variableCount);
@@ -92,7 +71,7 @@ public final class FactorEM {
 		_logLike = Double.NaN;
 	}
 	
-	public final Matrix initW() {
+	private final Matrix initNonRandomW() {
 		
 		Matrix W = new Matrix(_variableCount, _factorCount);
 		
@@ -113,12 +92,18 @@ public final class FactorEM {
 		return W;
 	}
 	
-	public void execute(final int iterationCount) {
+	public void execute(final int startRow, final int endRow, final int iterationCount) {
 		
+		if (startRow + 1 >= endRow) {
+			throw new IllegalArgumentException("Arguments must satisfy: startRow + 1 < endRow (at least two rows)");
+		}
+
 		if (_xExpectedFactor == null) {
 			_xExpectedFactor = new Matrix[_mX.getRowDimension()];
 			_xExpectedFactorFactor = new Matrix[_mX.getRowDimension()];
 		}
+		
+		final int sampleCount = endRow - startRow;
 		
 		for (int iter=1; iter<=iterationCount; iter++) {
 			
@@ -134,7 +119,7 @@ public final class FactorEM {
 				
 				final double logPseudoNormalizer = GaussianFunc.calcLogPseudoNormalizer(xMean, xCov);
 				
-				for (int n=_startRow; n<_endRow; n++) {
+				for (int n=startRow; n<endRow; n++) {
 	
 					Matrix x_n = MatrixUtils.getRows(_mX, n, n+1).transpose();
 					_xExpectedFactor[n] = G.times(WTranKsiInv.times(x_n.minus(_pVariableBias)).plus(_pFactorPhi.inverse().timesOnRight(_pFactorBias)));
@@ -151,18 +136,18 @@ public final class FactorEM {
 			_pFactorBias = new Matrix(_factorCount, 1);
 			Matrix factorSampleCovariance = new Matrix(_factorCount, _factorCount);
 			_pVariableBias = new Matrix(_variableCount, 1);
-			for (int n=_startRow; n<_endRow; n++) {
+			for (int n=startRow; n<endRow; n++) {
 				
 				Matrix x_n = MatrixUtils.getRows(_mX, n, n+1).transpose();
-				_pFactorBias.plusEquals(_xExpectedFactor[n].times(1.0/_sampleCount));
-				factorSampleCovariance.plusEquals(_xExpectedFactorFactor[n].times(1.0/_sampleCount));
-				_pVariableBias.plusEquals(x_n.minus(_pW.times(_xExpectedFactor[n])).times(1.0/_sampleCount));
+				_pFactorBias.plusEquals(_xExpectedFactor[n].times(1.0/sampleCount));
+				factorSampleCovariance.plusEquals(_xExpectedFactorFactor[n].times(1.0/sampleCount));
+				_pVariableBias.plusEquals(x_n.minus(_pW.times(_xExpectedFactor[n])).times(1.0/sampleCount));
 			}
 			_pFactorPhi = new DiagMatrix(factorSampleCovariance.minus(_pFactorBias.times(_pFactorBias.transpose())));
 			final Matrix leftW = new Matrix(_variableCount, _factorCount);
 			final Matrix rightW = new Matrix(_factorCount, _factorCount);
 			final Matrix mS = new Matrix(_variableCount, _variableCount);
-			for (int n=_startRow; n<_endRow; n++) {
+			for (int n=startRow; n<endRow; n++) {
 				
 				Matrix x_n = MatrixUtils.getRows(_mX, n, n+1).transpose();
 				Matrix x_n_cen = x_n.minus(_pVariableBias);
@@ -171,12 +156,12 @@ public final class FactorEM {
 				
 				for (int i=0; i<mS.getRowDimension(); i++) {
 					for (int j=0; j<mS.getRowDimension(); j++) {
-						mS.set(i, j, mS.get(i, j) + x_n_cen.get(i, 0) * x_n_cen.get(j, 0) / _sampleCount);
+						mS.set(i, j, mS.get(i, j) + x_n_cen.get(i, 0) * x_n_cen.get(j, 0) / sampleCount);
 					}
 				}
 			}
 			_pW = leftW.times(rightW.inverse());
-			Matrix rightKsi = leftW.transpose().timesEquals(1.0/_sampleCount);
+			Matrix rightKsi = leftW.transpose().timesEquals(1.0/sampleCount);
 			_pVariableKsi = new DiagMatrix(mS.minus(_pW.times(rightKsi)));
 			
 			updateC();
@@ -187,12 +172,16 @@ public final class FactorEM {
 	 * Calculate factor history (expected values of factors | X).
 	 * 
 	 */
-	public Matrix calcF() {
+	public Matrix extractF(final int startRow, final int endRow) {
 		
-		Matrix res = new Matrix(_xExpectedFactor.length, _factorCount);
-		for (int n=_startRow; n<_endRow; n++) {
+		Matrix res = new Matrix(endRow-startRow, _factorCount);
+		for (int n=startRow; n<endRow; n++) {
+			Matrix x_n_expectedFactor = _xExpectedFactor[n];
+			if (x_n_expectedFactor == null) {
+				throw new IllegalStateException("Factors at index " + n + " are not initialized");
+			}
 			for (int k=0; k<_factorCount; k++) {
-				res.set(n, k, _xExpectedFactor[n].get(k, 0));
+				res.set(n-startRow, k, x_n_expectedFactor.get(k, 0));
 			}
 		}
 		return res;
