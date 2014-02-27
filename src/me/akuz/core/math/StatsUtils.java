@@ -163,19 +163,20 @@ public final class StatsUtils {
 		return result;
 	}
 	
-	public static final Matrix calcSampleCovarianceMatrix(final Matrix x, final int startRow, final int endRow) {
-		
-		Matrix s = new Matrix(x.getColumnDimension(), x.getColumnDimension());
-		for (int i=startRow; i<endRow; i++) {
-			for (int j=0; j<x.getColumnDimension(); j++) {
-				for (int k=0; k<x.getColumnDimension(); k++) {
-					s.set(j, k, 
-							s.get(j, k) + 
-							x.get(i, j) * x.get(i, k) / x.getRowDimension());
+	public static final Matrix covarianceZeroMean(final Matrix x, final int startRow, final int endRow) {
+		if (startRow + 1 >= endRow) {
+			throw new IllegalArgumentException("Arguments must satisfy: startRow + 1 < endRow (at least two rows)");
+		}
+		final int sampleCount = endRow - startRow;
+		Matrix cov = new Matrix(x.getColumnDimension(), x.getColumnDimension());
+		for (int n=startRow; n<endRow; n++) {
+			for (int i=0; i<x.getColumnDimension(); i++) {
+				for (int j=0; j<x.getColumnDimension(); j++) {
+					cov.set(i, j, cov.get(i, j) + x.get(n, i) * x.get(n, j) / sampleCount);
 				}
 			}
 		}
-		return s;
+		return cov;
 	}
 	
 	public static final Matrix generalizedInverse(Matrix m) {
