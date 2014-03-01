@@ -8,7 +8,8 @@ import Jama.SingularValueDecomposition;
 
 public final class StatsUtils {
 	
-	private static final double _naturalLogOfTwo = Math.log(2);
+	public static final double MACHINE_EPSILON = 2.22e-16;
+	private static final double NAT_LOG_OF_TWO = Math.log(2);
 
 	/**
 	 * Right distribution should be non-zero everywhere where left distribution is non-zero.
@@ -133,7 +134,7 @@ public final class StatsUtils {
 	}
 
 	public static double log2(double value) {
-		return Math.log(value)/_naturalLogOfTwo;
+		return Math.log(value)/NAT_LOG_OF_TWO;
 	}
 
 	public static double log10(double value) {
@@ -186,9 +187,24 @@ public final class StatsUtils {
 		// will modify in-place
 		Matrix inverseS = svd.getS();
 		
+		// calculate tolerance: EPSILON x max(m,n) x max(m)
+		double maxElement = 0;
+		for (int i=0; i<m.getRowDimension(); i++) {
+			for (int j=0; j<m.getColumnDimension(); j++) {
+				double element = m.get(i, j);
+				if (maxElement < element) {
+					maxElement = element;
+				}
+			}
+		}
+		if (maxElement < Double.MIN_NORMAL) {
+			throw new IllegalArgumentException("Input matrix m has no positive elements");
+		}
+		final double tolerance = maxElement * Math.max(m.getRowDimension(), m.getColumnDimension()) * MACHINE_EPSILON;
+		
 		for (int i=0; i<inverseS.getRowDimension(); i++) {
 			double value = inverseS.get(i, i);
-			if (value > 0) {
+			if (value > tolerance) {
 				inverseS.set(i, i, 1.0 / value);
 			} else {
 				break;
