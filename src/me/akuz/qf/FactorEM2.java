@@ -28,6 +28,7 @@ public final class FactorEM2 {
 	private Matrix       _pVariableBias;
 	private DiagMatrix   _pVariableKsi;
 	private Matrix       _C;
+	private Matrix       _CNoKsi;
 	private double       _logLike;
 	
 	public FactorEM2(
@@ -208,11 +209,16 @@ public final class FactorEM2 {
 	}
 	
 	private void updateC() {
-		_C = _pVariableKsi.plus(_pFactorPhi.timesOnLeft(_pW).times(_pW.transpose()));		
+		_CNoKsi = _pFactorPhi.timesOnLeft(_pW).times(_pW.transpose());
+		_C = _pVariableKsi.plus(_CNoKsi);		
 	}
 	
 	public Matrix getC() {
 		return _C;
+	}
+	
+	public Matrix getCNoKsi() {
+		return _CNoKsi;
 	}
 	
 	public double getLogLike() {
