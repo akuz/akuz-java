@@ -207,7 +207,7 @@ public final class StatsUtils {
 			if (value > tolerance) {
 				inverseS.set(i, i, 1.0 / value);
 			} else {
-				break;
+				inverseS.set(i, i, 0.0);
 			}
 		}
 		
