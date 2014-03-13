@@ -35,6 +35,10 @@ public final class DiagMatrix {
 		return _diag.length;
 	}
 	
+	public double[] getDiagArray() {
+		return _diag;
+	}
+	
 	public Matrix getDiagAsColumn() {
 		return MatrixUtils.arrayAsColumn(_diag);
 	}
