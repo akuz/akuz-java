@@ -12,9 +12,7 @@ public final class SystemOutMonitor implements Monitor {
 
 	@Override
 	public void write(String message) {
-		System.out.println(
-				DateFmt.format(new Date(), DateFmt.NumbersDateTimeFormat) 
-				+ ": " + message);
+		write(message, null);
 	}
 
 	@Override
@@ -22,7 +20,9 @@ public final class SystemOutMonitor implements Monitor {
 		System.out.println(
 				DateFmt.format(new Date(), DateFmt.NumbersDateTimeFormat) 
 				+ ": " + message);
-		ex.printStackTrace(System.out);
+		if (ex != null) {
+			ex.printStackTrace(System.out);
+		}
 	}
 
 }
