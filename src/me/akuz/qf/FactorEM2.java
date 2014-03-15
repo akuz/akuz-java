@@ -203,7 +203,7 @@ public final class FactorEM2 {
 	public Matrix getVariableBias() {
 		return _pVariableBias;
 	}
-	
+
 	public DiagMatrix getVariableKsi() {
 		return _pVariableKsi;
 	}
