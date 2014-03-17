@@ -86,11 +86,13 @@ public final class YahooData {
 					}
 					final Date timeZoneDate = fmt.parse(parts[0]);
 					final Date priceDateTime = DateUtils.addHours(timeZoneDate, closingHour);
+					final Double open = Double.parseDouble(parts[1]);
 					final Double close = Double.parseDouble(parts[4]);
 					final Integer volume = Integer.parseInt(parts[5]);
 					final Double adjClose = Double.parseDouble(parts[6]);
+					final Double adjOpen = open / close * adjClose;
 					final Integer adjVolume = (Integer)(int)(volume / adjClose * close);
-					list.add(new DateVolumeClose(priceDateTime, adjVolume, adjClose));
+					list.add(new DateVolumeClose(priceDateTime, adjVolume, adjOpen)); // FIXME
 				}
 			}
 		} finally {
