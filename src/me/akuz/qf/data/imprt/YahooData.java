@@ -129,7 +129,10 @@ public final class YahooData {
 		return map;
 	}
 
-	public final static TSInputMap<QuoteField, Date> loadFileTSMap(String fileName, TimeZone timeZone, EnumSet<QuoteField> quoteFields) throws IOException, ParseException {
+	public final static TSInputMap<QuoteField, Date> loadFileTSMap(
+			final String fileName, 
+			final TimeZone timeZone, 
+			final EnumSet<QuoteField> quoteFields) throws IOException, ParseException {
 
 		TSInputMap<QuoteField, Date> tsMap = new TSInputMap<>();
 
@@ -204,10 +207,10 @@ public final class YahooData {
 	}
 	
 	public static final Map<String, TSInputMap<QuoteField, Date>> loadDirTSMaps(
-			String dirPath, 
-			Set<String> ignoreTickers, 
-			TimeZone timeZone,
-			EnumSet<QuoteField> quoteFields) throws IOException, ParseException {
+			final String dirPath, 
+			final Set<String> ignoreTickers, 
+			final TimeZone timeZone,
+			final EnumSet<QuoteField> quoteFields) throws IOException, ParseException {
 		
 		Map<String, TSInputMap<QuoteField, Date>> map = new HashMap<>();
 		List<File> files = FileUtils.getFiles(dirPath);
