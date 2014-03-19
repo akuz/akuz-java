@@ -10,11 +10,11 @@ import java.util.Map;
  * @param <K> - Keys type.
  * @param <T> - Time type.
  */
-public class TSOutputMap<K, T extends Comparable<T>> {
+public class TSOutputMap<K, T extends Comparable<T>> extends TSMap<K, T> {
 
 	private final boolean _allowDuplicateTimes;
-	private final Map<K, TSOutput<T>> _map;
-	private final Map<K, TSOutput<T>> _mapReadOnly;
+	private final Map<K, TS<T>> _map;
+	private final Map<K, TS<T>> _mapReadOnly;
 	
 	public TSOutputMap() {
 		this(false);
@@ -31,7 +31,7 @@ public class TSOutputMap<K, T extends Comparable<T>> {
 	}
 	
 	public void add(K key, TSEntry<T> entry) {
-		TSOutput<T> ts = _map.get(key);
+		TSOutput<T> ts = (TSOutput<T>)_map.get(key);
 		if (ts == null) {
 			ts = new TSOutput<>(_allowDuplicateTimes);
 			_map.put(key, ts);
@@ -39,7 +39,8 @@ public class TSOutputMap<K, T extends Comparable<T>> {
 		ts.add(entry);
 	}
 	
-	public Map<K, TSOutput<T>> getMap() {
+	@Override
+	public Map<K, TS<T>> getMap() {
 		return _mapReadOnly;
 	}
 }

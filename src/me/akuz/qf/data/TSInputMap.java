@@ -10,10 +10,10 @@ import java.util.Map;
  * @param <K> - Keys type.
  * @param <T> - Time type.
  */
-public class TSInputMap<K, T extends Comparable<T>> {
+public class TSInputMap<K, T extends Comparable<T>> extends TSMap<K, T> {
 	
-	private final Map<K, TSInput<T>> _map;
-	private final Map<K, TSInput<T>> _mapReadOnly;
+	private final Map<K, TS<T>> _map;
+	private final Map<K, TS<T>> _mapReadOnly;
 	
 	public TSInputMap() {
 		_map = new HashMap<>();
@@ -25,7 +25,7 @@ public class TSInputMap<K, T extends Comparable<T>> {
 	}
 	
 	public void add(K key, TSEntry<T> entry) {
-		TSInput<T> ts = _map.get(key);
+		TSInput<T> ts = (TSInput<T>)_map.get(key);
 		if (ts == null) {
 			ts = new TSInput<>();
 			_map.put(key, ts);
@@ -33,13 +33,14 @@ public class TSInputMap<K, T extends Comparable<T>> {
 		ts.add(entry);
 	}
 	
-	public Map<K, TSInput<T>> getMap() {
-		return _mapReadOnly;
+	public void sortAll() {
+		for (TS<T> ts : _map.values()) {
+			((TSInput<T>)ts).sort();
+		}
 	}
 	
-	public void sortAll() {
-		for (TSInput<T> ts : _map.values()) {
-			ts.sort();
-		}
+	@Override
+	public Map<K, TS<T>> getMap() {
+		return _mapReadOnly;
 	}
 }
