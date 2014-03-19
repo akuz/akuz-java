@@ -18,7 +18,7 @@ public final class SystemOutMonitor implements Monitor {
 	@Override
 	public void write(String message, Throwable ex) {
 		System.out.println(
-				DateFmt.format(new Date(), DateFmt.NumbersDateTimeFormat) 
+				DateFmt.format(new Date(), DateFmt.YYYYMMDDHHMMSS) 
 				+ ": " + message);
 		if (ex != null) {
 			ex.printStackTrace(System.out);
