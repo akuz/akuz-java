@@ -1,4 +1,4 @@
-package me.akuz.qf;
+package me.akuz.qf.data;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,21 +12,21 @@ import me.akuz.core.Index;
 import me.akuz.core.Pair;
 
 /**
- * Historical values container, which can align 
+ * Time series history container, which can align 
  * the collected values into a matrix on request.
  * The values must be added in chronological order.
  *
- * @param <K> - Keys type
- * @param <T> - Time type
- * @param <V> - Values type
+ * @param <K> - Key type.
+ * @param <T> - Time type.
+ * @param <V> - Value type.
  */
-public final class History<K, T extends Comparable<T>, V> {
+public final class TSHistory<K, T extends Comparable<T>, V> {
 	
 	private T _lastTime;
 	private int _timeCounter;
 	private final Map<K, List<Pair<T, V>>> _map;
 	
-	public History() {
+	public TSHistory() {
 		_map = new HashMap<>();
 	}
 	
