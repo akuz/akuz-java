@@ -25,7 +25,7 @@ import me.akuz.core.PairComparator;
 import me.akuz.core.SortOrder;
 import me.akuz.qf.data.DateVolumeClose;
 import me.akuz.qf.data.QuoteField;
-import me.akuz.qf.data.TSMap;
+import me.akuz.qf.data.TSInputMap;
 
 public final class YahooData {
 	
@@ -129,9 +129,9 @@ public final class YahooData {
 		return map;
 	}
 
-	public final static TSMap<QuoteField, Date> loadFileTSMap(String fileName, TimeZone timeZone, EnumSet<QuoteField> quoteFields) throws IOException, ParseException {
+	public final static TSInputMap<QuoteField, Date> loadFileTSMap(String fileName, TimeZone timeZone, EnumSet<QuoteField> quoteFields) throws IOException, ParseException {
 
-		TSMap<QuoteField, Date> tsMap = new TSMap<>();
+		TSInputMap<QuoteField, Date> tsMap = new TSInputMap<>();
 
 		Scanner scanner = FileUtils.openScanner(fileName, "UTF-8");
 		try {
@@ -203,13 +203,13 @@ public final class YahooData {
 		return tsMap;
 	}
 	
-	public static final Map<String, TSMap<QuoteField, Date>> loadDirTSMaps(
+	public static final Map<String, TSInputMap<QuoteField, Date>> loadDirTSMaps(
 			String dirPath, 
 			Set<String> ignoreTickers, 
 			TimeZone timeZone,
 			EnumSet<QuoteField> quoteFields) throws IOException, ParseException {
 		
-		Map<String, TSMap<QuoteField, Date>> map = new HashMap<>();
+		Map<String, TSInputMap<QuoteField, Date>> map = new HashMap<>();
 		List<File> files = FileUtils.getFiles(dirPath);
 		for (int i=0; i<files.size(); i++) {
 			File file = files.get(i);
@@ -222,7 +222,7 @@ public final class YahooData {
 				if (map.containsKey(ticker)) {
 					throw new IOException("Duplicate data file for ticker " + ticker + " in dir: " + dirPath);
 				}
-				TSMap<QuoteField, Date> tsMap = loadFileTSMap(file.getAbsolutePath(), timeZone, quoteFields);
+				TSInputMap<QuoteField, Date> tsMap = loadFileTSMap(file.getAbsolutePath(), timeZone, quoteFields);
 				map.put(ticker, tsMap);
 			}
 		}

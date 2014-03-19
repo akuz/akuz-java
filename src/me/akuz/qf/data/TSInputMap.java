@@ -5,17 +5,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Time series map.
+ * Input time series map.
  *
  * @param <K> - Keys type.
  * @param <T> - Time type.
  */
-public class TSMap<K, T extends Comparable<T>> {
+public class TSInputMap<K, T extends Comparable<T>> {
 	
-	private final Map<K, TS<T>> _map;
-	private final Map<K, TS<T>> _mapReadOnly;
+	private final Map<K, TSInput<T>> _map;
+	private final Map<K, TSInput<T>> _mapReadOnly;
 	
-	public TSMap() {
+	public TSInputMap() {
 		_map = new HashMap<>();
 		_mapReadOnly = Collections.unmodifiableMap(_map);
 	}
@@ -25,15 +25,21 @@ public class TSMap<K, T extends Comparable<T>> {
 	}
 	
 	public void add(K key, TSEntry<T> entry) {
-		TS<T> ts = _map.get(key);
+		TSInput<T> ts = _map.get(key);
 		if (ts == null) {
-			ts = new TS<>();
+			ts = new TSInput<>();
 			_map.put(key, ts);
 		}
 		ts.add(entry);
 	}
 	
-	public Map<K, TS<T>> getMap() {
+	public Map<K, TSInput<T>> getMap() {
 		return _mapReadOnly;
+	}
+	
+	public void sortAll() {
+		for (TSInput<T> ts : _map.values()) {
+			ts.sort();
+		}
 	}
 }
