@@ -41,8 +41,14 @@ public final class DownloadPortfolioDataFromYahoo {
 //		final String portfSpecFile = "/Users/andrey/SkyDrive/Documents/Data/yahoo/SP500_IT.txt";
 //		final String outputDirName = "/Users/andrey/SkyDrive/Documents/Data/yahoo/SP500_IT_20140314";
 
-		final String portfSpecFile = "/Users/andrey/SkyDrive/Documents/Data/yahoo/SP100.txt";
-		final String outputDirName = "/Users/andrey/SkyDrive/Documents/Data/yahoo/SP100_20140317";
+//		final String portfSpecFile = "/Users/andrey/SkyDrive/Documents/Data/yahoo/SP100.txt";
+//		final String outputDirName = "/Users/andrey/SkyDrive/Documents/Data/yahoo/SP100_20140317";
+
+//		final String portfSpecFile = "/Users/andrey/SkyDrive/Documents/Data/yahoo/CAC40.txt";
+//		final String outputDirName = "/Users/andrey/SkyDrive/Documents/Data/yahoo/CAC40_20140319";
+
+		final String portfSpecFile = "/Users/andrey/SkyDrive/Documents/Data/yahoo/DAX30.txt";
+		final String outputDirName = "/Users/andrey/SkyDrive/Documents/Data/yahoo/DAX30_20140319";
 		
 		FileUtils.isDirExistsOrCreate(outputDirName);
 		
