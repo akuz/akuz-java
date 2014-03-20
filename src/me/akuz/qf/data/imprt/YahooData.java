@@ -24,8 +24,9 @@ import me.akuz.core.Pair;
 import me.akuz.core.PairComparator;
 import me.akuz.core.SortOrder;
 import me.akuz.qf.data.DateVolumeClose;
-import me.akuz.qf.data.QuoteField;
+import me.akuz.qf.data.TSField;
 import me.akuz.qf.data.TSInputMap;
+import me.akuz.qf.data.TSMapMap;
 
 public final class YahooData {
 	
@@ -129,12 +130,12 @@ public final class YahooData {
 		return map;
 	}
 
-	public final static TSInputMap<QuoteField, Date> loadFileTSMap(
+	public final static TSInputMap<TSField, Date> loadFileTSMap(
 			final String fileName, 
 			final TimeZone timeZone, 
-			final EnumSet<QuoteField> quoteFields) throws IOException, ParseException {
+			final EnumSet<TSField> fields) throws IOException, ParseException {
 
-		TSInputMap<QuoteField, Date> tsMap = new TSInputMap<>();
+		TSInputMap<TSField, Date> tsMap = new TSInputMap<>();
 
 		Scanner scanner = FileUtils.openScanner(fileName, "UTF-8");
 		try {
@@ -157,45 +158,45 @@ public final class YahooData {
 					}
 					final Date date        = DateFmt.parse(parts[0], DateFmt.YYYYMMDD_dashed, timeZone);
 					final Double open      = Double.parseDouble(parts[1]);
-					if (quoteFields.contains(QuoteField.Open)) {
-						tsMap.add(QuoteField.Open, date, open);
+					if (fields.contains(TSField.Open)) {
+						tsMap.add(TSField.Open, date, open);
 					}
 					final Double high      = Double.parseDouble(parts[2]);
-					if (quoteFields.contains(QuoteField.High)) {
-						tsMap.add(QuoteField.High, date, high);
+					if (fields.contains(TSField.High)) {
+						tsMap.add(TSField.High, date, high);
 					}
 					final Double low       = Double.parseDouble(parts[3]);
-					if (quoteFields.contains(QuoteField.Low)) {
-						tsMap.add(QuoteField.Low, date, low);
+					if (fields.contains(TSField.Low)) {
+						tsMap.add(TSField.Low, date, low);
 					}
 					final Double close     = Double.parseDouble(parts[4]);
-					if (quoteFields.contains(QuoteField.Close)) {
-						tsMap.add(QuoteField.Close, date, close);
+					if (fields.contains(TSField.Close)) {
+						tsMap.add(TSField.Close, date, close);
 					}
 					final Double volume    = Double.parseDouble(parts[5]);
-					if (quoteFields.contains(QuoteField.Volume)) {
-						tsMap.add(QuoteField.Volume, date, volume);
+					if (fields.contains(TSField.Volume)) {
+						tsMap.add(TSField.Volume, date, volume);
 					}
 					final Double adjClose  = Double.parseDouble(parts[6]);
-					if (quoteFields.contains(QuoteField.AdjClose)) {
-						tsMap.add(QuoteField.AdjClose, date, adjClose);
+					if (fields.contains(TSField.AdjClose)) {
+						tsMap.add(TSField.AdjClose, date, adjClose);
 					}
 					final Double adjFactor = adjClose / close;
 					final Double adjOpen   = open * adjFactor;
-					if (quoteFields.contains(QuoteField.AdjOpen)) {
-						tsMap.add(QuoteField.AdjOpen, date, adjOpen);
+					if (fields.contains(TSField.AdjOpen)) {
+						tsMap.add(TSField.AdjOpen, date, adjOpen);
 					}
 					final Double adjHigh   = high * adjFactor;
-					if (quoteFields.contains(QuoteField.AdjHigh)) {
-						tsMap.add(QuoteField.AdjHigh, date, adjHigh);
+					if (fields.contains(TSField.AdjHigh)) {
+						tsMap.add(TSField.AdjHigh, date, adjHigh);
 					}
 					final Double adjLow    = low * adjFactor;
-					if (quoteFields.contains(QuoteField.AdjLow)) {
-						tsMap.add(QuoteField.AdjLow, date, adjLow);
+					if (fields.contains(TSField.AdjLow)) {
+						tsMap.add(TSField.AdjLow, date, adjLow);
 					}
 					final Double adjVolume = volume / adjFactor;
-					if (quoteFields.contains(QuoteField.AdjVolume)) {
-						tsMap.add(QuoteField.AdjVolume, date, adjVolume);
+					if (fields.contains(TSField.AdjVolume)) {
+						tsMap.add(TSField.AdjVolume, date, adjVolume);
 					}
 				}
 			}
@@ -206,13 +207,13 @@ public final class YahooData {
 		return tsMap;
 	}
 	
-	public static final Map<String, TSInputMap<QuoteField, Date>> loadDirTSMaps(
+	public static final TSMapMap<String, TSField, Date> loadDirTSMapMap(
 			final String dirPath, 
 			final Set<String> ignoreTickers, 
 			final TimeZone timeZone,
-			final EnumSet<QuoteField> quoteFields) throws IOException, ParseException {
+			final EnumSet<TSField> fields) throws IOException, ParseException {
 		
-		Map<String, TSInputMap<QuoteField, Date>> map = new HashMap<>();
+		TSMapMap<String, TSField, Date> mapMap = new TSMapMap<>();
 		List<File> files = FileUtils.getFiles(dirPath);
 		for (int i=0; i<files.size(); i++) {
 			File file = files.get(i);
@@ -222,13 +223,10 @@ public final class YahooData {
 				if (ignoreTickers != null && ignoreTickers.contains(ticker)) {
 					continue;
 				}
-				if (map.containsKey(ticker)) {
-					throw new IOException("Duplicate data file for ticker " + ticker + " in dir: " + dirPath);
-				}
-				TSInputMap<QuoteField, Date> tsMap = loadFileTSMap(file.getAbsolutePath(), timeZone, quoteFields);
-				map.put(ticker, tsMap);
+				TSInputMap<TSField, Date> map = loadFileTSMap(file.getAbsolutePath(), timeZone, fields);
+				mapMap.add(ticker, map);
 			}
 		}
-		return map;
+		return mapMap;
 	}
 }

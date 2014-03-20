@@ -4,7 +4,7 @@ package me.akuz.qf.data;
  * Enumeration of quote fields.
  *
  */
-public enum QuoteField {
+public enum TSField {
 	
 	Open,
 	High,
