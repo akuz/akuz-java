@@ -17,7 +17,7 @@ import me.akuz.core.http.HttpGetCall;
 import me.akuz.core.http.HttpGetKind;
 import me.akuz.core.logs.Monitor;
 import me.akuz.core.logs.SystemOutMonitor;
-import me.akuz.qf.data.PortfolioDataSpec;
+import me.akuz.qf.data.imprt.PortfolioDataSpec;
 
 public final class DownloadPortfolioDataFromYahoo {
 	
