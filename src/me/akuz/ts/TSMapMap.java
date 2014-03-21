@@ -1,4 +1,4 @@
-package me.akuz.qf.data;
+package me.akuz.ts;
 
 import java.util.Collections;
 import java.util.HashMap;

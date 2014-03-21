@@ -1,4 +1,4 @@
-package me.akuz.qf.run;
+package me.akuz.ts.imprt;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -17,9 +17,8 @@ import me.akuz.core.http.HttpGetCall;
 import me.akuz.core.http.HttpGetKind;
 import me.akuz.core.logs.Monitor;
 import me.akuz.core.logs.SystemOutMonitor;
-import me.akuz.qf.data.imprt.PortfolioDataSpec;
 
-public final class DownloadPortfolioDataFromYahoo {
+public final class YahooDataDownloadRun {
 	
 	private static final Pattern _newLinesPattern = Pattern.compile("\\n(\\r)?");
 	private static final String ENCODING = "UTF-8";

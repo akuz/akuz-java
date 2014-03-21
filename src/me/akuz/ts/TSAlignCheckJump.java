@@ -1,4 +1,4 @@
-package me.akuz.qf.data;
+package me.akuz.ts;
 
 public class TSAlignCheckJump extends TSAlignCheck {
 	

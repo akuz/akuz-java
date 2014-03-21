@@ -1,4 +1,4 @@
-package me.akuz.qf.data.imprt;
+package me.akuz.ts.imprt;
 
 public final class PortfolioDataSpec {
 	

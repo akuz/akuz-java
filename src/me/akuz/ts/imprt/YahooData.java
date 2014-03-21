@@ -1,4 +1,4 @@
-package me.akuz.qf.data.imprt;
+package me.akuz.ts.imprt;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,9 +21,9 @@ import me.akuz.core.FileUtils;
 import me.akuz.core.Pair;
 import me.akuz.core.PairComparator;
 import me.akuz.core.SortOrder;
-import me.akuz.qf.data.TSField;
-import me.akuz.qf.data.TSInputMap;
-import me.akuz.qf.data.TSMapMap;
+import me.akuz.ts.TSField;
+import me.akuz.ts.TSInputMap;
+import me.akuz.ts.TSMapMap;
 
 public final class YahooData {
 	

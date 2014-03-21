@@ -1,4 +1,4 @@
-package me.akuz.qf.data;
+package me.akuz.ts;
 
 public abstract class TSAlignCheck implements Cloneable {
 
