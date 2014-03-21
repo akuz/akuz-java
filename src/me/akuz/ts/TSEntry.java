@@ -37,6 +37,9 @@ public final class TSEntry<T extends Comparable<T>> implements Comparable<TSEntr
 	public String getString() {
 		return (String)_value;
 	}
+	public Object getObject() {
+		return _value;
+	}
 
 	@Override
 	public int compareTo(TSEntry<T> o) {
