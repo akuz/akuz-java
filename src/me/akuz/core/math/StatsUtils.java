@@ -240,4 +240,50 @@ public final class StatsUtils {
 		return det;
 	}
 
+	public static final Matrix covNormalize(Matrix cov) {
+		
+		if (cov == null || cov.getRowDimension() == 0 || cov.getColumnDimension() == 0) {
+			throw new IllegalArgumentException("Matrix cov must not be null or empty");
+		}
+		if (cov.getRowDimension() != cov.getColumnDimension()) {
+			throw new IllegalArgumentException("Matrix cov must be square");
+		}
+	
+		final Matrix res = new Matrix(cov.getRowDimension(), cov.getColumnDimension());
+		for (int i=0; i<res.getRowDimension(); i++) {
+			for (int j=0; j<res.getColumnDimension(); j++) {
+				res.set(i, j, cov.get(i, j) 
+						/ Math.sqrt(cov.get(i, i)) 
+						/ Math.sqrt(cov.get(j, j)));
+			}
+		}
+		
+		return res;
+	}
+
+	public static final Matrix singularPower(Matrix cov, double power) {
+		
+		if (cov == null || cov.getRowDimension() == 0 || cov.getColumnDimension() == 0) {
+			throw new IllegalArgumentException("Matrix cov must not be null or empty");
+		}
+		if (cov.getRowDimension() != cov.getColumnDimension()) {
+			throw new IllegalArgumentException("Matrix cov must be square");
+		}
+		
+		final SingularValueDecomposition svd = new SingularValueDecomposition(cov);
+		
+		final Matrix S = (Matrix)svd.getS().clone();
+		for (int k=0; k<S.getRowDimension(); k++) {
+			
+			final double singularValue = S.get(k, k);
+			if (singularValue > 0) {
+				S.set(k, k, Math.pow(singularValue, power));
+			} else {
+				break;
+			}
+		}
+		
+		return svd.getU().times(S).times(svd.getV().transpose());
+	}
+
 }
