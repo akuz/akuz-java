@@ -1,4 +1,4 @@
 akuz-java-ts
 ============
 
-Time series library.
+Time series library alignment and analysis library.
