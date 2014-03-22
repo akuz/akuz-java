@@ -1,15 +1,17 @@
-package me.akuz.ts.io;
+package me.akuz.ts.io.types;
+
+import me.akuz.ts.io.TSIOType;
 
 import org.json.JSONObject;
 
-public final class TSIOTypeDouble extends TSIOType {
+public final class TSIOTypeBoolean extends TSIOType {
 
 	@Override
 	public Object fromJson(JSONObject obj, String name) {
 		if (!obj.has(name)) {
 			return null;
 		}
-		return obj.getDouble(name);
+		return obj.getBoolean(name);
 	}
 
 	@Override
@@ -17,6 +19,6 @@ public final class TSIOTypeDouble extends TSIOType {
 		if (value == null) {
 			return;
 		}
-		obj.put(name, (Double)value);
+		obj.put(name, (Boolean)value);
 	}
 }

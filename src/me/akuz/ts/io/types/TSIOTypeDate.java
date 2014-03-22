@@ -1,10 +1,12 @@
-package me.akuz.ts.io;
+package me.akuz.ts.io.types;
 
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+
+import me.akuz.ts.io.TSIOType;
 
 import org.json.JSONObject;
 

@@ -1,4 +1,6 @@
-package me.akuz.ts.io;
+package me.akuz.ts.io.types;
+
+import me.akuz.ts.io.TSIOType;
 
 import org.json.JSONObject;
 
