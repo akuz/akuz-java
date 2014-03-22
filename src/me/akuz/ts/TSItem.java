@@ -1,19 +1,19 @@
 package me.akuz.ts;
 
 /**
- * Time series entry.
+ * Time series item.
  * 
- * Not making value type generic, in order to be able to have heterogeneous collections.
+ * Note: not making value type generic, in order to be able to have heterogeneous collections.
  *
- * @param <T> - Time type, must be comparable to each other.
+ * @param <T> - Time type.
  * 
  */
-public final class TSEntry<T extends Comparable<T>> implements Comparable<TSEntry<T>> {
+public final class TSItem<T extends Comparable<T>> implements Comparable<TSItem<T>> {
 	
 	private final T _time;
 	private final Object _value;
 	
-	public TSEntry(T time, Object value) {
+	public TSItem(T time, Object value) {
 		_time = time;
 		_value = value;
 	}
@@ -42,7 +42,7 @@ public final class TSEntry<T extends Comparable<T>> implements Comparable<TSEntr
 	}
 
 	@Override
-	public int compareTo(TSEntry<T> o) {
+	public int compareTo(TSItem<T> o) {
 		return _time.compareTo(o.getTime());
 	}
 }

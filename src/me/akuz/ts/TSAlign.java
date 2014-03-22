@@ -73,13 +73,13 @@ public final class TSAlign<T extends Comparable<T>> {
 				final TS<T> jTS = map.get(keysIndex.getValue(j));
 				if (jTS != null) {
 					
-					final List<TSEntry<T>> jSorted = jTS.getSorted();
+					final List<TSItem<T>> jSorted = jTS.getItems();
 					
 					double value = Double.NaN;
 					
 					while (jCursors[j] < jSorted.size()) {
 						
-						final TSEntry<T> entry = jSorted.get(jCursors[j]);
+						final TSItem<T> entry = jSorted.get(jCursors[j]);
 
 						final int cmp = entry.getTime().compareTo(currTime);
 

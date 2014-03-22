@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import me.akuz.ts.TS;
-import me.akuz.ts.TSEntry;
+import me.akuz.ts.TSItem;
 
 public final class IsActivePeriodTSBuilder {
 	
@@ -24,10 +24,10 @@ public final class IsActivePeriodTSBuilder {
 		Date lastDate = null;
 		Date lastActiveOffStretchStartDate = null;
 		
-		List<TSEntry<Date>> tsSorted = ts.getSorted();
+		List<TSItem<Date>> tsSorted = ts.getItems();
 		for (int i=0; i<tsSorted.size(); i++) {
 			
-			TSEntry<Date> entry = tsSorted.get(i);
+			TSItem<Date> entry = tsSorted.get(i);
 			Date date = entry.getTime();
 			
 			if (isOn) {
@@ -38,7 +38,7 @@ public final class IsActivePeriodTSBuilder {
 					
 					// set off
 					isOn = false;
-					tsIsOn.add(new TSEntry<Date>(lastDate, false));
+					tsIsOn.add(new TSItem<Date>(lastDate, false));
 					
 					// reset active off stretch start
 					lastActiveOffStretchStartDate = date;
@@ -65,7 +65,7 @@ public final class IsActivePeriodTSBuilder {
 						
 						// set on
 						isOn = true;
-						tsIsOn.add(new TSEntry<Date>(date, true));
+						tsIsOn.add(new TSItem<Date>(date, true));
 					}
 				}
 			}

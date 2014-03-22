@@ -19,10 +19,10 @@ public class TSSortBuilderMap<K, T extends Comparable<T>> {
 	}
 	
 	public void add(K key, T time, Object value) {
-		add(key, new TSEntry<T>(time, value));
+		add(key, new TSItem<T>(time, value));
 	}
 	
-	public void add(K key, TSEntry<T> entry) {
+	public void add(K key, TSItem<T> entry) {
 		TSSortBuilder<T> tsBuilder =_map.get(key);
 		if (tsBuilder == null) {
 			tsBuilder = new TSSortBuilder<>();

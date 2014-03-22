@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import me.akuz.ts.TSAlignIterator;
-import me.akuz.ts.TSEntry;
+import me.akuz.ts.TSItem;
 import me.akuz.ts.TSMap;
 import me.akuz.ts.TSSortBuilderMap;
 
@@ -35,11 +35,11 @@ public final class TSIO {
 		final TSAlignIterator<K, T> iterator = new TSAlignIterator<>(tsMap.getMap(), times, ioMap.getKeys());
 		while (iterator.hasNext()) {
 			
-			final Map<K, TSEntry<T>> currKeyEntries = iterator.next();
+			final Map<K, TSItem<T>> currKeyEntries = iterator.next();
 			
 			final JSONObject item = new JSONObject();
 
-			for (final Entry<K, TSEntry<T>> keyEntry : currKeyEntries.entrySet()) {
+			for (final Entry<K, TSItem<T>> keyEntry : currKeyEntries.entrySet()) {
 				
 				ioMap.setJsonField(keyEntry.getValue(), keyEntry.getKey(), item);
 			}
@@ -77,7 +77,7 @@ public final class TSIO {
 							if (key != null) {
 								Object value = ioMap.fromJson(item, name);
 								if (value != null) {
-									tsSortBuilderMap.add(key, new TSEntry<T>(time, value));
+									tsSortBuilderMap.add(key, new TSItem<T>(time, value));
 								}
 							}
 						}

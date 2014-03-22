@@ -13,7 +13,7 @@ public final class TSAlignIterator<K, T extends Comparable<T>> {
 	private int _timeCursor;
 	private T _currTime;
 	private final Map<K, Integer> _keyCursors;
-	private final Map<K, TSEntry<T>> _currKeyEntries;
+	private final Map<K, TSItem<T>> _currKeyEntries;
 	
 	public TSAlignIterator(
 			Map<K, TS<T>> map,
@@ -40,7 +40,7 @@ public final class TSAlignIterator<K, T extends Comparable<T>> {
 		return _currTime;
 	}
 	
-	public Map<K, TSEntry<T>> next() {
+	public Map<K, TSItem<T>> next() {
 		
 		_timeCursor++;
 
@@ -53,15 +53,15 @@ public final class TSAlignIterator<K, T extends Comparable<T>> {
 			final TS<T> ts = _map.get(key);
 			if (ts != null) {
 				
-				final List<TSEntry<T>> tsSorted = ts.getSorted();
+				final List<TSItem<T>> tsSorted = ts.getItems();
 				
 				Integer cursor = _keyCursors.get(key);
 				
-				TSEntry<T> currEntry = null;
+				TSItem<T> currEntry = null;
 				
 				while (cursor < tsSorted.size()) {
 					
-					final TSEntry<T> entry = tsSorted.get(cursor);
+					final TSItem<T> entry = tsSorted.get(cursor);
 
 					final int cmp = entry.getTime().compareTo(_currTime);
 

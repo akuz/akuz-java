@@ -15,7 +15,6 @@ import java.util.Set;
  */
 public final class TSMap<K, T extends Comparable<T>> {
 	
-
 	private final Map<K, TS<T>> _map;
 	private final Map<K, TS<T>> _mapReadOnly;
 	private final Set<T> _times;
@@ -29,17 +28,17 @@ public final class TSMap<K, T extends Comparable<T>> {
 	}
 	
 	public void add(K key, T time, Object value) {
-		add(key, new TSEntry<T>(time, value));
+		add(key, new TSItem<T>(time, value));
 	}
 	
-	public void add(K key, TSEntry<T> entry) {
+	public void add(K key, TSItem<T> item) {
 		TS<T> ts = (TS<T>)_map.get(key);
 		if (ts == null) {
 			ts = new TS<>();
 			_map.put(key, ts);
 		}
-		_times.add(entry.getTime());
-		ts.add(entry);
+		ts.add(item);
+		_times.add(item.getTime());
 	}
 	
 	public void add(K key, TS<T> ts) {
@@ -47,9 +46,9 @@ public final class TSMap<K, T extends Comparable<T>> {
 			throw new IllegalStateException("TS for key " + key + " has already been added");
 		}
 		_map.put(key, ts);
-		List<TSEntry<T>> tsSorted = ts.getSorted();
-		for (int i=0; i<tsSorted.size(); i++) {
-			_times.add(tsSorted.get(i).getTime());
+		List<TSItem<T>> tsItems = ts.getItems();
+		for (int i=0; i<tsItems.size(); i++) {
+			_times.add(tsItems.get(i).getTime());
 		}
 	}
 	

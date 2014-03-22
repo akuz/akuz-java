@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import me.akuz.ts.TSEntry;
+import me.akuz.ts.TSItem;
 
 import org.json.JSONObject;
 
@@ -75,7 +75,7 @@ public final class TSIOMap<K, T extends Comparable<T>> {
 		return type.fromJson(obj, name);
 	}
 	
-	public void setJsonField(TSEntry<T> entry, K key, JSONObject obj) {
+	public void setJsonField(TSItem<T> entry, K key, JSONObject obj) {
 		
 		String name = _keyNameMap.get(key);
 		if (name == null) {

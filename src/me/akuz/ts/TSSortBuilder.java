@@ -11,26 +11,26 @@ import java.util.List;
  */
 public class TSSortBuilder<T extends Comparable<T>> {
 
-	private final List<TSEntry<T>> _queue;
+	private final List<TSItem<T>> _queue;
 	
 	public TSSortBuilder() {
 		_queue = new ArrayList<>();
 	}
 	
-	public void add(TSEntry<T> entry) {
+	public void add(TSItem<T> entry) {
 		_queue.add(entry);
 	}
 	
 	public TS<T> build() {
-		List<TSEntry<T>> sorted = new ArrayList<>(_queue);
+		List<TSItem<T>> sorted = new ArrayList<>(_queue);
 		if (sorted.size() > 1) {
 			Collections.sort(sorted);
 		}
 		TS<T> ts = new TS<>();
 		for (int i=0; i<sorted.size(); i++) {
-			TSEntry<T> curr = sorted.get(i);
+			TSItem<T> curr = sorted.get(i);
 			if (i > 0) {
-				TSEntry<T> prev = sorted.get(i-1);
+				TSItem<T> prev = sorted.get(i-1);
 				int prevTimeCmp = prev.getTime().compareTo(curr.getTime());
 				if (prevTimeCmp > 0) {
 					throw new IllegalStateException("Prev time (" + prev.getTime() + ") is later than curr time (" + curr.getTime() +")");

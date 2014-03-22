@@ -5,22 +5,22 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Time series.
+ * Single value time series.
  *
  * @param <T> - Time type.
  */
 public class TS<T extends Comparable<T>> {
 	
-	private final List<TSEntry<T>> _sorted;
-	private final List<TSEntry<T>> _sortedReadOnly;
-	private TSEntry<T> _lastEntry;
+	private final List<TSItem<T>> _items;
+	private final List<TSItem<T>> _itemsReadOnly;
+	private TSItem<T> _lastEntry;
 	
 	public TS() {
-		_sorted = new ArrayList<>();
-		_sortedReadOnly = Collections.unmodifiableList(_sorted);
+		_items = new ArrayList<>();
+		_itemsReadOnly = Collections.unmodifiableList(_items);
 	}
 
-	public void add(TSEntry<T> entry) {
+	public void add(TSItem<T> entry) {
 		int lastTimeCmp = -1;
 		if (_lastEntry != null) {
 			lastTimeCmp = _lastEntry.getTime().compareTo(entry.getTime());
@@ -30,14 +30,14 @@ public class TS<T extends Comparable<T>> {
 		}
 		if (lastTimeCmp == 0) {
 			// remove last entry with the same time
-			_sorted.remove(_sorted.size()-1);
+			_items.remove(_items.size()-1);
 		}
-		_sorted.add(entry);
+		_items.add(entry);
 		_lastEntry = entry;
 	}
 	
-	public List<TSEntry<T>> getSorted() {
-		return _sortedReadOnly;
+	public List<TSItem<T>> getItems() {
+		return _itemsReadOnly;
 	}
 
 }
