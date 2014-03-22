@@ -9,8 +9,8 @@ import java.util.Map.Entry;
 
 import me.akuz.ts.TSAlignIterator;
 import me.akuz.ts.TSEntry;
-import me.akuz.ts.TSInputMap;
 import me.akuz.ts.TSMap;
+import me.akuz.ts.TSSortBuilderMap;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -56,7 +56,7 @@ public final class TSIO {
 
 	public static final <K, T extends Comparable<T>> TSMap<K,T> fromJson(TSIOType timeType, TSIOMap<K,T> ioMap, JSONObject obj) throws IOException {
 		
-		TSInputMap<K,T> tsMap = new TSInputMap<>();
+		TSSortBuilderMap<K, T> tsSortBuilderMap = new TSSortBuilderMap<>();
 		
 		if (obj.has(Field.data)) {
 			final JSONArray data = obj.getJSONArray(Field.data);
@@ -77,7 +77,7 @@ public final class TSIO {
 							if (key != null) {
 								Object value = ioMap.fromJson(item, name);
 								if (value != null) {
-									tsMap.add(key, new TSEntry<T>(time, value));
+									tsSortBuilderMap.add(key, new TSEntry<T>(time, value));
 								}
 							}
 						}
@@ -85,7 +85,8 @@ public final class TSIO {
 				}
 			}
 		}
-
+		
+		TSMap<K, T> tsMap = tsSortBuilderMap.build();
 		return tsMap;
 	}
 }

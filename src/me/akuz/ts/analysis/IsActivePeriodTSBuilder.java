@@ -5,7 +5,6 @@ import java.util.List;
 
 import me.akuz.ts.TS;
 import me.akuz.ts.TSEntry;
-import me.akuz.ts.TSOutput;
 
 public final class IsActivePeriodTSBuilder {
 	
@@ -19,7 +18,7 @@ public final class IsActivePeriodTSBuilder {
 	
 	public TS<Date> build(TS<Date> ts) {
 		
-		TSOutput<Date> tsIsOn = new TSOutput<>();
+		TS<Date> tsIsOn = new TS<>();
 
 		boolean isOn = false;
 		Date lastDate = null;

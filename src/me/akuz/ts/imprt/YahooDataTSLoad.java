@@ -15,22 +15,23 @@ import java.util.regex.Pattern;
 import me.akuz.core.DateFmt;
 import me.akuz.core.FileUtils;
 import me.akuz.ts.TSField;
-import me.akuz.ts.TSInputMap;
+import me.akuz.ts.TSMap;
 import me.akuz.ts.TSMapMap;
+import me.akuz.ts.TSSortBuilderMap;
 
 public final class YahooDataTSLoad {
 	
 	private static final Pattern _csvExtensionPattern = Pattern.compile("\\.csv$", Pattern.CASE_INSENSITIVE);
 	
-	public final static TSInputMap<TSField, Date> loadFileTSMap(
+	public final static TSMap<TSField, Date> loadFileTSMap(
 			final String fileName, 
 			final Date minDate,
 			final Date maxDate,
 			final TimeZone timeZone, 
 			final EnumSet<TSField> fields) throws IOException, ParseException {
 
-		TSInputMap<TSField, Date> tsMap = new TSInputMap<>();
-
+		TSSortBuilderMap<TSField, Date> tsBuilderMap = new TSSortBuilderMap<>();
+	
 		Scanner scanner = FileUtils.openScanner(fileName, "UTF-8");
 		try {
 			int lineNumber = 0;
@@ -59,44 +60,44 @@ public final class YahooDataTSLoad {
 					}
 					final Double open      = Double.parseDouble(parts[1]);
 					if (fields.contains(TSField.Open)) {
-						tsMap.add(TSField.Open, date, open);
+						tsBuilderMap.add(TSField.Open, date, open);
 					}
 					final Double high      = Double.parseDouble(parts[2]);
 					if (fields.contains(TSField.High)) {
-						tsMap.add(TSField.High, date, high);
+						tsBuilderMap.add(TSField.High, date, high);
 					}
 					final Double low       = Double.parseDouble(parts[3]);
 					if (fields.contains(TSField.Low)) {
-						tsMap.add(TSField.Low, date, low);
+						tsBuilderMap.add(TSField.Low, date, low);
 					}
 					final Double close     = Double.parseDouble(parts[4]);
 					if (fields.contains(TSField.Close)) {
-						tsMap.add(TSField.Close, date, close);
+						tsBuilderMap.add(TSField.Close, date, close);
 					}
 					final Double volume    = Double.parseDouble(parts[5]);
 					if (fields.contains(TSField.Volume)) {
-						tsMap.add(TSField.Volume, date, volume);
+						tsBuilderMap.add(TSField.Volume, date, volume);
 					}
 					final Double adjClose  = Double.parseDouble(parts[6]);
 					if (fields.contains(TSField.AdjClose)) {
-						tsMap.add(TSField.AdjClose, date, adjClose);
+						tsBuilderMap.add(TSField.AdjClose, date, adjClose);
 					}
 					final Double adjFactor = adjClose / close;
 					final Double adjOpen   = open * adjFactor;
 					if (fields.contains(TSField.AdjOpen)) {
-						tsMap.add(TSField.AdjOpen, date, adjOpen);
+						tsBuilderMap.add(TSField.AdjOpen, date, adjOpen);
 					}
 					final Double adjHigh   = high * adjFactor;
 					if (fields.contains(TSField.AdjHigh)) {
-						tsMap.add(TSField.AdjHigh, date, adjHigh);
+						tsBuilderMap.add(TSField.AdjHigh, date, adjHigh);
 					}
 					final Double adjLow    = low * adjFactor;
 					if (fields.contains(TSField.AdjLow)) {
-						tsMap.add(TSField.AdjLow, date, adjLow);
+						tsBuilderMap.add(TSField.AdjLow, date, adjLow);
 					}
 					final Double adjVolume = volume / adjFactor;
 					if (fields.contains(TSField.AdjVolume)) {
-						tsMap.add(TSField.AdjVolume, date, adjVolume);
+						tsBuilderMap.add(TSField.AdjVolume, date, adjVolume);
 					}
 				}
 			}
@@ -104,6 +105,7 @@ public final class YahooDataTSLoad {
 			scanner.close();
 		}
 
+		TSMap<TSField, Date> tsMap = tsBuilderMap.build();
 		return tsMap;
 	}
 	
@@ -125,7 +127,7 @@ public final class YahooDataTSLoad {
 				if (ignoreTickers != null && ignoreTickers.contains(ticker)) {
 					continue;
 				}
-				TSInputMap<TSField, Date> map = loadFileTSMap(
+				TSMap<TSField, Date> map = loadFileTSMap(
 						file.getAbsolutePath(),
 						minDate,
 						maxDate,
