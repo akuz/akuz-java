@@ -1,6 +1,5 @@
-*.class
-
-# Package Files #
-*.jar
-*.war
-*.ear
+[Tt]humbs.db
+*.DS_Store
+.settings/
+target/
+/bin
