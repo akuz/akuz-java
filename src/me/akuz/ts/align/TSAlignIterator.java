@@ -1,9 +1,12 @@
-package me.akuz.ts;
+package me.akuz.ts.align;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import me.akuz.ts.TS;
+import me.akuz.ts.TSItem;
 
 public final class TSAlignIterator<K, T extends Comparable<T>> {
 

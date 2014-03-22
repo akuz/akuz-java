@@ -1,4 +1,4 @@
-package me.akuz.ts;
+package me.akuz.ts.align;
 
 public abstract class TSAlignFill implements Cloneable {
 

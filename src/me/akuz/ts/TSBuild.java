@@ -9,11 +9,11 @@ import java.util.List;
  *
  * @param <T> - Time type.
  */
-public class TSSortBuilder<T extends Comparable<T>> {
+public class TSBuild<T extends Comparable<T>> {
 
 	private final List<TSItem<T>> _queue;
 	
-	public TSSortBuilder() {
+	public TSBuild() {
 		_queue = new ArrayList<>();
 	}
 	

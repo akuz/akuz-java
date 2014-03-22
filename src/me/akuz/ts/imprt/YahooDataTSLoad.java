@@ -17,7 +17,7 @@ import me.akuz.core.FileUtils;
 import me.akuz.ts.TSField;
 import me.akuz.ts.TSMap;
 import me.akuz.ts.TSMapMap;
-import me.akuz.ts.TSSortBuilderMap;
+import me.akuz.ts.TSBuildMap;
 
 public final class YahooDataTSLoad {
 	
@@ -30,7 +30,7 @@ public final class YahooDataTSLoad {
 			final TimeZone timeZone, 
 			final EnumSet<TSField> fields) throws IOException, ParseException {
 
-		TSSortBuilderMap<TSField, Date> tsBuilderMap = new TSSortBuilderMap<>();
+		TSBuildMap<TSField, Date> tsBuilderMap = new TSBuildMap<>();
 	
 		Scanner scanner = FileUtils.openScanner(fileName, "UTF-8");
 		try {

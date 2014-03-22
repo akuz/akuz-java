@@ -17,5 +17,4 @@ public enum TSField {
 	AdjLow,
 	AdjClose,
 	AdjVolume,
-
 }

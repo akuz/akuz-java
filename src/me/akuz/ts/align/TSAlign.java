@@ -1,4 +1,4 @@
-package me.akuz.ts;
+package me.akuz.ts.align;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Set;
 
 import me.akuz.core.Index;
+import me.akuz.ts.TS;
+import me.akuz.ts.TSItem;
 import Jama.Matrix;
 
 /**

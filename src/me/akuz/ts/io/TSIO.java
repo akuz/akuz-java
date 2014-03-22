@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import me.akuz.ts.TSAlignIterator;
 import me.akuz.ts.TSItem;
 import me.akuz.ts.TSMap;
-import me.akuz.ts.TSSortBuilderMap;
+import me.akuz.ts.TSBuildMap;
+import me.akuz.ts.align.TSAlignIterator;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -44,30 +44,30 @@ public final class TSIO {
 				ioMap.setJsonField(keyEntry.getValue(), keyEntry.getKey(), item);
 			}
 			
-			timeType.setJsonField(item, Field.time, iterator.getCurrTime());
+			timeType.setJsonField(item, TSIOField.time, iterator.getCurrTime());
 			
 			data.put(item);
 		}
 		
-		obj.put(Field.data, data);
+		obj.put(TSIOField.data, data);
 		
 		return obj;
 	}
 
 	public static final <K, T extends Comparable<T>> TSMap<K,T> fromJson(TSIOType timeType, TSIOMap<K,T> ioMap, JSONObject obj) throws IOException {
 		
-		TSSortBuilderMap<K, T> tsSortBuilderMap = new TSSortBuilderMap<>();
+		TSBuildMap<K, T> tsSortBuilderMap = new TSBuildMap<>();
 		
-		if (obj.has(Field.data)) {
-			final JSONArray data = obj.getJSONArray(Field.data);
+		if (obj.has(TSIOField.data)) {
+			final JSONArray data = obj.getJSONArray(TSIOField.data);
 			if (data != null && data.length() > 0) {
 				
 				for (int i=0; i<data.length(); i++) {
 					JSONObject item = data.getJSONObject(i);
 					@SuppressWarnings("unchecked")
-					T time = (T)timeType.fromJson(item, Field.time);
+					T time = (T)timeType.fromJson(item, TSIOField.time);
 					if (time == null) {
-						throw new IOException("Data item " + (i+1) + " does not have time field '" + Field.time + "'");
+						throw new IOException("Data item " + (i+1) + " does not have time field '" + TSIOField.time + "'");
 					}
 					String[] names = JSONObject.getNames(item);
 					if (names != null && names.length > 0) {

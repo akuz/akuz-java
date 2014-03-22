@@ -10,11 +10,11 @@ import java.util.Map.Entry;
  * @param <K> - Keys type.
  * @param <T> - Time type.
  */
-public class TSSortBuilderMap<K, T extends Comparable<T>> {
+public class TSBuildMap<K, T extends Comparable<T>> {
 	
-	private final Map<K, TSSortBuilder<T>> _map;
+	private final Map<K, TSBuild<T>> _map;
 	
-	public TSSortBuilderMap() {
+	public TSBuildMap() {
 		_map = new HashMap<>();
 	}
 	
@@ -23,9 +23,9 @@ public class TSSortBuilderMap<K, T extends Comparable<T>> {
 	}
 	
 	public void add(K key, TSItem<T> entry) {
-		TSSortBuilder<T> tsBuilder =_map.get(key);
+		TSBuild<T> tsBuilder =_map.get(key);
 		if (tsBuilder == null) {
-			tsBuilder = new TSSortBuilder<>();
+			tsBuilder = new TSBuild<>();
 			_map.put(key, tsBuilder);
 		}
 		tsBuilder.add(entry);
@@ -33,10 +33,10 @@ public class TSSortBuilderMap<K, T extends Comparable<T>> {
 	
 	public TSMap<K, T> build() {
 		TSMap<K, T> tsMap = new TSMap<>();
-		for (Entry<K, TSSortBuilder<T>> entry : _map.entrySet()) {
+		for (Entry<K, TSBuild<T>> entry : _map.entrySet()) {
 			
 			K key = entry.getKey();
-			TSSortBuilder<T> tsBuilder = entry.getValue();
+			TSBuild<T> tsBuilder = entry.getValue();
 			
 			TS<T> ts = tsBuilder.build();
 			tsMap.add(key, ts);

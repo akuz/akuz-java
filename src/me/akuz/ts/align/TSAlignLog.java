@@ -1,4 +1,4 @@
-package me.akuz.ts;
+package me.akuz.ts.align;
 
 import java.util.ArrayList;
 import java.util.List;

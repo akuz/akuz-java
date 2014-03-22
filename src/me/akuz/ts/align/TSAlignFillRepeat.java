@@ -1,4 +1,4 @@
-package me.akuz.ts;
+package me.akuz.ts.align;
 
 public final class TSAlignFillRepeat extends TSAlignFill {
 
