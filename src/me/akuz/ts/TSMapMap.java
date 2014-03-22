@@ -8,7 +8,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- * Map of time series maps.
+ * Time series map of maps.
  *
  * @param <K1> - Level 1 key type.
  * @param <K2> - Level 2 key type.
