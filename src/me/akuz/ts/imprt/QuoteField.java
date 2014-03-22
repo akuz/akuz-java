@@ -1,10 +1,10 @@
-package me.akuz.ts;
+package me.akuz.ts.imprt;
 
 /**
  * Enumeration of quote fields.
  *
  */
-public enum TSField {
+public enum QuoteField {
 	
 	Open,
 	High,
