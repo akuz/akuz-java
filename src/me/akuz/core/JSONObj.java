@@ -27,6 +27,10 @@ public class JSONObj extends JSONObject {
 		super(tokener);
 	}
 	
+	public static final JSONObj fromFile(String fileName) throws FileNotFoundException, IOException {
+		return fromFile(fileName, "UTF-8");
+	}
+	
 	public static final JSONObj fromFile(String fileName, String encoding) throws FileNotFoundException, IOException {
 		
 		try (FileInputStream fis = new FileInputStream(fileName);
