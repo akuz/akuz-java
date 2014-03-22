@@ -29,10 +29,10 @@ public final class TSAlign<T extends Comparable<T>> {
 	}
 
 	public <K> Matrix intoMatrix(Index<K> keysIndex, Map<K, TS<T>> map) {
-		return intoMatrix(keysIndex, map, null, null, null);
+		return intoMatrix(keysIndex, map, null, null, null, null);
 	}
 
-	public <K> Matrix intoMatrix(Index<K> keysIndex, Map<K, TS<T>> map, TSAlignFill fill, TSAlignCheck check, TSAlignLog log) {
+	public <K> Matrix intoMatrix(Index<K> keysIndex, Map<K, TS<T>> map, TSAlignFill fill, TSAlignCheck check, TSAlignLog log, List<T> rowTimes) {
 		
 		if (keysIndex == null) {
 			throw new IllegalArgumentException("Argument colsIndex must not be null");
@@ -62,6 +62,10 @@ public final class TSAlign<T extends Comparable<T>> {
 		for (int i=0; i<_times.size(); i++) {
 			
 			T currTime = _times.get(i);
+			
+			if (rowTimes != null) {
+				rowTimes.add(currTime);
+			}
 
 			for (int j=0; j<keysIndex.size(); j++) {
 				
