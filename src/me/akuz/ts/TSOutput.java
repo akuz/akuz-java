@@ -13,33 +13,27 @@ public final class TSOutput<T extends Comparable<T>> extends TS<T> {
 
 	private final List<TSEntry<T>> _sorted;
 	private final List<TSEntry<T>> _sortedReadOnly;
-	private final boolean _allowDuplicateTimes;
-	private T _lastTime;
+	private TSEntry<T> _lastEntry;
 	
 	public TSOutput() {
-		this(false);
-	}
-	
-	public TSOutput(boolean allowDuplicateTimes) {
 		_sorted = new ArrayList<>();
 		_sortedReadOnly = Collections.unmodifiableList(_sorted);
-		_allowDuplicateTimes = allowDuplicateTimes;
 	}
 
 	public void add(TSEntry<T> entry) {
-		if (_lastTime != null) {
-			if (_allowDuplicateTimes) {
-				if (_lastTime.compareTo(entry.getTime()) > 0) {
-					throw new IllegalStateException("Values must be added in chronological order (allowDuplicateTimes: " + _allowDuplicateTimes + ")");
-				}
-			} else {
-				if (_lastTime.compareTo(entry.getTime()) >= 0) {
-					throw new IllegalStateException("Values must be added in chronological order (allowDuplicateTimes: " + _allowDuplicateTimes + ")");
-				}
-			}
+		int lastTimeCmp = -1;
+		if (_lastEntry != null) {
+			lastTimeCmp = _lastEntry.getTime().compareTo(entry.getTime());
+		}
+		if (lastTimeCmp > 0) {
+			throw new IllegalStateException("Values must be added in chronological order");
+		}
+		if (lastTimeCmp == 0) {
+			// remove last entry with the same time
+			_sorted.remove(_sorted.size()-1);
 		}
 		_sorted.add(entry);
-		_lastTime = entry.getTime();
+		_lastEntry = entry;
 	}
 	
 	@Override

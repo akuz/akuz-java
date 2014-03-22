@@ -17,6 +17,7 @@ public abstract class TSIOType {
 	public static final TSIOType DateYYYYMMDDUtc       = new TSIOTypeDate(DateFmt.YYYYMMDD, TimeZone.getTimeZone("UTC"));
 	public static final TSIOType DateYYYYMMDDHHMMSSUtc = new TSIOTypeDate(DateFmt.YYYYMMDDHHMMSS, TimeZone.getTimeZone("UTC"));
 	
+	public static final TSIOType Boolean = new TSIOTypeBoolean();
 	public static final TSIOType Double  = new TSIOTypeDouble();
 	public static final TSIOType Integer = new TSIOTypeInteger();
 	public static final TSIOType String  = new TSIOTypeString();
