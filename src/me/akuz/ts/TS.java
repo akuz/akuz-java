@@ -48,5 +48,13 @@ public final class TS<T extends Comparable<T>> {
 	public List<TSItem<T>> getItems() {
 		return _itemsReadOnly;
 	}
+	
+	public List<T> extractTimes() {
+		List<T> times = new ArrayList<>();
+		for (int i=0; i<_items.size(); i++) {
+			times.add(_items.get(i).getTime());
+		}
+		return times;
+	}
 
 }
