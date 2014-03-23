@@ -9,11 +9,10 @@ import java.util.List;
  *
  * @param <T> - Time type.
  */
-public class TS<T extends Comparable<T>> {
+public final class TS<T extends Comparable<T>> {
 	
 	private final List<TSItem<T>> _items;
 	private final List<TSItem<T>> _itemsReadOnly;
-	private TSItem<T> _lastEntry;
 	
 	public TS() {
 		_items = new ArrayList<>();
@@ -22,18 +21,28 @@ public class TS<T extends Comparable<T>> {
 
 	public void add(TSItem<T> entry) {
 		int lastTimeCmp = -1;
-		if (_lastEntry != null) {
-			lastTimeCmp = _lastEntry.getTime().compareTo(entry.getTime());
+		if (_items.size() > 0) {
+			TSItem<T> lastItem = _items.get(_items.size()-1);
+			lastTimeCmp = lastItem.getTime().compareTo(entry.getTime());
 		}
 		if (lastTimeCmp > 0) {
-			throw new IllegalStateException("Values must be added in chronological order");
+			throw new IllegalStateException("Time series values must be added in chronological order");
 		}
 		if (lastTimeCmp == 0) {
 			// remove last entry with the same time
 			_items.remove(_items.size()-1);
 		}
 		_items.add(entry);
-		_lastEntry = entry;
+	}
+	
+	public TSItem<T> getLast() {
+		return _items.size() > 0 ? _items.get(_items.size()-1) : null;
+	}
+
+	public void removeLast() {
+		if (_items.size() > 0) {
+			_items.remove(_items.size()-1);
+		}
 	}
 	
 	public List<TSItem<T>> getItems() {

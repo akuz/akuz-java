@@ -22,6 +22,9 @@ public final class TSItem<T extends Comparable<T>> implements Comparable<TSItem<
 		return _time;
 	}
 	
+	public Boolean getBoolean() {
+		return (Boolean)_value;
+	}
 	public Number getNumber() {
 		return (Number)_value;
 	}

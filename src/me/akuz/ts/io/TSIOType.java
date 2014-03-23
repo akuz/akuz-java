@@ -10,7 +10,7 @@ import me.akuz.ts.io.types.TSIOTypeDouble;
 import me.akuz.ts.io.types.TSIOTypeInteger;
 import me.akuz.ts.io.types.TSIOTypeString;
 
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
 
 /**
  * Time series IO data type adapter.
@@ -27,7 +27,7 @@ public abstract class TSIOType {
 	public static final TSIOType Integer = new TSIOTypeInteger();
 	public static final TSIOType String  = new TSIOTypeString();
 	
-	public abstract Object fromJson(JSONObject obj, String name) throws IOException;
-	public abstract void setJsonField(JSONObject obj, String name, Object value);
+	public abstract Object fromJson(JsonObject obj, String name) throws IOException;
+	public abstract void setJsonField(JsonObject obj, String name, Object value);
 	
 }

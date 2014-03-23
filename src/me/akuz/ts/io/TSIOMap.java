@@ -7,7 +7,7 @@ import java.util.Set;
 
 import me.akuz.ts.TSItem;
 
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
 
 /**
  * Describes time series IO map.
@@ -61,7 +61,7 @@ public final class TSIOMap<K, T extends Comparable<T>> {
 		return _nameKeyMap.get(name);
 	}
 	
-	public Object fromJson(JSONObject obj, String name) throws IOException {
+	public Object fromJson(JsonObject obj, String name) throws IOException {
 		
 		if (!obj.has(name)) {
 			return null;
@@ -75,7 +75,7 @@ public final class TSIOMap<K, T extends Comparable<T>> {
 		return type.fromJson(obj, name);
 	}
 	
-	public void setJsonField(TSItem<T> entry, K key, JSONObject obj) {
+	public void setJsonField(TSItem<T> entry, K key, JsonObject obj) {
 		
 		String name = _keyNameMap.get(key);
 		if (name == null) {

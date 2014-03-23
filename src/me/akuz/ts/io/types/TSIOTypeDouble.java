@@ -2,23 +2,23 @@ package me.akuz.ts.io.types;
 
 import me.akuz.ts.io.TSIOType;
 
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
 
 public final class TSIOTypeDouble extends TSIOType {
 
 	@Override
-	public Object fromJson(JSONObject obj, String name) {
+	public Object fromJson(JsonObject obj, String name) {
 		if (!obj.has(name)) {
 			return null;
 		}
-		return obj.getDouble(name);
+		return obj.get(name).getAsDouble();
 	}
 
 	@Override
-	public void setJsonField(JSONObject obj, String name, Object value) {
+	public void setJsonField(JsonObject obj, String name, Object value) {
 		if (value == null) {
 			return;
 		}
-		obj.put(name, (Double)value);
+		obj.addProperty(name, (Double)value);
 	}
 }

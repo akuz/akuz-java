@@ -12,8 +12,9 @@ import me.akuz.ts.TSMap;
 import me.akuz.ts.TSBuildMap;
 import me.akuz.ts.align.TSAlignIterator;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 /**
  * Time series IO functions.
@@ -21,11 +22,11 @@ import org.json.JSONObject;
  */
 public final class TSIO {
 
-	public static final <K, T extends Comparable<T>> JSONObject toJson(TSIOType timeType, TSIOMap<K,T> ioMap, TSMap<K, T> tsMap) {
+	public static final <K, T extends Comparable<T>> JsonObject toJson(TSIOType timeType, TSIOMap<K,T> ioMap, TSMap<K, T> tsMap) {
 		
-		final JSONObject obj = new JSONObject();
+		final JsonObject obj = new JsonObject();
 		
-		final JSONArray data = new JSONArray();
+		final JsonArray data = new JsonArray();
 
 		final List<T> times = new ArrayList<>(tsMap.getTimes());
 		if (times.size() > 1) {
@@ -37,48 +38,45 @@ public final class TSIO {
 			
 			final Map<K, TSItem<T>> currKeyEntries = iterator.next();
 			
-			final JSONObject item = new JSONObject();
+			final JsonObject item = new JsonObject();
+			
+			timeType.setJsonField(item, TSIOField.time, iterator.getCurrTime());
 
 			for (final Entry<K, TSItem<T>> keyEntry : currKeyEntries.entrySet()) {
 				
 				ioMap.setJsonField(keyEntry.getValue(), keyEntry.getKey(), item);
 			}
 			
-			timeType.setJsonField(item, TSIOField.time, iterator.getCurrTime());
-			
-			data.put(item);
+			data.add(item);
 		}
 		
-		obj.put(TSIOField.data, data);
+		obj.add(TSIOField.data, data);
 		
 		return obj;
 	}
 
-	public static final <K, T extends Comparable<T>> TSMap<K,T> fromJson(TSIOType timeType, TSIOMap<K,T> ioMap, JSONObject obj) throws IOException {
+	public static final <K, T extends Comparable<T>> TSMap<K,T> fromJson(TSIOType timeType, TSIOMap<K,T> ioMap, JsonObject obj) throws IOException {
 		
 		TSBuildMap<K, T> tsSortBuilderMap = new TSBuildMap<>();
 		
 		if (obj.has(TSIOField.data)) {
-			final JSONArray data = obj.getJSONArray(TSIOField.data);
-			if (data != null && data.length() > 0) {
+			final JsonArray data = obj.getAsJsonArray(TSIOField.data);
+			if (data != null && data.size() > 0) {
 				
-				for (int i=0; i<data.length(); i++) {
-					JSONObject item = data.getJSONObject(i);
+				for (int i=0; i<data.size(); i++) {
+					JsonObject item = data.get(i).getAsJsonObject();
 					@SuppressWarnings("unchecked")
 					T time = (T)timeType.fromJson(item, TSIOField.time);
 					if (time == null) {
 						throw new IOException("Data item " + (i+1) + " does not have time field '" + TSIOField.time + "'");
 					}
-					String[] names = JSONObject.getNames(item);
-					if (names != null && names.length > 0) {
-						for (int j=0; j<names.length; j++) {
-							String name = names[j];
-							K key = ioMap.getKey(name);
-							if (key != null) {
-								Object value = ioMap.fromJson(item, name);
-								if (value != null) {
-									tsSortBuilderMap.add(key, new TSItem<T>(time, value));
-								}
+					for (Entry<String, JsonElement> entry : item.entrySet()) {
+						String name = entry.getKey();
+						K key = ioMap.getKey(name);
+						if (key != null) {
+							Object value = ioMap.fromJson(item, name);
+							if (value != null) {
+								tsSortBuilderMap.add(key, new TSItem<T>(time, value));
 							}
 						}
 					}

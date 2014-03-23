@@ -8,7 +8,7 @@ import java.util.TimeZone;
 
 import me.akuz.ts.io.TSIOType;
 
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
 
 public final class TSIOTypeDate extends TSIOType {
 
@@ -23,11 +23,11 @@ public final class TSIOTypeDate extends TSIOType {
 	}
 
 	@Override
-	public Object fromJson(JSONObject obj, String name) throws IOException {
+	public Object fromJson(JsonObject obj, String name) throws IOException {
 		if (!obj.has(name)) {
 			return null;
 		}
-		String str = obj.getString(name);
+		String str = obj.get(name).getAsString();
 		SimpleDateFormat fmt = _fmt.get();
 		if (fmt == null) {
 			fmt = new SimpleDateFormat(_format);
@@ -42,7 +42,7 @@ public final class TSIOTypeDate extends TSIOType {
 	}
 
 	@Override
-	public void setJsonField(JSONObject obj, String name, Object value) {
+	public void setJsonField(JsonObject obj, String name, Object value) {
 		if (value == null) {
 			return;
 		}
@@ -53,6 +53,6 @@ public final class TSIOTypeDate extends TSIOType {
 			fmt.setTimeZone(_timeZone);
 			_fmt.set(fmt);
 		}
-		obj.put(name, fmt.format(date));
+		obj.addProperty(name, fmt.format(date));
 	}
 }
