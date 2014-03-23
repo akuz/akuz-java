@@ -3,8 +3,11 @@ package me.akuz.ts;
 /**
  * Time series item.
  * 
- * Note: not making value type generic, in order to be able to have heterogeneous collections.
- *
+ * Note: Only time type T is a generic parameter,
+ * This is necessary in order to be able to create
+ * tables (TSMap) containing time series (TS) with 
+ * the same time type, but heterogeneous value types.
+ * 
  * @param <T> - Time type.
  * 
  */
