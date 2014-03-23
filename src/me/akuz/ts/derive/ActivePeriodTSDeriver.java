@@ -1,4 +1,4 @@
-package me.akuz.ts.build;
+package me.akuz.ts.derive;
 
 import java.util.Date;
 import java.util.List;
@@ -7,17 +7,17 @@ import me.akuz.core.Period;
 import me.akuz.ts.TS;
 import me.akuz.ts.TSItem;
 
-public final class ActivePeriodTSBuilder {
+public final class ActivePeriodTSDeriver {
 	
 	private final long _onPeriodMs;
 	private final long _offPeriodMs;
 	
-	public ActivePeriodTSBuilder(Period onPeriod, Period offPeriod) {
+	public ActivePeriodTSDeriver(Period onPeriod, Period offPeriod) {
 		_onPeriodMs  = onPeriod.getMs();
 		_offPeriodMs = offPeriod.getMs();
 	}
 	
-	public TS<Date> build(final TS<Date> ts) {
+	public TS<Date> derive(final TS<Date> ts) {
 		
 		final TS<Date> tsActivePeriod = new TS<>();
 

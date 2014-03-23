@@ -5,20 +5,20 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Builds time series from unsorted data.
+ * Builds time series from unsorted items.
  *
  * @param <T> - Time type.
  */
-public class TSBuild<T extends Comparable<T>> {
+public final class TSSort<T extends Comparable<T>> {
 
 	private final List<TSItem<T>> _queue;
 	
-	public TSBuild() {
+	public TSSort() {
 		_queue = new ArrayList<>();
 	}
 	
-	public void add(TSItem<T> entry) {
-		_queue.add(entry);
+	public void add(TSItem<T> items) {
+		_queue.add(items);
 	}
 	
 	public TS<T> build() {
@@ -33,9 +33,9 @@ public class TSBuild<T extends Comparable<T>> {
 				TSItem<T> prev = sorted.get(i-1);
 				int prevTimeCmp = prev.getTime().compareTo(curr.getTime());
 				if (prevTimeCmp > 0) {
-					throw new IllegalStateException("Prev time (" + prev.getTime() + ") is later than curr time (" + curr.getTime() +")");
+					throw new IllegalStateException("Prev item time (" + prev.getTime() + ") is later than curr item time (" + curr.getTime() +")");
 				} else if (prevTimeCmp == 0) {
-					throw new IllegalStateException("Duplicate entries for the same time (" + curr.getTime() + "), cannot guarantee correct order");
+					throw new IllegalStateException("Duplicate items for the same time (" + curr.getTime() + "), cannot guarantee correct order");
 				}
 			}
 			ts.add(curr);

@@ -5,16 +5,16 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /**
- * Builds time series map from unsorted data.
+ * Builds map of time series from unsorted items.
  *
  * @param <K> - Keys type.
  * @param <T> - Time type.
  */
-public class TSBuildMap<K, T extends Comparable<T>> {
+public final class TSSortMap<K, T extends Comparable<T>> {
 	
-	private final Map<K, TSBuild<T>> _map;
+	private final Map<K, TSSort<T>> _map;
 	
-	public TSBuildMap() {
+	public TSSortMap() {
 		_map = new HashMap<>();
 	}
 	
@@ -23,22 +23,21 @@ public class TSBuildMap<K, T extends Comparable<T>> {
 	}
 	
 	public void add(K key, TSItem<T> entry) {
-		TSBuild<T> tsBuilder =_map.get(key);
-		if (tsBuilder == null) {
-			tsBuilder = new TSBuild<>();
-			_map.put(key, tsBuilder);
+		TSSort<T> tsSort =_map.get(key);
+		if (tsSort == null) {
+			tsSort = new TSSort<>();
+			_map.put(key, tsSort);
 		}
-		tsBuilder.add(entry);
+		tsSort.add(entry);
 	}
 	
 	public TSMap<K, T> build() {
 		TSMap<K, T> tsMap = new TSMap<>();
-		for (Entry<K, TSBuild<T>> entry : _map.entrySet()) {
+		for (Entry<K, TSSort<T>> entry : _map.entrySet()) {
 			
 			K key = entry.getKey();
-			TSBuild<T> tsBuilder = entry.getValue();
-			
-			TS<T> ts = tsBuilder.build();
+			TSSort<T> tsSort = entry.getValue();
+			TS<T> ts = tsSort.build();
 			tsMap.add(key, ts);
 		}
 		return tsMap;

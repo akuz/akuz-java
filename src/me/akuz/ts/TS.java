@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Single value time series.
+ * Single variable time series.
  *
  * @param <T> - Time type.
  */
