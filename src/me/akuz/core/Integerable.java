@@ -8,5 +8,5 @@ public interface Integerable {
 	
 	Integer convertToInteger();
 	
-	Object convertFromInteger(Integer str);
+	Object convertFromInteger(Integer num);
 }
