@@ -3,9 +3,10 @@ package me.akuz.ts.derive;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.akuz.core.Integerable;
 import me.akuz.core.Stringable;
 
-public final class TradingMode implements Stringable {
+public final class TradingMode implements Stringable, Integerable {
 	
 	public static final TradingMode Disabled  = new TradingMode(0, "Disabled");
 	public static final TradingMode Enabled   = new TradingMode(1, "Enabled");
@@ -60,5 +61,21 @@ public final class TradingMode implements Stringable {
 			}
 		}
 		throw new IllegalArgumentException("Unknown " + getClass().getSimpleName() + ": " + str);
+	}
+
+	@Override
+	public Integer convertToInteger() {
+		return _id;
+	}
+
+	@Override
+	public Object convertFromInteger(Integer num) {
+		for (int i=0; i<All.size(); i++) {
+			TradingMode mode = All.get(i);
+			if (mode._id == num.intValue()) {
+				return mode;
+			}
+		}
+		throw new IllegalArgumentException("Unknown " + getClass().getSimpleName() + ": " + num);
 	}
 }
