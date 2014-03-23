@@ -2,16 +2,16 @@ package me.akuz.ts.io.types;
 
 import java.io.IOException;
 
-import me.akuz.core.Stringable;
+import me.akuz.core.Integerable;
 import me.akuz.ts.io.TSIOType;
 
 import com.google.gson.JsonObject;
 
-public final class TSIOTypeStringable extends TSIOType {
+public final class TSIOTypeIntegerable extends TSIOType {
 
-	private final Stringable _template;
+	private final Integerable _template;
 	
-	public TSIOTypeStringable(Stringable template) {
+	public TSIOTypeIntegerable(Integerable template) {
 		_template = template;
 	}
 
@@ -20,8 +20,8 @@ public final class TSIOTypeStringable extends TSIOType {
 		if (!obj.has(name)) {
 			return null;
 		}
-		String str = obj.get(name).getAsString();
-		return _template.convertFromString(str);
+		Integer num = obj.get(name).getAsInt();
+		return _template.convertFromInteger(num);
 	}
 
 	@Override
@@ -29,7 +29,7 @@ public final class TSIOTypeStringable extends TSIOType {
 		if (value == null) {
 			return;
 		}
-		Stringable stringable = (Stringable)value;
-		obj.addProperty(name, stringable.convertToString());
+		Integerable integerable = (Integerable)value;
+		obj.addProperty(name, integerable.convertToInteger());
 	}
 }

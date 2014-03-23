@@ -52,7 +52,7 @@ public final class TradingMode implements Stringable {
 	}
 
 	@Override
-	public Object parseFromString(String str) {
+	public Object convertFromString(String str) {
 		for (int i=0; i<All.size(); i++) {
 			TradingMode mode = All.get(i);
 			if (mode._name.equals(str)) {
