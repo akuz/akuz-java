@@ -8,5 +8,5 @@ public interface Stringable {
 	
 	String convertToString();
 	
-	Object parseFromString(String str);
+	Object convertFromString(String str);
 }
