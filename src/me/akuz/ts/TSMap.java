@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 /**
  * Time series map.
@@ -25,6 +26,13 @@ public final class TSMap<K, T extends Comparable<T>> {
 		_mapReadOnly = Collections.unmodifiableMap(_map);
 		_times = new HashSet<>();
 		_timesReadOnly = Collections.unmodifiableSet(_times);
+	}
+	
+	public TSMap(Map<K, TS<T>> map) {
+		this();
+		for (Entry<K, TS<T>> entry : map.entrySet()) {
+			add(entry.getKey(), entry.getValue());
+		}
 	}
 	
 	public void add(K key, T time, Object value) {

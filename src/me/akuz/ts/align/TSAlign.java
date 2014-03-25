@@ -9,6 +9,7 @@ import java.util.Set;
 import me.akuz.core.Index;
 import me.akuz.ts.TS;
 import me.akuz.ts.TSItem;
+import me.akuz.ts.TSMap;
 import Jama.Matrix;
 
 /**
@@ -31,94 +32,63 @@ public final class TSAlign<T extends Comparable<T>> {
 	}
 
 	public <K> Matrix intoMatrix(Index<K> keysIndex, Map<K, TS<T>> map) {
-		return intoMatrix(keysIndex, map, null, null, null, null);
+		return intoMatrix(keysIndex, map, null, null, null);
 	}
 
-	public <K> Matrix intoMatrix(Index<K> keysIndex, Map<K, TS<T>> map, TSAlignFill fill, TSAlignCheck check, TSAlignLog log, List<T> rowTimes) {
+	public <K> Matrix intoMatrix(Index<K> keysIndex, Map<K, TS<T>> map, TSFiller<T> filler, TSChecker<T> checker, TSAlignLog alignLog) {
 		
 		if (keysIndex == null) {
 			throw new IllegalArgumentException("Argument colsIndex must not be null");
 		}
 		
-		final int[] jCursors = new int[keysIndex.size()];
-		final TSAlignFill[] jFills;
-		if (fill != null) {
-			jFills = new TSAlignFill[keysIndex.size()];
-			for (int j=0; j<keysIndex.size(); j++) {
-				jFills[j] = (TSAlignFill)fill.clone();
-			}
-		} else {
-			jFills = null;
-		}
-		final TSAlignCheck[] jChecks;
-		if (check != null) {
-			jChecks = new TSAlignCheck[keysIndex.size()];
-			for (int j=0; j<keysIndex.size(); j++) {
-				jChecks[j] = (TSAlignCheck)check.clone();
-			}
-		} else {
-			jChecks = null;
-		}
 		final Matrix m = new Matrix(_times.size(), keysIndex.size(), Double.NaN);
-		
-		for (int i=0; i<_times.size(); i++) {
+		int i = 0;
+
+		final TSAlignIterator<K, T> iterator = new TSAlignIterator<>(map, _times, keysIndex.getMap().keySet(), filler, checker, alignLog);
+		while (iterator.hasNext()) {
 			
-			T currTime = _times.get(i);
-			
-			if (rowTimes != null) {
-				rowTimes.add(currTime);
-			}
+			final Map<K, TSItem<T>> currKeyValues = iterator.next();
 
 			for (int j=0; j<keysIndex.size(); j++) {
 				
-				final K key = keysIndex.getValue(j);
-				final TS<T> jTS = map.get(keysIndex.getValue(j));
-				if (jTS != null) {
-					
-					final List<TSItem<T>> jSorted = jTS.getItems();
-					
-					double value = Double.NaN;
-					
-					while (jCursors[j] < jSorted.size()) {
-						
-						final TSItem<T> entry = jSorted.get(jCursors[j]);
+				K key = keysIndex.getValue(j);
+				TSItem<T> item = currKeyValues.get(key);
+				if (item != null) {
+					m.set(i, j, item.getNumber().doubleValue());
+				} else {
+					m.set(i, j, Double.NaN);
+				}
+			}
+			i++;
+		}
 
-						final int cmp = entry.getTime().compareTo(currTime);
+		return m;
+	}
 
-						if (cmp > 0) {
-							// not reached current time, don't move
-							break;
-						}
-						if (cmp < 0) {
-							// before current time, move forward
-							jCursors[j]++;
-							continue;
-						}
-						
-						// at current time, set matrix value
-						value = entry.getDouble();
-						jCursors[j]++;
-					}
+	public <K> TSMap<K, T> intoTSMap(Set<K> keys, Map<K, TS<T>> map) {
+		return intoTSMap(keys, map, null, null, null);
+	}
 
-					if (jFills != null) {
-						final TSAlignLogMsg msg = jFills[j].next(value);
-						if (msg != null && log != null) {
-							log.add(new TSAlignLogMsg(msg.getLevel(), key + " at " + currTime + ": " + msg.getText()));
-						}
-						value = jFills[j].get();
-					}
-					if (jChecks != null) {
-						final TSAlignLogMsg msg = jChecks[j].next(value);
-						if (msg != null && log != null) {
-							log.add(new TSAlignLogMsg(msg.getLevel(), key + " at " + currTime + ": " + msg.getText()));
-						}
-					}
-					m.set(i, j, value);
+	public <K> TSMap<K, T> intoTSMap(Set<K> keys, Map<K, TS<T>> map, TSFiller<T> filler, TSChecker<T> checker, TSAlignLog alignLog) {
+		
+		TSMap<K, T> tsMap = new TSMap<>();
+
+		final TSAlignIterator<K, T> iterator = new TSAlignIterator<>(map, _times, keys, filler, checker, alignLog);
+		while (iterator.hasNext()) {
+			
+			final Map<K, TSItem<T>> currKeyValues = iterator.next();
+
+			for (K key : keys) {
+	
+				TSItem<T> item = currKeyValues.get(key);
+				
+				if (item != null) {
+					tsMap.add(key, item);
 				}
 			}
 		}
-		
-		return m;
+
+		return tsMap;
 	}
 
 }

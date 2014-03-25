@@ -51,4 +51,9 @@ public final class TSItem<T extends Comparable<T>> implements Comparable<TSItem<
 	public int compareTo(TSItem<T> o) {
 		return _time.compareTo(o.getTime());
 	}
+	
+	@Override
+	public String toString() {
+		return "(" + _time + ":" + _value + ")";
+	}
 }
