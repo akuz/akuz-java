@@ -29,28 +29,22 @@ public final class RunYahooDataDownload {
 		Monitor monitor = new SystemOutMonitor();
 		
 //		final String portfSpecFile = "/Users/andrey/SkyDrive/Documents/Data/yahoo/FTSE100.txt";
-//		final String outputDirName = "/Users/andrey/SkyDrive/Documents/Data/yahoo/FTSE100_20140314;
+//		final String outputDirName = "/Users/andrey/SkyDrive/Documents/Data/yahoo/FTSE100_20140324";
 
 //		final String portfSpecFile = "/Users/andrey/SkyDrive/Documents/Data/yahoo/NASDAQ100.txt";
-//		final String outputDirName = "/Users/andrey/SkyDrive/Documents/Data/yahoo/NASDAQ100_20140314";
-
-//		final String portfSpecFile = "/Users/andrey/SkyDrive/Documents/Data/yahoo/SP500_ENERGY.txt";
-//		final String outputDirName = "/Users/andrey/SkyDrive/Documents/Data/yahoo/SP500_ENERGY_20140314";
-
-//		final String portfSpecFile = "/Users/andrey/SkyDrive/Documents/Data/yahoo/SP500_IT.txt";
-//		final String outputDirName = "/Users/andrey/SkyDrive/Documents/Data/yahoo/SP500_IT_20140314";
+//		final String outputDirName = "/Users/andrey/SkyDrive/Documents/Data/yahoo/NASDAQ100_20140324";
 
 //		final String portfSpecFile = "/Users/andrey/SkyDrive/Documents/Data/yahoo/SP100.txt";
-//		final String outputDirName = "/Users/andrey/SkyDrive/Documents/Data/yahoo/SP100_20140317";
+//		final String outputDirName = "/Users/andrey/SkyDrive/Documents/Data/yahoo/SP100_20140324";
 
 //		final String portfSpecFile = "/Users/andrey/SkyDrive/Documents/Data/yahoo/CAC40.txt";
-//		final String outputDirName = "/Users/andrey/SkyDrive/Documents/Data/yahoo/CAC40_20140319";
+//		final String outputDirName = "/Users/andrey/SkyDrive/Documents/Data/yahoo/CAC40_20140324";
 
 //		final String portfSpecFile = "/Users/andrey/SkyDrive/Documents/Data/yahoo/DAX30.txt";
-//		final String outputDirName = "/Users/andrey/SkyDrive/Documents/Data/yahoo/DAX30_20140319";
+//		final String outputDirName = "/Users/andrey/SkyDrive/Documents/Data/yahoo/DAX30_20140324";
 		
 		final String portfSpecFile = "/Users/andrey/SkyDrive/Documents/Data/yahoo/IBEX35.txt";
-		final String outputDirName = "/Users/andrey/SkyDrive/Documents/Data/yahoo/IBEX35_20140319";
+		final String outputDirName = "/Users/andrey/SkyDrive/Documents/Data/yahoo/IBEX35_20140324";
 		
 		FileUtils.isDirExistsOrCreate(outputDirName);
 		
