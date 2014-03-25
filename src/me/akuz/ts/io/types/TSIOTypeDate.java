@@ -12,10 +12,9 @@ import com.google.gson.JsonObject;
 
 public final class TSIOTypeDate extends TSIOType {
 
-	private static final ThreadLocal<SimpleDateFormat> _fmt = new ThreadLocal<>();
-	
 	private final String _format;
 	private final TimeZone _timeZone;
+	private final ThreadLocal<SimpleDateFormat> _threadLocal = new ThreadLocal<>();
 	
 	public TSIOTypeDate(String format, TimeZone timeZone) {
 		_format = format;
@@ -28,11 +27,11 @@ public final class TSIOTypeDate extends TSIOType {
 			return null;
 		}
 		String str = obj.get(name).getAsString();
-		SimpleDateFormat fmt = _fmt.get();
+		SimpleDateFormat fmt = _threadLocal.get();
 		if (fmt == null) {
 			fmt = new SimpleDateFormat(_format);
 			fmt.setTimeZone(_timeZone);
-			_fmt.set(fmt);
+			_threadLocal.set(fmt);
 		}
 		try {
 			return fmt.parse(str);
@@ -47,11 +46,11 @@ public final class TSIOTypeDate extends TSIOType {
 			return;
 		}
 		Date date = (Date)value;
-		SimpleDateFormat fmt = _fmt.get();
+		SimpleDateFormat fmt = _threadLocal.get();
 		if (fmt == null) {
 			fmt = new SimpleDateFormat(_format);
 			fmt.setTimeZone(_timeZone);
-			_fmt.set(fmt);
+			_threadLocal.set(fmt);
 		}
 		obj.addProperty(name, fmt.format(date));
 	}

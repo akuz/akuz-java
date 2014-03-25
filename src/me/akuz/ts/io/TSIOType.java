@@ -18,9 +18,10 @@ import com.google.gson.JsonObject;
  */
 public abstract class TSIOType {
 	
-	public static final TSIOType DateStandardUtc       = new TSIOTypeDate(DateFmt.StandardUtcFormat, TimeZone.getTimeZone("UTC"));
-	public static final TSIOType DateYYYYMMDDUtc       = new TSIOTypeDate(DateFmt.YYYYMMDD, TimeZone.getTimeZone("UTC"));
-	public static final TSIOType DateYYYYMMDDHHMMSSUtc = new TSIOTypeDate(DateFmt.YYYYMMDDHHMMSS, TimeZone.getTimeZone("UTC"));
+	public static final TSIOType Date_Standard_UTC        = new TSIOTypeDate(DateFmt.StandardUtcFormat, TimeZone.getTimeZone("UTC"));
+	public static final TSIOType Date_YYYYMMDD_UTC        = new TSIOTypeDate(DateFmt.YYYYMMDD, TimeZone.getTimeZone("UTC"));
+	public static final TSIOType Date_YYYYMMDD_dashed_UTC = new TSIOTypeDate(DateFmt.YYYYMMDD_dashed, TimeZone.getTimeZone("UTC"));
+	public static final TSIOType Date_YYYYMMDDHHMMSS_UTC  = new TSIOTypeDate(DateFmt.YYYYMMDDHHMMSS, TimeZone.getTimeZone("UTC"));
 	
 	public static final TSIOType Boolean = new TSIOTypeBoolean();
 	public static final TSIOType Double  = new TSIOTypeDouble();
