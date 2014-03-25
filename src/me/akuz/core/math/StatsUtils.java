@@ -191,7 +191,7 @@ public final class StatsUtils {
 		double maxElement = 0;
 		for (int i=0; i<m.getRowDimension(); i++) {
 			for (int j=0; j<m.getColumnDimension(); j++) {
-				double element = m.get(i, j);
+				double element = Math.abs(m.get(i, j));
 				if (maxElement < element) {
 					maxElement = element;
 				}
@@ -223,7 +223,7 @@ public final class StatsUtils {
 		
 		SingularValueDecomposition svd = new SingularValueDecomposition(m);
 		Matrix S = svd.getS();
-		
+
 		double det = 1;
 		for (int i=0; i<S.getRowDimension(); i++) {
 
@@ -235,6 +235,10 @@ public final class StatsUtils {
 			} else {
 				break;
 			}
+		}
+		
+		if (det < MACHINE_EPSILON) {
+			det = 1;
 		}
 
 		return det;
