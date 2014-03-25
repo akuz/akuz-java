@@ -129,6 +129,9 @@ public final class FactorEM2 {
 					currLogLike += logPseudoNormalizer + GaussianFunc.calcLogUnnormalizedPdf(xMean, xInverseCov, x_n);
 				}
 //				System.out.println("LogLike: " + currLogLike);
+				if (Double.isNaN(currLogLike) || Double.isInfinite(currLogLike)) {
+					throw new IllegalStateException("Illegal log likelihood: " + currLogLike);
+				}
 				_logLike = currLogLike;
 			}
 			
