@@ -1,8 +1,12 @@
 package me.akuz.ts.align;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.RandomAccess;
 import java.util.Set;
 
 import me.akuz.ts.TS;
@@ -23,7 +27,7 @@ public final class TSAlignIterator<K, T extends Comparable<T>> {
 	
 	public TSAlignIterator(
 			Map<K, TS<T>> map,
-			final List<T> times,
+			final Collection<T> times,
 			final Set<K> keys) {
 		
 		this(
@@ -37,14 +41,22 @@ public final class TSAlignIterator<K, T extends Comparable<T>> {
 	
 	public TSAlignIterator(
 			Map<K, TS<T>> map,
-			final List<T> times,
+			final Collection<T> times,
 			final Set<K> keys,
 			final TSFiller<T> filler,
 			final TSChecker<T> checker,
 			final TSAlignLog alignLog) {
 		
 		_map = map;
-		_times = times;
+		if (times instanceof List<?> &&
+			times instanceof RandomAccess) {
+			_times = (List<T>)times;
+		} else {
+			_times = new ArrayList<>(times);
+			if (_times.size() > 1) {
+				Collections.sort(_times);
+			}
+		}
 		_keys = keys;
 		_timeCursor = -1;
 		_keyCursors = new HashMap<>();

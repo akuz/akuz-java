@@ -1,8 +1,5 @@
 package me.akuz.ts.derive;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -14,14 +11,8 @@ public final class AverageDoubleTSDeriver<T extends Comparable<T>> {
 
 	public <K> TSMap<K, T> derive(final K outputKey, final TSMap<K, T> inputTSMap) {
 		
-		List<T> times = new ArrayList<>(inputTSMap.getTimes());
-		if (times.size() > 1) {
-			Collections.sort(times);
-		}
-
+		TSAlignIterator<K, T> iterator = new TSAlignIterator<>(inputTSMap.getMap(), inputTSMap.getTimes(), inputTSMap.getKeys());
 		final TSMap<K, T> outputTSMap = new TSMap<>();
-
-		TSAlignIterator<K, T> iterator = new TSAlignIterator<>(inputTSMap.getMap(), times, inputTSMap.getKeys());
 		while (iterator.hasNext()) {
 			
 			Map<K, TSItem<T>> currValues = iterator.next();
