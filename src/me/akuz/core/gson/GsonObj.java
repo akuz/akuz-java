@@ -45,7 +45,9 @@ public class GsonObj {
 	public JsonObject get() {
 		return _obj;
 	}
-	
+	public boolean has(final String key) {
+		return _obj.has(key);
+	}
 	public void set(final String key, final String value) {
 		_obj.addProperty(key, value);
 	}
@@ -91,6 +93,10 @@ public class GsonObj {
 		}
 		
 		return set;
+	}
+	
+	public JsonArray getJsonArray(final String key) {
+		return _obj.get(key).getAsJsonArray();
 	}
 	
 	@Override
