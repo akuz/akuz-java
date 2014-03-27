@@ -6,17 +6,17 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.regex.Pattern;
 
-import org.json.JSONArray;
-
 import me.akuz.core.FileUtils;
-import me.akuz.core.JSONObj;
 import me.akuz.core.StringUtils;
 import me.akuz.core.SystemUtils;
 import me.akuz.core.UtcDate;
+import me.akuz.core.gson.GsonObj;
 import me.akuz.core.http.HttpGetCall;
 import me.akuz.core.http.HttpGetKind;
 import me.akuz.core.logs.Monitor;
 import me.akuz.core.logs.SystemOutMonitor;
+
+import com.google.gson.JsonArray;
 
 public final class RunYahooDataDownload {
 	
@@ -48,21 +48,21 @@ public final class RunYahooDataDownload {
 		
 		FileUtils.isDirExistsOrCreate(outputDirName);
 		
-		final JSONObj spec;
+		final GsonObj spec;
 		try {
-			spec = JSONObj.fromFile(portfSpecFile, ENCODING);
+			spec = new GsonObj(portfSpecFile, ENCODING);
 		} catch (Exception ex) {
 			monitor.write("Could not load portfolio data spec from: " + portfSpecFile, ex);
 			return;
 		}
 		
-		JSONArray tickers = null;
+		JsonArray tickers = null;
 		if (spec.has(PortfolioDataSpec.TICKERS)) {
-			tickers = spec.getJSONArray(PortfolioDataSpec.TICKERS);
+			tickers = spec.getJsonArray(PortfolioDataSpec.TICKERS);
 		}
-		if (tickers != null && tickers.length() > 0) {
+		if (tickers != null && tickers.size() > 0) {
 			
-			monitor.write(tickers.length() + " tickers in portfolio data spec.");
+			monitor.write(tickers.size() + " tickers in portfolio data spec.");
 			
 			UtcDate minDate = null;
 			if (spec.has(PortfolioDataSpec.MINDATE)) {
@@ -93,9 +93,9 @@ public final class RunYahooDataDownload {
 			final String MAX_DAY_CODE   = "e";
 			final String TICKER_CODE    = "s";
 			
-			for (int i=0; i<tickers.length(); i++) {
+			for (int i=0; i<tickers.size(); i++) {
 				
-				final String ticker = (String)tickers.get(i);
+				final String ticker = tickers.get(i).getAsString();
 				
 				final StringBuilder sb = new StringBuilder();
 				sb.append("http://ichart.finance.yahoo.com/table.csv");
