@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import me.akuz.ts.TSItem;
+import me.akuz.ts.TSMap;
 
 import com.google.gson.JsonObject;
 
@@ -26,9 +27,16 @@ public final class TSIOMap<K, T extends Comparable<T>> {
 		_nameKeyMap  = new HashMap<>();
 		_nameTypeMap = new HashMap<>();
 	}
+
+	public TSIOMap(TSMap<K, T> tsMap, TSIOType tsioType) {
+		this();
+		for (K key : tsMap.getKeys()) {
+			add(key, tsioType);
+		}
+	}
 	
-	public void add(final K key, final TSIOType type) {
-		add(key, key.toString(), type);
+	public void add(final K key, final TSIOType tsioType) {
+		add(key, key.toString(), tsioType);
 	}
 	
 	public void add(final K key, final String name, final TSIOType type) {
