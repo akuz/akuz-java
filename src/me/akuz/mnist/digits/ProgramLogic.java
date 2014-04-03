@@ -1,11 +1,14 @@
 package me.akuz.mnist.digits;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 import me.akuz.core.FileUtils;
+import me.akuz.core.StringUtils;
 import me.akuz.core.geom.ByteImage;
 import me.akuz.core.logs.LocalMonitor;
 import me.akuz.core.logs.Monitor;
@@ -13,22 +16,22 @@ import me.akuz.core.logs.Monitor;
 public final class ProgramLogic {
 
 	private static final int IMAGE_SIZE = 28;
-	private static final int MAX_IMAGE_COUNT = 1000;
+	private static final int MAX_IMAGE_COUNT = 100;
 	
-	private static final int LAYER_ITER_COUNT = 20;
+	private static final int LAYER_ITER_COUNT = 3;
 	private static final double LOG_LIKE_CHANGE_THRESHOLD = 0.001;
 	
-	private static final int DIM2  = 32;
+	private static final int DIM2  = 8;
 	private static final int ITER2 = 5;
 	
-	private static final int DIM4  = 48;
-	private static final int ITER4 = 5;
+	private static final int DIM4  = 12;
+	private static final int ITER4 = 6;
 	
-	private static final int DIM8  = 64;
-	private static final int ITER8 = 5;
+	private static final int DIM8  = 16;
+	private static final int ITER8 = 7;
 	
-	private static final int DIM16  = 64;
-	private static final int ITER16 = 5;
+	private static final int DIM16  = 20;
+	private static final int ITER16 = 8;
 	
 	public ProgramLogic() {
 	}
@@ -44,6 +47,7 @@ public final class ProgramLogic {
 		
 		monitor.write("Loading training data...");
 		List<ByteImage> images = new ArrayList<>();
+		List<Integer> numbers = new ArrayList<>();
 		try (Scanner scanner = FileUtils.openScanner(options.getTrainFile())) {
 			
 			// skip first line
@@ -62,7 +66,8 @@ public final class ProgramLogic {
 					if (parts.length != requiredEntryCount) {
 						throw new IOException("Incorrect number of entries in line #" + counter + ": " + line);
 					}
-					//byte symbol = Byte.parseByte(parts[0]);
+					int number = Integer.parseInt(parts[0]);
+					numbers.add(number);
 					byte[][] data = new byte[IMAGE_SIZE][IMAGE_SIZE];
 					for (int i=1; i<parts.length; i++) {
 						
@@ -194,6 +199,57 @@ public final class ProgramLogic {
 					infer4x4.getFeatureBlocks(), 
 					infer2x2.getFeatureBlocks(),
 					options.getOutputDir());
+		}
+
+		monitor.write("Interring 2x2 blocks [last>>] ...");
+		if (infer4x4 != null) {
+			infer2x2.setParentFeatureImages(
+				infer4x4.getFeatureShift(), 
+				infer4x4.getFeatureBlocks(), 
+				infer4x4.getFeatureImages());
+		}
+		infer2x2.execute(monitor, ITER2, LOG_LIKE_CHANGE_THRESHOLD);
+		
+		monitor.write("Saving 2x2 features [last>>] ...");
+		SaveBlocksNIG.save2x2(
+				infer2x2.getFeatureProbs(),
+				infer2x2.getFeatureBlocks(),
+				options.getOutputDir());
+		
+		final String txtOutputDir = StringUtils.concatPath(options.getOutputDir(), "txt");
+		FileUtils.isDirExistsOrCreate(txtOutputDir);
+		final DecimalFormat fileFmt = new DecimalFormat("0000");
+		final DecimalFormat idxFmt = new DecimalFormat("00");
+		final List<FeatureImage> featureImages = infer16x16.getFeatureImages();
+		final Map<Integer, Integer> orderMap = SaveBlocksNIG.getOrderMap(infer16x16.getFeatureProbs());
+		for (int f=0; f<featureImages.size(); f++) {
+			
+			final FeatureImage featureImage = featureImages.get(f);
+			
+			final StringBuilder sb = new StringBuilder();
+			for (int i=0; i<featureImage.getRowCount(); i++) {
+				for (int j=0; j<featureImage.getColCount(); j++) {
+					
+					if (j > 0) {
+						sb.append(" ");
+					}
+					double[] probs = featureImage.getFeatureProbs(i, j);
+					int maxIdx = -1;
+					double maxProb = 0;
+					for (int k=0; k<probs.length; k++) {
+						double prob = probs[k];
+						if (maxIdx < 0 || maxProb < prob) {
+							maxIdx = k;
+							maxProb = prob;
+						}
+					}
+					sb.append(idxFmt.format(orderMap.get(maxIdx) + 1));
+				}
+				sb.append("\n");
+			}
+			
+			final String txtFileName = StringUtils.concatPath(txtOutputDir, fileFmt.format(f+1) + "_" + numbers.get(f) + ".txt");
+			FileUtils.writeEntireFile(txtFileName, sb.toString());
 		}
 		
 //		monitor.write("Press any key to exit...");

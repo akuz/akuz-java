@@ -25,7 +25,7 @@ public final class SaveBlocksNIG {
 
 	private static final DecimalFormat fmt = new DecimalFormat("00");
 
-	private final static Map<Integer, Integer> getOrderMap(double[] probs) {
+	public static final Map<Integer, Integer> getOrderMap(double[] probs) {
 		List<Pair<Integer, Double>> list = new ArrayList<>();
 		for (int i=0; i<probs.length; i++) {
 			list.add(new Pair<Integer, Double>(i, probs[i]));
