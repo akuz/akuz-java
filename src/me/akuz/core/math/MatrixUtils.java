@@ -520,6 +520,25 @@ public final class MatrixUtils {
 		return m;
 	}
 	
+	public static final boolean isBoundedPositive(final Matrix m) {
+		
+		for (int i=0; i<m.getRowDimension(); i++) {
+			for (int j=0; j<m.getColumnDimension(); j++) {
+				final double value = m.get(i, j);
+				if (Double.isNaN(value)) {
+					return false;
+				}
+				if (Double.isInfinite(value)) {
+					return false;
+				}
+				if (value <= 0) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
 	public static final boolean isBoundedNumbers(final Matrix m) {
 		
 		for (int i=0; i<m.getRowDimension(); i++) {
