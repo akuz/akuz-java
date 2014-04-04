@@ -3,20 +3,24 @@ package me.akuz.mnist.digits;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+
+import Jama.Matrix;
 
 import me.akuz.core.FileUtils;
 import me.akuz.core.StringUtils;
 import me.akuz.core.geom.ByteImage;
 import me.akuz.core.logs.LocalMonitor;
 import me.akuz.core.logs.Monitor;
+import me.akuz.core.math.MatrixUtils;
 
 public final class ProgramLogic {
 
 	private static final int IMAGE_SIZE = 28;
-	private static final int MAX_IMAGE_COUNT = 100;
+	private static final int MAX_IMAGE_COUNT = 40;
 	
 	private static final int LAYER_ITER_COUNT = 3;
 	private static final double LOG_LIKE_CHANGE_THRESHOLD = 0.001;
@@ -220,39 +224,122 @@ public final class ProgramLogic {
 		FileUtils.isDirExistsOrCreate(txtOutputDir);
 		final DecimalFormat fileFmt = new DecimalFormat("0000");
 		final DecimalFormat idxFmt = new DecimalFormat("00");
-		final List<FeatureImage> featureImages = infer16x16.getFeatureImages();
-		final Map<Integer, Integer> orderMap = SaveBlocksNIG.getOrderMap(infer16x16.getFeatureProbs());
-		for (int f=0; f<featureImages.size(); f++) {
-			
-			final FeatureImage featureImage = featureImages.get(f);
-			
-			final StringBuilder sb = new StringBuilder();
-			for (int i=0; i<featureImage.getRowCount(); i++) {
-				for (int j=0; j<featureImage.getColCount(); j++) {
-					
-					if (j > 0) {
-						sb.append(" ");
-					}
-					double[] probs = featureImage.getFeatureProbs(i, j);
-					int maxIdx = -1;
-					double maxProb = 0;
-					for (int k=0; k<probs.length; k++) {
-						double prob = probs[k];
-						if (maxIdx < 0 || maxProb < prob) {
-							maxIdx = k;
-							maxProb = prob;
+		final InferHDP infer = infer16x16;
+		final Map<Integer, Double> numberCounts = new HashMap<>();
+		final Map<Integer, AvgArr> numberDists = new HashMap<>();
+		final List<double[]> imageFeatureProbsList = new ArrayList<>();
+		{
+			final List<FeatureImage> featureImages = infer.getFeatureImages();
+			final Map<Integer, Integer> orderMap = SaveBlocksNIG.getOrderMap(infer.getFeatureProbs());
+			for (int f=0; f<featureImages.size(); f++) {
+				
+				final Integer number = numbers.get(f);
+				final FeatureImage featureImage = featureImages.get(f);
+				final AvgArr imageFeatureProbs = new AvgArr(infer.getFeatureDim());
+				
+				final StringBuilder sb = new StringBuilder();
+				for (int i=0; i<featureImage.getRowCount(); i++) {
+					for (int j=0; j<featureImage.getColCount(); j++) {
+						
+						if (j > 0) {
+							sb.append(" ");
 						}
+						double[] probs = featureImage.getFeatureProbs(i, j);
+						imageFeatureProbs.add(probs);
+						int maxIdx = -1;
+						double maxProb = 0;
+						for (int k=0; k<probs.length; k++) {
+							double prob = probs[k];
+							if (maxIdx < 0 || maxProb < prob) {
+								maxIdx = k;
+								maxProb = prob;
+							}
+						}
+						sb.append(idxFmt.format(orderMap.get(maxIdx) + 1));
 					}
-					sb.append(idxFmt.format(orderMap.get(maxIdx) + 1));
+					sb.append("\n");
 				}
-				sb.append("\n");
+				imageFeatureProbsList.add(imageFeatureProbs.get());
+				
+				AvgArr numberDist = numberDists.get(number);
+				if (numberDist == null) {
+					numberDist = new AvgArr(infer.getFeatureDim());
+					numberDists.put(number, numberDist);
+				}
+				numberDist.add(imageFeatureProbs.get());
+				
+				Double numberCount = numberCounts.get(number);
+				if (numberCount == null) {
+					numberCount = 0.0;
+				}
+				numberCounts.put(number, numberCount + 1.0);
+				
+				final String txtFileName = StringUtils.concatPath(txtOutputDir, fileFmt.format(f+1) + "_" + numbers.get(f) + ".txt");
+				FileUtils.writeEntireFile(txtFileName, sb.toString());
+			}
+		}
+
+		final String mtxOutputDir = StringUtils.concatPath(options.getOutputDir(), "mtx");
+		FileUtils.isDirExistsOrCreate(mtxOutputDir);
+		
+		Matrix mNumberProb = new Matrix(10, 1);
+		for (Integer number : numberCounts.keySet()) {
+			mNumberProb.set(number, 0, numberCounts.get(number) / imageFeatureProbsList.size());
+		}
+		if (!MatrixUtils.isBoundedPositive(mNumberProb)) {
+			System.out.println("Matrix mNumberProb is not bounded-positive");
+		}
+		MatrixUtils.writeMatrix(StringUtils.concatPath(mtxOutputDir, "mNumberProb.csv"), mNumberProb);
+		
+		Matrix mNumberFeatureProb = new Matrix(10, infer.getFeatureDim());
+		for (Integer number : numberDists.keySet()) {
+			
+			double[] numberDist = numberDists.get(number).get();
+			for (int j=0; j<numberDist.length; j++) {
+				mNumberFeatureProb.set(number, j, numberDist[j]);
+			}
+		}
+		if (!MatrixUtils.isBoundedPositive(mNumberFeatureProb)) {
+			System.out.println("Matrix mNumberFeatureProb is not bounded-positive");
+		}
+		MatrixUtils.writeMatrix(StringUtils.concatPath(mtxOutputDir, "mNumberFeatureProb.csv"), mNumberFeatureProb);
+		
+		// calculate precision on training data
+		int correctCount = 0;
+		for (int i=0; i<imageFeatureProbsList.size(); i++) {
+
+			double[] dist = imageFeatureProbsList.get(i);
+
+			double[] klDivs = new double[10];
+			for (int n=0; n<10; n++) {
+				double klDiv = 0;
+				for (int k=0; k<dist.length; k++) {
+					
+					double prob1 = mNumberFeatureProb.get(n, k);
+					double prob2 = dist[k];
+					klDiv += prob1 * (Math.log(prob1) - Math.log(prob2)) 
+						   + prob2 * (Math.log(prob2) - Math.log(prob1));
+				}
+				klDivs[n] = klDiv;
 			}
 			
-			final String txtFileName = StringUtils.concatPath(txtOutputDir, fileFmt.format(f+1) + "_" + numbers.get(f) + ".txt");
-			FileUtils.writeEntireFile(txtFileName, sb.toString());
+			int guessN = -1;
+			double minKLDiv = 0;
+			for (int n=0; n<10; n++) {
+				if (guessN < 0 || minKLDiv > klDivs[n]) {
+					guessN = n;
+					minKLDiv = klDivs[n];
+				}
+			}
+			
+			if (guessN == numbers.get(i).intValue()) {
+				correctCount++;
+			}
 		}
-		
-//		monitor.write("Press any key to exit...");
+		final double precision = (double)correctCount / (double)imageFeatureProbsList.size();
+		System.out.println("Training data precision: " + precision);
+
+		//		monitor.write("Press any key to exit...");
 //		System.in.read();
 		
 		monitor.write("DONE.");
