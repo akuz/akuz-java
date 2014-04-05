@@ -20,7 +20,7 @@ import me.akuz.core.math.MatrixUtils;
 public final class ProgramLogic {
 
 	private static final int IMAGE_SIZE = 28;
-	private static final int MAX_IMAGE_COUNT = 40;
+	private static final int MAX_IMAGE_COUNT = 400;
 	
 	private static final int LAYER_ITER_COUNT = 3;
 	private static final double LOG_LIKE_CHANGE_THRESHOLD = 0.001;
