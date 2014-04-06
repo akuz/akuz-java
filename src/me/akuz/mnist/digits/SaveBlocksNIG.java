@@ -132,7 +132,7 @@ public final class SaveBlocksNIG {
 				
 				for (int k2=0; k2<block2x2Probs.length; k2++) {
 					
-					double block2x2Prob = block2x2Probs[k2];
+					double pixelProb = block2x2Probs[k2];
 					
 					for (int l2=0; l2<4; l2++) {
 						
@@ -142,8 +142,8 @@ public final class SaveBlocksNIG {
 						final int addRow = l2 / 2;
 						final int addCol = l2 % 2;
 						
-						myus[startRow + addRow][startCol + addCol] += block2x2Prob * myu;
-						vars[startRow + addRow][startCol + addCol] += block2x2Prob * var;
+						myus[startRow + addRow][startCol + addCol] += pixelProb * myu;
+						vars[startRow + addRow][startCol + addCol] += pixelProb * var;
 					}
 				}
 			}
