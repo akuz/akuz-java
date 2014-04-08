@@ -2,8 +2,10 @@
 *.DS_Store
 
 .settings/
-/target
-/bin
+target/
+output/
+m*.csv
+bin/
 
 *.class
 *.jar
