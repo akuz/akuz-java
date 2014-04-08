@@ -1,0 +1,104 @@
+[
+	{
+		"id": "noise",
+		"proportion": 0.5
+	},
+	{
+		"id" : "us_gov",
+		"proportion": 0.025,
+		"priorityWords": [
+			"government",
+			"obama",
+			"state",
+			"president",
+			"republican",
+			"democrat",
+			"senate",
+			"party"
+		]
+	},
+	{
+		"id" : "uk_gov",
+		"proportion": 0.025,
+		"priorityWords": [
+			"government",
+			"parlament",
+			"house",
+			"lord",
+			"mp",
+			"clegg",
+			"cameron",
+			"prime",
+			"minister"
+		]
+	},
+	{
+		"id" : "us_health",
+		"proportion": 0.025,
+		"priorityWords": [
+			"government",
+			"healthcare",
+			"health",
+			"care",
+			"obamacare",
+			"bill",
+			"federal",
+			"medical",
+			"plan",
+			"law"
+		]
+	},
+	{
+		"id" : "film",
+		"proportion": 0.025,
+		"priorityWords": [
+			"movie",
+			"film",
+			"star",
+			"red",
+			"carpet"
+		]
+	},
+	{
+		"id" : "music",
+		"proportion": 0.025,
+		"priorityWords": [
+			"music",
+			"album",
+			"star",
+			"stage",
+			"concert",
+			"singer"
+		]
+	},
+	{
+		"id" : "sports",
+		"proportion": 0.025,
+		"priorityWords": [
+			"play",
+			"club",
+			"star",
+			"striker",
+			"football",
+			"premier",
+			"final"
+		]
+	},
+	{
+		"id" : "protests",
+		"proportion": 0.025,
+		"priorityWords": [
+			"government",
+			"protest",
+			"police",
+			"clashes",
+			"anti",
+			"streets"
+		]
+	},
+	{
+		"id" : "other",
+		"count": 15,
+		"proportion": 0.025
+	}
+]
