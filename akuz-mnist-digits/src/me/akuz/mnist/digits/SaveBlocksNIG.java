@@ -20,6 +20,7 @@ import me.akuz.core.SortOrder;
 import me.akuz.core.StringUtils;
 import me.akuz.core.math.DirDist;
 import me.akuz.core.math.NIGDist;
+import me.akuz.core.math.StatsUtils;
 
 public final class SaveBlocksNIG {
 
@@ -51,21 +52,31 @@ public final class SaveBlocksNIG {
 			
 			NIGDist[] block2x2 = featureBlocks2x2[k2];
 			
-			BufferedImage img = new BufferedImage(40, 40, BufferedImage.TYPE_INT_RGB);
+			BufferedImage img = new BufferedImage(40, 40, BufferedImage.TYPE_INT_ARGB);
 			Graphics2D g = img.createGraphics();
 			
+			final Color backColor = new Color(255, 255, 0);
+			g.setColor(backColor);
+			g.fillRect(0, 0, img.getWidth(), img.getHeight());
+			
 			for (int l=0; l<4; l++) {
-				NIGDist dist = block2x2[l];
-				double myu = dist.getMeanMode();
-				int remove = 255 - (int)(255 * myu);
-				Color color = new Color(remove, remove, 255);
+				
+				final NIGDist dist = block2x2[l];
+				final double myu = dist.getMeanMode();
+				final double sigma = Math.sqrt(dist.getVarMode());
+				
+				final int remove = 255 - (int)(255 * myu);
+				final int alpha = (int)(255.0 * StatsUtils.calcDistanceWeightGaussian(sigma, 0.3));
+				final Color color = new Color(remove, remove, 255, alpha);
 				g.setColor(color);
+				
 				final int row = l / 2;
 				final int col = l % 2;
 				final int x = col * 20;
 				final int y = row * 20;
 				g.fillRect(x, y, 20, 20);
-				Color border = new Color(63, 63, 63);
+				
+				final Color border = new Color(63, 63, 63);
 				g.setColor(border);
 				g.drawRect(0, 0, 39, 39);
 			}
@@ -89,6 +100,7 @@ public final class SaveBlocksNIG {
 			
 			// calculate expected pixel values
 			double[][] myus = new double[4][4];
+			double[][] vars = new double[4][4];
 			
 			for (int l4=0; l4<4; l4++) {
 				
@@ -120,29 +132,36 @@ public final class SaveBlocksNIG {
 				
 				for (int k2=0; k2<block2x2Probs.length; k2++) {
 					
-					double block2x2Prob = block2x2Probs[k2];
+					double pixelProb = block2x2Probs[k2];
 					
 					for (int l2=0; l2<4; l2++) {
 						
-						double myu = featureBlocks2x2[k2][l2].getMeanMode();
+						final double myu = featureBlocks2x2[k2][l2].getMeanMode();
+						final double var = featureBlocks2x2[k2][l2].getVarMode();
 						
 						final int addRow = l2 / 2;
 						final int addCol = l2 % 2;
 						
-						myus[startRow + addRow][startCol + addCol] += block2x2Prob * myu;
+						myus[startRow + addRow][startCol + addCol] += pixelProb * myu;
+						vars[startRow + addRow][startCol + addCol] += pixelProb * var;
 					}
 				}
 			}
 			
-			
-			BufferedImage img = new BufferedImage(80, 80, BufferedImage.TYPE_INT_RGB);
+			BufferedImage img = new BufferedImage(80, 80, BufferedImage.TYPE_INT_ARGB);
 			Graphics2D g = img.createGraphics();
+			
+			final Color backColor = new Color(255, 255, 0);
+			g.setColor(backColor);
+			g.fillRect(0, 0, img.getWidth(), img.getHeight());
 			
 			for (int row=0; row<4; row++) {
 				for (int col=0; col<4; col++) {
-					double myu = myus[row][col];
+					final double myu = myus[row][col];
+					final double sigma = Math.sqrt(vars[row][col]);
 					int remove = 255 - (int)(255 * myu);
-					Color color = new Color(remove, remove, 255);
+					final int alpha = (int)(255.0 * StatsUtils.calcDistanceWeightGaussian(sigma, 0.3));
+					final Color color = new Color(remove, remove, 255, alpha);
 					g.setColor(color);
 					final int x = col * 20;
 					final int y = row * 20;
@@ -173,6 +192,7 @@ public final class SaveBlocksNIG {
 			
 			// calculate expected pixel values
 			double[][] myus = new double[8][8];
+			double[][] vars = new double[8][8];
 			
 			for (int l8=0; l8<4; l8++) {
 				
@@ -237,11 +257,13 @@ public final class SaveBlocksNIG {
 							for (int l2=0; l2<4; l2++) {
 								
 								double myu = featureBlocks2x2[k2][l2].getMeanMode();
+								double var = featureBlocks2x2[k2][l2].getVarMode();
 								
 								final int row2 = l2 / 2;
 								final int col2 = l2 % 2;
 								
 								myus[row8 + row4 + row2][col8 + col4 + col2] += pixelProb * myu;
+								vars[row8 + row4 + row2][col8 + col4 + col2] += pixelProb * var;
 							}
 						}
 					}
@@ -249,14 +271,20 @@ public final class SaveBlocksNIG {
 			}
 			
 			
-			BufferedImage img = new BufferedImage(160, 160, BufferedImage.TYPE_INT_RGB);
+			BufferedImage img = new BufferedImage(160, 160, BufferedImage.TYPE_INT_ARGB);
 			Graphics2D g = img.createGraphics();
 			
+			final Color backColor = new Color(255, 255, 0);
+			g.setColor(backColor);
+			g.fillRect(0, 0, img.getWidth(), img.getHeight());
+
 			for (int row=0; row<8; row++) {
 				for (int col=0; col<8; col++) {
 					double myu = myus[row][col];
+					double sigma = Math.sqrt(vars[row][col]);
 					int remove = 255 - (int)(255 * myu);
-					Color color = new Color(remove, remove, 255);
+					final int alpha = (int)(255.0 * StatsUtils.calcDistanceWeightGaussian(sigma, 0.3));
+					final Color color = new Color(remove, remove, 255, alpha);
 					g.setColor(color);
 					final int x = col * 20;
 					final int y = row * 20;
@@ -288,6 +316,7 @@ public final class SaveBlocksNIG {
 			
 			// calculate expected pixel values
 			double[][] myus = new double[16][16];
+			double[][] vars = new double[16][16];
 			
 			for (int l16=0; l16<4; l16++) {
 				
@@ -381,11 +410,13 @@ public final class SaveBlocksNIG {
 									for (int l2=0; l2<4; l2++) {
 										
 										double myu = featureBlocks2x2[k2][l2].getMeanMode();
+										double var = featureBlocks2x2[k2][l2].getVarMode();
 										
 										final int row2 = l2 / 2;
 										final int col2 = l2 % 2;
 										
 										myus[row16 + row8 + row4 + row2][col16 + col8 + col4 + col2] += pixelProb * myu;
+										vars[row16 + row8 + row4 + row2][col16 + col8 + col4 + col2] += pixelProb * var;
 									}
 								}
 							}
@@ -395,14 +426,20 @@ public final class SaveBlocksNIG {
 				}
 			}
 			
-			BufferedImage img = new BufferedImage(320, 320, BufferedImage.TYPE_INT_RGB);
+			BufferedImage img = new BufferedImage(320, 320, BufferedImage.TYPE_INT_ARGB);
 			Graphics2D g = img.createGraphics();
+			
+			final Color backColor = new Color(255, 255, 0);
+			g.setColor(backColor);
+			g.fillRect(0, 0, img.getWidth(), img.getHeight());
 			
 			for (int row=0; row<16; row++) {
 				for (int col=0; col<16; col++) {
 					double myu = myus[row][col];
+					double sigma = Math.sqrt(vars[row][col]);
 					int remove = 255 - (int)(255 * myu);
-					Color color = new Color(remove, remove, 255);
+					final int alpha = (int)(255.0 * StatsUtils.calcDistanceWeightGaussian(sigma, 0.3));
+					final Color color = new Color(remove, remove, 255, alpha);
 					g.setColor(color);
 					final int x = col * 20;
 					final int y = row * 20;
