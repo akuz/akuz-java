@@ -1,12 +1,11 @@
 [Tt]humbs.db
 *.DS_Store
+
 .settings/
-target/
+/target
+/bin
 
 *.class
-
-# Package Files #
 *.jar
 *.war
 *.ear
-/bin
