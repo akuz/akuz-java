@@ -10,6 +10,8 @@ More info: <http://akuz.me>
 
 * `akuz-core` – broadly reusable core library
 * `akuz-nlp` – natural language processing library
+* `akuz-nlp-run-lda` – executable for running Latent Dirichlet Allocation
+* `akuz-mnist-digits` – experiments on MNIST digits dataset
 * `akuz-ts` – time series alignment and analysis library
 * `akuz-qf` – quantitative finance library
 * `akuz-ml` – machine learning library
