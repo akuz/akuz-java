@@ -1,4 +1,4 @@
-akuz-java-qf
-============
+akuz-qf
+=======
 
 Quantitative Finance (QF) library.
