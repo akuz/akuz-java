@@ -1,4 +1,4 @@
-akuz-java-mnist-digits
-======================
+akuz-mnist-digits
+=================
 
 MNIST digits recognition experiments using probabilistic deep learning.
