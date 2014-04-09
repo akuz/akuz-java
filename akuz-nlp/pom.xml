@@ -1,10 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <url>http://akuz.me</url>
-  <name>Akuz Java NLP</name>
   <groupId>me.akuz</groupId>
-  <artifactId>akuz-java-nlp</artifactId>
-  <version>0.0.2</version>
+  <version>0.0.3</version>
+  <name>Akuz NLP library</name>
+  <artifactId>akuz-nlp</artifactId>
   <description>Natural Language Processing (NLP) Library.</description>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -25,15 +25,15 @@
   </properties>
   <dependencies>
   	<dependency>
-  		<groupId>me.akuz</groupId>
-  		<artifactId>akuz-java-core</artifactId>
-  		<version>0.0.2</version>
-  	</dependency>
-  	<dependency>
   		<groupId>junit</groupId>
   		<artifactId>junit</artifactId>
   		<version>4.11</version>
   		<scope>test</scope>
+  	</dependency>
+  	<dependency>
+  		<groupId>me.akuz</groupId>
+  		<artifactId>akuz-core</artifactId>
+  		<version>0.0.3</version>
   	</dependency>
   </dependencies>
 </project>
