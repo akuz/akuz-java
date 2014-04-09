@@ -1,15 +1,8 @@
-akuz-java-nlp-run-lda
-=====================
+akuz-nlp-run-lda
+================
 
 Executable jar and shell scripts for running optimised 
 LDA Gibbs sampling on a directory of text files.
-
-This project depends on other `akuz` libraries:
-
-  * `akuz-java-core`
-  * `akuz-java-nlp`
-  
-Releases already contain relevant binaries.
 
 ### LDA Optimisations
 
