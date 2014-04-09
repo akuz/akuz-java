@@ -3,9 +3,9 @@
   <url>http://akuz.me</url>
   <groupId>me.akuz</groupId>
   <version>0.0.3</version>
-  <artifactId>akuz-qf</artifactId>
-  <name>Akuz QF library</name>
-  <description>Quantitative Finance (QF) library.</description>
+  <artifactId>akuz-ml</artifactId>
+  <name>Akuz ML library</name>
+  <description>Machine Learning (ML) library.</description>
   <build>
     <sourceDirectory>src</sourceDirectory>
     <testSourceDirectory>test</testSourceDirectory>
