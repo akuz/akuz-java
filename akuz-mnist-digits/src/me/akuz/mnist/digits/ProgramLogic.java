@@ -28,13 +28,13 @@ public final class ProgramLogic {
 	private static final int DIM2  = 8;
 	private static final int ITER2 = 5;
 	
-	private static final int DIM4  = 12;
+	private static final int DIM4  = 16;
 	private static final int ITER4 = 5;
 	
-	private static final int DIM8  = 16;
+	private static final int DIM8  = 32;
 	private static final int ITER8 = 5;
 	
-	private static final int DIM16  = 20;
+	private static final int DIM16  = 64;
 	private static final int ITER16 = 5;
 	
 	public ProgramLogic() {
