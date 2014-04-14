@@ -9,18 +9,18 @@ import java.util.Map;
 import java.util.Scanner;
 
 import Jama.Matrix;
-
 import me.akuz.core.FileUtils;
 import me.akuz.core.StringUtils;
 import me.akuz.core.geom.ByteImage;
 import me.akuz.core.logs.LocalMonitor;
 import me.akuz.core.logs.Monitor;
 import me.akuz.core.math.MatrixUtils;
+import me.akuz.core.math.NIGDist;
 
 public final class ProgramLogic {
 
 	private static final int IMAGE_SIZE = 28;
-	private static final int MAX_IMAGE_COUNT = 50;
+	private static final int MAX_IMAGE_COUNT = 500;
 	
 	private static final int LAYER_ITER_COUNT = 3;
 	private static final double LOG_LIKE_CHANGE_THRESHOLD = 0.001;
@@ -29,13 +29,13 @@ public final class ProgramLogic {
 	private static final int ITER2 = 5;
 	
 	private static final int DIM4  = 12;
-	private static final int ITER4 = 6;
+	private static final int ITER4 = 5;
 	
 	private static final int DIM8  = 16;
-	private static final int ITER8 = 7;
+	private static final int ITER8 = 5;
 	
 	private static final int DIM16  = 20;
-	private static final int ITER16 = 8;
+	private static final int ITER16 = 5;
 	
 	public ProgramLogic() {
 	}
@@ -226,7 +226,7 @@ public final class ProgramLogic {
 		final DecimalFormat idxFmt = new DecimalFormat("00");
 		final InferHDP infer = infer16x16;
 		final Map<Integer, Double> numberCounts = new HashMap<>();
-		final Map<Integer, AvgArr> numberDists = new HashMap<>();
+		final Map<Integer, NIGDist[]> numberFeatureDists = new HashMap<>();
 		final List<double[]> imageFeatureProbsList = new ArrayList<>();
 		{
 			final List<FeatureImage> featureImages = infer.getFeatureImages();
@@ -261,12 +261,17 @@ public final class ProgramLogic {
 				}
 				imageFeatureProbsList.add(imageFeatureProbs.get());
 				
-				AvgArr numberDist = numberDists.get(number);
-				if (numberDist == null) {
-					numberDist = new AvgArr(infer.getFeatureDim());
-					numberDists.put(number, numberDist);
+				NIGDist[] numberFeatureDist = numberFeatureDists.get(number);
+				if (numberFeatureDist == null) {
+					numberFeatureDist = new NIGDist[infer.getFeatureDim()];
+					numberFeatureDists.put(number, numberFeatureDist);
+					for (int k=0; k<numberFeatureDist.length; k++) {
+						numberFeatureDist[k] = new NIGDist(1.0 / infer.getFeatureDim(), 0.1, 0.25, 0.1);
+					}
 				}
-				numberDist.add(imageFeatureProbs.get());
+				for (int k=0; k<numberFeatureDist.length; k++) {
+					numberFeatureDist[k].addObservation(imageFeatureProbs.get()[k]);
+				}
 				
 				Double numberCount = numberCounts.get(number);
 				if (numberCount == null) {
@@ -284,57 +289,46 @@ public final class ProgramLogic {
 		
 		Matrix mNumberProb = new Matrix(10, 1);
 		for (Integer number : numberCounts.keySet()) {
-			mNumberProb.set(number, 0, numberCounts.get(number) / imageFeatureProbsList.size());
+			mNumberProb.set(number, 0, (double)numberCounts.get(number) / (double)imageFeatureProbsList.size());
 		}
 		if (!MatrixUtils.isBoundedPositive(mNumberProb)) {
 			System.out.println("Matrix mNumberProb is not bounded-positive");
 		}
 		MatrixUtils.writeMatrix(StringUtils.concatPath(mtxOutputDir, "mNumberProb.csv"), mNumberProb);
 		
-		Matrix mNumberFeatureProb = new Matrix(10, infer.getFeatureDim());
-		for (Integer number : numberDists.keySet()) {
-			
-			double[] numberDist = numberDists.get(number).get();
-			for (int j=0; j<numberDist.length; j++) {
-				mNumberFeatureProb.set(number, j, numberDist[j]);
-			}
-		}
-		if (!MatrixUtils.isBoundedPositive(mNumberFeatureProb)) {
-			System.out.println("Matrix mNumberFeatureProb is not bounded-positive");
-		}
-		MatrixUtils.writeMatrix(StringUtils.concatPath(mtxOutputDir, "mNumberFeatureProb.csv"), mNumberFeatureProb);
-		
 		// calculate precision on training data
 		int correctCount = 0;
 		for (int i=0; i<imageFeatureProbsList.size(); i++) {
 
-			double[] dist = imageFeatureProbsList.get(i);
+			double[] featureProbs = imageFeatureProbsList.get(i);
+			
+			double[] logLike = new double[10];
+			for (int number=0; number<logLike.length; number++) {
+				
+				logLike[number] = Math.log(mNumberProb.get(number, 0));
+				
+				NIGDist[] numberFeatureDist = numberFeatureDists.get(number);
+				for (int k=0; k<numberFeatureDist.length; k++) {
 
-			double[] klDivs = new double[10];
-			for (int n=0; n<10; n++) {
-				double klDiv = 0;
-				for (int k=0; k<dist.length; k++) {
-					
-					double prob1 = mNumberFeatureProb.get(n, k);
-					double prob2 = dist[k];
-					klDiv += prob1 * (Math.log(prob1) - Math.log(prob2)) 
-						   + prob2 * (Math.log(prob2) - Math.log(prob1));
+					logLike[number] += Math.log(numberFeatureDist[k].getProb(featureProbs[k]));
 				}
-				klDivs[n] = klDiv;
 			}
 			
 			int guessN = -1;
-			double minKLDiv = 0;
-			for (int n=0; n<10; n++) {
-				if (guessN < 0 || minKLDiv > klDivs[n]) {
-					guessN = n;
-					minKLDiv = klDivs[n];
+			double maxLogLike = 0;
+			for (int number=0; number<10; number++) {
+				if (guessN < 0 || maxLogLike < logLike[number]) {
+					guessN = number;
+					maxLogLike = logLike[number];
 				}
 			}
 			
-			if (guessN == numbers.get(i).intValue()) {
+			int correctN = numbers.get(i).intValue();
+			if (guessN == correctN) {
 				correctCount++;
 			}
+			
+			monitor.write("  " + correctN + " -> " + guessN);
 		}
 		final double precision = (double)correctCount / (double)imageFeatureProbsList.size();
 		System.out.println("Training data precision: " + precision);
