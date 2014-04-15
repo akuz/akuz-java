@@ -1,4 +1,4 @@
-package me.akuz.mnist.digits;
+package me.akuz.mnist.digits.old;
 
 import java.awt.Color;
 import java.awt.Graphics2D;

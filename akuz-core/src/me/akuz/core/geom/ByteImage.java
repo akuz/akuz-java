@@ -1,9 +1,10 @@
 package me.akuz.core.geom;
 
 /**
- * Image represented with a matrix of bytes,
- * which can be interpreted as having 256 
- * gradations of gray-scale intensity.
+ * Image represented internally with a matrix of bytes (to save memory).
+ * The pixels can be interpreted as having 256 gradations of gray-scale 
+ * intensity (using get/setIntensity methods), or as 256 categories of 
+ * color (using get/setCategory methods).
  * 
  */
 public final class ByteImage {
@@ -42,15 +43,26 @@ public final class ByteImage {
 		return _data[0].length;
 	}
 	
-	public double getIntensity(int i, int j) {
+	public double getIntensity(final int i, final int j) {
 		return (_data[i][j] & 0xFF) / 255.0;
 	}
 
-	public void setIntensity(int i, int j, double intensity) {
+	public void setIntensity(final int i, final int j, final double intensity) {
 		if (intensity < 0 || intensity > 1) {
 			throw new IllegalArgumentException("Intensity must be within interval [0,1]");
 		}
 		_data[i][j] = (byte)Math.round(255.0 * intensity);
+	}
+	
+	public int getCategory(final int i, final int j) {
+		return _data[i][j] & 0xFF;
+	}
+	
+	public void setCategory(final int i, final int j, final int category) {
+		if (category < 0 || category > 255) {
+			throw new IllegalArgumentException("Category must be within interval [0,255]");
+		}
+		_data[i][j] = (byte)category;
 	}
 
 }

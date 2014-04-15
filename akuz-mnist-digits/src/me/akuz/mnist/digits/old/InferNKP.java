@@ -1,4 +1,4 @@
-package me.akuz.mnist.digits;
+package me.akuz.mnist.digits.old;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -13,6 +13,7 @@ import me.akuz.core.logs.Monitor;
 import me.akuz.core.math.DirDist;
 import me.akuz.core.math.NKPDist;
 import me.akuz.core.math.StatsUtils;
+import me.akuz.mnist.digits.ProbImage;
 
 public final class InferNKP {
 	
@@ -24,10 +25,10 @@ public final class InferNKP {
 	private final List<ByteImage> _images;
 	private int _parentFeatureShift;
 	private DirDist[][] _parentFeatureBlocks;
-	private List<FeatureImage> _parentFeatureImages;
+	private List<ProbImage> _parentFeatureImages;
 	private final int _featureDim;
 	private final int _featureShift;
-	private final List<FeatureImage> _featureImages;
+	private final List<ProbImage> _featureImages;
 	private NKPDist[][] _featureBlocks;
 	private double[] _featureProbs;
 	
@@ -51,12 +52,12 @@ public final class InferNKP {
 		_featureImages = new ArrayList<>();
 		for (int i=0; i<images.size(); i++) {
 			ByteImage image = images.get(i);
-			FeatureImage featureImage = new FeatureImage(image.getRowCount()-featureShift, image.getColCount()-featureShift, featureDim);
+			ProbImage featureImage = new ProbImage(image.getRowCount()-featureShift, image.getColCount()-featureShift, featureDim);
 			_featureImages.add(featureImage);
 		}
 	}
 	
-	public void setParentFeatureImages(int parentFeatureShift, DirDist[][] parentFeatureBlocks, List<FeatureImage> parentFeatureImages) {
+	public void setParentFeatureImages(int parentFeatureShift, DirDist[][] parentFeatureBlocks, List<ProbImage> parentFeatureImages) {
 		if (parentFeatureShift < 1) {
 			throw new IllegalArgumentException("Feature shift must be positive");
 		}
@@ -162,8 +163,8 @@ public final class InferNKP {
 				}
 				
 				final ByteImage image = _images.get(imageIndex);
-				final FeatureImage featureImage = _featureImages.get(imageIndex);
-				final FeatureImage parentFeatureImage = _parentFeatureImages != null ? _parentFeatureImages.get(imageIndex) : null;
+				final ProbImage featureImage = _featureImages.get(imageIndex);
+				final ProbImage parentFeatureImage = _parentFeatureImages != null ? _parentFeatureImages.get(imageIndex) : null;
 				
 				for (int row=0; row<image.getRowCount()-_featureShift; row++) {
 					for (int col=0; col<image.getColCount()-_featureShift; col++) {
@@ -415,7 +416,7 @@ public final class InferNKP {
 		return _featureBlocks;
 	}
 	
-	public List<FeatureImage> getFeatureImages() {
+	public List<ProbImage> getFeatureImages() {
 		return _featureImages;
 	}
 

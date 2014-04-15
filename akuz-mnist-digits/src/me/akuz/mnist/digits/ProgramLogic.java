@@ -14,6 +14,7 @@ import me.akuz.core.StringUtils;
 import me.akuz.core.geom.ByteImage;
 import me.akuz.core.logs.LocalMonitor;
 import me.akuz.core.logs.Monitor;
+import me.akuz.core.math.AvgArr;
 import me.akuz.core.math.MatrixUtils;
 import me.akuz.core.math.NIGDist;
 
@@ -229,12 +230,12 @@ public final class ProgramLogic {
 		final Map<Integer, NIGDist[]> numberFeatureDists = new HashMap<>();
 		final List<double[]> imageFeatureProbsList = new ArrayList<>();
 		{
-			final List<FeatureImage> featureImages = infer.getFeatureImages();
+			final List<ProbImage> featureImages = infer.getFeatureImages();
 			final Map<Integer, Integer> orderMap = SaveBlocksNIG.getOrderMap(infer.getFeatureProbs());
 			for (int f=0; f<featureImages.size(); f++) {
 				
 				final Integer number = numbers.get(f);
-				final FeatureImage featureImage = featureImages.get(f);
+				final ProbImage featureImage = featureImages.get(f);
 				final AvgArr imageFeatureProbs = new AvgArr(infer.getFeatureDim());
 				
 				final StringBuilder sb = new StringBuilder();

@@ -1,4 +1,4 @@
-package me.akuz.mnist.digits;
+package me.akuz.mnist.digits.old;
 
 import java.util.Arrays;
 import java.util.Random;
@@ -6,6 +6,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import me.akuz.core.geom.ByteImage;
 import me.akuz.core.math.StatsUtils;
+import me.akuz.mnist.digits.Feature;
 
 /**
  * Infers feature block locations, given an image, 

@@ -1,9 +1,8 @@
 package me.akuz.mnist.digits;
 
-import me.akuz.core.Dbo;
-import me.akuz.core.gson.GsonSerializers;
+import me.akuz.core.gson.GsonObj;
 
-public final class ProgramOptions extends Dbo {
+public final class ProgramOptions extends GsonObj {
 
 	private static final String _trainFile = "trainFile";
 	private static final String _outputDir = "outputDir";
@@ -23,8 +22,4 @@ public final class ProgramOptions extends Dbo {
 		return getString(_outputDir);
 	}
 
-	@Override
-	public String toString() {
-		return GsonSerializers.NoHtmlEscapingPretty.toJson(getMap());
-	}
 }

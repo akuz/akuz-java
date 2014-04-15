@@ -19,19 +19,19 @@ public final class InferHDP {
 	private static final double PARENT_DIST_ALPHA_INIT = 0.1;
 	private static final double LOG_INSURANCE = 0.000000000000000000000001;
 	
-	private final List<FeatureImage> _images;
+	private final List<ProbImage> _images;
 	private final int _inputDim;
 	private int _parentFeatureShift;
 	private DirDist[][] _parentFeatureBlocks;
-	private List<FeatureImage> _parentFeatureImages;
+	private List<ProbImage> _parentFeatureImages;
 	private final int _featureDim;
 	private final int _featureShift;
-	private final List<FeatureImage> _featureImages;
+	private final List<ProbImage> _featureImages;
 	private DirDist[][] _featureBlocks;
 	private double[] _featureProbs;
 	
 	public InferHDP(
-			final List<FeatureImage> images,
+			final List<ProbImage> images,
 			final int inputDim, 
 			final int featureDim,
 			final int featureShift) {
@@ -53,13 +53,13 @@ public final class InferHDP {
 		
 		_featureImages = new ArrayList<>();
 		for (int i=0; i<images.size(); i++) {
-			FeatureImage image = images.get(i);
-			FeatureImage featureImage = new FeatureImage(image.getRowCount()-featureShift, image.getColCount()-featureShift, featureDim);
+			ProbImage image = images.get(i);
+			ProbImage featureImage = new ProbImage(image.getRowCount()-featureShift, image.getColCount()-featureShift, featureDim);
 			_featureImages.add(featureImage);
 		}
 	}
 
-	public void setParentFeatureImages(int parentFeatureShift, DirDist[][] parentFeatureBlocks, List<FeatureImage> parentFeatureImages) {
+	public void setParentFeatureImages(int parentFeatureShift, DirDist[][] parentFeatureBlocks, List<ProbImage> parentFeatureImages) {
 		if (parentFeatureShift < 1) {
 			throw new IllegalArgumentException("Feature shift must be positive");
 		}
@@ -168,9 +168,9 @@ public final class InferHDP {
 					}
 				}
 				
-				final FeatureImage image = _images.get(imageIndex);
-				final FeatureImage featureImage = _featureImages.get(imageIndex);
-				final FeatureImage parentFeatureImage = _parentFeatureImages != null ? _parentFeatureImages.get(imageIndex) : null;
+				final ProbImage image = _images.get(imageIndex);
+				final ProbImage featureImage = _featureImages.get(imageIndex);
+				final ProbImage parentFeatureImage = _parentFeatureImages != null ? _parentFeatureImages.get(imageIndex) : null;
 				
 				for (int row=0; row<image.getRowCount()-_featureShift; row++) {
 					for (int col=0; col<image.getColCount()-_featureShift; col++) {
@@ -452,7 +452,7 @@ public final class InferHDP {
 		return _featureBlocks;
 	}
 	
-	public List<FeatureImage> getFeatureImages() {
+	public List<ProbImage> getFeatureImages() {
 		return _featureImages;
 	}
 
