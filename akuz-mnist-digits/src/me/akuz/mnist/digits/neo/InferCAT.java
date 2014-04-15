@@ -22,13 +22,13 @@ public final class InferCAT {
 	
 	private static final double PRIOR_MEAN = 0.5;
 	private static final double PRIOR_MEAN_SAMPLES = 0.1;
-	private static final double PRIOR_VAR = Math.pow(0.3, 2);
-	private static final double PRIOR_VAR_SAMPLES = 0.1;
+	private static final double PRIOR_VARIANCE_SAMPLES = 0.1;
 	private static final double INIT_OBSERVATION_WEIGHT = 0.1;
 	
 	private final List<ByteImage> _baseImages;
 	
 	private final int _featureDim;
+	private final double _priorVariance;
 	private final List<ProbImage> _featureImages;
 
 	private double[] _featureProbs;
@@ -44,6 +44,7 @@ public final class InferCAT {
 
 		_baseImages = baseImages;
 		_featureDim = featureDim;
+		_priorVariance = Math.pow(0.5/3.0/featureDim, 2);
 		
 		_featureImages = new ArrayList<>(baseImages.size());
 		for (int i=0; i<baseImages.size(); i++) {
@@ -77,13 +78,13 @@ public final class InferCAT {
 		
 		NIGDist[] currFeatureDists = new NIGDist[_featureDim];
 		for (int k=0; k<_featureDim; k++) {
-			currFeatureDists[k] = new NIGDist(PRIOR_MEAN, PRIOR_MEAN_SAMPLES, PRIOR_VAR, PRIOR_VAR_SAMPLES);
+			currFeatureDists[k] = new NIGDist(PRIOR_MEAN, PRIOR_MEAN_SAMPLES, _priorVariance, PRIOR_VARIANCE_SAMPLES);
 			currFeatureDists[k].addObservation(rnd.nextDouble(), INIT_OBSERVATION_WEIGHT);
 		}
 		
 		NIGDist[] nextFeatureDists = new NIGDist[_featureDim];
 		for (int k=0; k<_featureDim; k++) {
-			nextFeatureDists[k] = new NIGDist(PRIOR_MEAN, PRIOR_MEAN_SAMPLES, PRIOR_VAR, PRIOR_VAR_SAMPLES);
+			nextFeatureDists[k] = new NIGDist(PRIOR_MEAN, PRIOR_MEAN_SAMPLES, _priorVariance, PRIOR_VARIANCE_SAMPLES);
 		}
 		
 		int iter = 0;
@@ -171,7 +172,7 @@ public final class InferCAT {
 				currFeatureDists = nextFeatureDists;
 				nextFeatureDists = tmp;
 				for (int k=0; k<_featureDim; k++) {
-					nextFeatureDists[k] = new NIGDist(PRIOR_MEAN, PRIOR_MEAN_SAMPLES, PRIOR_VAR, PRIOR_VAR_SAMPLES);
+					nextFeatureDists[k] = new NIGDist(PRIOR_MEAN, PRIOR_MEAN_SAMPLES, _priorVariance, PRIOR_VARIANCE_SAMPLES);
 				}
 			}
 

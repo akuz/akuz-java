@@ -63,7 +63,7 @@ public final class SaveBlocksNIG {
 				
 				final NIGDist dist = block2x2[l];
 				final double myu = dist.getMeanMode();
-				final double sigma = Math.sqrt(dist.getVarMode());
+				final double sigma = Math.sqrt(dist.getVarianceMode());
 				
 				final int remove = 255 - (int)(255 * myu);
 				final int alpha = (int)(255.0 * StatsUtils.calcDistanceWeightGaussian(sigma, 0.3));
@@ -137,7 +137,7 @@ public final class SaveBlocksNIG {
 					for (int l2=0; l2<4; l2++) {
 						
 						final double myu = featureBlocks2x2[k2][l2].getMeanMode();
-						final double var = featureBlocks2x2[k2][l2].getVarMode();
+						final double var = featureBlocks2x2[k2][l2].getVarianceMode();
 						
 						final int addRow = l2 / 2;
 						final int addCol = l2 % 2;
@@ -257,7 +257,7 @@ public final class SaveBlocksNIG {
 							for (int l2=0; l2<4; l2++) {
 								
 								double myu = featureBlocks2x2[k2][l2].getMeanMode();
-								double var = featureBlocks2x2[k2][l2].getVarMode();
+								double var = featureBlocks2x2[k2][l2].getVarianceMode();
 								
 								final int row2 = l2 / 2;
 								final int col2 = l2 % 2;
@@ -410,7 +410,7 @@ public final class SaveBlocksNIG {
 									for (int l2=0; l2<4; l2++) {
 										
 										double myu = featureBlocks2x2[k2][l2].getMeanMode();
-										double var = featureBlocks2x2[k2][l2].getVarMode();
+										double var = featureBlocks2x2[k2][l2].getVarianceMode();
 										
 										final int row2 = l2 / 2;
 										final int col2 = l2 % 2;

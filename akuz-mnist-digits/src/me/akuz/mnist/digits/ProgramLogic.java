@@ -17,6 +17,7 @@ import me.akuz.core.logs.Monitor;
 import me.akuz.core.math.AvgArr;
 import me.akuz.core.math.MatrixUtils;
 import me.akuz.core.math.NIGDist;
+import me.akuz.mnist.digits.neo.InferCAT;
 
 public final class ProgramLogic {
 
@@ -25,6 +26,9 @@ public final class ProgramLogic {
 	
 	private static final int LAYER_ITER_COUNT = 3;
 	private static final double LOG_LIKE_CHANGE_THRESHOLD = 0.001;
+	
+	private static final int DIM1  = 4;
+	private static final int ITER1 = 5;
 	
 	private static final int DIM2  = 8;
 	private static final int ITER2 = 5;
@@ -97,12 +101,19 @@ public final class ProgramLogic {
 		FileUtils.cleanDir(options.getOutputDir());
 		
 		// initialize inferences
+		InferCAT infer1x1   = null;
 		InferNIG infer2x2   = null;
 		InferHDP infer4x4   = null;
 		InferHDP infer8x8   = null;
 		InferHDP infer16x16 = null;
 		
 		for (int iter=1; iter<=LAYER_ITER_COUNT; iter++) {
+			
+			monitor.write("Interring 1x1 blocks [" + iter + ">>] ...");
+			if (infer1x1 == null) {
+				infer1x1 = new InferCAT(images, DIM1);
+			}
+			infer1x1.execute(monitor, ITER1, LOG_LIKE_CHANGE_THRESHOLD);
 			
 			monitor.write("Interring 2x2 blocks [" + iter + ">>] ...");
 			if (infer2x2 == null) {

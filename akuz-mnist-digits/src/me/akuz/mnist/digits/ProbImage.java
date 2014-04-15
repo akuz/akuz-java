@@ -1,7 +1,5 @@
 package me.akuz.mnist.digits;
 
-import java.util.Arrays;
-
 /**
  * Represents image with pixels containing discrete probability 
  * distributions over a fixed set of some underlying features.
@@ -22,9 +20,6 @@ public final class ProbImage {
 			throw new IllegalArgumentException("Argument featureDim must be >= 2");
 		}
 		_probs = new double[rowCount][colCount][featureDim];
-		
-		// fill with default max-ent values
-		Arrays.fill(_probs, 1.0 / featureDim);
 	}
 	
 	public int getRowCount() {
