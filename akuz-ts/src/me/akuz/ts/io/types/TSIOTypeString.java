@@ -1,6 +1,7 @@
 package me.akuz.ts.io.types;
 
-import me.akuz.ts.io.TSIOType;
+
+import java.io.IOException;
 
 import com.google.gson.JsonObject;
 
@@ -20,5 +21,22 @@ public final class TSIOTypeString extends TSIOType {
 			return;
 		}
 		obj.addProperty(name, (String)value);
+	}
+	
+	@Override
+	public String toString(Object value) {
+		if (value == null) {
+			return NullString;
+		}
+		return (String)value;
+	}
+	
+	@Override
+	public Object fromString(String str) throws IOException {
+		if (NullString.equals(str)) {
+			return null;
+		} else {
+			return str;
+		}
 	}
 }

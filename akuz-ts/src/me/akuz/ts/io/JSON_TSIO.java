@@ -11,66 +11,70 @@ import me.akuz.ts.TSeq;
 import me.akuz.ts.TItem;
 import me.akuz.ts.TFrame;
 import me.akuz.ts.align.TSAlignIterator;
+import me.akuz.ts.io.types.TSIOType;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 /**
- * Time series IO functions.
+ * JSON time series IO functions.
  *
  */
-public final class TSIO {
+public final class JSON_TSIO {
 
 	public static final <K, T extends Comparable<T>> JsonArray toJson(
-			final TSeq<T> ts, 
-			final String fieldName,
-			final TSIOType timeType, 
-			final TSIOType valueType) {
+			final TSeq<T> seq, 
+			final String timeFieldName,
+			final TSIOType timeDataType,
+			final String valueFieldName, 
+			final TSIOType valueDataType) {
 		
 		final JsonArray data = new JsonArray();
 
-		List<TItem<T>> tsItems = ts.getItems();
-		for (int i=0; i<tsItems.size(); i++) {
+		List<TItem<T>> items = seq.getItems();
+		for (int i=0; i<items.size(); i++) {
 			
-			TItem<T> tsItem = tsItems.get(i);
+			TItem<T> item = items.get(i);
 
-			final JsonObject item = new JsonObject();
-			timeType.setJsonField(item, TSIOField.time, tsItem.getTime());
-			valueType.setJsonField(item, fieldName, tsItem.getObject());
-			data.add(item);
+			final JsonObject jsonItem = new JsonObject();
+			timeDataType.setJsonField(jsonItem, timeFieldName, item.getTime());
+			valueDataType.setJsonField(jsonItem, valueFieldName, item.getObject());
+			data.add(jsonItem);
 		}
 		
 		return data;
 	}
 
 	public static final <K, T extends Comparable<T>> JsonArray toJson(
-			final TFrame<K, T> tsMap, 
-			final TSIOType timeType, 
-			final TSIOType tsioType) {
+			final TFrame<K, T> frame, 
+			final String timeFieldName,
+			final TSIOType timeDataType, 
+			final TSIOType valuesDataType) {
 		
-		TSIOMap<K, T> tsioMap = new TSIOMap<>(tsMap, tsioType);
-		return toJson(tsMap, timeType, tsioMap);
+		TSIOMap<K, T> tsioMap = new TSIOMap<>(frame, valuesDataType);
+		return toJson(frame, timeFieldName, timeDataType, tsioMap);
 	}
 
 	public static final <K, T extends Comparable<T>> JsonArray toJson(
-			final TFrame<K, T> frame, 
-			final TSIOType timeType, 
-			final TSIOMap<K,T> ioMap) {
+			final TFrame<K, T> frame,
+			final String timeFieldName,
+			final TSIOType timeDataType, 
+			final TSIOMap<K,T> tsioMap) {
 		
 		final JsonArray data = new JsonArray();
 		
 		final Set<T> times = new HashSet<>();
 		frame.extractTimes(times);
 
-		final TSAlignIterator<K, T> iterator = new TSAlignIterator<>(frame, times, ioMap.getKeys());
+		final TSAlignIterator<K, T> iterator = new TSAlignIterator<>(frame, times, tsioMap.getKeys());
 		while (iterator.hasNext()) {
 			
 			final Map<K, TItem<T>> currKeyEntries = iterator.next();
 			final JsonObject item = new JsonObject();
-			timeType.setJsonField(item, TSIOField.time, iterator.getCurrTime());
+			timeDataType.setJsonField(item, timeFieldName, iterator.getCurrTime());
 			for (final Entry<K, TItem<T>> keyEntry : currKeyEntries.entrySet()) {
-				ioMap.setJsonField(keyEntry.getValue(), keyEntry.getKey(), item);
+				tsioMap.setJsonField(keyEntry.getValue(), keyEntry.getKey(), item);
 			}
 			data.add(item);
 		}
@@ -78,8 +82,9 @@ public final class TSIO {
 	}
 
 	public static final <K, T extends Comparable<T>> TFrame<K,T> fromJson(
-			final JsonArray data, 
-			final TSIOType timeType, 
+			final JsonArray data,
+			final String timeFieldName,
+			final TSIOType timeDataType, 
 			final TSIOMap<K,T> ioMap) throws IOException {
 		
 		TFrame<K, T> frame = new TFrame<>();
@@ -89,9 +94,9 @@ public final class TSIO {
 			for (int i=0; i<data.size(); i++) {
 				JsonObject item = data.get(i).getAsJsonObject();
 				@SuppressWarnings("unchecked")
-				T time = (T)timeType.fromJson(item, TSIOField.time);
+				T time = (T)timeDataType.fromJson(item, timeFieldName);
 				if (time == null) {
-					throw new IOException("Data item " + (i+1) + " does not have time field '" + TSIOField.time + "'");
+					throw new IOException("Data item " + (i+1) + " does not have time field '" + timeFieldName + "'");
 				}
 				for (Entry<String, JsonElement> entry : item.entrySet()) {
 					String name = entry.getKey();

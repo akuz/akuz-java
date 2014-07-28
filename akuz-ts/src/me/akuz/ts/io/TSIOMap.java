@@ -7,91 +7,93 @@ import java.util.Set;
 
 import me.akuz.ts.TItem;
 import me.akuz.ts.TFrame;
+import me.akuz.ts.io.types.TSIOType;
 
 import com.google.gson.JsonObject;
 
 /**
- * Describes time series IO map.
+ * Describes time series IO map by match map
+ * between keys, field names and data types.
  *
  */
 public final class TSIOMap<K, T extends Comparable<T>> {
 	
-	private final Map<K, String> _keyNameMap;
-	private final Map<K, TSIOType> _keyTypeMap;
-	private final Map<String, K> _nameKeyMap;
-	private final Map<String, TSIOType> _nameTypeMap;
+	private final Map<K, String> _keyFieldNameMap;
+	private final Map<K, TSIOType> _keyDataTypeMap;
+	private final Map<String, K> _fieldNameKeyMap;
+	private final Map<String, TSIOType> _fieldNameDataTypeMap;
 
 	public TSIOMap() {
-		_keyNameMap  = new HashMap<>();
-		_keyTypeMap  = new HashMap<>();
-		_nameKeyMap  = new HashMap<>();
-		_nameTypeMap = new HashMap<>();
+		_keyFieldNameMap  = new HashMap<>();
+		_keyDataTypeMap  = new HashMap<>();
+		_fieldNameKeyMap  = new HashMap<>();
+		_fieldNameDataTypeMap = new HashMap<>();
 	}
 
-	public TSIOMap(TFrame<K, T> frame, TSIOType tsioType) {
+	public TSIOMap(TFrame<K, T> frame, TSIOType dataType) {
 		this();
 		for (K key : frame.getMap().keySet()) {
-			add(key, tsioType);
+			add(key, dataType);
 		}
 	}
 	
-	public void add(final K key, final TSIOType tsioType) {
-		add(key, key.toString(), tsioType);
+	public void add(final K key, final TSIOType dataType) {
+		add(key, key.toString(), dataType);
 	}
 	
-	public void add(final K key, final String name, final TSIOType type) {
+	public void add(final K key, final String fieldName, final TSIOType dataType) {
 		
-		if (_keyNameMap.containsKey(key)) {
-			throw new IllegalStateException("Key " + key + " has already been added");
+		if (_keyFieldNameMap.containsKey(key)) {
+			throw new IllegalStateException("Key '" + key + "' has already been added");
 		}
-		if (_nameKeyMap.containsKey(name)) {
-			throw new IllegalStateException("Name " + key + " has already been added");
+		if (_fieldNameKeyMap.containsKey(fieldName)) {
+			throw new IllegalStateException("Field name '" + fieldName + "' has already been added");
 		}
-		_keyNameMap.put(key, name);
-		_keyTypeMap.put(key, type);
-		_nameKeyMap.put(name, key);
-		_nameTypeMap.put(name, type);
+		_keyFieldNameMap.put(key, fieldName);
+		_keyDataTypeMap.put(key, dataType);
+		_fieldNameKeyMap.put(fieldName, key);
+		_fieldNameDataTypeMap.put(fieldName, dataType);
 	}
 	
 	public Set<K> getKeys() {
-		return _keyNameMap.keySet();
+		return _keyFieldNameMap.keySet();
 	}
 	
-	public Set<String> getNames() {
-		return _nameKeyMap.keySet();
+	public Set<String> getFieldNames() {
+		return _fieldNameKeyMap.keySet();
 	}
 	
-	public String getName(K key) {
-		return _keyNameMap.get(key);
+	public String getFieldName(K key) {
+		return _keyFieldNameMap.get(key);
 	}
 	
-	public K getKey(String name) {
-		return _nameKeyMap.get(name);
+	public K getKey(String fieldName) {
+		return _fieldNameKeyMap.get(fieldName);
 	}
 	
-	public Object fromJson(JsonObject obj, String name) throws IOException {
+	public Object fromJson(JsonObject obj, String fieldName) throws IOException {
 		
-		if (!obj.has(name)) {
+		if (!obj.has(fieldName)) {
 			return null;
 		}
 		
-		TSIOType type = _nameTypeMap.get(name);
-		if (type == null) {
+		TSIOType dataType = _fieldNameDataTypeMap.get(fieldName);
+		if (dataType == null) {
 			return null;
 		}
 		
-		return type.fromJson(obj, name);
+		return dataType.fromJson(obj, fieldName);
 	}
 	
 	public void setJsonField(TItem<T> entry, K key, JsonObject obj) {
 		
-		String name = _keyNameMap.get(key);
-		if (name == null) {
+		String fieldName = _keyFieldNameMap.get(key);
+		if (fieldName == null) {
 			return;
 		}
 		
-		TSIOType type = _keyTypeMap.get(key);
-		type.setJsonField(obj, name, entry.getObject());
+		TSIOType dataType = _keyDataTypeMap.get(key);
+		dataType.setJsonField(obj, fieldName, entry.getObject());
 	}
 	
 }

@@ -6,7 +6,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-import me.akuz.ts.io.TSIOType;
 
 import com.google.gson.JsonObject;
 
@@ -53,5 +52,39 @@ public final class TSIOTypeDate extends TSIOType {
 			_threadLocal.set(fmt);
 		}
 		obj.addProperty(name, fmt.format(date));
+	}
+	
+	@Override
+	public String toString(Object value) {
+		if (value == null) {
+			return NullString;
+		}
+		Date date = (Date)value;
+		SimpleDateFormat fmt = _threadLocal.get();
+		if (fmt == null) {
+			fmt = new SimpleDateFormat(_format);
+			fmt.setTimeZone(_timeZone);
+			_threadLocal.set(fmt);
+		}
+		return fmt.format(date);
+	}
+	
+	@Override
+	public Object fromString(String str) throws IOException {
+		if (NullString.equals(str.trim())) {
+			return null;
+		} else {
+			SimpleDateFormat fmt = _threadLocal.get();
+			if (fmt == null) {
+				fmt = new SimpleDateFormat(_format);
+				fmt.setTimeZone(_timeZone);
+				_threadLocal.set(fmt);
+			}
+			try {
+				return fmt.parse(str);
+			} catch (ParseException e) {
+				throw new IOException("Could not parse date '" + str + "'", e);
+			}
+		}
 	}
 }
