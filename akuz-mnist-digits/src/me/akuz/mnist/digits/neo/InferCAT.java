@@ -24,8 +24,8 @@ public final class InferCAT {
 	private final List<ByteImage> _pixelImages;
 	private final List<ProbImage> _featureImages;
 
-	private List<ProbImage> _parentFeatureImages;
-	private List<ProbImage> _parentOpacityImages;
+//	private List<ProbImage> _parentFeatureImages;
+//	private List<ProbImage> _parentOpacityImages;
 	
 	private final int _featureDim;
 	private double[] _featureProbs;
