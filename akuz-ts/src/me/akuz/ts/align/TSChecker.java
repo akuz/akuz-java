@@ -1,10 +1,10 @@
 package me.akuz.ts.align;
 
-import me.akuz.ts.TSItem;
+import me.akuz.ts.TItem;
 
 public abstract class TSChecker<T extends Comparable<T>> implements Cloneable {
 
-	public abstract TSAlignLogMsg next(T time, TSItem<T> item);
+	public abstract TSAlignLogMsg next(T time, TItem<T> item);
 	
 	@Override
 	@SuppressWarnings("unchecked")

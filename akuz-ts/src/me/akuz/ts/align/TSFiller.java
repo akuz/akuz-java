@@ -1,11 +1,11 @@
 package me.akuz.ts.align;
 
-import me.akuz.ts.TSItem;
+import me.akuz.ts.TItem;
 
 public abstract class TSFiller<T extends Comparable<T>> implements Cloneable {
 
-	public abstract TSAlignLogMsg next(T time, TSItem<T> item);
-	public abstract TSItem<T> getCurrent();
+	public abstract TSAlignLogMsg next(T time, TItem<T> item);
+	public abstract TItem<T> getCurrent();
 	
 	@Override
 	@SuppressWarnings("unchecked")

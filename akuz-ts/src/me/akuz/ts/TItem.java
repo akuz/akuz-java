@@ -11,12 +11,12 @@ package me.akuz.ts;
  * @param <T> - Time type.
  * 
  */
-public final class TSItem<T extends Comparable<T>> implements Comparable<TSItem<T>> {
+public final class TItem<T extends Comparable<T>> implements Comparable<TItem<T>> {
 	
 	private final T _time;
 	private final Object _value;
 	
-	public TSItem(T time, Object value) {
+	public TItem(T time, Object value) {
 		_time = time;
 		_value = value;
 	}
@@ -48,7 +48,7 @@ public final class TSItem<T extends Comparable<T>> implements Comparable<TSItem<
 	}
 
 	@Override
-	public int compareTo(TSItem<T> o) {
+	public int compareTo(TItem<T> o) {
 		return _time.compareTo(o.getTime());
 	}
 	

@@ -190,8 +190,8 @@ public final class InferNIG {
 										double parentProb = parentBlockFeatureProbs[f2];
 										double[] parentPosterior = _parentFeatureBlocks[f2][parentIdx].getPosterior();
 										
-										for (int f=0; f<_featureDim; f++) {
-											logLikes[f] += parentProb * parentPosterior[f];
+										for (int k=0; k<_featureDim; k++) {
+											logLikes[k] += parentProb * parentPosterior[k];
 										}
 									}
 								}
@@ -213,8 +213,8 @@ public final class InferNIG {
 										double parentProb = parentBlockFeatureProbs[f2];
 										double[] parentPosterior = _parentFeatureBlocks[f2][parentIdx].getPosterior();
 										
-										for (int f=0; f<_featureDim; f++) {
-											logLikes[f] += parentProb * parentPosterior[f];
+										for (int k=0; k<_featureDim; k++) {
+											logLikes[k] += parentProb * parentPosterior[k];
 										}
 									}
 								}
@@ -236,8 +236,8 @@ public final class InferNIG {
 										double parentProb = parentBlockFeatureProbs[f2];
 										double[] parentPosterior = _parentFeatureBlocks[f2][parentIdx].getPosterior();
 										
-										for (int f=0; f<_featureDim; f++) {
-											logLikes[f] += parentProb * parentPosterior[f];
+										for (int k=0; k<_featureDim; k++) {
+											logLikes[k] += parentProb * parentPosterior[k];
 										}
 									}
 								}
@@ -259,16 +259,16 @@ public final class InferNIG {
 										double parentProb = parentBlockFeatureProbs[f2];
 										double[] parentPosterior = _parentFeatureBlocks[f2][parentIdx].getPosterior();
 										
-										for (int f=0; f<_featureDim; f++) {
-											logLikes[f] += parentProb * parentPosterior[f];
+										for (int k=0; k<_featureDim; k++) {
+											logLikes[k] += parentProb * parentPosterior[k];
 										}
 									}
 								}
 							}
 							
 							// log parent induced priors
-							for (int f=0; f<_featureDim; f++) {
-								logLikes[f] = Math.log(logLikes[f]);
+							for (int k=0; k<_featureDim; k++) {
+								logLikes[k] = Math.log(logLikes[k]);
 							}
 							
 						} else {

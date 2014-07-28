@@ -1,6 +1,6 @@
 package me.akuz.ts.align;
 
-import me.akuz.ts.TSItem;
+import me.akuz.ts.TItem;
 
 public class TSCheckerNumberJump<T extends Comparable<T>> extends TSChecker<T> {
 	
@@ -8,7 +8,7 @@ public class TSCheckerNumberJump<T extends Comparable<T>> extends TSChecker<T> {
 	private final double _ignoreJump;
 	private final double _warningJump;
 	private final double _errorJump;
-	private TSItem<T> _currItem;
+	private TItem<T> _currItem;
 	
 	public TSCheckerNumberJump( 
 			final String logFieldName,
@@ -24,9 +24,9 @@ public class TSCheckerNumberJump<T extends Comparable<T>> extends TSChecker<T> {
 	}
 
 	@Override
-	public TSAlignLogMsg next(T time, TSItem<T> item) {
+	public TSAlignLogMsg next(T time, TItem<T> item) {
 		TSAlignLogMsg msg = null;
-		final TSItem<T> prevItem = _currItem;
+		final TItem<T> prevItem = _currItem;
 		_currItem = item;
 		if (prevItem != null && _currItem != null) {
 			

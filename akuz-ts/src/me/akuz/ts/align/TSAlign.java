@@ -7,9 +7,8 @@ import java.util.Map;
 import java.util.Set;
 
 import me.akuz.core.Index;
-import me.akuz.ts.TS;
-import me.akuz.ts.TSItem;
-import me.akuz.ts.TSMap;
+import me.akuz.ts.TItem;
+import me.akuz.ts.TFrame;
 import Jama.Matrix;
 
 /**
@@ -31,11 +30,11 @@ public final class TSAlign<T extends Comparable<T>> {
 		return _times;
 	}
 
-	public <K> Matrix intoMatrix(Index<K> keysIndex, Map<K, TS<T>> map) {
-		return intoMatrix(keysIndex, map, null, null, null);
+	public <K> Matrix intoMatrix(Index<K> keysIndex, TFrame<K, T> inputFrame) {
+		return intoMatrix(keysIndex, inputFrame, null, null, null);
 	}
 
-	public <K> Matrix intoMatrix(Index<K> keysIndex, Map<K, TS<T>> map, TSFiller<T> filler, TSChecker<T> checker, TSAlignLog alignLog) {
+	public <K> Matrix intoMatrix(Index<K> keysIndex, TFrame<K, T> inputFrame, TSFiller<T> filler, TSChecker<T> checker, TSAlignLog alignLog) {
 		
 		if (keysIndex == null) {
 			throw new IllegalArgumentException("Argument colsIndex must not be null");
@@ -44,15 +43,15 @@ public final class TSAlign<T extends Comparable<T>> {
 		final Matrix m = new Matrix(_times.size(), keysIndex.size(), Double.NaN);
 		int i = 0;
 
-		final TSAlignIterator<K, T> iterator = new TSAlignIterator<>(map, _times, keysIndex.getMap().keySet(), filler, checker, alignLog);
+		final TSAlignIterator<K, T> iterator = new TSAlignIterator<>(inputFrame, _times, keysIndex.getMap().keySet(), filler, checker, alignLog);
 		while (iterator.hasNext()) {
 			
-			final Map<K, TSItem<T>> currKeyValues = iterator.next();
+			final Map<K, TItem<T>> currKeyValues = iterator.next();
 
 			for (int j=0; j<keysIndex.size(); j++) {
 				
 				K key = keysIndex.getValue(j);
-				TSItem<T> item = currKeyValues.get(key);
+				TItem<T> item = currKeyValues.get(key);
 				if (item != null) {
 					m.set(i, j, item.getNumber().doubleValue());
 				} else {
@@ -65,30 +64,30 @@ public final class TSAlign<T extends Comparable<T>> {
 		return m;
 	}
 
-	public <K> TSMap<K, T> intoTSMap(Set<K> keys, Map<K, TS<T>> map) {
-		return intoTSMap(keys, map, null, null, null);
+	public <K> TFrame<K, T> intoFrame(Set<K> keys, TFrame<K, T> inputFrame) {
+		return intoFrame(keys, inputFrame, null, null, null);
 	}
 
-	public <K> TSMap<K, T> intoTSMap(Set<K> keys, Map<K, TS<T>> map, TSFiller<T> filler, TSChecker<T> checker, TSAlignLog alignLog) {
+	public <K> TFrame<K, T> intoFrame(Set<K> keys, TFrame<K, T> inputFrame, TSFiller<T> filler, TSChecker<T> checker, TSAlignLog alignLog) {
 		
-		TSMap<K, T> tsMap = new TSMap<>();
+		TFrame<K, T> frame = new TFrame<>();
 
-		final TSAlignIterator<K, T> iterator = new TSAlignIterator<>(map, _times, keys, filler, checker, alignLog);
+		final TSAlignIterator<K, T> iterator = new TSAlignIterator<>(inputFrame, _times, keys, filler, checker, alignLog);
 		while (iterator.hasNext()) {
 			
-			final Map<K, TSItem<T>> currKeyValues = iterator.next();
+			final Map<K, TItem<T>> currKeyValues = iterator.next();
 
 			for (K key : keys) {
 	
-				TSItem<T> item = currKeyValues.get(key);
+				TItem<T> item = currKeyValues.get(key);
 				
 				if (item != null) {
-					tsMap.add(key, item);
+					frame.add(key, item);
 				}
 			}
 		}
 
-		return tsMap;
+		return frame;
 	}
 
 }

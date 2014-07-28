@@ -27,7 +27,7 @@ public final class ProgramLogic {
 	private static final int LAYER_ITER_COUNT = 3;
 	private static final double LOG_LIKE_CHANGE_THRESHOLD = 0.001;
 	
-	private static final int DIM1  = 4;
+	private static final int DIM1  = 8;
 	private static final int ITER1 = 5;
 	
 	private static final int DIM2  = 8;

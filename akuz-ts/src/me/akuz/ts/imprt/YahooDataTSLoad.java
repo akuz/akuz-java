@@ -14,22 +14,21 @@ import java.util.regex.Pattern;
 
 import me.akuz.core.DateFmt;
 import me.akuz.core.FileUtils;
-import me.akuz.ts.TSMap;
-import me.akuz.ts.TSMapMap;
-import me.akuz.ts.TSSortMap;
+import me.akuz.ts.TFrame;
+import me.akuz.ts.TCube;
 
 public final class YahooDataTSLoad {
 	
 	private static final Pattern _csvExtensionPattern = Pattern.compile("\\.csv$", Pattern.CASE_INSENSITIVE);
 	
-	public final static TSMap<QuoteField, Date> loadFileTSMap(
+	public final static TFrame<QuoteField, Date> loadFileFrame(
 			final String fileName, 
 			final Date minDate,
 			final Date maxDate,
 			final TimeZone timeZone, 
 			final EnumSet<QuoteField> fields) throws IOException, ParseException {
 
-		TSSortMap<QuoteField, Date> tsSortMap = new TSSortMap<>();
+		TFrame<QuoteField, Date> frame = new TFrame<>();
 	
 		Scanner scanner = FileUtils.openScanner(fileName, "UTF-8");
 		try {
@@ -59,44 +58,44 @@ public final class YahooDataTSLoad {
 					}
 					final Double open      = Double.parseDouble(parts[1]);
 					if (fields.contains(QuoteField.Open)) {
-						tsSortMap.add(QuoteField.Open, date, open);
+						frame.stage(QuoteField.Open, date, open);
 					}
 					final Double high      = Double.parseDouble(parts[2]);
 					if (fields.contains(QuoteField.High)) {
-						tsSortMap.add(QuoteField.High, date, high);
+						frame.stage(QuoteField.High, date, high);
 					}
 					final Double low       = Double.parseDouble(parts[3]);
 					if (fields.contains(QuoteField.Low)) {
-						tsSortMap.add(QuoteField.Low, date, low);
+						frame.stage(QuoteField.Low, date, low);
 					}
 					final Double close     = Double.parseDouble(parts[4]);
 					if (fields.contains(QuoteField.Close)) {
-						tsSortMap.add(QuoteField.Close, date, close);
+						frame.stage(QuoteField.Close, date, close);
 					}
 					final Double volume    = Double.parseDouble(parts[5]);
 					if (fields.contains(QuoteField.Volume)) {
-						tsSortMap.add(QuoteField.Volume, date, volume);
+						frame.stage(QuoteField.Volume, date, volume);
 					}
 					final Double adjClose  = Double.parseDouble(parts[6]);
 					if (fields.contains(QuoteField.AdjClose)) {
-						tsSortMap.add(QuoteField.AdjClose, date, adjClose);
+						frame.stage(QuoteField.AdjClose, date, adjClose);
 					}
 					final Double adjFactor = adjClose / close;
 					final Double adjOpen   = open * adjFactor;
 					if (fields.contains(QuoteField.AdjOpen)) {
-						tsSortMap.add(QuoteField.AdjOpen, date, adjOpen);
+						frame.stage(QuoteField.AdjOpen, date, adjOpen);
 					}
 					final Double adjHigh   = high * adjFactor;
 					if (fields.contains(QuoteField.AdjHigh)) {
-						tsSortMap.add(QuoteField.AdjHigh, date, adjHigh);
+						frame.stage(QuoteField.AdjHigh, date, adjHigh);
 					}
 					final Double adjLow    = low * adjFactor;
 					if (fields.contains(QuoteField.AdjLow)) {
-						tsSortMap.add(QuoteField.AdjLow, date, adjLow);
+						frame.stage(QuoteField.AdjLow, date, adjLow);
 					}
 					final Double adjVolume = volume / adjFactor;
 					if (fields.contains(QuoteField.AdjVolume)) {
-						tsSortMap.add(QuoteField.AdjVolume, date, adjVolume);
+						frame.stage(QuoteField.AdjVolume, date, adjVolume);
 					}
 				}
 			}
@@ -104,11 +103,11 @@ public final class YahooDataTSLoad {
 			scanner.close();
 		}
 
-		TSMap<QuoteField, Date> tsMap = tsSortMap.build();
-		return tsMap;
+		frame.acceptStaged();
+		return frame;
 	}
 	
-	public static final TSMapMap<String, QuoteField, Date> loadDirTSMapMap(
+	public static final TCube<String, QuoteField, Date> loadDirCube(
 			final String dirPath, 
 			final Date minDate,
 			final Date maxDate,
@@ -116,7 +115,7 @@ public final class YahooDataTSLoad {
 			final TimeZone timeZone,
 			final EnumSet<QuoteField> fields) throws IOException, ParseException {
 		
-		TSMapMap<String, QuoteField, Date> mapMap = new TSMapMap<>();
+		TCube<String, QuoteField, Date> cube = new TCube<>();
 		List<File> files = FileUtils.getFiles(dirPath);
 		for (int i=0; i<files.size(); i++) {
 			File file = files.get(i);
@@ -126,15 +125,15 @@ public final class YahooDataTSLoad {
 				if (ignoreTickers != null && ignoreTickers.contains(ticker)) {
 					continue;
 				}
-				TSMap<QuoteField, Date> map = loadFileTSMap(
+				TFrame<QuoteField, Date> map = loadFileFrame(
 						file.getAbsolutePath(),
 						minDate,
 						maxDate,
 						timeZone,
 						fields);
-				mapMap.add(ticker, map);
+				cube.addFrame(ticker, map);
 			}
 		}
-		return mapMap;
+		return cube;
 	}
 }

@@ -10,6 +10,7 @@ import java.util.Arrays;
 public final class DirDist {
 	
 	private final double[] _data;
+	private boolean _isNormalized;
 	
 	public DirDist(final int dim, final double alpha) {
 		if (dim < 2) {
@@ -27,6 +28,9 @@ public final class DirDist {
 	}
 	
 	public double[] getPosterior() {
+		if (_isNormalized == false) {
+			throw new IllegalStateException("Cannot get posterior, call normalize() first");
+		}
 		return _data;
 	}
 	
@@ -34,6 +38,9 @@ public final class DirDist {
 		addObservation(index, value, 1.0);
 	}
 	public void addObservation(int index, double value, double weight) {
+		if (_isNormalized) {
+			throw new IllegalStateException("Cannot add new observations, already normalized");
+		}
 		if (weight < 0) {
 			throw new IllegalArgumentException("Weight cannot be negative");
 		}
@@ -43,6 +50,9 @@ public final class DirDist {
 		addObservation(values, 1.0);
 	}
 	public void addObservation(double[] values, double weight) {
+		if (_isNormalized) {
+			throw new IllegalStateException("Cannot add new observations, already normalized");
+		}
 		if (_data.length != values.length) {
 			throw new IllegalArgumentException("Dimensionality does not match");
 		}
@@ -56,13 +66,20 @@ public final class DirDist {
 
 	public void normalize() {
 		StatsUtils.normalize(_data);
+		_isNormalized = true;
 	}
 	
 	@Override
 	public String toString() {
 		DecimalFormat fmt = new DecimalFormat("' '0.00000000;'-'0.00000000");
 		StringBuilder sb = new StringBuilder();
-		sb.append("<DIR>: ");
+		sb.append("<DIR (");
+		if (_isNormalized) {
+			sb.append("normalized");
+		} else {
+			sb.append("unnormalized");
+		}
+		sb.append(")>: ");
 		for (int i=0; i<_data.length; i++) {
 			if (i > 0) {
 				sb.append(", ");

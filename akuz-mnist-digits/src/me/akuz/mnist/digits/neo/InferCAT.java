@@ -3,14 +3,13 @@ package me.akuz.mnist.digits.neo;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 import me.akuz.core.DecimalFmt;
 import me.akuz.core.geom.ByteImage;
 import me.akuz.core.logs.LocalMonitor;
 import me.akuz.core.logs.Monitor;
 import me.akuz.core.math.NIGDist;
+import me.akuz.core.math.NIGDistUtils;
 import me.akuz.core.math.StatsUtils;
 import me.akuz.mnist.digits.ProbImage;
 
@@ -20,36 +19,34 @@ import me.akuz.mnist.digits.ProbImage;
  */
 public final class InferCAT {
 	
-	private static final double PRIOR_MEAN = 0.5;
-	private static final double PRIOR_MEAN_SAMPLES = 0.1;
-	private static final double PRIOR_VARIANCE_SAMPLES = 0.1;
-	private static final double INIT_OBSERVATION_WEIGHT = 0.1;
+	private static final int PRIOR_SAMPLES = 1000;
 	
-	private final List<ByteImage> _baseImages;
-	
-	private final int _featureDim;
-	private final double _priorVariance;
+	private final List<ByteImage> _pixelImages;
 	private final List<ProbImage> _featureImages;
 
+	private List<ProbImage> _parentFeatureImages;
+	private List<ProbImage> _parentOpacityImages;
+	
+	private final int _featureDim;
 	private double[] _featureProbs;
 	private NIGDist[] _featureDists;
 	
 	public InferCAT(
-			final List<ByteImage> baseImages,
+			final List<ByteImage> images,
 			final int featureDim) {
 		
 		if (featureDim < 2 || featureDim > 255) {
 			throw new IllegalArgumentException("Argument featureDim must within interval [2,255]");
 		}
 
-		_baseImages = baseImages;
+		_pixelImages = images;
+
 		_featureDim = featureDim;
-		_priorVariance = Math.pow(0.5/3.0/featureDim, 2);
 		
-		_featureImages = new ArrayList<>(baseImages.size());
-		for (int i=0; i<baseImages.size(); i++) {
-			final ByteImage baseImage = baseImages.get(i);
-			final ProbImage featureImage = new ProbImage(baseImage.getRowCount(), baseImage.getColCount(), featureDim);
+		_featureImages = new ArrayList<>(images.size());
+		for (int i=0; i<images.size(); i++) {
+			final ByteImage pixelImage = images.get(i);
+			final ProbImage featureImage = new ProbImage(pixelImage.getRowCount(), pixelImage.getColCount(), featureDim);
 			_featureImages.add(featureImage);
 		}
 	}
@@ -67,8 +64,6 @@ public final class InferCAT {
 		}
 
 		final Monitor monitor = parentMonitor == null ? null : new LocalMonitor(this.getClass().getSimpleName(), parentMonitor);
-
-		final Random rnd = ThreadLocalRandom.current();
 		
 		double[] currFeatureProbs = new double[_featureDim];
 		Arrays.fill(currFeatureProbs, 1.0 / _featureDim);
@@ -76,23 +71,15 @@ public final class InferCAT {
 		double[] nextFeatureProbs = new double[_featureDim];
 		Arrays.fill(nextFeatureProbs, 0);
 		
-		NIGDist[] currFeatureDists = new NIGDist[_featureDim];
-		for (int k=0; k<_featureDim; k++) {
-			currFeatureDists[k] = new NIGDist(PRIOR_MEAN, PRIOR_MEAN_SAMPLES, _priorVariance, PRIOR_VARIANCE_SAMPLES);
-			currFeatureDists[k].addObservation(rnd.nextDouble(), INIT_OBSERVATION_WEIGHT);
-		}
-		
-		NIGDist[] nextFeatureDists = new NIGDist[_featureDim];
-		for (int k=0; k<_featureDim; k++) {
-			nextFeatureDists[k] = new NIGDist(PRIOR_MEAN, PRIOR_MEAN_SAMPLES, _priorVariance, PRIOR_VARIANCE_SAMPLES);
-		}
+		NIGDist[] currFeatureDists = NIGDistUtils.createPriorsOnIntervalEvenly(_featureDim, 0.0, 1.0, PRIOR_SAMPLES);
+		NIGDist[] nextFeatureDists = NIGDistUtils.createPriorsOnIntervalEvenly(_featureDim, 0.0, 1.0, PRIOR_SAMPLES);
 		
 		int iter = 0;
 		double prevLogLike = Double.NaN;
 		double[] logLikes = new double[_featureDim];
 		
 		if (monitor != null) {
-			monitor.write("Total " + _baseImages.size() + " images");
+			monitor.write("Total " + _pixelImages.size() + " images");
 			monitor.write("Starting with:");
 			for (int k=0; k<_featureDim; k++) {
 				monitor.write("Feature #" + (k+1));
@@ -111,7 +98,7 @@ public final class InferCAT {
 			
 			double currLogLike = 0;
 			
-			for (int imageIndex=0; imageIndex<_baseImages.size(); imageIndex++) {
+			for (int imageIndex=0; imageIndex<_pixelImages.size(); imageIndex++) {
 				
 				if (monitor != null) {
 					if ((imageIndex+1) % 100 == 0) {
@@ -119,17 +106,17 @@ public final class InferCAT {
 					}
 				}
 				
-				final ByteImage image = _baseImages.get(imageIndex);
+				final ByteImage pixelImage = _pixelImages.get(imageIndex);
 				final ProbImage featureImage = _featureImages.get(imageIndex);
 				
-				for (int row=0; row<image.getRowCount(); row++) {
-					for (int col=0; col<image.getColCount(); col++) {
-
+				for (int row=0; row<pixelImage.getRowCount(); row++) {
+					for (int col=0; col<pixelImage.getColCount(); col++) {
+						
 						// calc pixel feature logLikes
 						for (int k=0; k<_featureDim; k++) {
 							logLikes[k] 
 									= Math.log(currFeatureProbs[k]) 
-									+ Math.log(currFeatureDists[k].getProb(image.getIntensity(row, col)));
+									+ Math.log(currFeatureDists[k].getProb(pixelImage.getIntensity(row, col)));
 						}
 						
 						// add to current log likelihood
@@ -150,7 +137,7 @@ public final class InferCAT {
 						}
 						for (int k=0; k<_featureDim; k++) {
 							if (featureProbs[k] > 0) {
-								nextFeatureDists[k].addObservation(image.getIntensity(row, col), featureProbs[k]);
+								nextFeatureDists[k].addObservation(pixelImage.getIntensity(row, col), featureProbs[k]);
 							}
 						}
 					}
@@ -168,12 +155,8 @@ public final class InferCAT {
 				Arrays.fill(nextFeatureProbs, 0);
 			}
 			{
-				NIGDist[] tmp = currFeatureDists;
 				currFeatureDists = nextFeatureDists;
-				nextFeatureDists = tmp;
-				for (int k=0; k<_featureDim; k++) {
-					nextFeatureDists[k] = new NIGDist(PRIOR_MEAN, PRIOR_MEAN_SAMPLES, _priorVariance, PRIOR_VARIANCE_SAMPLES);
-				}
+				nextFeatureDists = NIGDistUtils.createPriorsOnIntervalEvenly(_featureDim, 0.0, 1.0, PRIOR_SAMPLES);
 			}
 
 			if (monitor != null) {

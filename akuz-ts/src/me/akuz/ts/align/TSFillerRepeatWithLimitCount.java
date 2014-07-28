@@ -1,13 +1,13 @@
 package me.akuz.ts.align;
 
-import me.akuz.ts.TSItem;
+import me.akuz.ts.TItem;
 
 public final class TSFillerRepeatWithLimitCount<T extends Comparable<T>> extends TSFiller<T> {
 
 	private final String _logFieldName;
 	private final int _maxMissingCount;
 	private int _currMissingCount;
-	private TSItem<T> _currItem;
+	private TItem<T> _currItem;
 	
 	public TSFillerRepeatWithLimitCount(
 			final String logFieldName,
@@ -19,17 +19,17 @@ public final class TSFillerRepeatWithLimitCount<T extends Comparable<T>> extends
 	}
 
 	@Override
-	public TSAlignLogMsg next(T time, TSItem<T> item) {
+	public TSAlignLogMsg next(T time, TItem<T> item) {
 		String error = null;
 		TSAlignLogMsg msg = null;
-		final TSItem<T> prevItem = _currItem;
+		final TItem<T> prevItem = _currItem;
 		_currItem = item;
 		if (_currItem == null) {
 			_currMissingCount++;
 			if (_maxMissingCount <= 0 ||
 				_currMissingCount <= _maxMissingCount) {
 				if (prevItem != null) {
-					_currItem = new TSItem<T>(time, prevItem.getObject());
+					_currItem = new TItem<T>(time, prevItem.getObject());
 				}
 			} else {
 				error = "could not fill, missing values count exceeded max of " + _maxMissingCount;
@@ -44,7 +44,7 @@ public final class TSFillerRepeatWithLimitCount<T extends Comparable<T>> extends
 	}
 
 	@Override
-	public TSItem<T> getCurrent() {
+	public TItem<T> getCurrent() {
 		return _currItem;
 	}
 

@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import me.akuz.ts.TSItem;
-import me.akuz.ts.TSMap;
+import me.akuz.ts.TItem;
+import me.akuz.ts.TFrame;
 
 import com.google.gson.JsonObject;
 
@@ -28,9 +28,9 @@ public final class TSIOMap<K, T extends Comparable<T>> {
 		_nameTypeMap = new HashMap<>();
 	}
 
-	public TSIOMap(TSMap<K, T> tsMap, TSIOType tsioType) {
+	public TSIOMap(TFrame<K, T> frame, TSIOType tsioType) {
 		this();
-		for (K key : tsMap.getKeys()) {
+		for (K key : frame.getMap().keySet()) {
 			add(key, tsioType);
 		}
 	}
@@ -83,7 +83,7 @@ public final class TSIOMap<K, T extends Comparable<T>> {
 		return type.fromJson(obj, name);
 	}
 	
-	public void setJsonField(TSItem<T> entry, K key, JsonObject obj) {
+	public void setJsonField(TItem<T> entry, K key, JsonObject obj) {
 		
 		String name = _keyNameMap.get(key);
 		if (name == null) {

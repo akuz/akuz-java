@@ -9,12 +9,13 @@ import java.util.Map;
 import java.util.RandomAccess;
 import java.util.Set;
 
-import me.akuz.ts.TS;
-import me.akuz.ts.TSItem;
+import me.akuz.ts.TFrame;
+import me.akuz.ts.TSeq;
+import me.akuz.ts.TItem;
 
 public final class TSAlignIterator<K, T extends Comparable<T>> {
 
-	private final Map<K, TS<T>> _map;
+	private final Map<K, TSeq<T>> _map;
 	private final List<T> _times;
 	private final Set<K> _keys;
 	private int _timeCursor;
@@ -23,15 +24,15 @@ public final class TSAlignIterator<K, T extends Comparable<T>> {
 	private final Map<K, TSFiller<T>> _keyFillers;
 	private final Map<K, TSChecker<T>> _keyCheckers;
 	private final TSAlignLog _alignLog;
-	private final Map<K, TSItem<T>> _currKeyItems;
+	private final Map<K, TItem<T>> _currKeyItems;
 	
 	public TSAlignIterator(
-			Map<K, TS<T>> map,
+			TFrame<K, T> inputFrame,
 			final Collection<T> times,
 			final Set<K> keys) {
 		
 		this(
-			map,
+			inputFrame,
 			times, 
 			keys,
 			null,
@@ -40,14 +41,14 @@ public final class TSAlignIterator<K, T extends Comparable<T>> {
 	}
 	
 	public TSAlignIterator(
-			Map<K, TS<T>> map,
+			TFrame<K, T> inputFrame,
 			final Collection<T> times,
 			final Set<K> keys,
 			final TSFiller<T> filler,
 			final TSChecker<T> checker,
 			final TSAlignLog alignLog) {
 		
-		_map = map;
+		_map = inputFrame.getMap();
 		if (times instanceof List<?> &&
 			times instanceof RandomAccess) {
 			_times = (List<T>)times;
@@ -91,7 +92,7 @@ public final class TSAlignIterator<K, T extends Comparable<T>> {
 		return _currTime;
 	}
 	
-	public Map<K, TSItem<T>> next() {
+	public Map<K, TItem<T>> next() {
 		
 		_timeCursor++;
 
@@ -101,22 +102,20 @@ public final class TSAlignIterator<K, T extends Comparable<T>> {
 
 		for (final K key : _keys) {
 			
-			final TS<T> ts = _map.get(key);
-			if (ts != null) {
+			final TSeq<T> seq = _map.get(key);
+			if (seq != null) {
 				
-				final List<TSItem<T>> tsSorted = ts.getItems();
-				
+				final List<TItem<T>> items = seq.getItems();
 				Integer cursor = _keyCursors.get(key);
-				
-				TSItem<T> currItem = null;
+				TItem<T> currItem = null;
 				
 				while (true) {
 					
-					TSItem<T> item = null;
+					TItem<T> item = null;
 					int cmp = 1;
 					
-					if (cursor < tsSorted.size()) {
-						item = tsSorted.get(cursor);
+					if (cursor < items.size()) {
+						item = items.get(cursor);
 						cmp = item.getTime().compareTo(_currTime);
 					}
 
