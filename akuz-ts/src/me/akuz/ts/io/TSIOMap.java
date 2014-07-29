@@ -14,7 +14,7 @@ import me.akuz.ts.io.types.TSIOType;
  * between keys, field names and data types.
  *
  */
-public final class TSIOMap<K, T extends Comparable<T>> {
+public final class TSIOMap<K> {
 	
 	private final List<K> _keys;
 	private final List<K> _keysReadOnly;
@@ -30,19 +30,19 @@ public final class TSIOMap<K, T extends Comparable<T>> {
 		_fieldNameKeyMap  = new HashMap<>();
 	}
 
-	public TSIOMap(TFrame<K, T> frame, TSIOType dataType) {
+	public TSIOMap(TFrame<K, ?> frame, TSIOType dataType) {
 		this();
 		for (K key : frame.getMap().keySet()) {
 			add(key, dataType);
 		}
 	}
 	
-	public int size() {
-		return _keys.size();
-	}
-	
 	public List<K> getKeys() {
 		return _keysReadOnly;
+	}
+	
+	public int size() {
+		return _keysReadOnly.size();
 	}
 	
 	public K getKey(String fieldName) {
@@ -69,6 +69,7 @@ public final class TSIOMap<K, T extends Comparable<T>> {
 		if (_fieldNameKeyMap.containsKey(fieldName)) {
 			throw new IllegalStateException("Field name '" + fieldName + "' has already been added");
 		}
+		_keys.add(key);
 		_keyFieldNameMap.put(key, fieldName);
 		_keyDataTypeMap.put(key, dataType);
 		_fieldNameKeyMap.put(fieldName, key);

@@ -53,7 +53,7 @@ public final class JSON_TSIO {
 			final TSIOType timeDataType, 
 			final TSIOType valueDataType) {
 		
-		TSIOMap<K, T> tsioMap = new TSIOMap<>(frame, valueDataType);
+		TSIOMap<K> tsioMap = new TSIOMap<>(frame, valueDataType);
 		
 		return toJson(
 				frame, 
@@ -69,7 +69,7 @@ public final class JSON_TSIO {
 			final TFrame<K, T> frame,
 			final String timeFieldName,
 			final TSIOType timeDataType, 
-			final TSIOMap<K,T> tsioMap) {
+			final TSIOMap<K> tsioMap) {
 		
 		final JsonArray jsonArr = new JsonArray();
 		
@@ -108,7 +108,7 @@ public final class JSON_TSIO {
 			final JsonArray jsonArr,
 			final String timeFieldName,
 			final TSIOType timeDataType, 
-			final TSIOMap<K,T> tsioMap) throws IOException {
+			final TSIOMap<K> tsioMap) throws IOException {
 		
 		TFrame<K, T> frame = new TFrame<>();
 		

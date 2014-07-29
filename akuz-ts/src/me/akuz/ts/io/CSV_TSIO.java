@@ -46,7 +46,7 @@ public final class CSV_TSIO {
 			final TSIOType timeDataType, 
 			final TSIOType valueDataType) {
 		
-		TSIOMap<K, T> tsioMap = new TSIOMap<>(frame, valueDataType);
+		TSIOMap<K> tsioMap = new TSIOMap<>(frame, valueDataType);
 
 		return toCSV(
 				frame, 
@@ -59,7 +59,7 @@ public final class CSV_TSIO {
 			final TFrame<K, T> frame,
 			final String timeFieldName,
 			final TSIOType timeDataType, 
-			final TSIOMap<K,T> tsioMap) {
+			final TSIOMap<K> tsioMap) {
 		
 		final StringBuilder sb = new StringBuilder();
 		sb.append(timeFieldName);
@@ -81,9 +81,9 @@ public final class CSV_TSIO {
 		final TSAlignIterator<K, T> iterator = new TSAlignIterator<>(frame, timeSet, keys);
 		while (iterator.hasNext()) {
 			
-			sb.append(timeDataType.toString(iterator.getCurrTime()));
-
 			final Map<K, TItem<T>> currKeyItems = iterator.next();
+			
+			sb.append(timeDataType.toString(iterator.getCurrTime()));
 			for (int j=0; j<keys.size(); j++) {
 				
 				sb.append(COMMA);
@@ -110,7 +110,7 @@ public final class CSV_TSIO {
 			final String data,
 			final String timeFieldName,
 			final TSIOType timeDataType, 
-			final TSIOMap<K,T> tsioMap) throws IOException {
+			final TSIOMap<K> tsioMap) throws IOException {
 		
 		TFrame<K, T> frame = new TFrame<>();
 
