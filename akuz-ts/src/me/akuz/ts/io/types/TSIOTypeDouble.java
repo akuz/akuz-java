@@ -7,7 +7,7 @@ import com.google.gson.JsonObject;
 public final class TSIOTypeDouble extends TSIOType {
 
 	@Override
-	public Object fromJson(JsonObject obj, String name) {
+	public Object fromJsonField(JsonObject obj, String name) {
 		if (!obj.has(name)) {
 			return null;
 		}
@@ -15,7 +15,7 @@ public final class TSIOTypeDouble extends TSIOType {
 	}
 
 	@Override
-	public void setJsonField(JsonObject obj, String name, Object value) {
+	public void toJsonField(JsonObject obj, String name, Object value) {
 		if (value == null) {
 			return;
 		}
@@ -25,21 +25,17 @@ public final class TSIOTypeDouble extends TSIOType {
 	@Override
 	public String toString(Object value) {
 		if (value == null) {
-			return NullString;
+			return null;
 		}
 		return ((Double)value).toString();
 	}
 	
 	@Override
 	public Object fromString(String str) throws IOException {
-		if (NullString.equals(str.trim())) {
-			return null;
-		} else {
-			try {
-				return Double.parseDouble(str);
-			} catch (NumberFormatException e) {
-				throw new IOException("Could not parse double '" + str + "'", e);
-			}
+		try {
+			return Double.parseDouble(str);
+		} catch (NumberFormatException e) {
+			throw new IOException("Could not parse double '" + str + "'", e);
 		}
 	}
 }

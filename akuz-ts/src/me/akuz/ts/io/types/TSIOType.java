@@ -12,8 +12,6 @@ import com.google.gson.JsonObject;
  *
  */
 public abstract class TSIOType {
-
-	public static final String NullString = "";
 	
 	public static final TSIOType Date_Standard_UTC        = new TSIOTypeDate(DateFmt.StandardUtcFormat, TimeZone.getTimeZone("UTC"));
 	public static final TSIOType Date_YYYYMMDD_UTC        = new TSIOTypeDate(DateFmt.YYYYMMDD, TimeZone.getTimeZone("UTC"));
@@ -25,8 +23,8 @@ public abstract class TSIOType {
 	public static final TSIOType IntegerType = new TSIOTypeInteger();
 	public static final TSIOType StringType  = new TSIOTypeString();
 	
-	public abstract Object fromJson(JsonObject obj, String name) throws IOException;
-	public abstract void setJsonField(JsonObject obj, String name, Object value);
+	public abstract Object fromJsonField(JsonObject obj, String name) throws IOException;
+	public abstract void toJsonField(JsonObject obj, String name, Object value);
 	
 	public abstract Object fromString(String str) throws IOException;
 	public abstract String toString(Object value);

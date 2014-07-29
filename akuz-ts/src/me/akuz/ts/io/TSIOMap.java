@@ -1,15 +1,13 @@
 package me.akuz.ts.io;
 
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import me.akuz.ts.TItem;
 import me.akuz.ts.TFrame;
 import me.akuz.ts.io.types.TSIOType;
-
-import com.google.gson.JsonObject;
 
 /**
  * Describes time series IO map by match map
@@ -18,16 +16,18 @@ import com.google.gson.JsonObject;
  */
 public final class TSIOMap<K, T extends Comparable<T>> {
 	
+	private final List<K> _keys;
+	private final List<K> _keysReadOnly;
 	private final Map<K, String> _keyFieldNameMap;
 	private final Map<K, TSIOType> _keyDataTypeMap;
 	private final Map<String, K> _fieldNameKeyMap;
-	private final Map<String, TSIOType> _fieldNameDataTypeMap;
 
 	public TSIOMap() {
+		_keys = new ArrayList<>();
+		_keysReadOnly = Collections.unmodifiableList(_keys);
 		_keyFieldNameMap  = new HashMap<>();
 		_keyDataTypeMap  = new HashMap<>();
 		_fieldNameKeyMap  = new HashMap<>();
-		_fieldNameDataTypeMap = new HashMap<>();
 	}
 
 	public TSIOMap(TFrame<K, T> frame, TSIOType dataType) {
@@ -35,6 +35,26 @@ public final class TSIOMap<K, T extends Comparable<T>> {
 		for (K key : frame.getMap().keySet()) {
 			add(key, dataType);
 		}
+	}
+	
+	public int size() {
+		return _keys.size();
+	}
+	
+	public List<K> getKeys() {
+		return _keysReadOnly;
+	}
+	
+	public K getKey(String fieldName) {
+		return _fieldNameKeyMap.get(fieldName);
+	}
+	
+	public String getFieldName(K key) {
+		return _keyFieldNameMap.get(key);
+	}
+	
+	public TSIOType getDataType(K key) {
+		return _keyDataTypeMap.get(key);
 	}
 	
 	public void add(final K key, final TSIOType dataType) {
@@ -52,48 +72,6 @@ public final class TSIOMap<K, T extends Comparable<T>> {
 		_keyFieldNameMap.put(key, fieldName);
 		_keyDataTypeMap.put(key, dataType);
 		_fieldNameKeyMap.put(fieldName, key);
-		_fieldNameDataTypeMap.put(fieldName, dataType);
-	}
-	
-	public Set<K> getKeys() {
-		return _keyFieldNameMap.keySet();
-	}
-	
-	public Set<String> getFieldNames() {
-		return _fieldNameKeyMap.keySet();
-	}
-	
-	public String getFieldName(K key) {
-		return _keyFieldNameMap.get(key);
-	}
-	
-	public K getKey(String fieldName) {
-		return _fieldNameKeyMap.get(fieldName);
-	}
-	
-	public Object fromJson(JsonObject obj, String fieldName) throws IOException {
-		
-		if (!obj.has(fieldName)) {
-			return null;
-		}
-		
-		TSIOType dataType = _fieldNameDataTypeMap.get(fieldName);
-		if (dataType == null) {
-			return null;
-		}
-		
-		return dataType.fromJson(obj, fieldName);
-	}
-	
-	public void setJsonField(TItem<T> entry, K key, JsonObject obj) {
-		
-		String fieldName = _keyFieldNameMap.get(key);
-		if (fieldName == null) {
-			return;
-		}
-		
-		TSIOType dataType = _keyDataTypeMap.get(key);
-		dataType.setJsonField(obj, fieldName, entry.getObject());
 	}
 	
 }

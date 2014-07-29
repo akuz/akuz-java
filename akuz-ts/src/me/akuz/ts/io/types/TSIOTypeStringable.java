@@ -15,7 +15,7 @@ public final class TSIOTypeStringable extends TSIOType {
 	}
 
 	@Override
-	public Object fromJson(JsonObject obj, String name) throws IOException {
+	public Object fromJsonField(JsonObject obj, String name) throws IOException {
 		if (!obj.has(name)) {
 			return null;
 		}
@@ -24,7 +24,7 @@ public final class TSIOTypeStringable extends TSIOType {
 	}
 
 	@Override
-	public void setJsonField(JsonObject obj, String name, Object value) {
+	public void toJsonField(JsonObject obj, String name, Object value) {
 		if (value == null) {
 			return;
 		}
@@ -35,17 +35,13 @@ public final class TSIOTypeStringable extends TSIOType {
 	@Override
 	public String toString(Object value) {
 		if (value == null) {
-			return NullString;
+			return null;
 		}
 		return ((Stringable)value).convertToString();
 	}
 	
 	@Override
 	public Object fromString(String str) throws IOException {
-		if (NullString.equals(str)) {
-			return null;
-		} else {
-			return _template.convertFromString(str);
-		}
+		return _template.convertFromString(str);
 	}
 }

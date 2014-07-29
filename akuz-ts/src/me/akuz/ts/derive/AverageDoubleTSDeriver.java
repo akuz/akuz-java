@@ -1,6 +1,7 @@
 package me.akuz.ts.derive;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -15,8 +16,7 @@ public final class AverageDoubleTSDeriver<T extends Comparable<T>> {
 		
 		Set<T> times = new HashSet<>();
 		inputFrame.extractTimes(times);
-		
-		Set<K> keys = inputFrame.getMap().keySet();
+		List<K> keys = inputFrame.getKeys();
 		
 		TSAlignIterator<K, T> iterator = new TSAlignIterator<>(inputFrame, times, keys);
 		final TFrame<K, T> outputFrame = new TFrame<>();

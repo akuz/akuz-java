@@ -21,7 +21,7 @@ public final class TSIOTypeDate extends TSIOType {
 	}
 
 	@Override
-	public Object fromJson(JsonObject obj, String name) throws IOException {
+	public Object fromJsonField(JsonObject obj, String name) throws IOException {
 		if (!obj.has(name)) {
 			return null;
 		}
@@ -40,7 +40,7 @@ public final class TSIOTypeDate extends TSIOType {
 	}
 
 	@Override
-	public void setJsonField(JsonObject obj, String name, Object value) {
+	public void toJsonField(JsonObject obj, String name, Object value) {
 		if (value == null) {
 			return;
 		}
@@ -57,7 +57,7 @@ public final class TSIOTypeDate extends TSIOType {
 	@Override
 	public String toString(Object value) {
 		if (value == null) {
-			return NullString;
+			return null;
 		}
 		Date date = (Date)value;
 		SimpleDateFormat fmt = _threadLocal.get();
@@ -71,20 +71,16 @@ public final class TSIOTypeDate extends TSIOType {
 	
 	@Override
 	public Object fromString(String str) throws IOException {
-		if (NullString.equals(str.trim())) {
-			return null;
-		} else {
-			SimpleDateFormat fmt = _threadLocal.get();
-			if (fmt == null) {
-				fmt = new SimpleDateFormat(_format);
-				fmt.setTimeZone(_timeZone);
-				_threadLocal.set(fmt);
-			}
-			try {
-				return fmt.parse(str);
-			} catch (ParseException e) {
-				throw new IOException("Could not parse date '" + str + "'", e);
-			}
+		SimpleDateFormat fmt = _threadLocal.get();
+		if (fmt == null) {
+			fmt = new SimpleDateFormat(_format);
+			fmt.setTimeZone(_timeZone);
+			_threadLocal.set(fmt);
+		}
+		try {
+			return fmt.parse(str);
+		} catch (ParseException e) {
+			throw new IOException("Could not parse date '" + str + "'", e);
 		}
 	}
 }

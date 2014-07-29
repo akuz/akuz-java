@@ -1,9 +1,10 @@
 package me.akuz.ts;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -15,10 +16,14 @@ import java.util.Set;
  */
 public final class TCube<K1, K2, T extends Comparable<T>> {
 
+	private final List<K1> _keys;
+	private final List<K1> _keysReadOnly;
 	private final Map<K1, TFrame<K2, T>> _map;
 	private final Map<K1, TFrame<K2, T>> _mapReadOnly;
 	
 	public TCube() {
+		_keys = new ArrayList<>();
+		_keysReadOnly = Collections.unmodifiableList(_keys);
 		_map = new HashMap<>();
 		_mapReadOnly = Collections.unmodifiableMap(_map);
 	}
@@ -31,6 +36,7 @@ public final class TCube<K1, K2, T extends Comparable<T>> {
 		TFrame<K2, T> frame = _map.get(key1);
 		if (frame == null) {
 			frame = new TFrame<>();
+			_keys.add(key1);
 			_map.put(key1, frame);
 		}
 		frame.add(key2, item);
@@ -44,6 +50,7 @@ public final class TCube<K1, K2, T extends Comparable<T>> {
 		TFrame<K2, T> frame = _map.get(key1);
 		if (frame == null) {
 			frame = new TFrame<>();
+			_keys.add(key1);
 			_map.put(key1, frame);
 		}
 		frame.stage(key2, item);
@@ -65,6 +72,7 @@ public final class TCube<K1, K2, T extends Comparable<T>> {
 		if (_map.containsKey(key)) {
 			throw new IllegalStateException("Frame for key '" + key + "' already exists");
 		}
+		_keys.add(key);
 		_map.put(key, frame);
 	}
 	
@@ -80,6 +88,10 @@ public final class TCube<K1, K2, T extends Comparable<T>> {
 		return frame;
 	}
 	
+	public List<K1> getKeys() {
+		return _keysReadOnly;
+	}
+	
 	public Map<K1, TFrame<K2, T>> getMap() {
 		return _mapReadOnly;
 	}
@@ -88,15 +100,16 @@ public final class TCube<K1, K2, T extends Comparable<T>> {
 		
 		TCube<K2, K1, T> resultCube = new TCube<>();
 
-		for (Entry<K1, TFrame<K2, T>> entry1 : _map.entrySet()) {
+		for (int i=0; i<_keys.size(); i++) {
 			
-			final K1 key1 = entry1.getKey();
-			final TFrame<K2, T> frame1 = entry1.getValue();
+			final K1 key1 = _keys.get(i);
+			final TFrame<K2, T> frame1 = _map.get(key1);
 			
-			for (Entry<K2, TSeq<T>> entry2 : frame1.getMap().entrySet()) {
+			List<K2> keys2 = frame1.getKeys();
+			for (int j=0; j<keys2.size(); j++) {
 				
-				final K2 key2 = entry2.getKey();
-				final TSeq<T> seq = entry2.getValue();
+				final K2 key2 = keys2.get(j);
+				final TSeq<T> seq = frame1.getSeq(key2);
 				
 				TFrame<K1, T> resultFrame = resultCube.getFrame(key2, false);
 				if (resultFrame == null) {

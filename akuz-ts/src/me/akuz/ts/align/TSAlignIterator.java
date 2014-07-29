@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.RandomAccess;
-import java.util.Set;
 
 import me.akuz.ts.TFrame;
 import me.akuz.ts.TSeq;
@@ -17,7 +16,7 @@ public final class TSAlignIterator<K, T extends Comparable<T>> {
 
 	private final Map<K, TSeq<T>> _map;
 	private final List<T> _times;
-	private final Set<K> _keys;
+	private final List<K> _keys;
 	private int _timeCursor;
 	private T _currTime;
 	private final Map<K, Integer> _keyCursors;
@@ -29,7 +28,7 @@ public final class TSAlignIterator<K, T extends Comparable<T>> {
 	public TSAlignIterator(
 			TFrame<K, T> inputFrame,
 			final Collection<T> times,
-			final Set<K> keys) {
+			final Collection<K> keys) {
 		
 		this(
 			inputFrame,
@@ -43,7 +42,7 @@ public final class TSAlignIterator<K, T extends Comparable<T>> {
 	public TSAlignIterator(
 			TFrame<K, T> inputFrame,
 			final Collection<T> times,
-			final Set<K> keys,
+			final Collection<K> keys,
 			final TSFiller<T> filler,
 			final TSChecker<T> checker,
 			final TSAlignLog alignLog) {
@@ -58,7 +57,12 @@ public final class TSAlignIterator<K, T extends Comparable<T>> {
 				Collections.sort(_times);
 			}
 		}
-		_keys = keys;
+		if (keys instanceof List<?> &&
+			keys instanceof RandomAccess) {
+			_keys = (List<K>)keys;
+		} else {
+			_keys = new ArrayList<>(keys);
+		}
 		_timeCursor = -1;
 		_keyCursors = new HashMap<>();
 		for (K key : keys) {
@@ -100,9 +104,11 @@ public final class TSAlignIterator<K, T extends Comparable<T>> {
 		
 		_currTime = _times.get(_timeCursor);
 
-		for (final K key : _keys) {
+		for (int j=0; j<_keys.size(); j++) {
 			
+			final K key = _keys.get(j);
 			final TSeq<T> seq = _map.get(key);
+
 			if (seq != null) {
 				
 				final List<TItem<T>> items = seq.getItems();
@@ -164,7 +170,6 @@ public final class TSAlignIterator<K, T extends Comparable<T>> {
 				if (currItem != null) {
 					_currKeyItems.put(key, currItem);
 				}
-				
 			}
 		}
 		

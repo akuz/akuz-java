@@ -15,7 +15,7 @@ public final class TSIOTypeIntegerable extends TSIOType {
 	}
 
 	@Override
-	public Object fromJson(JsonObject obj, String name) throws IOException {
+	public Object fromJsonField(JsonObject obj, String name) throws IOException {
 		if (!obj.has(name)) {
 			return null;
 		}
@@ -24,7 +24,7 @@ public final class TSIOTypeIntegerable extends TSIOType {
 	}
 
 	@Override
-	public void setJsonField(JsonObject obj, String name, Object value) {
+	public void toJsonField(JsonObject obj, String name, Object value) {
 		if (value == null) {
 			return;
 		}
@@ -35,23 +35,19 @@ public final class TSIOTypeIntegerable extends TSIOType {
 	@Override
 	public String toString(Object value) {
 		if (value == null) {
-			return NullString;
+			return null;
 		}
 		return ((Integerable)value).convertToInteger().toString();
 	}
 	
 	@Override
 	public Object fromString(String str) throws IOException {
-		if (NullString.equals(str.trim())) {
-			return null;
-		} else {
-			final Integer num;
-			try {
-				num = Integer.parseInt(str);
-			} catch (NumberFormatException e) {
-				throw new IOException("Could not parse integer '" + str + "'", e);
-			}
-			return _template.convertFromInteger(num);
+		final Integer num;
+		try {
+			num = Integer.parseInt(str);
+		} catch (NumberFormatException e) {
+			throw new IOException("Could not parse integer '" + str + "'", e);
 		}
+		return _template.convertFromInteger(num);
 	}
 }
