@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 import me.akuz.ts.TSeq;
 import me.akuz.ts.TItem;
 import me.akuz.ts.TFrame;
+import me.akuz.ts.TType;
 
 public final class AccumDoubleTSDeriver<T extends Comparable<T>> {
 
@@ -15,7 +16,7 @@ public final class AccumDoubleTSDeriver<T extends Comparable<T>> {
 
 	public TSeq<T> derive(final TSeq<T> tsInput, final double initialValue) {
 		
-		TSeq<T> tsOutput = new TSeq<>();
+		TSeq<T> tsOutput = new TSeq<>(TType.DoubleType);
 		double accumValue = initialValue;
 		
 		List<TItem<T>> items = tsInput.getItems();

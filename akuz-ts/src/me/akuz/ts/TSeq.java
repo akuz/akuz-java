@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+
 /**
  * Time series sequence of values.
  *
@@ -12,14 +13,20 @@ import java.util.Set;
  */
 public final class TSeq<T extends Comparable<T>> {
 	
+	private final TType _dataType;
 	private final List<TItem<T>> _items;
 	private final List<TItem<T>> _itemsReadOnly;
 	private List<TItem<T>> _staged;
 	private List<TItem<T>> _stagedReadOnly;
 	
-	public TSeq() {
+	public TSeq(TType dataType) {
+		_dataType = dataType;
 		_items = new ArrayList<>();
 		_itemsReadOnly = Collections.unmodifiableList(_items);
+	}
+	
+	public TType getDataType() {
+		return _dataType;
 	}
 	
 	public List<TItem<T>> getItems() {

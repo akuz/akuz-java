@@ -17,6 +17,13 @@ public final class TItem<T extends Comparable<T>> implements Comparable<TItem<T>
 	private final Object _value;
 	
 	public TItem(T time, Object value) {
+		if (value == null) {
+			throw new IllegalArgumentException(
+					"Time-series item cannot contain null values, " +
+					"instead the relevant time-series sequence " + 
+					"should contain no time-series item at " +
+					"the relevant time");
+		}
 		_time = time;
 		_value = value;
 	}

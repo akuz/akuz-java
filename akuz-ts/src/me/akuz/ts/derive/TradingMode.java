@@ -3,10 +3,7 @@ package me.akuz.ts.derive;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.akuz.core.Integerable;
-import me.akuz.core.Stringable;
-
-public final class TradingMode implements Stringable, Integerable {
+public final class TradingMode {
 	
 	public static final TradingMode Disabled  = new TradingMode(0, "Disabled");
 	public static final TradingMode Enabled   = new TradingMode(1, "Enabled");
@@ -24,6 +21,33 @@ public final class TradingMode implements Stringable, Integerable {
 	
 	private final int _id;
 	private final String _name;
+	
+	public static final TradingMode fromId(Integer id) {
+		if (id == null) {
+			throw new IllegalArgumentException("Cannot convert to " + TradingMode.class.getSimpleName() + " from null");
+		}
+		for (int i=0; i<All.size(); i++) {
+			TradingMode mode = All.get(i);
+			if (id.intValue() == mode._id) {
+				return mode;
+			}
+		}
+		throw new IllegalArgumentException("Cannot find " + TradingMode.class.getSimpleName() + " for id " + id);
+	}
+	
+	public static final TradingMode fromName(String name) {
+		if (name == null) {
+			throw new IllegalArgumentException("Cannot convert to " + TradingMode.class.getSimpleName() + " from null");
+		}
+		name = name.trim();
+		for (int i=0; i<All.size(); i++) {
+			TradingMode mode = All.get(i);
+			if (name.equalsIgnoreCase(mode._name)) {
+				return mode;
+			}
+		}
+		throw new IllegalArgumentException("Cannot find " + TradingMode.class.getSimpleName() + " for name '" + name + "'");
+	}
 	
 	/**
 	 * Private constructor to limit the instances to static properties only.
@@ -45,37 +69,5 @@ public final class TradingMode implements Stringable, Integerable {
 	@Override
 	public String toString() {
 		return _name;
-	}
-
-	@Override
-	public String convertToString() {
-		return _name;
-	}
-
-	@Override
-	public Object convertFromString(String str) {
-		for (int i=0; i<All.size(); i++) {
-			TradingMode mode = All.get(i);
-			if (mode._name.equals(str)) {
-				return mode;
-			}
-		}
-		throw new IllegalArgumentException("Unknown " + getClass().getSimpleName() + ": " + str);
-	}
-
-	@Override
-	public Integer convertToInteger() {
-		return _id;
-	}
-
-	@Override
-	public Object convertFromInteger(Integer num) {
-		for (int i=0; i<All.size(); i++) {
-			TradingMode mode = All.get(i);
-			if (mode._id == num.intValue()) {
-				return mode;
-			}
-		}
-		throw new IllegalArgumentException("Unknown " + getClass().getSimpleName() + ": " + num);
 	}
 }

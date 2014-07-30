@@ -11,8 +11,8 @@ import java.util.Set;
 import me.akuz.ts.TFrame;
 import me.akuz.ts.TItem;
 import me.akuz.ts.TSeq;
+import me.akuz.ts.TType;
 import me.akuz.ts.align.TSAlignIterator;
-import me.akuz.ts.io.types.TSIOType;
 
 /**
  * CSV time series IO functions.
@@ -20,15 +20,18 @@ import me.akuz.ts.io.types.TSIOType;
  */
 public final class CSV_TSIO {
 	
-	private static final String COMMA = ",";
+	private static final String SEP = ",";
+	private static final String SEP_ESCAPED = "\\,";
+	private static final String SEP_REGEX = "(?<=(^|[^\\])),";
+	private static final String SEP_REGEX_ESCAPED = "\\\\,";
 	private static final String NEW_LINE = "\n";
 
 	public static final <K, T extends Comparable<T>> String toCSV(
 			final TSeq<T> seq, 
 			final String timeFieldName,
-			final TSIOType timeDataType,
+			final TType timeDataType,
 			final String valueFieldName, 
-			final TSIOType valueDataType) {
+			final TType valueDataType) {
 		
 		TFrame<String, T> frame = new TFrame<>();
 		frame.addSeq(valueFieldName, seq);
@@ -43,8 +46,8 @@ public final class CSV_TSIO {
 	public static final <K, T extends Comparable<T>> String toCSV(
 			final TFrame<K, T> frame, 
 			final String timeFieldName,
-			final TSIOType timeDataType, 
-			final TSIOType valueDataType) {
+			final TType timeDataType, 
+			final TType valueDataType) {
 		
 		TSIOMap<K> tsioMap = new TSIOMap<>(frame, valueDataType);
 
@@ -58,7 +61,7 @@ public final class CSV_TSIO {
 	public static final <K, T extends Comparable<T>> String toCSV(
 			final TFrame<K, T> frame,
 			final String timeFieldName,
-			final TSIOType timeDataType, 
+			final TType timeDataType, 
 			final TSIOMap<K> tsioMap) {
 		
 		final StringBuilder sb = new StringBuilder();
@@ -70,8 +73,8 @@ public final class CSV_TSIO {
 			K key = keys.get(j);
 			String fieldName = tsioMap.getFieldName(key);
 
-			sb.append(COMMA);
-			sb.append(fieldName);
+			sb.append(SEP);
+			sb.append(fieldName.replaceAll(SEP, SEP_ESCAPED));
 		}
 		sb.append(NEW_LINE);
 		
@@ -86,14 +89,14 @@ public final class CSV_TSIO {
 			sb.append(timeDataType.toString(iterator.getCurrTime()));
 			for (int j=0; j<keys.size(); j++) {
 				
-				sb.append(COMMA);
+				sb.append(SEP);
 				
 				K key = keys.get(j);
 				TItem<T> item = currKeyItems.get(key);
 				
 				if (item != null) {
 					
-					TSIOType dataType = tsioMap.getDataType(key);
+					TType dataType = tsioMap.getDataType(key);
 					String str = dataType.toString(item.getObject());
 					
 					if (str != null) {
@@ -109,7 +112,7 @@ public final class CSV_TSIO {
 	public static final <K, T extends Comparable<T>> TFrame<K,T> fromCSV(
 			final String data,
 			final String timeFieldName,
-			final TSIOType timeDataType, 
+			final TType timeDataType, 
 			final TSIOMap<K> tsioMap) throws IOException {
 		
 		TFrame<K, T> frame = new TFrame<>();
@@ -128,11 +131,11 @@ public final class CSV_TSIO {
 				if (lineIndex == 0) {
 					
 					// read the headers
-					String[] parts = line.split(COMMA);
+					String[] parts = line.split(SEP_REGEX);
 					fieldCount = parts.length;
 					fieldIdxToKey = new HashMap<>();
 					for (int i=0; i<parts.length; i++) {
-						String fieldName = parts[i].trim();
+						String fieldName = parts[i].trim().replaceAll(SEP_REGEX_ESCAPED, SEP);
 						if (fieldName.equalsIgnoreCase(timeFieldName)) {
 							timeFieldIdx = i;
 						} else {
@@ -149,7 +152,7 @@ public final class CSV_TSIO {
 				} else {
 					
 					// read the data line
-					String[] parts = line.split(COMMA);
+					String[] parts = line.split(SEP_REGEX);
 					if (parts.length != fieldCount) {
 						throw new IOException(
 								"Number of fields (" + parts.length + ") at line index " + lineIndex + 
@@ -172,7 +175,7 @@ public final class CSV_TSIO {
 							continue;
 						}
 						K key = fieldIdxToKey.get(fieldIdx);
-						TSIOType valueDataType = tsioMap.getDataType(key);
+						TType valueDataType = tsioMap.getDataType(key);
 						Object value = valueDataType.fromString(part);
 						if (value != null) {
 							frame.stage(key, time, value);

@@ -1,11 +1,13 @@
-package me.akuz.ts.io.types;
+package me.akuz.ts.types;
 
 
 import java.io.IOException;
 
+import me.akuz.ts.TType;
+
 import com.google.gson.JsonObject;
 
-public final class TSIOTypeString extends TSIOType {
+public final class TString extends TType {
 
 	@Override
 	public Object fromJsonField(JsonObject obj, String name) {

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import me.akuz.ts.TFrame;
-import me.akuz.ts.io.types.TSIOType;
+import me.akuz.ts.TType;
 
 /**
  * Describes time series IO map by match map
@@ -19,7 +19,7 @@ public final class TSIOMap<K> {
 	private final List<K> _keys;
 	private final List<K> _keysReadOnly;
 	private final Map<K, String> _keyFieldNameMap;
-	private final Map<K, TSIOType> _keyDataTypeMap;
+	private final Map<K, TType> _keyDataTypeMap;
 	private final Map<String, K> _fieldNameKeyMap;
 
 	public TSIOMap() {
@@ -30,7 +30,7 @@ public final class TSIOMap<K> {
 		_fieldNameKeyMap  = new HashMap<>();
 	}
 
-	public TSIOMap(TFrame<K, ?> frame, TSIOType dataType) {
+	public TSIOMap(TFrame<K, ?> frame, TType dataType) {
 		this();
 		for (K key : frame.getMap().keySet()) {
 			add(key, dataType);
@@ -53,15 +53,15 @@ public final class TSIOMap<K> {
 		return _keyFieldNameMap.get(key);
 	}
 	
-	public TSIOType getDataType(K key) {
+	public TType getDataType(K key) {
 		return _keyDataTypeMap.get(key);
 	}
 	
-	public void add(final K key, final TSIOType dataType) {
+	public void add(final K key, final TType dataType) {
 		add(key, key.toString(), dataType);
 	}
 	
-	public void add(final K key, final String fieldName, final TSIOType dataType) {
+	public void add(final K key, final String fieldName, final TType dataType) {
 		
 		if (_keyFieldNameMap.containsKey(key)) {
 			throw new IllegalStateException("Key '" + key + "' has already been added");

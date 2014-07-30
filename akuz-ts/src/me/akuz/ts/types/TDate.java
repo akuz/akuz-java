@@ -1,4 +1,4 @@
-package me.akuz.ts.io.types;
+package me.akuz.ts.types;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -6,16 +6,18 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
+import me.akuz.ts.TType;
+
 
 import com.google.gson.JsonObject;
 
-public final class TSIOTypeDate extends TSIOType {
+public final class TDate extends TType {
 
 	private final String _format;
 	private final TimeZone _timeZone;
 	private final ThreadLocal<SimpleDateFormat> _threadLocal = new ThreadLocal<>();
 	
-	public TSIOTypeDate(String format, TimeZone timeZone) {
+	public TDate(String format, TimeZone timeZone) {
 		_format = format;
 		_timeZone = timeZone;
 	}

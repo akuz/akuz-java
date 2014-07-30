@@ -10,8 +10,8 @@ import java.util.Set;
 import me.akuz.ts.TSeq;
 import me.akuz.ts.TItem;
 import me.akuz.ts.TFrame;
+import me.akuz.ts.TType;
 import me.akuz.ts.align.TSAlignIterator;
-import me.akuz.ts.io.types.TSIOType;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -29,9 +29,9 @@ public final class JSON_TSIO {
 	public static final <K, T extends Comparable<T>> JsonArray toJson(
 			final TSeq<T> seq, 
 			final String timeFieldName,
-			final TSIOType timeDataType,
+			final TType timeDataType,
 			final String valueFieldName, 
-			final TSIOType valueDataType) {
+			final TType valueDataType) {
 		
 		TFrame<String, T> frame = new TFrame<>();
 		frame.addSeq(valueFieldName, seq);
@@ -50,8 +50,8 @@ public final class JSON_TSIO {
 	public static final <K, T extends Comparable<T>> JsonArray toJson(
 			final TFrame<K, T> frame, 
 			final String timeFieldName,
-			final TSIOType timeDataType, 
-			final TSIOType valueDataType) {
+			final TType timeDataType, 
+			final TType valueDataType) {
 		
 		TSIOMap<K> tsioMap = new TSIOMap<>(frame, valueDataType);
 		
@@ -68,7 +68,7 @@ public final class JSON_TSIO {
 	public static final <K, T extends Comparable<T>> JsonArray toJson(
 			final TFrame<K, T> frame,
 			final String timeFieldName,
-			final TSIOType timeDataType, 
+			final TType timeDataType, 
 			final TSIOMap<K> tsioMap) {
 		
 		final JsonArray jsonArr = new JsonArray();
@@ -95,7 +95,7 @@ public final class JSON_TSIO {
 				}
 				
 				String valueFieldName = tsioMap.getFieldName(key);
-				TSIOType valueDataType = tsioMap.getDataType(key);
+				TType valueDataType = tsioMap.getDataType(key);
 				valueDataType.toJsonField(jsonObj, valueFieldName, item.getObject());
 			}
 
@@ -107,7 +107,7 @@ public final class JSON_TSIO {
 	public static final <K, T extends Comparable<T>> TFrame<K,T> fromJson(
 			final JsonArray jsonArr,
 			final String timeFieldName,
-			final TSIOType timeDataType, 
+			final TType timeDataType, 
 			final TSIOMap<K> tsioMap) throws IOException {
 		
 		TFrame<K, T> frame = new TFrame<>();
@@ -130,7 +130,7 @@ public final class JSON_TSIO {
 					K key = tsioMap.getKey(fieldName);
 					if (key != null) {
 						
-						TSIOType dataType = tsioMap.getDataType(key);
+						TType dataType = tsioMap.getDataType(key);
 						Object value = dataType.fromJsonField(jsonObj, fieldName);
 						if (value != null) {
 							frame.stage(key, new TItem<T>(time, value));

@@ -6,6 +6,7 @@ import java.util.List;
 import me.akuz.core.Period;
 import me.akuz.ts.TSeq;
 import me.akuz.ts.TItem;
+import me.akuz.ts.TType;
 
 public final class ActivePeriodTSDeriver {
 	
@@ -19,7 +20,7 @@ public final class ActivePeriodTSDeriver {
 	
 	public TSeq<Date> derive(final TSeq<Date> seq) {
 		
-		final TSeq<Date> seqActivePeriod = new TSeq<>();
+		final TSeq<Date> seqActivePeriod = new TSeq<>(TType.BooleanType);
 
 		Date prevDate = null;
 		Date lastTurnOnDate = null;

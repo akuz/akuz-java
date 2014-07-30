@@ -6,24 +6,25 @@ import java.util.Map;
 import me.akuz.ts.TFrame;
 import me.akuz.ts.TSeq;
 import me.akuz.ts.TItem;
+import me.akuz.ts.TType;
 import me.akuz.ts.align.TSAlignIterator;
 
 public final class TradingModeTSDeriver<T extends Comparable<T>> {
 	
-	private final static Integer TS_PRICE = 0;
-	private final static Integer TS_ACTIVE_PERIOD = 1;
+	private final static Integer SEQ_PRICE = 0;
+	private final static Integer SEQ_ACTIVE_PERIOD = 1;
 	
 	public TradingModeTSDeriver() {
 		// nothing
 	}
 	
-	public TSeq<T> derive(Collection<T> times, TSeq<T> tsPrice, TSeq<T> tsActivePeriod) {
+	public TSeq<T> derive(Collection<T> times, TSeq<T> seqPrice, TSeq<T> seqActivePeriod) {
 		
-		final TSeq<T> tsTradingMode = new TSeq<>();
+		final TSeq<T> seqTradingMode = new TSeq<>(TType.StringType);
 		
 		final TFrame<Integer, T> iteratorFrame = new TFrame<>();
-		iteratorFrame.addSeq(TS_PRICE, tsPrice);
-		iteratorFrame.addSeq(TS_ACTIVE_PERIOD, tsActivePeriod);
+		iteratorFrame.addSeq(SEQ_PRICE, seqPrice);
+		iteratorFrame.addSeq(SEQ_ACTIVE_PERIOD, seqActivePeriod);
 		
 		TSAlignIterator<Integer, T> iterator = new TSAlignIterator<>(iteratorFrame, times, iteratorFrame.getMap().keySet());
 		boolean rollingActivePeriod = false;
@@ -33,7 +34,7 @@ public final class TradingModeTSDeriver<T extends Comparable<T>> {
 			final T currTime = iterator.getCurrTime();
 			final Double currPrice;
 			{
-				TItem<T> currPriceItem = currValues.get(TS_PRICE);
+				TItem<T> currPriceItem = currValues.get(SEQ_PRICE);
 				if (currPriceItem != null) {
 					currPrice = currPriceItem.getDouble();
 				} else {
@@ -42,7 +43,7 @@ public final class TradingModeTSDeriver<T extends Comparable<T>> {
 			}
 			final Boolean currActivePeriod;
 			{
-				TItem<T> currActivePeriodItem = currValues.get(TS_ACTIVE_PERIOD);
+				TItem<T> currActivePeriodItem = currValues.get(SEQ_ACTIVE_PERIOD);
 				if (currActivePeriodItem != null) {
 					currActivePeriod = currActivePeriodItem.getBoolean();
 				} else {
@@ -55,15 +56,15 @@ public final class TradingModeTSDeriver<T extends Comparable<T>> {
 				if (currActivePeriod) { // at active period start
 					
 					if (currPrice != null && !Double.isNaN(currPrice.doubleValue())) {
-						tsTradingMode.add(new TItem<>(currTime, TradingMode.Enabled));
+						seqTradingMode.add(new TItem<>(currTime, TradingMode.Enabled.getName()));
 					} else {
-						tsTradingMode.add(new TItem<>(currTime, TradingMode.KeepPos));
+						seqTradingMode.add(new TItem<>(currTime, TradingMode.KeepPos.getName()));
 					}
 					
 				} else { // at active period end
 					
 					if (currPrice != null && !Double.isNaN(currPrice.doubleValue())) {
-						tsTradingMode.add(new TItem<T>(currTime, TradingMode.TradeOut));
+						seqTradingMode.add(new TItem<T>(currTime, TradingMode.TradeOut.getName()));
 					} else {
 						throw new IllegalStateException("No price to trade out at the end of the active period");
 					}
@@ -76,19 +77,19 @@ public final class TradingModeTSDeriver<T extends Comparable<T>> {
 				if (rollingActivePeriod) {
 					
 					if (currPrice != null && !Double.isNaN(currPrice.doubleValue())) {
-						tsTradingMode.add(new TItem<T>(currTime, TradingMode.Enabled));
+						seqTradingMode.add(new TItem<T>(currTime, TradingMode.Enabled.getName()));
 					} else {
-						tsTradingMode.add(new TItem<T>(currTime, TradingMode.KeepPos));
+						seqTradingMode.add(new TItem<T>(currTime, TradingMode.KeepPos.getName()));
 					}
 					
 				} else {
 					
-					tsTradingMode.add(new TItem<T>(currTime, TradingMode.Disabled));
+					seqTradingMode.add(new TItem<T>(currTime, TradingMode.Disabled.getName()));
 				}
 			}
 		}
 		
-		return tsTradingMode;
+		return seqTradingMode;
 	}
 
 }
