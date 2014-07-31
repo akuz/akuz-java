@@ -10,71 +10,46 @@ import java.util.Set;
 
 import me.akuz.ts.TFrame;
 import me.akuz.ts.TItem;
-import me.akuz.ts.TSeq;
-import me.akuz.ts.TType;
 import me.akuz.ts.align.TSAlignIterator;
 
 /**
  * CSV time series IO functions.
  *
  */
-public final class CSV_TSIO {
+public final class CSV_IO {
 	
 	private static final String SEP = ",";
-	private static final String SEP_ESCAPED = "\\,";
-	private static final String SEP_REGEX = "(?<=(^|[^\\])),";
+	private static final String SEP_REPLACEMENT = "\\\\,";
+	private static final String SEP_REGEX = ",";
+	private static final String SEP_REGEX_UNESCAPED = "(?<=(^|[^\\\\])),";
 	private static final String SEP_REGEX_ESCAPED = "\\\\,";
 	private static final String NEW_LINE = "\n";
-
-	public static final <K, T extends Comparable<T>> String toCSV(
-			final TSeq<T> seq, 
-			final String timeFieldName,
-			final TType timeDataType,
-			final String valueFieldName, 
-			final TType valueDataType) {
-		
-		TFrame<String, T> frame = new TFrame<>();
-		frame.addSeq(valueFieldName, seq);
-		
-		return toCSV(
-				frame,
-				timeFieldName,
-				timeDataType,
-				valueDataType);
+	
+	private static final String escape(final String str) {
+		return str.replaceAll(SEP_REGEX, SEP_REPLACEMENT);
 	}
-
-	public static final <K, T extends Comparable<T>> String toCSV(
-			final TFrame<K, T> frame, 
-			final String timeFieldName,
-			final TType timeDataType, 
-			final TType valueDataType) {
-		
-		TSIOMap<K> tsioMap = new TSIOMap<>(frame, valueDataType);
-
-		return toCSV(
-				frame, 
-				timeFieldName, 
-				timeDataType, 
-				tsioMap);
+	
+	private static final String unescape(final String str) {
+		return str.replaceAll(SEP_REGEX_ESCAPED, SEP);
+	}
+	
+	private static final String[] split(final String str) {
+		return str.split(SEP_REGEX_UNESCAPED);
 	}
 
 	public static final <K, T extends Comparable<T>> String toCSV(
 			final TFrame<K, T> frame,
-			final String timeFieldName,
-			final TType timeDataType, 
-			final TSIOMap<K> tsioMap) {
+			final IOMap<K> tsioMap) {
 		
 		final StringBuilder sb = new StringBuilder();
-		sb.append(timeFieldName);
+		sb.append(escape(tsioMap.getTimeFieldName()));
 
 		List<K> keys = tsioMap.getKeys();
 		for (int j=0; j<keys.size(); j++) {
 			
-			K key = keys.get(j);
-			String fieldName = tsioMap.getFieldName(key);
-
 			sb.append(SEP);
-			sb.append(fieldName.replaceAll(SEP, SEP_ESCAPED));
+			K key = keys.get(j);
+			sb.append(escape(tsioMap.getFieldName(key)));
 		}
 		sb.append(NEW_LINE);
 		
@@ -86,22 +61,14 @@ public final class CSV_TSIO {
 			
 			final Map<K, TItem<T>> currKeyItems = iterator.next();
 			
-			sb.append(timeDataType.toString(iterator.getCurrTime()));
+			sb.append(escape(tsioMap.getTimeDataType().toString(iterator.getCurrTime())));
 			for (int j=0; j<keys.size(); j++) {
 				
 				sb.append(SEP);
-				
 				K key = keys.get(j);
 				TItem<T> item = currKeyItems.get(key);
-				
 				if (item != null) {
-					
-					TType dataType = tsioMap.getDataType(key);
-					String str = dataType.toString(item.getObject());
-					
-					if (str != null) {
-						sb.append(str);
-					}
+					sb.append(escape(tsioMap.getDataType(key).toString(item.getObject())));
 				}
 			}
 			sb.append(NEW_LINE);
@@ -111,9 +78,7 @@ public final class CSV_TSIO {
 
 	public static final <K, T extends Comparable<T>> TFrame<K,T> fromCSV(
 			final String data,
-			final String timeFieldName,
-			final TType timeDataType, 
-			final TSIOMap<K> tsioMap) throws IOException {
+			final IOMap<K> tsioMap) throws IOException {
 		
 		TFrame<K, T> frame = new TFrame<>();
 
@@ -131,12 +96,12 @@ public final class CSV_TSIO {
 				if (lineIndex == 0) {
 					
 					// read the headers
-					String[] parts = line.split(SEP_REGEX);
+					final String[] parts = split(line);
 					fieldCount = parts.length;
 					fieldIdxToKey = new HashMap<>();
 					for (int i=0; i<parts.length; i++) {
-						String fieldName = parts[i].trim().replaceAll(SEP_REGEX_ESCAPED, SEP);
-						if (fieldName.equalsIgnoreCase(timeFieldName)) {
+						final String fieldName = unescape(parts[i].trim());
+						if (fieldName.equalsIgnoreCase(tsioMap.getTimeFieldName())) {
 							timeFieldIdx = i;
 						} else {
 							K key = tsioMap.getKey(fieldName);
@@ -146,37 +111,37 @@ public final class CSV_TSIO {
 						}
 					}
 					if (timeFieldIdx < 0) {
-						throw new IOException("Could not find time field '" + timeFieldName + "' in the headers");
+						throw new IOException("Could not find time field '" + tsioMap.getTimeFieldName() + "' in the headers");
 					}
 					
 				} else {
 					
 					// read the data line
-					String[] parts = line.split(SEP_REGEX);
+					final String[] parts = split(line);
 					if (parts.length != fieldCount) {
 						throw new IOException(
 								"Number of fields (" + parts.length + ") at line index " + lineIndex + 
 								" does not match the number of fields (" + fieldCount + ") in the headers");
 					}
 					
+					final String timeStr = unescape(parts[timeFieldIdx].trim());
 					final T time;
 					try {
 						@SuppressWarnings("unchecked")
-						final T parsedTime = (T)timeDataType.fromString(parts[timeFieldIdx]);
+						final T parsedTime = (T)tsioMap.getTimeDataType().fromString(timeStr);
 						time = parsedTime;
 					} catch (Exception ex) {
-						throw new IOException("Could not parse time at line index " + lineIndex + ": '" + parts[timeFieldIdx] + "'");
+						throw new IOException("Could not parse time at line index " + lineIndex + ": '" + timeStr + "'");
 					}
 					
 					for (Integer fieldIdx : fieldIdxToKey.keySet()) {
 						
-						final String part = parts[fieldIdx].trim();
-						if (part.length() == 0) {
+						final String partStr = unescape(parts[fieldIdx].trim());
+						if (partStr.length() == 0) {
 							continue;
 						}
-						K key = fieldIdxToKey.get(fieldIdx);
-						TType valueDataType = tsioMap.getDataType(key);
-						Object value = valueDataType.fromString(part);
+						final K key = fieldIdxToKey.get(fieldIdx);
+						final Object value = tsioMap.getDataType(key).fromString(partStr);
 						if (value != null) {
 							frame.stage(key, time, value);
 						}

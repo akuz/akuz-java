@@ -35,8 +35,7 @@ public final class TFrame<K, T extends Comparable<T>> {
 	public void add(K key, TItem<T> item) {
 		TSeq<T> seq = _map.get(key);
 		if (seq == null) {
-			TType dataType = TType.deriveDataType(item.getObject());
-			seq = new TSeq<>(dataType);
+			seq = new TSeq<>();
 			_keys.add(key);
 			_map.put(key, seq);
 		}
@@ -50,8 +49,7 @@ public final class TFrame<K, T extends Comparable<T>> {
 	public void stage(K key, TItem<T> item) {
 		TSeq<T> seq = _map.get(key);
 		if (seq == null) {
-			TType dataType = TType.deriveDataType(item.getObject());
-			seq = new TSeq<>(dataType);
+			seq = new TSeq<>();
 			_keys.add(key);
 			_map.put(key, seq);
 		}

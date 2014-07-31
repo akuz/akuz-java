@@ -6,7 +6,6 @@ import java.util.Map;
 import me.akuz.ts.TFrame;
 import me.akuz.ts.TSeq;
 import me.akuz.ts.TItem;
-import me.akuz.ts.TType;
 import me.akuz.ts.align.TSAlignIterator;
 
 public final class TradingModeTSDeriver<T extends Comparable<T>> {
@@ -20,7 +19,7 @@ public final class TradingModeTSDeriver<T extends Comparable<T>> {
 	
 	public TSeq<T> derive(Collection<T> times, TSeq<T> seqPrice, TSeq<T> seqActivePeriod) {
 		
-		final TSeq<T> seqTradingMode = new TSeq<>(TType.StringType);
+		final TSeq<T> seqTradingMode = new TSeq<>();
 		
 		final TFrame<Integer, T> iteratorFrame = new TFrame<>();
 		iteratorFrame.addSeq(SEQ_PRICE, seqPrice);
@@ -56,15 +55,15 @@ public final class TradingModeTSDeriver<T extends Comparable<T>> {
 				if (currActivePeriod) { // at active period start
 					
 					if (currPrice != null && !Double.isNaN(currPrice.doubleValue())) {
-						seqTradingMode.add(new TItem<>(currTime, TradingMode.Enabled.getName()));
+						seqTradingMode.add(new TItem<>(currTime, TradingMode.Enabled));
 					} else {
-						seqTradingMode.add(new TItem<>(currTime, TradingMode.KeepPos.getName()));
+						seqTradingMode.add(new TItem<>(currTime, TradingMode.KeepPos));
 					}
 					
 				} else { // at active period end
 					
 					if (currPrice != null && !Double.isNaN(currPrice.doubleValue())) {
-						seqTradingMode.add(new TItem<T>(currTime, TradingMode.TradeOut.getName()));
+						seqTradingMode.add(new TItem<T>(currTime, TradingMode.TradeOut));
 					} else {
 						throw new IllegalStateException("No price to trade out at the end of the active period");
 					}
@@ -77,14 +76,14 @@ public final class TradingModeTSDeriver<T extends Comparable<T>> {
 				if (rollingActivePeriod) {
 					
 					if (currPrice != null && !Double.isNaN(currPrice.doubleValue())) {
-						seqTradingMode.add(new TItem<T>(currTime, TradingMode.Enabled.getName()));
+						seqTradingMode.add(new TItem<T>(currTime, TradingMode.Enabled));
 					} else {
-						seqTradingMode.add(new TItem<T>(currTime, TradingMode.KeepPos.getName()));
+						seqTradingMode.add(new TItem<T>(currTime, TradingMode.KeepPos));
 					}
 					
 				} else {
 					
-					seqTradingMode.add(new TItem<T>(currTime, TradingMode.Disabled.getName()));
+					seqTradingMode.add(new TItem<T>(currTime, TradingMode.Disabled));
 				}
 			}
 		}

@@ -1,19 +1,19 @@
-package me.akuz.ts.types;
+package me.akuz.ts.io.types;
 
 import java.io.IOException;
 
-import me.akuz.ts.TType;
+import me.akuz.ts.io.IOType;
 
 import com.google.gson.JsonObject;
 
-public final class TDouble extends TType {
+public final class TString extends IOType {
 
 	@Override
 	public Object fromJsonField(JsonObject obj, String name) {
 		if (!obj.has(name)) {
 			return null;
 		}
-		return obj.get(name).getAsDouble();
+		return obj.get(name).getAsString();
 	}
 
 	@Override
@@ -21,23 +21,19 @@ public final class TDouble extends TType {
 		if (value == null) {
 			return;
 		}
-		obj.addProperty(name, (Double)value);
+		obj.addProperty(name, toString(value));
 	}
-
+	
 	@Override
 	public String toString(Object value) {
 		if (value == null) {
 			return null;
 		}
-		return ((Double)value).toString();
+		return value.toString();
 	}
 	
 	@Override
 	public Object fromString(String str) throws IOException {
-		try {
-			return Double.parseDouble(str);
-		} catch (NumberFormatException e) {
-			throw new IOException("Could not parse double '" + str + "'", e);
-		}
+		return str;
 	}
 }

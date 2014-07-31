@@ -5,7 +5,6 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import me.akuz.ts.TFrame;
-import me.akuz.ts.TType;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -17,11 +16,11 @@ public class CSV_TSIO_Test {
 		
 		Random rnd = ThreadLocalRandom.current();
 
-		final TSIOMap<String> tsioMap = new TSIOMap<>();
-		tsioMap.add("F boo", TType.BooleanType);
-		tsioMap.add("F dbl", TType.DoubleType);
-		tsioMap.add("F int", TType.IntegerType);
-		tsioMap.add("F str", TType.StringType);
+		final IOMap<String> tsioMap = new IOMap<>("t", IOType.IntegerType);
+		tsioMap.add("F boo", "F boo, field", IOType.BooleanType);
+		tsioMap.add("F dbl", IOType.DoubleType);
+		tsioMap.add("F int", "F int, field", IOType.IntegerType);
+		tsioMap.add("F str", IOType.StringType);
 		
 		final String csv1;
 		{
@@ -33,15 +32,15 @@ public class CSV_TSIO_Test {
 				frame.add("F str", i, "" + rnd.nextDouble());
 			}
 			
-			csv1 = CSV_TSIO.toCSV(frame, "t", TType.IntegerType, tsioMap);
+			csv1 = CSV_IO.toCSV(frame, tsioMap);
 			System.out.println("1 -----------------------");
 			System.out.println(csv1);
 		}
 		
 		final String csv2;
 		{
-			final TFrame<String, Integer> frame = CSV_TSIO.fromCSV(csv1, "t", TType.IntegerType, tsioMap);
-			csv2 = CSV_TSIO.toCSV(frame, "t", TType.IntegerType, tsioMap);
+			final TFrame<String, Integer> frame = CSV_IO.fromCSV(csv1, tsioMap);
+			csv2 = CSV_IO.toCSV(frame, tsioMap);
 			System.out.println("2 -----------------------");
 			System.out.println(csv2);
 		}

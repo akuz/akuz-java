@@ -23,6 +23,7 @@ public final class DateFmt {
 	}
 
 	public static final String format(Date date, String format, TimeZone timeZone) {
+		// have to create every time for thread safety, or use thread local
 		SimpleDateFormat fmt = new SimpleDateFormat(format);
 		fmt.setTimeZone(timeZone);
 		return fmt.format(date);
@@ -33,6 +34,7 @@ public final class DateFmt {
 	}
 
 	public static final Date parse(String dateStr, String format, TimeZone timeZone) throws ParseException {
+		// have to create every time for thread safety, or use thread local
 		SimpleDateFormat fmt = new SimpleDateFormat(format);
 		fmt.setTimeZone(timeZone);
 		return fmt.parse(dateStr);
