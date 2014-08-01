@@ -107,7 +107,7 @@ public final class Cumsum {
 	public static <K, T extends Comparable<T>> 
 	TFrame<K, T> calc(final TFrame<K, T> frame, final Map<K, K> keyMap, final boolean inPlace, final double initialValue) {
 		
-		if (keyMap == null && inPlace) {
+		if (inPlace && keyMap == null) {
 			throw new IllegalArgumentException(
 					"Cannot accept keyMap = null and inPlace = True, " +
 					"since this would lead to adding new sequences with " +
@@ -115,7 +115,7 @@ public final class Cumsum {
 		}
 		
 		final TFrame<K, T> toFrame;
-		if (keyMap == null || inPlace) {
+		if (inPlace && keyMap != null) {
 			toFrame = frame;
 		} else {
 			toFrame = new TFrame<>();
@@ -125,7 +125,12 @@ public final class Cumsum {
 		for (int i=0; i<keys.size(); i++) {
 			
 			final K key = keys.get(i);
-			final K toKey = keyMap.get(key);
+			final K toKey;
+			if (keyMap != null) {
+				toKey = keyMap.get(key);
+			} else {
+				toKey = key;
+			}
 			if (toKey == null) {
 				continue;
 			}

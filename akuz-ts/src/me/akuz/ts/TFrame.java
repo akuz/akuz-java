@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Time series frame.
+ * Time series frame containing multiple sequences.
  *
  * @param <K> - Key type.
  * @param <T> - Time type.
@@ -58,10 +58,18 @@ public final class TFrame<K, T extends Comparable<T>> {
 		}
 	}
 	
+	/**
+	 * Add value to a sequence in this frame.
+	 * Sequence is created, if it doesn't exist.
+	 */
 	public void add(final K key, final T time, final Object value) {
 		add(key, new TItem<>(time, value));
 	}
-		
+
+	/**
+	 * Add item to a sequence in this frame.
+	 * Sequence is created, if it doesn't exist.
+	 */
 	public void add(final K key, final TItem<T> item) {
 		TSeq<T> seq = _map.get(key);
 		if (seq == null) {
@@ -72,10 +80,18 @@ public final class TFrame<K, T extends Comparable<T>> {
 		seq.add(item);
 	}
 	
+	/**
+	 * Stage value in a sequence in this frame.
+	 * Sequence is created, if it doesn't exist.
+	 */
 	public void stage(final K key, final T time, final Object value) {
 		stage(key, new TItem<>(time, value));
 	}
 	
+	/**
+	 * Stage item in a sequence in this frame.
+	 * Sequence is created, if it doesn't exist.
+	 */
 	public void stage(final K key, final TItem<T> item) {
 		TSeq<T> seq = _map.get(key);
 		if (seq == null) {
@@ -86,18 +102,27 @@ public final class TFrame<K, T extends Comparable<T>> {
 		seq.stage(item);
 	}
 	
+	/**
+	 * Accept staged items in all sequences.
+	 */
 	public void acceptStaged() {
 		for (TSeq<T> seq: _map.values()) {
 			seq.acceptStaged();
 		}
 	}
 	
+	/**
+	 * Clear staged items in all sequences.
+	 */
 	public void clearStaged() {
 		for (TSeq<T> seq: _map.values()) {
 			seq.clearStaged();
 		}
 	}
 	
+	/**
+	 * Add existing sequence to this frame.
+	 */
 	public void addSeq(final K key, final TSeq<T> seq) {
 		if (_map.containsKey(key)) {
 			throw new IllegalStateException("Sequence for key " + key + " already exists");
@@ -106,10 +131,18 @@ public final class TFrame<K, T extends Comparable<T>> {
 		_map.put(key, seq);
 	}
 	
+	/**
+	 * Get sequence from this frame.
+	 * Throws if key doesn't exist.
+	 */
 	public TSeq<T> getSeq(final K key) {
 		return getSeq(key, true);
 	}
 	
+	/**
+	 * Get sequence from this frame.
+	 * Returns null if key doesn't exist and !required.
+	 */
 	public TSeq<T> getSeq(final K key, final boolean required) {
 		TSeq<T> seq = _map.get(key);
 		if (seq == null && required) {
@@ -118,14 +151,23 @@ public final class TFrame<K, T extends Comparable<T>> {
 		return seq;
 	}
 	
+	/**
+	 * Get keys of all sequences in this frame.
+	 */
 	public List<K> getKeys() {
 		return _keysReadOnly;
 	}
 	
+	/**
+	 * Get key to sequence map of this frame.
+	 */
 	public Map<K, TSeq<T>> getMap() {
 		return _mapReadOnly;
 	}
 	
+	/**
+	 * Extract times present in all sequences of this frame.
+	 */
 	public void extractTimes(final Set<T> times) {
 		for (TSeq<T> seq : _map.values()) {
 			seq.extractTimes(times);
