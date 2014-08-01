@@ -39,17 +39,17 @@ public final class CSV_IO {
 
 	public static final <K, T extends Comparable<T>> String toCSV(
 			final TFrame<K, T> frame,
-			final IOMap<K> tsioMap) {
+			final IOMap<K> ioMap) {
 		
 		final StringBuilder sb = new StringBuilder();
-		sb.append(escape(tsioMap.getTimeFieldName()));
+		sb.append(escape(ioMap.getTimeFieldName()));
 
-		List<K> keys = tsioMap.getKeys();
+		List<K> keys = ioMap.getKeys();
 		for (int j=0; j<keys.size(); j++) {
 			
 			sb.append(SEP);
 			K key = keys.get(j);
-			sb.append(escape(tsioMap.getFieldName(key)));
+			sb.append(escape(ioMap.getFieldName(key)));
 		}
 		sb.append(NEW_LINE);
 		
@@ -61,14 +61,14 @@ public final class CSV_IO {
 			
 			final Map<K, TItem<T>> currKeyItems = iterator.next();
 			
-			sb.append(escape(tsioMap.getTimeDataType().toString(iterator.getCurrTime())));
+			sb.append(escape(ioMap.getTimeDataType().toString(iterator.getCurrTime())));
 			for (int j=0; j<keys.size(); j++) {
 				
 				sb.append(SEP);
 				K key = keys.get(j);
 				TItem<T> item = currKeyItems.get(key);
 				if (item != null) {
-					sb.append(escape(tsioMap.getDataType(key).toString(item.getObject())));
+					sb.append(escape(ioMap.getDataType(key).toString(item.getObject())));
 				}
 			}
 			sb.append(NEW_LINE);
@@ -78,7 +78,7 @@ public final class CSV_IO {
 
 	public static final <K, T extends Comparable<T>> TFrame<K,T> fromCSV(
 			final String data,
-			final IOMap<K> tsioMap) throws IOException {
+			final IOMap<K> ioMap) throws IOException {
 		
 		TFrame<K, T> frame = new TFrame<>();
 
@@ -101,17 +101,17 @@ public final class CSV_IO {
 					fieldIdxToKey = new HashMap<>();
 					for (int i=0; i<parts.length; i++) {
 						final String fieldName = unescape(parts[i].trim());
-						if (fieldName.equalsIgnoreCase(tsioMap.getTimeFieldName())) {
+						if (fieldName.equalsIgnoreCase(ioMap.getTimeFieldName())) {
 							timeFieldIdx = i;
 						} else {
-							K key = tsioMap.getKey(fieldName);
+							K key = ioMap.getKey(fieldName);
 							if (key != null) {
 								fieldIdxToKey.put(i, key);
 							}
 						}
 					}
 					if (timeFieldIdx < 0) {
-						throw new IOException("Could not find time field '" + tsioMap.getTimeFieldName() + "' in the headers");
+						throw new IOException("Could not find time field '" + ioMap.getTimeFieldName() + "' in the headers");
 					}
 					
 				} else {
@@ -128,7 +128,7 @@ public final class CSV_IO {
 					final T time;
 					try {
 						@SuppressWarnings("unchecked")
-						final T parsedTime = (T)tsioMap.getTimeDataType().fromString(timeStr);
+						final T parsedTime = (T)ioMap.getTimeDataType().fromString(timeStr);
 						time = parsedTime;
 					} catch (Exception ex) {
 						throw new IOException("Could not parse time at line index " + lineIndex + ": '" + timeStr + "'");
@@ -141,7 +141,7 @@ public final class CSV_IO {
 							continue;
 						}
 						final K key = fieldIdxToKey.get(fieldIdx);
-						final Object value = tsioMap.getDataType(key).fromString(partStr);
+						final Object value = ioMap.getDataType(key).fromString(partStr);
 						if (value != null) {
 							frame.stage(key, time, value);
 						}

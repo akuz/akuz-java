@@ -34,11 +34,11 @@ public final class TSeq<T extends Comparable<T>> {
 		}
 	}
 	
-	public void add(T time, Object value) {
+	public void add(final T time, final Object value) {
 		add(new TItem<>(time, value));
 	}
 
-	public void add(TItem<T> item) {
+	public void add(final TItem<T> item) {
 		int lastTimeCmp = -1;
 		TItem<T> lastItem = null;
 		if (_items.size() > 0) {
@@ -53,11 +53,11 @@ public final class TSeq<T extends Comparable<T>> {
 		_items.add(item);
 	}
 
-	public void stage(T time, Object value) {
+	public void stage(final T time, final Object value) {
 		stage(new TItem<>(time, value));
 	}
 	
-	public void stage(TItem<T> item) {
+	public void stage(final TItem<T> item) {
 		if (_staged == null) {
 			_staged = new ArrayList<>();
 			_stagedReadOnly = Collections.unmodifiableList(_staged);
@@ -90,7 +90,7 @@ public final class TSeq<T extends Comparable<T>> {
 		}
 	}
 	
-	public void extractTimes(Set<T> times) {
+	public void extractTimes(final Set<T> times) {
 		for (int i=0; i<_items.size(); i++) {
 			times.add(_items.get(i).getTime());
 		}

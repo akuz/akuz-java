@@ -10,8 +10,8 @@ import me.akuz.ts.TFrame;
 import me.akuz.ts.TSeq;
 
 /**
- * Describes time series IO map by match map
- * between keys, field names and data types.
+ * Describes time series IO map by matching
+ * the keys, field names and their data types.
  *
  */
 public final class IOMap<K> {
@@ -26,18 +26,48 @@ public final class IOMap<K> {
 	private final Map<K, IOType>  _mapKeyDataType;
 	private final Map<String, K>    _mapFieldNameKey;
 
+	/**
+	 * Create IO map for a sequence with default 
+	 * field name for the provided key.
+	 */
 	public IOMap(
 			final String timeFieldName, 
 			final IOType timeDataType, 
 			final TSeq<?> seq,
-			final K fieldName,
+			final K key,
 			final IOType dataType) {
 		
 		this(timeFieldName, timeDataType);
-		add(fieldName, dataType);
+		add(key, dataType);
 	}
 
-	public IOMap(final String timeFieldName, final IOType timeDataType, TFrame<K, ?> frame, IOType dataType) {
+	/**
+	 * Create IO map for a sequence with the 
+	 * provided key and field name.
+	 */
+	public IOMap(
+			final String timeFieldName, 
+			final IOType timeDataType, 
+			final TSeq<?> seq,
+			final K key,
+			final String fieldName,
+			final IOType dataType) {
+		
+		this(timeFieldName, timeDataType);
+		add(key, fieldName, dataType);
+	}
+
+	/**
+	 * Create IO map for a frame by assigning
+	 * all frame keys default field names and
+	 * the same data type.
+	 */
+	public IOMap(
+			final String timeFieldName, 
+			final IOType timeDataType, 
+			TFrame<K, ?> frame, 
+			IOType dataType) {
+		
 		this(timeFieldName, timeDataType);
 		final List<K> keys = frame.getKeys();
 		for (int i=0; i<keys.size(); i++) {
@@ -45,6 +75,9 @@ public final class IOMap<K> {
 		}
 	}
 
+	/**
+	 * Create an empty IO map with no fields.
+	 */
 	public IOMap(final String timeFieldName, final IOType timeDataType) {
 		if (timeFieldName == null) {
 			throw new IllegalArgumentException("Time field name cannot be null");
@@ -89,7 +122,7 @@ public final class IOMap<K> {
 	}
 	
 	/**
-	 * Add field for the key with default name key.toString().
+	 * Add field for the key with a default name.
 	 */
 	public void add(final K key, final IOType dataType) {
 		add(key, key.toString(), dataType);

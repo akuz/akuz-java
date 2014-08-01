@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
 /**
  * Time series frame.
  *
@@ -21,6 +20,9 @@ public final class TFrame<K, T extends Comparable<T>> {
 	private final Map<K, TSeq<T>> _map;
 	private final Map<K, TSeq<T>> _mapReadOnly;
 	
+	/**
+	 * Contain an empty frame.
+	 */
 	public TFrame() {
 		_keys = new ArrayList<>();
 		_keysReadOnly = Collections.unmodifiableList(_keys);
@@ -28,11 +30,39 @@ public final class TFrame<K, T extends Comparable<T>> {
 		_mapReadOnly = Collections.unmodifiableMap(_map);
 	}
 	
-	public void add(K key, T time, Object value) {
+	/**
+	 * Create a frame containing a sequence provided.
+	 */
+	public TFrame(final K key, final TSeq<T> seq) {
+		this();
+		addSeq(key, seq);
+	}
+	
+	/**
+	 * Create a frame with sequences from all provided frames.
+	 * The keys in frames being combined must be unique across 
+	 * all combined frames.
+	 */
+	@SafeVarargs
+	public TFrame(final TFrame<K, T> ... frames) {
+		this();
+		if (frames != null && frames.length > 0) {
+			for (int i=0; i<frames.length; i++) {
+				final TFrame<K, T> frame = frames[i];
+				final List<K> keys = frame.getKeys();
+				for (int j=0; j<keys.size(); j++) {
+					final K key = keys.get(j);
+					addSeq(key, frame.getSeq(key));
+				}
+			}
+		}
+	}
+	
+	public void add(final K key, final T time, final Object value) {
 		add(key, new TItem<>(time, value));
 	}
 		
-	public void add(K key, TItem<T> item) {
+	public void add(final K key, final TItem<T> item) {
 		TSeq<T> seq = _map.get(key);
 		if (seq == null) {
 			seq = new TSeq<>();
@@ -42,11 +72,11 @@ public final class TFrame<K, T extends Comparable<T>> {
 		seq.add(item);
 	}
 	
-	public void stage(K key, T time, Object value) {
+	public void stage(final K key, final T time, final Object value) {
 		stage(key, new TItem<>(time, value));
 	}
 	
-	public void stage(K key, TItem<T> item) {
+	public void stage(final K key, final TItem<T> item) {
 		TSeq<T> seq = _map.get(key);
 		if (seq == null) {
 			seq = new TSeq<>();
@@ -68,7 +98,7 @@ public final class TFrame<K, T extends Comparable<T>> {
 		}
 	}
 	
-	public void addSeq(K key, TSeq<T> seq) {
+	public void addSeq(final K key, final TSeq<T> seq) {
 		if (_map.containsKey(key)) {
 			throw new IllegalStateException("Sequence for key " + key + " already exists");
 		}
@@ -76,11 +106,11 @@ public final class TFrame<K, T extends Comparable<T>> {
 		_map.put(key, seq);
 	}
 	
-	public TSeq<T> getSeq(K key) {
+	public TSeq<T> getSeq(final K key) {
 		return getSeq(key, true);
 	}
 	
-	public TSeq<T> getSeq(K key, boolean required) {
+	public TSeq<T> getSeq(final K key, final boolean required) {
 		TSeq<T> seq = _map.get(key);
 		if (seq == null && required) {
 			throw new IllegalStateException("Sequence for key '" + key + "' does not exist");
@@ -96,7 +126,7 @@ public final class TFrame<K, T extends Comparable<T>> {
 		return _mapReadOnly;
 	}
 	
-	public void extractTimes(Set<T> times) {
+	public void extractTimes(final Set<T> times) {
 		for (TSeq<T> seq : _map.values()) {
 			seq.extractTimes(times);
 		}
