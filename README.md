@@ -1,4 +1,4 @@
-akuz-java-libs
+akuz-java
 ==============
 
 After using github for some time, I've decided to consolidate
