@@ -7,23 +7,20 @@ import me.akuz.core.Period;
 import me.akuz.ts.TSeq;
 import me.akuz.ts.TItem;
 
-public final class ActivePeriodTSDeriver {
+public final class IsActive {
 	
-	private final long _onPeriodMs;
-	private final long _offPeriodMs;
-	
-	public ActivePeriodTSDeriver(Period onPeriod, Period offPeriod) {
-		_onPeriodMs  = onPeriod.getMs();
-		_offPeriodMs = offPeriod.getMs();
-	}
-	
-	public TSeq<Date> derive(final TSeq<Date> seq) {
+	public static TSeq<Date> calc(
+			final TSeq<Date> seq,
+			final Period onPeriod,
+			final Period offPeriod) {
 		
-		final TSeq<Date> seqActivePeriod = new TSeq<>();
+		final long onPeriodMs = onPeriod.getMs();
+		final long offPeriodMs = offPeriod.getMs();
+		final TSeq<Date> seqActive = new TSeq<>();
 
 		Date prevDate = null;
 		Date lastTurnOnDate = null;
-		Date currActiveStretchStartDate = null;
+		Date currActiveStartDate = null;
 		boolean isActive = false;
 		
 		final List<TItem<Date>> items = seq.getItems();
@@ -35,7 +32,7 @@ public final class ActivePeriodTSDeriver {
 			if (isActive) {
 				
 				// check if still on
-				if (getDistanceMs(prevDate, date) > _offPeriodMs) {
+				if (getDistanceMs(prevDate, date) > offPeriodMs) {
 					
 					if (lastTurnOnDate != null) {
 						
@@ -43,19 +40,19 @@ public final class ActivePeriodTSDeriver {
 						if (lastTurnOnDate.compareTo(prevDate) < 0) {
 							
 							// non-empty active period ended
-							seqActivePeriod.acceptStaged();
-							seqActivePeriod.add(new TItem<Date>(prevDate, false));
+							seqActive.acceptStaged();
+							seqActive.add(new TItem<Date>(prevDate, false));
 							
 						} else {
 	
 							// empty active period ended
-							seqActivePeriod.clearStaged();
+							seqActive.clearStaged();
 						}
 					}
 					
 					isActive = false;
 					lastTurnOnDate = null;
-					currActiveStretchStartDate = date;
+					currActiveStartDate = date;
 				}
 				
 			} else {
@@ -64,24 +61,24 @@ public final class ActivePeriodTSDeriver {
 				if (prevDate != null) {
 					
 					// check if there were no items for a long time
-					if (getDistanceMs(prevDate, date) > _offPeriodMs) {
+					if (getDistanceMs(prevDate, date) > offPeriodMs) {
 						
 						// reset active stretch start
-						currActiveStretchStartDate = date;
+						currActiveStartDate = date;
 					}
 					
 				} else {
 					
 					// initial active stretch start
-					currActiveStretchStartDate = date;
+					currActiveStartDate = date;
 				}
 				
 				// check if time to turn on
-				if (getDistanceMs(currActiveStretchStartDate, date) >= _onPeriodMs) {
+				if (getDistanceMs(currActiveStartDate, date) >= onPeriodMs) {
 					
 					isActive = true;
 					lastTurnOnDate = date;
-					seqActivePeriod.stage(date, true);
+					seqActive.stage(date, true);
 				}
 			}
 			
@@ -96,24 +93,26 @@ public final class ActivePeriodTSDeriver {
 				if (lastTurnOnDate.compareTo(prevDate) < 0) {
 					
 					// non-empty active period ended
-					seqActivePeriod.acceptStaged();
-					seqActivePeriod.add(new TItem<Date>(prevDate, false));
+					seqActive.acceptStaged();
+					seqActive.add(new TItem<Date>(prevDate, false));
 					
 				} else {
 	
 					// empty active period ended
-					seqActivePeriod.clearStaged();
+					seqActive.clearStaged();
 				}
 			}
 		}
 		
-		return seqActivePeriod;
+		return seqActive;
 	}
 	
-	private final static long getDistanceMs(Date from, Date to) {
+	private final static long getDistanceMs(
+			final Date fromDate, 
+			final Date toDate) {
 		
-		long fromMs = from.getTime();
-		long toMs = to.getTime();
+		final long fromMs = fromDate.getTime();
+		final long toMs = toDate.getTime();
 		
 		if (fromMs > toMs) {
 			throw new IllegalArgumentException("Dates are not in chronological order");
