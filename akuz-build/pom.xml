@@ -16,12 +16,12 @@
   </dependencies>
   <modules>
   	<module>../akuz-core</module>
+  	<module>../akuz-ml</module>
   	<module>../akuz-mnist-digits</module>
   	<module>../akuz-nlp</module>
   	<module>../akuz-nlp-run-lda</module>
   	<module>../akuz-qf</module>
   	<module>../akuz-ts</module>
-  	<module>../akuz-ml</module>
   </modules>
   <url>http://akuz.me</url>
 </project>
