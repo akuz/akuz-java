@@ -114,7 +114,7 @@ public final class TFrameFilter<K, T extends Comparable<T>> {
 			TItem<T> currStateItem = null;
 			
 			if (filters == null) {
-				// FIXME: throw if not filters
+				// FIXME: throw if not filters?
 				currStateItem = currItem;
 			} else {
 				for (int j=0; j<filters.size(); j++) {
