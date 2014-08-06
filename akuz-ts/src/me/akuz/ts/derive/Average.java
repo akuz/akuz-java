@@ -8,7 +8,7 @@ import java.util.Set;
 
 import me.akuz.ts.TItem;
 import me.akuz.ts.TFrame;
-import me.akuz.ts.align.TSAlignIterator;
+import me.akuz.ts.filters.TFrameAligner;
 
 public final class Average {
 
@@ -84,10 +84,12 @@ public final class Average {
 			toFrame = new TFrame<>();
 		}
 		
-		final TSAlignIterator<K, T> iterator = new TSAlignIterator<>(frame, times, keys);
-		while (iterator.hasNext()) {
+		final TFrameAligner<K, T> frameAligner = new TFrameAligner<>(frame, keys, times);
+		while (frameAligner.hasNext()) {
 			
-			Map<K, TItem<T>> currValues = iterator.next();
+			frameAligner.next();
+			
+			final Map<K, TItem<T>> currValues = frameAligner.getCurrItems();
 			
 			double average = 0;
 			for (Entry<K, TItem<T>> entry : currValues.entrySet()) {
@@ -98,7 +100,7 @@ public final class Average {
 			
 			average /= keys.size();
 			
-			toFrame.add(toKey, iterator.getCurrTime(), average);
+			toFrame.add(toKey, frameAligner.getCurrTime(), average);
 		}
 	
 		return toFrame;

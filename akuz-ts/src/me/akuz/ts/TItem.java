@@ -61,6 +61,6 @@ public final class TItem<T extends Comparable<T>> implements Comparable<TItem<T>
 	
 	@Override
 	public String toString() {
-		return "(" + _time + ":" + _value + ")";
+		return "{time: " + _time + ", value: " + _value + "}";
 	}
 }

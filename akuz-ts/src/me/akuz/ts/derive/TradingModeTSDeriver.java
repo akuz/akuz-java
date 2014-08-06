@@ -6,7 +6,7 @@ import java.util.Map;
 import me.akuz.ts.TFrame;
 import me.akuz.ts.TSeq;
 import me.akuz.ts.TItem;
-import me.akuz.ts.align.TSAlignIterator;
+import me.akuz.ts.filters.TFrameAligner;
 
 public final class TradingModeTSDeriver<T extends Comparable<T>> {
 	
@@ -25,13 +25,16 @@ public final class TradingModeTSDeriver<T extends Comparable<T>> {
 		iteratorFrame.addSeq(SEQ_PRICE, seqPrice);
 		iteratorFrame.addSeq(SEQ_ACTIVE_PERIOD, seqActivePeriod);
 		
-		TSAlignIterator<Integer, T> iterator = new TSAlignIterator<>(iteratorFrame, times, iteratorFrame.getMap().keySet());
+		TFrameAligner<Integer, T> frameAligner = new TFrameAligner<>(iteratorFrame, iteratorFrame.getKeys(), times);
 		boolean rollingActivePeriod = false;
-		while (iterator.hasNext()) {
+		while (frameAligner.hasNext()) {
 			
-			final Map<Integer, TItem<T>> currValues = iterator.next();
-			final T currTime = iterator.getCurrTime();
+			frameAligner.next();
+			
+			final Map<Integer, TItem<T>> currValues = frameAligner.getCurrItems();
+			final T currTime = frameAligner.getCurrTime();
 			final Double currPrice;
+			
 			{
 				TItem<T> currPriceItem = currValues.get(SEQ_PRICE);
 				if (currPriceItem != null) {

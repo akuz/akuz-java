@@ -3,6 +3,7 @@ package me.akuz.ts;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -166,11 +167,22 @@ public final class TFrame<K, T extends Comparable<T>> {
 	}
 	
 	/**
-	 * Extract times present in all sequences of this frame.
+	 * Extract times present in all sequences 
+	 * of this frame into a provided set.
 	 */
 	public void extractTimes(final Set<T> times) {
 		for (TSeq<T> seq : _map.values()) {
 			seq.extractTimes(times);
 		}
+	}
+
+	/**
+	 * Extract times present in all sequences 
+	 * of this frame into a new set.
+	 */
+	public Set<T> extractTimes() {
+		final Set<T> times = new HashSet<>();
+		extractTimes(times);
+		return times;
 	}
 }

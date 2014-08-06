@@ -13,7 +13,7 @@ import org.junit.Test;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 
-public class IO_Tests {
+public class TSIO_Test {
 	
 	@Test
 	public void differentDataTypesTest() throws IOException {

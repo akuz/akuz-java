@@ -10,7 +10,7 @@ import java.util.Set;
 
 import me.akuz.ts.TFrame;
 import me.akuz.ts.TItem;
-import me.akuz.ts.align.TSAlignIterator;
+import me.akuz.ts.filters.TFrameAligner;
 
 /**
  * CSV time series IO functions.
@@ -56,12 +56,14 @@ public final class CSV_IO {
 		final Set<T> timeSet = new HashSet<>();
 		frame.extractTimes(timeSet);
 
-		final TSAlignIterator<K, T> iterator = new TSAlignIterator<>(frame, timeSet, keys);
-		while (iterator.hasNext()) {
+		final TFrameAligner<K, T> frameAligner = new TFrameAligner<>(frame, keys, timeSet);
+		while (frameAligner.hasNext()) {
 			
-			final Map<K, TItem<T>> currKeyItems = iterator.next();
+			frameAligner.next();
 			
-			sb.append(escape(ioMap.getTimeDataType().toString(iterator.getCurrTime())));
+			final Map<K, TItem<T>> currKeyItems = frameAligner.getCurrItems();
+			
+			sb.append(escape(ioMap.getTimeDataType().toString(frameAligner.getCurrTime())));
 			for (int j=0; j<keys.size(); j++) {
 				
 				sb.append(SEP);

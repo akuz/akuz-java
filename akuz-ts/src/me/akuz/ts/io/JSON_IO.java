@@ -9,7 +9,7 @@ import java.util.Set;
 
 import me.akuz.ts.TFrame;
 import me.akuz.ts.TItem;
-import me.akuz.ts.align.TSAlignIterator;
+import me.akuz.ts.filters.TFrameAligner;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -35,17 +35,19 @@ public final class JSON_IO {
 		
 		final List<K> keys = ioMap.getKeys();
 
-		final TSAlignIterator<K, T> iterator = new TSAlignIterator<K, T>(frame, timeSet, keys);
-		while (iterator.hasNext()) {
+		final TFrameAligner<K, T> frameAligner = new TFrameAligner<K, T>(frame, keys, timeSet);
+		while (frameAligner.hasNext()) {
 			
-			final Map<K, TItem<T>> currKeyItems = iterator.next();
+			frameAligner.next();
+			
+			final Map<K, TItem<T>> currKeyItems = frameAligner.getCurrItems();
 
 			final JsonObject jsonObj = new JsonObject();
 			
 			ioMap.getTimeDataType().toJsonField(
 					jsonObj, 
 					ioMap.getTimeFieldName(), 
-					iterator.getCurrTime());
+					frameAligner.getCurrTime());
 
 			for (int j=0; j<keys.size(); j++) {
 				
