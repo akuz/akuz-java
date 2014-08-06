@@ -109,24 +109,30 @@ public final class TFrameFilter<K, T extends Comparable<T>> {
 			final TItem<T> currItem = currItemsMap.get(key);
 			final List<TItem<T>> movedItems = movedItemsMap.get(key);
 			
-			final List<TFilter<T>> states = _filters.get(key);
+			final List<TFilter<T>> filters = _filters.get(key);
 			
 			TItem<T> currStateItem = null;
-			for (int j=0; j<states.size(); j++) {
-				
-				final TFilter<T> state = states.get(j);
-				
-				state.next(_log, currTime, currItem, movedItems);
-				
-				final TItem<T> proposedStateItem = state.getCurrent();
-				if (proposedStateItem != null) {
-					if (currStateItem != null) {
-						throw new IllegalStateException(
-								"Two current states generated for key " +
-								key + " at time " + currTime + ", 1: " +
-								currStateItem + ", 2: " + proposedStateItem);
+			
+			if (filters == null) {
+				// FIXME: throw if not filters
+				currStateItem = currItem;
+			} else {
+				for (int j=0; j<filters.size(); j++) {
+					
+					final TFilter<T> state = filters.get(j);
+					
+					state.next(_log, currTime, currItem, movedItems);
+					
+					final TItem<T> proposedStateItem = state.getCurrent();
+					if (proposedStateItem != null) {
+						if (currStateItem != null) {
+							throw new IllegalStateException(
+									"Two current states generated for key " +
+									key + " at time " + currTime + ", 1: " +
+									currStateItem + ", 2: " + proposedStateItem);
+						}
+						currStateItem = proposedStateItem;
 					}
-					currStateItem = proposedStateItem;
 				}
 			}
 			_currStateItems.put(key, currStateItem);
