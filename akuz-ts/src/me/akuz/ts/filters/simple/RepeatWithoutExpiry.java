@@ -6,16 +6,16 @@ import me.akuz.ts.TItem;
 import me.akuz.ts.filters.TFilter;
 import me.akuz.ts.log.TLog;
 
-public final class LastWithoutExpiry<T extends Comparable<T>> extends TFilter<T> {
+public final class RepeatWithoutExpiry<T extends Comparable<T>> extends TFilter<T> {
 	
 	private Object _defaultValue;
 	private TItem<T> _currFilterItem;
 	
-	public LastWithoutExpiry() {
+	public RepeatWithoutExpiry() {
 		this(null);
 	}
 	
-	public LastWithoutExpiry(Object defaultValue) {
+	public RepeatWithoutExpiry(Object defaultValue) {
 		_defaultValue = defaultValue;
 	}
 

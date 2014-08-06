@@ -9,7 +9,7 @@ import me.akuz.ts.filters.TFilter;
 import me.akuz.ts.log.TLog;
 import me.akuz.ts.log.TLogLevel;
 
-public class CheckDateJumps extends TFilter<Date> {
+public class CheckDateGaps extends TFilter<Date> {
 	
 	private String _fieldName;
 	private final Period _infoAfterPeriod;
@@ -18,7 +18,7 @@ public class CheckDateJumps extends TFilter<Date> {
 	private TLogLevel _lastLevel;
 	private Date _lastDate;
 	
-	public CheckDateJumps(
+	public CheckDateGaps(
 			final Period infoAfterPeriod,
 			final Period warningAfterPeriod,
 			final Period errorAfterPeriod) {

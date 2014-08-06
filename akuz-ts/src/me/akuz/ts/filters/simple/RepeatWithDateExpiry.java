@@ -8,18 +8,18 @@ import me.akuz.ts.TItem;
 import me.akuz.ts.filters.TFilter;
 import me.akuz.ts.log.TLog;
 
-public final class LastWithDateExpiry extends TFilter<Date> {
+public final class RepeatWithDateExpiry extends TFilter<Date> {
 	
 	private String _fieldName;
 	private final Period _alivePeriod;
 	private final Object _defaultValue;
 	private TItem<Date> _currFilterItem;
 	
-	public LastWithDateExpiry(final Period alivePeriod) {
+	public RepeatWithDateExpiry(final Period alivePeriod) {
 		this(alivePeriod, null);
 	}
 	
-	public LastWithDateExpiry(final Period alivePeriod, Object defaultValue) {
+	public RepeatWithDateExpiry(final Period alivePeriod, Object defaultValue) {
 		_fieldName = "unspecified";
 		_alivePeriod = alivePeriod;
 		_defaultValue = defaultValue;

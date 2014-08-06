@@ -11,7 +11,7 @@ import me.akuz.ts.TFrame;
 import me.akuz.ts.TSeq;
 import me.akuz.ts.filters.TFrameAligner;
 import me.akuz.ts.filters.TFrameFilter;
-import me.akuz.ts.filters.simple.CheckDateJumps;
+import me.akuz.ts.filters.simple.CheckDateGaps;
 import me.akuz.ts.log.TLog;
 
 import org.junit.Assert;
@@ -37,7 +37,7 @@ public class CheckDateJumpsTest {
 		Period errorAfterPeriod   = Period.fromDays(3.5);
 		
 		final TLog log = new TLog();
-		final CheckDateJumps checkDateJumps = new CheckDateJumps(infoAfterPeriod, warningAfterPeriod, errorAfterPeriod);
+		final CheckDateGaps checkDateJumps = new CheckDateGaps(infoAfterPeriod, warningAfterPeriod, errorAfterPeriod);
 		
 		final TFrameAligner<String, Date> frameAligner = new TFrameAligner<>(
 				frame,
@@ -113,7 +113,7 @@ public class CheckDateJumpsTest {
 		Period errorAfterPeriod   = Period.fromDays(2.99);
 		
 		final TLog log = new TLog();
-		final CheckDateJumps checkDateJumps = new CheckDateJumps(infoAfterPeriod, warningAfterPeriod, errorAfterPeriod);
+		final CheckDateGaps checkDateJumps = new CheckDateGaps(infoAfterPeriod, warningAfterPeriod, errorAfterPeriod);
 		
 		final TFrameAligner<String, Date> frameAligner = new TFrameAligner<>(
 				frame,
