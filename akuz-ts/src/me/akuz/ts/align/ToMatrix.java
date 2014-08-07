@@ -10,7 +10,7 @@ import me.akuz.core.Index;
 import me.akuz.ts.TItem;
 import me.akuz.ts.TFrame;
 import me.akuz.ts.filters.TFilter;
-import me.akuz.ts.filters.TFrameAligner;
+import me.akuz.ts.filters.TFrameStepper;
 import me.akuz.ts.filters.TFrameFilter;
 import me.akuz.ts.log.TLog;
 import Jama.Matrix;
@@ -54,7 +54,7 @@ public final class ToMatrix<T extends Comparable<T>> {
 		final Matrix m = new Matrix(_times.size(), keysIndex.size(), Double.NaN);
 		int i = 0;
 
-		final TFrameAligner<K, T> frameAligner = new TFrameAligner<>(frame, keysIndex.getMap().keySet(), _times);
+		final TFrameStepper<K, T> frameAligner = new TFrameStepper<>(frame, keysIndex.getMap().keySet(), _times);
 		
 		final TFrameFilter.Builder<K, T> frameFilterBuilder = TFrameFilter.on(frameAligner);
 		if (filters != null) {
@@ -97,7 +97,7 @@ public final class ToMatrix<T extends Comparable<T>> {
 		
 		TFrame<K, T> result = new TFrame<>();
 
-		final TFrameAligner<K, T> frameAligner = new TFrameAligner<>(frame, keys, _times);
+		final TFrameStepper<K, T> frameAligner = new TFrameStepper<>(frame, keys, _times);
 		
 		final TFrameFilter.Builder<K, T> frameFilterBuilder = TFrameFilter.on(frameAligner);
 		for (TFilter<T> filter : filters) {

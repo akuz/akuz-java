@@ -9,7 +9,7 @@ import me.akuz.core.DateFmt;
 import me.akuz.core.Period;
 import me.akuz.ts.TFrame;
 import me.akuz.ts.TSeq;
-import me.akuz.ts.filters.TFrameAligner;
+import me.akuz.ts.filters.TFrameStepper;
 import me.akuz.ts.filters.TFrameFilter;
 import me.akuz.ts.filters.simple.CheckDateGaps;
 import me.akuz.ts.log.TLog;
@@ -39,7 +39,7 @@ public class CheckDateJumpsTest {
 		final TLog log = new TLog();
 		final CheckDateGaps checkDateJumps = new CheckDateGaps(infoAfterPeriod, warningAfterPeriod, errorAfterPeriod);
 		
-		final TFrameAligner<String, Date> frameAligner = new TFrameAligner<>(
+		final TFrameStepper<String, Date> frameAligner = new TFrameStepper<>(
 				frame,
 				frame.getKeys(),
 				times);
@@ -115,7 +115,7 @@ public class CheckDateJumpsTest {
 		final TLog log = new TLog();
 		final CheckDateGaps checkDateJumps = new CheckDateGaps(infoAfterPeriod, warningAfterPeriod, errorAfterPeriod);
 		
-		final TFrameAligner<String, Date> frameAligner = new TFrameAligner<>(
+		final TFrameStepper<String, Date> frameAligner = new TFrameStepper<>(
 				frame,
 				frame.getKeys(),
 				times);

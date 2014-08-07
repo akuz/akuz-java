@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.RandomAccess;
 
+import me.akuz.ts.TFrameIterator;
 import me.akuz.ts.TFrame;
 import me.akuz.ts.TItem;
 import me.akuz.ts.TSeq;
@@ -17,7 +18,7 @@ import me.akuz.ts.TSeq;
  * the sequences of items in time.
  * 
  */
-public final class TFrameAligner<K, T extends Comparable<T>> {
+public final class TFrameStepper<K, T extends Comparable<T>> implements TFrameIterator<K, T> {
 
 	private final TFrame<K, T> _frame;
 	private final List<T> _times;
@@ -32,7 +33,7 @@ public final class TFrameAligner<K, T extends Comparable<T>> {
 	 * Create frame iterator for all keys,
 	 * to iterate over all times in the frame.
 	 */
-	public TFrameAligner(final TFrame<K, T> frame) {
+	public TFrameStepper(final TFrame<K, T> frame) {
 
 		this(frame, frame.getKeys(), frame.extractTimes());
 	}
@@ -41,7 +42,7 @@ public final class TFrameAligner<K, T extends Comparable<T>> {
 	 * Create frame iterator for specific keys,
 	 * to iterate over all times in the frame.
 	 */
-	public TFrameAligner(
+	public TFrameStepper(
 			final TFrame<K, T> frame,
 			final Collection<K> keys) {
 		
@@ -52,7 +53,7 @@ public final class TFrameAligner<K, T extends Comparable<T>> {
 	 * Create frame iterator for specific keys 
 	 * and times to iterate over.
 	 */
-	public TFrameAligner(
+	public TFrameStepper(
 			final TFrame<K, T> frame,
 			final Collection<K> keys,
 			final Collection<T> times) {
@@ -114,6 +115,7 @@ public final class TFrameAligner<K, T extends Comparable<T>> {
 	 * Check if there are more times 
 	 * to iterate over.
 	 */
+	@Override
 	public boolean hasNext() {
 		return _timeCursor + 1 < _times.size();
 	}
@@ -121,6 +123,7 @@ public final class TFrameAligner<K, T extends Comparable<T>> {
 	/**
 	 * Get current iterator time.
 	 */
+	@Override
 	public T getCurrTime() {
 		return _currTime;
 	}
@@ -129,6 +132,7 @@ public final class TFrameAligner<K, T extends Comparable<T>> {
 	 * Get items occurred *exactly* 
 	 * at the current iterator time.
 	 */
+	@Override
 	public Map<K, TItem<T>> getCurrItems() {
 		return _currItems;
 	}
@@ -145,6 +149,7 @@ public final class TFrameAligner<K, T extends Comparable<T>> {
 	/**
 	 * Move to the next iterator time.
 	 */
+	@Override
 	public void next() {
 		
 		_timeCursor++;

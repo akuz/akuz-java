@@ -10,7 +10,7 @@ import java.util.Set;
 
 import me.akuz.ts.TFrame;
 import me.akuz.ts.TItem;
-import me.akuz.ts.filters.TFrameAligner;
+import me.akuz.ts.filters.TFrameStepper;
 
 /**
  * CSV time series IO functions.
@@ -56,7 +56,7 @@ public final class CSV_IO {
 		final Set<T> timeSet = new HashSet<>();
 		frame.extractTimes(timeSet);
 
-		final TFrameAligner<K, T> frameAligner = new TFrameAligner<>(frame, keys, timeSet);
+		final TFrameStepper<K, T> frameAligner = new TFrameStepper<>(frame, keys, timeSet);
 		while (frameAligner.hasNext()) {
 			
 			frameAligner.next();

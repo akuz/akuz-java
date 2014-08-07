@@ -5,10 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import me.akuz.ts.TFrameIterator;
 import me.akuz.ts.TItem;
 import me.akuz.ts.log.TLog;
 
-public final class TFrameFilter<K, T extends Comparable<T>> {
+public final class TFrameFilter<K, T extends Comparable<T>> implements TFrameIterator<K, T> {
 	
 	/**
 	 * Frame roll builder class.
@@ -18,7 +19,7 @@ public final class TFrameFilter<K, T extends Comparable<T>> {
 		
 		private final TFrameFilter<K, T> _proto;
 		
-		public Builder(TFrameAligner<K, T> frameIterator) {
+		public Builder(TFrameStepper<K, T> frameIterator) {
 			_proto = new TFrameFilter<>(frameIterator);
 		}
 		
@@ -58,7 +59,7 @@ public final class TFrameFilter<K, T extends Comparable<T>> {
 	 * 
 	 */
 	public static <K, T extends Comparable<T>> 
-	Builder<K, T> on(final TFrameAligner<K, T> frameAligner) {
+	Builder<K, T> on(final TFrameStepper<K, T> frameAligner) {
 		
 		return new Builder<>(frameAligner);
 	}
@@ -67,12 +68,12 @@ public final class TFrameFilter<K, T extends Comparable<T>> {
 	 * Private frame roll data.
 	 * 
 	 */
-	private final TFrameAligner<K, T> _frameAligner;
+	private final TFrameStepper<K, T> _frameAligner;
 	private final Map<K, List<TFilter<T>>> _filters;
 	private final Map<K, TItem<T>> _currStateItems;
 	private TLog _log;
 	
-	private TFrameFilter(final TFrameAligner<K, T> frameAligner) {
+	private TFrameFilter(final TFrameStepper<K, T> frameAligner) {
 		
 		if (frameAligner == null) {
 			throw new IllegalArgumentException("Iterator cannot be null");
@@ -82,18 +83,22 @@ public final class TFrameFilter<K, T extends Comparable<T>> {
 		_currStateItems = new HashMap<>();
 	}
 	
+	@Override
 	public T getCurrTime() {
 		return _frameAligner.getCurrTime();
 	}
 	
+	@Override
 	public Map<K, TItem<T>> getCurrItems() {
 		return _currStateItems;
 	}
 	
+	@Override
 	public boolean hasNext() {
 		return _frameAligner.hasNext();
 	}
 	
+	@Override
 	public void next() {
 		
 		_frameAligner.next();
