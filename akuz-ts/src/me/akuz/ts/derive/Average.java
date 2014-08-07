@@ -8,7 +8,7 @@ import java.util.Set;
 
 import me.akuz.ts.TItem;
 import me.akuz.ts.TFrame;
-import me.akuz.ts.filters.TFrameStepper;
+import me.akuz.ts.filters.TFrameWalker;
 
 public final class Average {
 
@@ -84,7 +84,7 @@ public final class Average {
 			toFrame = new TFrame<>();
 		}
 		
-		final TFrameStepper<K, T> frameAligner = new TFrameStepper<>(frame, keys, times);
+		final TFrameWalker<K, T> frameAligner = new TFrameWalker<>(frame, keys, times);
 		while (frameAligner.hasNext()) {
 			
 			frameAligner.next();

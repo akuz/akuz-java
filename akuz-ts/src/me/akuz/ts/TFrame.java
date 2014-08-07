@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import me.akuz.ts.filters.TFrameWalker;
+
 /**
  * Time series frame containing multiple sequences.
  *
@@ -184,5 +186,13 @@ public final class TFrame<K, T extends Comparable<T>> {
 		final Set<T> times = new HashSet<>();
 		extractTimes(times);
 		return times;
+	}
+	
+	/**
+	 * Create default frame walker.
+	 * 
+	 */
+	public TFrameWalker<K, T> walker() {
+		return new TFrameWalker<>(this);
 	}
 }

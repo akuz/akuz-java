@@ -6,7 +6,7 @@ import java.util.Map;
  * Frame iterator interface.
  * 
  */
-public interface TFrameIterator<K, T extends Comparable<T>> {
+public interface TFrameIter<K, T extends Comparable<T>> {
 
 	public boolean hasNext();
 	

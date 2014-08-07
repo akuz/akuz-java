@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.RandomAccess;
 
-import me.akuz.ts.TFrameIterator;
+import me.akuz.ts.TFrameIter;
 import me.akuz.ts.TFrame;
 import me.akuz.ts.TItem;
 import me.akuz.ts.TSeq;
@@ -18,7 +18,7 @@ import me.akuz.ts.TSeq;
  * the sequences of items in time.
  * 
  */
-public final class TFrameStepper<K, T extends Comparable<T>> implements TFrameIterator<K, T> {
+public final class TFrameWalker<K, T extends Comparable<T>> implements TFrameIter<K, T> {
 
 	private final TFrame<K, T> _frame;
 	private final List<T> _times;
@@ -33,7 +33,7 @@ public final class TFrameStepper<K, T extends Comparable<T>> implements TFrameIt
 	 * Create frame iterator for all keys,
 	 * to iterate over all times in the frame.
 	 */
-	public TFrameStepper(final TFrame<K, T> frame) {
+	public TFrameWalker(final TFrame<K, T> frame) {
 
 		this(frame, frame.getKeys(), frame.extractTimes());
 	}
@@ -42,7 +42,7 @@ public final class TFrameStepper<K, T extends Comparable<T>> implements TFrameIt
 	 * Create frame iterator for specific keys,
 	 * to iterate over all times in the frame.
 	 */
-	public TFrameStepper(
+	public TFrameWalker(
 			final TFrame<K, T> frame,
 			final Collection<K> keys) {
 		
@@ -53,7 +53,7 @@ public final class TFrameStepper<K, T extends Comparable<T>> implements TFrameIt
 	 * Create frame iterator for specific keys 
 	 * and times to iterate over.
 	 */
-	public TFrameStepper(
+	public TFrameWalker(
 			final TFrame<K, T> frame,
 			final Collection<K> keys,
 			final Collection<T> times) {
