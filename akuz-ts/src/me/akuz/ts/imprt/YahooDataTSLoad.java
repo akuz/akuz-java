@@ -14,21 +14,21 @@ import java.util.regex.Pattern;
 
 import me.akuz.core.DateFmt;
 import me.akuz.core.FileUtils;
-import me.akuz.ts.TFrame;
-import me.akuz.ts.TCube;
+import me.akuz.ts.Frame;
+import me.akuz.ts.Cube;
 
 public final class YahooDataTSLoad {
 	
 	private static final Pattern _csvExtensionPattern = Pattern.compile("\\.csv$", Pattern.CASE_INSENSITIVE);
 	
-	public final static TFrame<QuoteField, Date> loadFileFrame(
+	public final static Frame<QuoteField, Date> loadFileFrame(
 			final String fileName, 
 			final Date minDate,
 			final Date maxDate,
 			final TimeZone timeZone, 
 			final EnumSet<QuoteField> fields) throws IOException, ParseException {
 
-		TFrame<QuoteField, Date> frame = new TFrame<>();
+		Frame<QuoteField, Date> frame = new Frame<>();
 	
 		Scanner scanner = FileUtils.openScanner(fileName, "UTF-8");
 		try {
@@ -107,7 +107,7 @@ public final class YahooDataTSLoad {
 		return frame;
 	}
 	
-	public static final TCube<String, QuoteField, Date> loadDirCube(
+	public static final Cube<String, QuoteField, Date> loadDirCube(
 			final String dirPath, 
 			final Date minDate,
 			final Date maxDate,
@@ -115,7 +115,7 @@ public final class YahooDataTSLoad {
 			final TimeZone timeZone,
 			final EnumSet<QuoteField> fields) throws IOException, ParseException {
 		
-		TCube<String, QuoteField, Date> cube = new TCube<>();
+		Cube<String, QuoteField, Date> cube = new Cube<>();
 		List<File> files = FileUtils.getFiles(dirPath);
 		for (int i=0; i<files.size(); i++) {
 			File file = files.get(i);
@@ -125,7 +125,7 @@ public final class YahooDataTSLoad {
 				if (ignoreTickers != null && ignoreTickers.contains(ticker)) {
 					continue;
 				}
-				TFrame<QuoteField, Date> map = loadFileFrame(
+				Frame<QuoteField, Date> map = loadFileFrame(
 						file.getAbsolutePath(),
 						minDate,
 						maxDate,

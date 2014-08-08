@@ -16,7 +16,7 @@ import me.akuz.ts.filters.FrameWalker;
  * @param <K> - Key type.
  * @param <T> - Time type.
  */
-public final class TFrame<K, T extends Comparable<T>> {
+public final class Frame<K, T extends Comparable<T>> {
 	
 	private final List<K> _keys;
 	private final List<K> _keysReadOnly;
@@ -26,7 +26,7 @@ public final class TFrame<K, T extends Comparable<T>> {
 	/**
 	 * Contain an empty frame.
 	 */
-	public TFrame() {
+	public Frame() {
 		_keys = new ArrayList<>();
 		_keysReadOnly = Collections.unmodifiableList(_keys);
 		_map = new HashMap<>();
@@ -36,7 +36,7 @@ public final class TFrame<K, T extends Comparable<T>> {
 	/**
 	 * Create a frame containing a sequence provided.
 	 */
-	public TFrame(final K key, final Seq<T> seq) {
+	public Frame(final K key, final Seq<T> seq) {
 		this();
 		addSeq(key, seq);
 	}
@@ -47,11 +47,11 @@ public final class TFrame<K, T extends Comparable<T>> {
 	 * all combined frames.
 	 */
 	@SafeVarargs
-	public TFrame(final TFrame<K, T> ... frames) {
+	public Frame(final Frame<K, T> ... frames) {
 		this();
 		if (frames != null && frames.length > 0) {
 			for (int i=0; i<frames.length; i++) {
-				final TFrame<K, T> frame = frames[i];
+				final Frame<K, T> frame = frames[i];
 				final List<K> keys = frame.getKeys();
 				for (int j=0; j<keys.size(); j++) {
 					final K key = keys.get(j);

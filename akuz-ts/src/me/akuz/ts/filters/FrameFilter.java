@@ -8,13 +8,13 @@ import java.util.Map;
 
 import me.akuz.core.HashIndex;
 import me.akuz.core.Index;
-import me.akuz.ts.TFrameIter;
+import me.akuz.ts.FrameIter;
 import me.akuz.ts.TItem;
 import me.akuz.ts.log.TLog;
 import me.akuz.ts.sync.Synchronizable;
 
 public final class FrameFilter<K, T extends Comparable<T>>
-implements TFrameIter<K, T>, Synchronizable<T> {
+implements FrameIter<K, T>, Synchronizable<T> {
 	
 	/**
 	 * Frame filter builder class.

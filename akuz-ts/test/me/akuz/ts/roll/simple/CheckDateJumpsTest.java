@@ -7,7 +7,7 @@ import java.util.List;
 
 import me.akuz.core.DateFmt;
 import me.akuz.core.Period;
-import me.akuz.ts.TFrame;
+import me.akuz.ts.Frame;
 import me.akuz.ts.Seq;
 import me.akuz.ts.filters.FrameWalker;
 import me.akuz.ts.filters.FrameFilter;
@@ -22,7 +22,7 @@ public class CheckDateJumpsTest {
 	@Test
 	public void testNoValues() throws ParseException {
 		
-		TFrame<String, Date> frame = new TFrame<>();
+		Frame<String, Date> frame = new Frame<>();
 		frame.addSeq("f1", new Seq<Date>());
 		
 		List<Date> times = new ArrayList<>();
@@ -96,7 +96,7 @@ public class CheckDateJumpsTest {
 	@Test
 	public void testWithValues() throws ParseException {
 
-		TFrame<String, Date> frame = new TFrame<>();
+		Frame<String, Date> frame = new Frame<>();
 		frame.add("f1", DateFmt.parse("20130101000000", DateFmt.YYYYMMDDHHMMSS), 0);
 		frame.add("f1", DateFmt.parse("20130105000000", DateFmt.YYYYMMDDHHMMSS), 0);
 		

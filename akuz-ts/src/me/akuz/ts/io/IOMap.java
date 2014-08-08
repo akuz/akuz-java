@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import me.akuz.ts.TFrame;
+import me.akuz.ts.Frame;
 import me.akuz.ts.Seq;
 
 /**
@@ -65,7 +65,7 @@ public final class IOMap<K> {
 	public IOMap(
 			final String timeFieldName, 
 			final IOType timeDataType, 
-			TFrame<K, ?> frame, 
+			Frame<K, ?> frame, 
 			IOType dataType) {
 		
 		this(timeFieldName, timeDataType);

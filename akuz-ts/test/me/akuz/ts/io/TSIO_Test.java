@@ -5,7 +5,7 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import me.akuz.core.gson.GsonSerializers;
-import me.akuz.ts.TFrame;
+import me.akuz.ts.Frame;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -29,7 +29,7 @@ public class TSIO_Test {
 		final String csv1;
 		final String json1;
 		{
-			TFrame<String, Integer> frame = new TFrame<>();
+			Frame<String, Integer> frame = new Frame<>();
 			for (int i=0; i<27; i++) {
 				frame.add("F boo", i, rnd.nextBoolean());
 				frame.add("F dbl", i, rnd.nextDouble());
@@ -48,11 +48,11 @@ public class TSIO_Test {
 		final String csv2;
 		final String json2;
 		{
-			final TFrame<String, Integer> frameCSV2 = CSV_IO.fromCSV(csv1, ioMap);
+			final Frame<String, Integer> frameCSV2 = CSV_IO.fromCSV(csv1, ioMap);
 			csv2 = CSV_IO.toCSV(frameCSV2, ioMap);
 			
 			JsonArray jsonArr2 = new JsonParser().parse(json1).getAsJsonArray();
-			final TFrame<String, Integer> frameJSON2 = JSON_IO.fromJson(jsonArr2, ioMap);
+			final Frame<String, Integer> frameJSON2 = JSON_IO.fromJson(jsonArr2, ioMap);
 			json2 = GsonSerializers.getNoHtmlEscapingPretty().toJson(JSON_IO.toJson(frameJSON2, ioMap));
 			
 			System.out.println("2 ----------------------- CSV");

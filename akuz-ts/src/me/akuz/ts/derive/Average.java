@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import me.akuz.ts.TItem;
-import me.akuz.ts.TFrame;
+import me.akuz.ts.Frame;
 import me.akuz.ts.filters.FrameWalker;
 
 public final class Average {
@@ -17,8 +17,8 @@ public final class Average {
 	 * and return the result sequence in a new frame.
 	 */
 	public static <K, T extends Comparable<T>> 
-	TFrame<K, T> calc(
-			final TFrame<K, T> frame,
+	Frame<K, T> calc(
+			final Frame<K, T> frame,
 			final K toKey) {
 		
 		return calc(
@@ -33,8 +33,8 @@ public final class Average {
 	 * if inPlace is True, otherwise return new frame.
 	 */
 	public static <K, T extends Comparable<T>> 
-	TFrame<K, T> calc(
-			final TFrame<K, T> frame,
+	Frame<K, T> calc(
+			final Frame<K, T> frame,
 			final K toKey,
 			final boolean inPlace) {
 		
@@ -50,8 +50,8 @@ public final class Average {
 	 * and return the result sequence in a new frame.
 	 */
 	public static <K, T extends Comparable<T>> 
-	TFrame<K, T> calc(
-			final TFrame<K, T> frame,
+	Frame<K, T> calc(
+			final Frame<K, T> frame,
 			final List<K> keys,
 			final K toKey) {
 		
@@ -68,8 +68,8 @@ public final class Average {
 	 * if inPlace is True, otherwise return new frame.
 	 */
 	public static <K, T extends Comparable<T>> 
-	TFrame<K, T> calc(
-			final TFrame<K, T> frame,
+	Frame<K, T> calc(
+			final Frame<K, T> frame,
 			final List<K> keys,
 			final K toKey,
 			final boolean inPlace) {
@@ -77,11 +77,11 @@ public final class Average {
 		final Set<T> times = new HashSet<>();
 		frame.extractTimes(times);
 		
-		final TFrame<K, T> toFrame;
+		final Frame<K, T> toFrame;
 		if (inPlace) {
 			toFrame = frame;
 		} else {
-			toFrame = new TFrame<>();
+			toFrame = new Frame<>();
 		}
 		
 		final FrameWalker<K, T> frameAligner = new FrameWalker<>(frame, keys, times);

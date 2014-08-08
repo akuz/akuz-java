@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
-import me.akuz.ts.TFrame;
+import me.akuz.ts.Frame;
 import me.akuz.ts.TItem;
 import me.akuz.ts.filters.FrameWalker;
 
@@ -38,7 +38,7 @@ public final class CSV_IO {
 	}
 
 	public static final <K, T extends Comparable<T>> String toCSV(
-			final TFrame<K, T> frame,
+			final Frame<K, T> frame,
 			final IOMap<K> ioMap) {
 		
 		final StringBuilder sb = new StringBuilder();
@@ -78,11 +78,11 @@ public final class CSV_IO {
 		return sb.toString();
 	}
 
-	public static final <K, T extends Comparable<T>> TFrame<K,T> fromCSV(
+	public static final <K, T extends Comparable<T>> Frame<K,T> fromCSV(
 			final String data,
 			final IOMap<K> ioMap) throws IOException {
 		
-		TFrame<K, T> frame = new TFrame<>();
+		Frame<K, T> frame = new Frame<>();
 
 		int lineIndex = 0;
 		try (Scanner sc = new Scanner(data)) {

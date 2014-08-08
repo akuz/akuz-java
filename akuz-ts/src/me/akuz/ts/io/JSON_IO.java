@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import me.akuz.ts.TFrame;
+import me.akuz.ts.Frame;
 import me.akuz.ts.TItem;
 import me.akuz.ts.filters.FrameWalker;
 
@@ -25,7 +25,7 @@ public final class JSON_IO {
 	 * Serialize a frame according to provided map.
 	 */
 	public static final <K, T extends Comparable<T>> JsonArray toJson(
-			final TFrame<K, T> frame,
+			final Frame<K, T> frame,
 			final IOMap<K> ioMap) {
 		
 		final JsonArray jsonArr = new JsonArray();
@@ -69,11 +69,11 @@ public final class JSON_IO {
 		return jsonArr;
 	}
 
-	public static final <K, T extends Comparable<T>> TFrame<K,T> fromJson(
+	public static final <K, T extends Comparable<T>> Frame<K,T> fromJson(
 			final JsonArray jsonArr,
 			final IOMap<K> ioMap) throws IOException {
 		
-		TFrame<K, T> frame = new TFrame<>();
+		Frame<K, T> frame = new Frame<>();
 		
 		if (jsonArr.size() > 0) {
 			

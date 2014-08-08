@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.RandomAccess;
 
-import me.akuz.ts.TFrameIter;
-import me.akuz.ts.TFrame;
+import me.akuz.ts.FrameIter;
+import me.akuz.ts.Frame;
 import me.akuz.ts.TItem;
 import me.akuz.ts.Seq;
 
@@ -18,9 +18,9 @@ import me.akuz.ts.Seq;
  * the sequences of items in time.
  * 
  */
-public final class FrameWalker<K, T extends Comparable<T>> implements TFrameIter<K, T> {
+public final class FrameWalker<K, T extends Comparable<T>> implements FrameIter<K, T> {
 
-	private final TFrame<K, T> _frame;
+	private final Frame<K, T> _frame;
 	private final List<T> _times;
 	private final List<K> _keys;
 	private final Map<K, Integer> _cursors;
@@ -33,7 +33,7 @@ public final class FrameWalker<K, T extends Comparable<T>> implements TFrameIter
 	 * Create frame iterator for all keys,
 	 * to iterate over all times in the frame.
 	 */
-	public FrameWalker(final TFrame<K, T> frame) {
+	public FrameWalker(final Frame<K, T> frame) {
 
 		this(frame, frame.getKeys(), frame.extractTimes());
 	}
@@ -43,7 +43,7 @@ public final class FrameWalker<K, T extends Comparable<T>> implements TFrameIter
 	 * to iterate over all times in the frame.
 	 */
 	public FrameWalker(
-			final TFrame<K, T> frame,
+			final Frame<K, T> frame,
 			final Collection<K> keys) {
 		
 		this(frame, keys, frame.extractTimes());
@@ -54,7 +54,7 @@ public final class FrameWalker<K, T extends Comparable<T>> implements TFrameIter
 	 * and times to iterate over.
 	 */
 	public FrameWalker(
-			final TFrame<K, T> frame,
+			final Frame<K, T> frame,
 			final Collection<K> keys,
 			final Collection<T> times) {
 		
@@ -100,7 +100,7 @@ public final class FrameWalker<K, T extends Comparable<T>> implements TFrameIter
 	/**
 	 * Get underlying frame.
 	 */
-	public TFrame<K, T> getFrame() {
+	public Frame<K, T> getFrame() {
 		return _frame;
 	}
 	

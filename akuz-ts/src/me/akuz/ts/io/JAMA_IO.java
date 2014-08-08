@@ -6,7 +6,7 @@ import java.util.Map;
 
 import me.akuz.core.HashIndex;
 import me.akuz.core.Index;
-import me.akuz.ts.TFrame;
+import me.akuz.ts.Frame;
 import me.akuz.ts.TItem;
 import me.akuz.ts.filters.Filter;
 import me.akuz.ts.filters.FrameFilter;
@@ -21,7 +21,7 @@ import Jama.Matrix;
 public final class JAMA_IO {
 	
 	public static <K, T extends Comparable<T>> Matrix intoMatrix(
-			final TFrame<K, T> frame) {
+			final Frame<K, T> frame) {
 		
 		Index<K> keysIndex = new HashIndex<>();
 		keysIndex.ensureAll(frame.getKeys());
@@ -32,7 +32,7 @@ public final class JAMA_IO {
 	}
 	
 	public static <K, T extends Comparable<T>> Matrix intoMatrix(
-			final TFrame<K, T> frame,
+			final Frame<K, T> frame,
 			final Index<K> keysIndex) {
 		
 		return intoMatrix(
@@ -42,7 +42,7 @@ public final class JAMA_IO {
 	}
 
 	public static <K, T extends Comparable<T>> Matrix intoMatrix(
-			final TFrame<K, T> frame,
+			final Frame<K, T> frame,
 			final Collection<T> times) {
 		
 		Index<K> keysIndex = new HashIndex<>();
@@ -55,7 +55,7 @@ public final class JAMA_IO {
 	}
 
 	public static <K, T extends Comparable<T>> Matrix intoMatrix(
-			final TFrame<K, T> frame,
+			final Frame<K, T> frame,
 			final Index<K> keysIndex,
 			final Collection<T> times) {
 		
@@ -68,7 +68,7 @@ public final class JAMA_IO {
 	}
 
 	public static <K, T extends Comparable<T>> Matrix intoMatrix(
-			final TFrame<K, T> frame,
+			final Frame<K, T> frame,
 			final Index<K> keysIndex,
 			final Collection<T> times,
 			final List<Filter<T>> filters,

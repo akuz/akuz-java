@@ -5,7 +5,7 @@ import java.util.Map;
 
 import me.akuz.ts.Seq;
 import me.akuz.ts.TItem;
-import me.akuz.ts.TFrame;
+import me.akuz.ts.Frame;
 
 /**
  * Cumsum for sequences and frames.
@@ -59,7 +59,7 @@ public final class Cumsum {
 	 * @return
 	 */
 	public static <K, T extends Comparable<T>> 
-	TFrame<K, T> calc(final TFrame<K, T> frame) {
+	Frame<K, T> calc(final Frame<K, T> frame) {
 		
 		return calc(frame, null, false, 0.0);
 	}
@@ -74,7 +74,7 @@ public final class Cumsum {
 	 * @return
 	 */
 	public static <K, T extends Comparable<T>> 
-	TFrame<K, T> calc(final TFrame<K, T> frame, final double initialValue) {
+	Frame<K, T> calc(final Frame<K, T> frame, final double initialValue) {
 		
 		return calc(frame, null, false, initialValue);
 	}
@@ -88,7 +88,7 @@ public final class Cumsum {
 	 * @return
 	 */
 	public static <K, T extends Comparable<T>> 
-	TFrame<K, T> calc(final TFrame<K, T> frame, final Map<K, K> keyMap, final boolean inPlace) {
+	Frame<K, T> calc(final Frame<K, T> frame, final Map<K, K> keyMap, final boolean inPlace) {
 		
 		return calc(frame, keyMap, inPlace, 0.0);
 	}
@@ -105,7 +105,7 @@ public final class Cumsum {
 	 * @return
 	 */
 	public static <K, T extends Comparable<T>> 
-	TFrame<K, T> calc(final TFrame<K, T> frame, final Map<K, K> keyMap, final boolean inPlace, final double initialValue) {
+	Frame<K, T> calc(final Frame<K, T> frame, final Map<K, K> keyMap, final boolean inPlace, final double initialValue) {
 		
 		if (inPlace && keyMap == null) {
 			throw new IllegalArgumentException(
@@ -114,11 +114,11 @@ public final class Cumsum {
 					"the same keys as already exist in the frame");
 		}
 		
-		final TFrame<K, T> toFrame;
+		final Frame<K, T> toFrame;
 		if (inPlace && keyMap != null) {
 			toFrame = frame;
 		} else {
-			toFrame = new TFrame<>();
+			toFrame = new Frame<>();
 		}
 		
 		final List<K> keys = frame.getKeys();

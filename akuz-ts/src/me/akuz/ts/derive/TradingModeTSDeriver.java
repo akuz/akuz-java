@@ -3,7 +3,7 @@ package me.akuz.ts.derive;
 import java.util.Collection;
 import java.util.Map;
 
-import me.akuz.ts.TFrame;
+import me.akuz.ts.Frame;
 import me.akuz.ts.Seq;
 import me.akuz.ts.TItem;
 import me.akuz.ts.filters.FrameWalker;
@@ -21,7 +21,7 @@ public final class TradingModeTSDeriver<T extends Comparable<T>> {
 		
 		final Seq<T> seqTradingMode = new Seq<>();
 		
-		final TFrame<Integer, T> iteratorFrame = new TFrame<>();
+		final Frame<Integer, T> iteratorFrame = new Frame<>();
 		iteratorFrame.addSeq(SEQ_PRICE, seqPrice);
 		iteratorFrame.addSeq(SEQ_ACTIVE_PERIOD, seqActivePeriod);
 		

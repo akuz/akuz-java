@@ -3,7 +3,7 @@ package me.akuz.ts.align;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.akuz.ts.TFrame;
+import me.akuz.ts.Frame;
 import me.akuz.ts.filters.FrameWalker;
 
 import org.junit.Assert;
@@ -11,9 +11,9 @@ import org.junit.Test;
 
 public final class TFrameAlignerTest {
 	
-	private static TFrame<String, Integer> createSimpleFrame() {
+	private static Frame<String, Integer> createSimpleFrame() {
 		
-		TFrame<String, Integer> frame = new TFrame<>();
+		Frame<String, Integer> frame = new Frame<>();
 		
 		frame.add("f1", 0, 10);
 		frame.add("f1", 1, 11);
@@ -29,7 +29,7 @@ public final class TFrameAlignerTest {
 	@Test
 	public void testSimpleValues() {
 		
-		TFrame<String, Integer> frame = createSimpleFrame();
+		Frame<String, Integer> frame = createSimpleFrame();
 		
 		List<Integer> times = new ArrayList<>();
 		times.add(0);
@@ -88,7 +88,7 @@ public final class TFrameAlignerTest {
 	@Test
 	public void testSimpleBadTimes() {
 		
-		TFrame<String, Integer> frame = createSimpleFrame();
+		Frame<String, Integer> frame = createSimpleFrame();
 		
 		List<Integer> times = new ArrayList<>();
 		times.add(0);
