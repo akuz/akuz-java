@@ -1,6 +1,8 @@
 package me.akuz.ts.sync;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -16,10 +18,24 @@ import java.util.List;
 public final class Synchronizer<T extends Comparable<T>> {
 	
 	private final List<Synchronizable<T>> _synchronizables;
+	private final List<T> _times;
+	private int _nextCursor;
 	private T _currTime;
 	
-	public Synchronizer() {
+	public Synchronizer(final Collection<T> times) {
+		this(times, false);
+	}
+	
+	private Synchronizer(final Collection<T> times, final boolean timesAreAlreadySorted) {
+
 		_synchronizables = new ArrayList<>();
+		_times = new ArrayList<>(times);
+		
+		if (!timesAreAlreadySorted && 
+			_times.size() > 1) {
+			
+			Collections.sort(_times);
+		}
 	}
 	
 	public void add(Synchronizable<T> synchronizable) {
@@ -29,23 +45,42 @@ public final class Synchronizer<T extends Comparable<T>> {
 		}
 	}
 	
-	public void moveToTime(T time) {
-		if (time == null) {
-			throw new IllegalArgumentException(
-					"Time cannot be null");
+	public T getCurrentTime() {
+		return _currTime;
+	}
+	
+	public boolean hasNext() {
+		return _nextCursor < _times.size();
+	}
+	
+	public void moveNext() {
+		
+		if (_nextCursor >= _times.size()) {
+			throw new IllegalStateException(
+					"There are no more times to synchronize");
 		}
+		
+		final T nextTime = _times.get(_nextCursor);
+		if (nextTime == null) {
+			throw new IllegalStateException(
+					"Synchronizer enountered null time " + 
+					"at position " + _nextCursor + " in times list");
+		}
+		
 		if (_currTime != null) {
-			if (_currTime.compareTo(time) >= 0) {
+			if (_currTime.compareTo(nextTime) >= 0) {
 				throw new IllegalArgumentException(
-						"Moving in time must be " +
+						"Synchronizing times must be " +
 						"strictly chronological" +
-						"; current synch time: " + _currTime + 
-						", requested move to time: " + time);
+						"; detected current time: " + _currTime + 
+						", detected next time: " + nextTime);
 			}
 		}
+		
 		for (int i=0; i<_synchronizables.size(); i++) {
-			_synchronizables.get(i).moveToTime(time);
+			_synchronizables.get(i).moveToTime(nextTime);
 		}
-		_currTime = time;
+		
+		_currTime = nextTime;
 	}
 }
