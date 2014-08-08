@@ -61,7 +61,7 @@ public final class RepeatWithDateExpiry extends Filter<Date> {
 	}
 
 	@Override
-	public TItem<Date> getCurrent() {
+	public TItem<Date> getCurrItem() {
 		return _currFilterItem;
 	}
 

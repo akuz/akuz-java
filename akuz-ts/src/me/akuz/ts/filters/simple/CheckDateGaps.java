@@ -37,7 +37,7 @@ public class CheckDateGaps extends Filter<Date> {
 	}
 	
 	@Override
-	public TItem<Date> getCurrent() {
+	public TItem<Date> getCurrItem() {
 		// we are only checking for
 		// jumps, but we don't
 		// derive any state

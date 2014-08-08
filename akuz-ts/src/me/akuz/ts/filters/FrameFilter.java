@@ -171,7 +171,7 @@ implements FrameIterOld<K, T>, Synchronizable<T> {
 					
 					state.next(_log, currTime, currItem, movedItems);
 					
-					final TItem<T> proposedStateItem = state.getCurrent();
+					final TItem<T> proposedStateItem = state.getCurrItem();
 					if (proposedStateItem != null) {
 						if (currStateItem != null) {
 							throw new IllegalStateException(

@@ -43,7 +43,7 @@ public class CheckNumberJumps<T extends Comparable<T>> extends Filter<T> {
 	}
 	
 	@Override
-	public TItem<T> getCurrent() {
+	public TItem<T> getCurrItem() {
 		// we are only checking for
 		// jumps, but we don't
 		// derive any state

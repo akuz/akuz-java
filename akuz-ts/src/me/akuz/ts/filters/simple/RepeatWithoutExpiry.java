@@ -36,7 +36,7 @@ public final class RepeatWithoutExpiry<T extends Comparable<T>> extends Filter<T
 	}
 
 	@Override
-	public TItem<T> getCurrent() {
+	public TItem<T> getCurrItem() {
 		return _currFilterItem;
 	}
 

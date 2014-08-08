@@ -6,9 +6,10 @@ import me.akuz.ts.TItem;
 import me.akuz.ts.log.TLog;
 
 /**
- * Base class for rolling states of sequences, which 
- * determine the current rolling value based on the 
- * previous sequence of items in a sequence.
+ * Base class for all 1D filters on single sequences
+ * 
+ * Filters determine the current rolling state based on 
+ * the supplied blocks of items "moved" through time.
  * 
  * Examples: Last value, EWMA, Kalman Filter.
  *
@@ -16,11 +17,12 @@ import me.akuz.ts.log.TLog;
 public abstract class Filter<T extends Comparable<T>> implements Cloneable {
 
 	/**
-	 * Notify state about the next items at a given time;
-	 * note that the currItem can be null, if the sequence
-	 * doesn't have an item at that time; also note that 
-	 * movedItems contains all items since last call, 
-	 * including the currItem, if it's not null.
+	 * Notify filters about the next items moved through time;
+	 * note that the currItem can be null, if there is no
+	 * time series item at the current time; also note that 
+	 * movedItems must contain all items since last call, 
+	 * including the currItem (if it's not null), and 
+	 * arranged in strict chronological order.
 	 */
 	public abstract void next(
 			final TLog log,
@@ -29,19 +31,24 @@ public abstract class Filter<T extends Comparable<T>> implements Cloneable {
 			final List<TItem<T>> movedItems);
 	
 	/**
-	 * Get item that represents the current state.
+	 * Get time series item that represents 
+	 * the output state of this 1D filter
+	 * at the current time.
 	 */
-	public abstract TItem<T> getCurrent();
+	public abstract TItem<T> getCurrItem();
 	
 	/**
-	 * Set name of the field for logging.
+	 * Set name of the filter (for logging).
 	 */
 	public abstract void setFieldName(
 			final String fieldName);
 	
 	/**
-	 * State must be cloneable in order to be able
+	 * Filter must be cloneable in order to be able
 	 * to be used as a prototype for many sequences.
+	 * Make sure to override the clone() method for
+	 * nontrivial filters that contain pointers to
+	 * data structures allocated on heap.
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
