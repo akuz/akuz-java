@@ -6,7 +6,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class FameIterTest {
+public class FrameIterTest {
 	
 	@Test
 	public void testSimple() {
