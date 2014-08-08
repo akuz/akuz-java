@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.akuz.ts.TFrame;
-import me.akuz.ts.filters.TFrameWalker;
+import me.akuz.ts.filters.FrameWalker;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -36,7 +36,7 @@ public final class TFrameAlignerTest {
 		times.add(2);
 		times.add(3);
 		
-		TFrameWalker<String, Integer> iter = new TFrameWalker<>(frame, frame.getKeys(), times);
+		FrameWalker<String, Integer> iter = new FrameWalker<>(frame, frame.getKeys(), times);
 		
 		Assert.assertTrue(iter.hasNext());
 		iter.next();
@@ -95,7 +95,7 @@ public final class TFrameAlignerTest {
 		times.add(2);
 		times.add(1);
 		
-		TFrameWalker<String, Integer> iter = new TFrameWalker<>(frame, frame.getKeys(), times);
+		FrameWalker<String, Integer> iter = new FrameWalker<>(frame, frame.getKeys(), times);
 		
 		try {
 			while (iter.hasNext()) {

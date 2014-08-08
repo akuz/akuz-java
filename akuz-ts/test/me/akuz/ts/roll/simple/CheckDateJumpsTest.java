@@ -8,9 +8,9 @@ import java.util.List;
 import me.akuz.core.DateFmt;
 import me.akuz.core.Period;
 import me.akuz.ts.TFrame;
-import me.akuz.ts.TSeq;
-import me.akuz.ts.filters.TFrameWalker;
-import me.akuz.ts.filters.TFrameFilter;
+import me.akuz.ts.Seq;
+import me.akuz.ts.filters.FrameWalker;
+import me.akuz.ts.filters.FrameFilter;
 import me.akuz.ts.filters.simple.CheckDateGaps;
 import me.akuz.ts.log.TLog;
 
@@ -23,7 +23,7 @@ public class CheckDateJumpsTest {
 	public void testNoValues() throws ParseException {
 		
 		TFrame<String, Date> frame = new TFrame<>();
-		frame.addSeq("f1", new TSeq<Date>());
+		frame.addSeq("f1", new Seq<Date>());
 		
 		List<Date> times = new ArrayList<>();
 		times.add(DateFmt.parse("20130101", DateFmt.YYYYMMDD));
@@ -42,12 +42,12 @@ public class CheckDateJumpsTest {
 				warningAfterPeriod,
 				errorAfterPeriod);
 		
-		final TFrameWalker<String, Date> frameWalker = new TFrameWalker<>(
+		final FrameWalker<String, Date> frameWalker = new FrameWalker<>(
 				frame,
 				frame.getKeys(),
 				times);
 		
-		final TFrameFilter<String, Date> frameFilter = TFrameFilter
+		final FrameFilter<String, Date> frameFilter = FrameFilter
 				.onAllKeysOf(frameWalker)
 				.addAllKeysFilter(checkDateJumps)
 				.setLog(log)
@@ -118,12 +118,12 @@ public class CheckDateJumpsTest {
 		final TLog log = new TLog();
 		final CheckDateGaps checkDateJumps = new CheckDateGaps(infoAfterPeriod, warningAfterPeriod, errorAfterPeriod);
 		
-		final TFrameWalker<String, Date> frameAligner = new TFrameWalker<>(
+		final FrameWalker<String, Date> frameAligner = new FrameWalker<>(
 				frame,
 				frame.getKeys(),
 				times);
 		
-		final TFrameFilter<String, Date> frameFilter = TFrameFilter
+		final FrameFilter<String, Date> frameFilter = FrameFilter
 				.onAllKeysOf(frameAligner)
 				.addAllKeysFilter(checkDateJumps)
 				.setLog(log)

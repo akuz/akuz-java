@@ -5,11 +5,11 @@ import java.util.List;
 
 import me.akuz.core.Period;
 import me.akuz.ts.TItem;
-import me.akuz.ts.filters.TFilter;
+import me.akuz.ts.filters.Filter;
 import me.akuz.ts.log.TLog;
 import me.akuz.ts.log.TLogLevel;
 
-public class CheckDateGaps extends TFilter<Date> {
+public class CheckDateGaps extends Filter<Date> {
 	
 	private String _fieldName;
 	private final Period _infoAfterPeriod;

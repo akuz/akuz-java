@@ -4,19 +4,19 @@ import java.util.Date;
 import java.util.List;
 
 import me.akuz.core.Period;
-import me.akuz.ts.TSeq;
+import me.akuz.ts.Seq;
 import me.akuz.ts.TItem;
 
 public final class IsActive {
 	
-	public static TSeq<Date> calc(
-			final TSeq<Date> seq,
+	public static Seq<Date> calc(
+			final Seq<Date> seq,
 			final Period onPeriod,
 			final Period offPeriod) {
 		
 		final long onPeriodMs = onPeriod.getMs();
 		final long offPeriodMs = offPeriod.getMs();
-		final TSeq<Date> seqActive = new TSeq<>();
+		final Seq<Date> seqActive = new Seq<>();
 
 		Date prevDate = null;
 		Date lastTurnOnDate = null;

@@ -5,10 +5,10 @@ import java.util.List;
 
 import me.akuz.core.Period;
 import me.akuz.ts.TItem;
-import me.akuz.ts.filters.TFilter;
+import me.akuz.ts.filters.Filter;
 import me.akuz.ts.log.TLog;
 
-public final class RepeatWithDateExpiry extends TFilter<Date> {
+public final class RepeatWithDateExpiry extends Filter<Date> {
 	
 	private String _fieldName;
 	private final Period _alivePeriod;

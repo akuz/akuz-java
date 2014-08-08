@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import me.akuz.ts.TFrame;
-import me.akuz.ts.TSeq;
+import me.akuz.ts.Seq;
 
 /**
  * Describes time series IO map by matching
@@ -33,7 +33,7 @@ public final class IOMap<K> {
 	public IOMap(
 			final String timeFieldName, 
 			final IOType timeDataType, 
-			final TSeq<?> seq,
+			final Seq<?> seq,
 			final K key,
 			final IOType dataType) {
 		
@@ -48,7 +48,7 @@ public final class IOMap<K> {
 	public IOMap(
 			final String timeFieldName, 
 			final IOType timeDataType, 
-			final TSeq<?> seq,
+			final Seq<?> seq,
 			final K key,
 			final String fieldName,
 			final IOType dataType) {

@@ -3,11 +3,11 @@ package me.akuz.ts.filters.simple;
 import java.util.List;
 
 import me.akuz.ts.TItem;
-import me.akuz.ts.filters.TFilter;
+import me.akuz.ts.filters.Filter;
 import me.akuz.ts.log.TLog;
 import me.akuz.ts.log.TLogLevel;
 
-public class CheckNumberJumps<T extends Comparable<T>> extends TFilter<T> {
+public class CheckNumberJumps<T extends Comparable<T>> extends Filter<T> {
 	
 	private String _fieldName;
 	private final double _infoJump;

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import me.akuz.ts.filters.TFrameWalker;
+import me.akuz.ts.filters.FrameWalker;
 
 /**
  * Time series frame containing multiple sequences.
@@ -20,8 +20,8 @@ public final class TFrame<K, T extends Comparable<T>> {
 	
 	private final List<K> _keys;
 	private final List<K> _keysReadOnly;
-	private final Map<K, TSeq<T>> _map;
-	private final Map<K, TSeq<T>> _mapReadOnly;
+	private final Map<K, Seq<T>> _map;
+	private final Map<K, Seq<T>> _mapReadOnly;
 	
 	/**
 	 * Contain an empty frame.
@@ -36,7 +36,7 @@ public final class TFrame<K, T extends Comparable<T>> {
 	/**
 	 * Create a frame containing a sequence provided.
 	 */
-	public TFrame(final K key, final TSeq<T> seq) {
+	public TFrame(final K key, final Seq<T> seq) {
 		this();
 		addSeq(key, seq);
 	}
@@ -74,9 +74,9 @@ public final class TFrame<K, T extends Comparable<T>> {
 	 * Sequence is created, if it doesn't exist.
 	 */
 	public void add(final K key, final TItem<T> item) {
-		TSeq<T> seq = _map.get(key);
+		Seq<T> seq = _map.get(key);
 		if (seq == null) {
-			seq = new TSeq<>();
+			seq = new Seq<>();
 			_keys.add(key);
 			_map.put(key, seq);
 		}
@@ -96,9 +96,9 @@ public final class TFrame<K, T extends Comparable<T>> {
 	 * Sequence is created, if it doesn't exist.
 	 */
 	public void stage(final K key, final TItem<T> item) {
-		TSeq<T> seq = _map.get(key);
+		Seq<T> seq = _map.get(key);
 		if (seq == null) {
-			seq = new TSeq<>();
+			seq = new Seq<>();
 			_keys.add(key);
 			_map.put(key, seq);
 		}
@@ -109,7 +109,7 @@ public final class TFrame<K, T extends Comparable<T>> {
 	 * Accept staged items in all sequences.
 	 */
 	public void acceptStaged() {
-		for (TSeq<T> seq: _map.values()) {
+		for (Seq<T> seq: _map.values()) {
 			seq.acceptStaged();
 		}
 	}
@@ -118,7 +118,7 @@ public final class TFrame<K, T extends Comparable<T>> {
 	 * Clear staged items in all sequences.
 	 */
 	public void clearStaged() {
-		for (TSeq<T> seq: _map.values()) {
+		for (Seq<T> seq: _map.values()) {
 			seq.clearStaged();
 		}
 	}
@@ -126,7 +126,7 @@ public final class TFrame<K, T extends Comparable<T>> {
 	/**
 	 * Add existing sequence to this frame.
 	 */
-	public void addSeq(final K key, final TSeq<T> seq) {
+	public void addSeq(final K key, final Seq<T> seq) {
 		if (_map.containsKey(key)) {
 			throw new IllegalStateException("Sequence for key " + key + " already exists");
 		}
@@ -138,7 +138,7 @@ public final class TFrame<K, T extends Comparable<T>> {
 	 * Get sequence from this frame.
 	 * Throws if key doesn't exist.
 	 */
-	public TSeq<T> getSeq(final K key) {
+	public Seq<T> getSeq(final K key) {
 		return getSeq(key, true);
 	}
 	
@@ -146,8 +146,8 @@ public final class TFrame<K, T extends Comparable<T>> {
 	 * Get sequence from this frame.
 	 * Returns null if key doesn't exist and !required.
 	 */
-	public TSeq<T> getSeq(final K key, final boolean required) {
-		TSeq<T> seq = _map.get(key);
+	public Seq<T> getSeq(final K key, final boolean required) {
+		Seq<T> seq = _map.get(key);
 		if (seq == null && required) {
 			throw new IllegalStateException("Sequence for key '" + key + "' does not exist");
 		}
@@ -164,7 +164,7 @@ public final class TFrame<K, T extends Comparable<T>> {
 	/**
 	 * Get key to sequence map of this frame.
 	 */
-	public Map<K, TSeq<T>> getMap() {
+	public Map<K, Seq<T>> getMap() {
 		return _mapReadOnly;
 	}
 	
@@ -173,7 +173,7 @@ public final class TFrame<K, T extends Comparable<T>> {
 	 * of this frame into a provided set.
 	 */
 	public void extractTimes(final Set<T> times) {
-		for (TSeq<T> seq : _map.values()) {
+		for (Seq<T> seq : _map.values()) {
 			seq.extractTimes(times);
 		}
 	}
@@ -192,7 +192,7 @@ public final class TFrame<K, T extends Comparable<T>> {
 	 * Create default frame walker.
 	 * 
 	 */
-	public TFrameWalker<K, T> walker() {
-		return new TFrameWalker<>(this);
+	public FrameWalker<K, T> walker() {
+		return new FrameWalker<>(this);
 	}
 }

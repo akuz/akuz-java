@@ -109,7 +109,7 @@ public final class TCube<K1, K2, T extends Comparable<T>> {
 			for (int j=0; j<keys2.size(); j++) {
 				
 				final K2 key2 = keys2.get(j);
-				final TSeq<T> seq = frame1.getSeq(key2);
+				final Seq<T> seq = frame1.getSeq(key2);
 				
 				TFrame<K1, T> resultFrame = resultCube.getFrame(key2, false);
 				if (resultFrame == null) {
@@ -125,7 +125,7 @@ public final class TCube<K1, K2, T extends Comparable<T>> {
 	
 	public void extractTimes(Set<T> times) {
 		for (TFrame<K2, T> frame : _map.values()) {
-			for (TSeq<T> seq : frame.getMap().values()) {
+			for (Seq<T> seq : frame.getMap().values()) {
 				seq.extractTimes(times);
 			}
 		}

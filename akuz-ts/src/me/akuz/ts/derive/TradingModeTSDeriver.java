@@ -4,9 +4,9 @@ import java.util.Collection;
 import java.util.Map;
 
 import me.akuz.ts.TFrame;
-import me.akuz.ts.TSeq;
+import me.akuz.ts.Seq;
 import me.akuz.ts.TItem;
-import me.akuz.ts.filters.TFrameWalker;
+import me.akuz.ts.filters.FrameWalker;
 
 public final class TradingModeTSDeriver<T extends Comparable<T>> {
 	
@@ -17,15 +17,15 @@ public final class TradingModeTSDeriver<T extends Comparable<T>> {
 		// nothing
 	}
 	
-	public TSeq<T> derive(Collection<T> times, TSeq<T> seqPrice, TSeq<T> seqActivePeriod) {
+	public Seq<T> derive(Collection<T> times, Seq<T> seqPrice, Seq<T> seqActivePeriod) {
 		
-		final TSeq<T> seqTradingMode = new TSeq<>();
+		final Seq<T> seqTradingMode = new Seq<>();
 		
 		final TFrame<Integer, T> iteratorFrame = new TFrame<>();
 		iteratorFrame.addSeq(SEQ_PRICE, seqPrice);
 		iteratorFrame.addSeq(SEQ_ACTIVE_PERIOD, seqActivePeriod);
 		
-		TFrameWalker<Integer, T> frameAligner = new TFrameWalker<>(iteratorFrame, iteratorFrame.getKeys(), times);
+		FrameWalker<Integer, T> frameAligner = new FrameWalker<>(iteratorFrame, iteratorFrame.getKeys(), times);
 		boolean rollingActivePeriod = false;
 		while (frameAligner.hasNext()) {
 			

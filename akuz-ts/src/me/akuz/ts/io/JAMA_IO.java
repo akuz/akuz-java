@@ -8,9 +8,9 @@ import me.akuz.core.HashIndex;
 import me.akuz.core.Index;
 import me.akuz.ts.TFrame;
 import me.akuz.ts.TItem;
-import me.akuz.ts.filters.TFilter;
-import me.akuz.ts.filters.TFrameFilter;
-import me.akuz.ts.filters.TFrameWalker;
+import me.akuz.ts.filters.Filter;
+import me.akuz.ts.filters.FrameFilter;
+import me.akuz.ts.filters.FrameWalker;
 import me.akuz.ts.log.TLog;
 import Jama.Matrix;
 
@@ -71,23 +71,23 @@ public final class JAMA_IO {
 			final TFrame<K, T> frame,
 			final Index<K> keysIndex,
 			final Collection<T> times,
-			final List<TFilter<T>> filters,
+			final List<Filter<T>> filters,
 			final TLog log) {
 		
 		final Matrix m = new Matrix(times.size(), keysIndex.size(), Double.NaN);
 		int i = 0;
 
-		final TFrameWalker<K, T> frameAligner = new TFrameWalker<>(frame, keysIndex.getMap().keySet(), times);
+		final FrameWalker<K, T> frameAligner = new FrameWalker<>(frame, keysIndex.getMap().keySet(), times);
 		
-		final TFrameFilter.Builder<K, T> frameFilterBuilder = TFrameFilter.onAllKeysOf(frameAligner);
+		final FrameFilter.Builder<K, T> frameFilterBuilder = FrameFilter.onAllKeysOf(frameAligner);
 		if (filters != null) {
-			for (final TFilter<T> filter : filters) {
+			for (final Filter<T> filter : filters) {
 				frameFilterBuilder.addAllKeysFilter(filter);
 			}
 		}
 		frameFilterBuilder.setLog(log);
 		
-		final TFrameFilter<K, T> frameFilter = frameFilterBuilder.build();
+		final FrameFilter<K, T> frameFilter = frameFilterBuilder.build();
 		
 		while (frameFilter.hasNext()) {
 			

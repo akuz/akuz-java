@@ -11,14 +11,14 @@ import java.util.RandomAccess;
 import me.akuz.ts.TFrameIter;
 import me.akuz.ts.TFrame;
 import me.akuz.ts.TItem;
-import me.akuz.ts.TSeq;
+import me.akuz.ts.Seq;
 
 /**
  * Iterator over frame, helping to align 
  * the sequences of items in time.
  * 
  */
-public final class TFrameWalker<K, T extends Comparable<T>> implements TFrameIter<K, T> {
+public final class FrameWalker<K, T extends Comparable<T>> implements TFrameIter<K, T> {
 
 	private final TFrame<K, T> _frame;
 	private final List<T> _times;
@@ -33,7 +33,7 @@ public final class TFrameWalker<K, T extends Comparable<T>> implements TFrameIte
 	 * Create frame iterator for all keys,
 	 * to iterate over all times in the frame.
 	 */
-	public TFrameWalker(final TFrame<K, T> frame) {
+	public FrameWalker(final TFrame<K, T> frame) {
 
 		this(frame, frame.getKeys(), frame.extractTimes());
 	}
@@ -42,7 +42,7 @@ public final class TFrameWalker<K, T extends Comparable<T>> implements TFrameIte
 	 * Create frame iterator for specific keys,
 	 * to iterate over all times in the frame.
 	 */
-	public TFrameWalker(
+	public FrameWalker(
 			final TFrame<K, T> frame,
 			final Collection<K> keys) {
 		
@@ -53,7 +53,7 @@ public final class TFrameWalker<K, T extends Comparable<T>> implements TFrameIte
 	 * Create frame iterator for specific keys 
 	 * and times to iterate over.
 	 */
-	public TFrameWalker(
+	public FrameWalker(
 			final TFrame<K, T> frame,
 			final Collection<K> keys,
 			final Collection<T> times) {
@@ -183,7 +183,7 @@ public final class TFrameWalker<K, T extends Comparable<T>> implements TFrameIte
 		for (int j=0; j<_keys.size(); j++) {
 			
 			final K key = _keys.get(j);
-			final TSeq<T> seq = _frame.getSeq(key);
+			final Seq<T> seq = _frame.getSeq(key);
 
 			if (seq != null) {
 				

@@ -3,7 +3,7 @@ package me.akuz.ts.derive;
 import java.util.List;
 import java.util.Map;
 
-import me.akuz.ts.TSeq;
+import me.akuz.ts.Seq;
 import me.akuz.ts.TItem;
 import me.akuz.ts.TFrame;
 
@@ -17,7 +17,7 @@ public final class Cumsum {
 	 * Calculate cumsum for a sequence.
 	 */
 	public static <T extends Comparable<T>> 
-	TSeq<T> calc(final TSeq<T> seq) {
+	Seq<T> calc(final Seq<T> seq) {
 		
 		return calc(seq, 0.0);
 	}
@@ -27,13 +27,13 @@ public final class Cumsum {
 	 * starting from the initialValue.
 	 */
 	public static <T extends Comparable<T>>
-	TSeq<T> calc(final TSeq<T> seq, final double initialValue) {
+	Seq<T> calc(final Seq<T> seq, final double initialValue) {
 		
 		if (Double.isNaN(initialValue)) {
 			throw new IllegalArgumentException("Initial value cannot be NAN");
 		}
 		
-		final TSeq<T> toSeq = new TSeq<>();
+		final Seq<T> toSeq = new Seq<>();
 		double accumValue = initialValue;
 		
 		final List<TItem<T>> items = seq.getItems();
@@ -135,8 +135,8 @@ public final class Cumsum {
 				continue;
 			}
 			
-			final TSeq<T> seq = frame.getSeq(key);
-			final TSeq<T> toSeq = calc(seq, initialValue);
+			final Seq<T> seq = frame.getSeq(key);
+			final Seq<T> toSeq = calc(seq, initialValue);
 			toFrame.addSeq(toKey, toSeq);
 		}
 		

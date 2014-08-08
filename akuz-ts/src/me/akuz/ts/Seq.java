@@ -10,14 +10,14 @@ import java.util.Set;
  *
  * @param <T> - Time type.
  */
-public final class TSeq<T extends Comparable<T>> {
+public final class Seq<T extends Comparable<T>> {
 	
 	private final List<TItem<T>> _items;
 	private final List<TItem<T>> _itemsReadOnly;
 	private List<TItem<T>> _staged;
 	private List<TItem<T>> _stagedReadOnly;
 	
-	public TSeq() {
+	public Seq() {
 		_items = new ArrayList<>();
 		_itemsReadOnly = Collections.unmodifiableList(_items);
 	}

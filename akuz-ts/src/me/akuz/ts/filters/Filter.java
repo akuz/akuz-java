@@ -13,7 +13,7 @@ import me.akuz.ts.log.TLog;
  * Examples: Last value, EWMA, Kalman Filter.
  *
  */
-public abstract class TFilter<T extends Comparable<T>> implements Cloneable {
+public abstract class Filter<T extends Comparable<T>> implements Cloneable {
 
 	/**
 	 * Notify state about the next items at a given time;
@@ -45,9 +45,9 @@ public abstract class TFilter<T extends Comparable<T>> implements Cloneable {
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	public TFilter<T> clone() {
+	public Filter<T> clone() {
 		try {
-			return (TFilter<T>)super.clone();
+			return (Filter<T>)super.clone();
 		} catch (CloneNotSupportedException e) {
 			throw new InternalError("Clone error");
 		}

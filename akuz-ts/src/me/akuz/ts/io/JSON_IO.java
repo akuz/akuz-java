@@ -9,7 +9,7 @@ import java.util.Set;
 
 import me.akuz.ts.TFrame;
 import me.akuz.ts.TItem;
-import me.akuz.ts.filters.TFrameWalker;
+import me.akuz.ts.filters.FrameWalker;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -35,7 +35,7 @@ public final class JSON_IO {
 		
 		final List<K> keys = ioMap.getKeys();
 
-		final TFrameWalker<K, T> frameAligner = new TFrameWalker<K, T>(frame, keys, timeSet);
+		final FrameWalker<K, T> frameAligner = new FrameWalker<K, T>(frame, keys, timeSet);
 		while (frameAligner.hasNext()) {
 			
 			frameAligner.next();

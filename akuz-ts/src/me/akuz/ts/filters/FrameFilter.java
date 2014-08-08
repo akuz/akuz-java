@@ -11,8 +11,10 @@ import me.akuz.core.Index;
 import me.akuz.ts.TFrameIter;
 import me.akuz.ts.TItem;
 import me.akuz.ts.log.TLog;
+import me.akuz.ts.sync.Synchronizable;
 
-public final class TFrameFilter<K, T extends Comparable<T>> implements TFrameIter<K, T> {
+public final class FrameFilter<K, T extends Comparable<T>>
+implements TFrameIter<K, T>, Synchronizable<T> {
 	
 	/**
 	 * Frame filter builder class.
@@ -20,20 +22,20 @@ public final class TFrameFilter<K, T extends Comparable<T>> implements TFrameIte
 	 */
 	public static final class Builder<K, T extends Comparable<T>> {
 		
-		private final TFrameFilter<K, T> _proto;
+		private final FrameFilter<K, T> _proto;
 		
-		private Builder(final TFrameWalker<K, T> frameWalker, final List<K> keys) {
-			_proto = new TFrameFilter<>(frameWalker, keys);
+		private Builder(final FrameWalker<K, T> frameWalker, final List<K> keys) {
+			_proto = new FrameFilter<>(frameWalker, keys);
 		}
 
-		public Builder<K, T> addAllKeysFilters(final Collection<TFilter<T>> filters) {
-			for (final TFilter<T> filter : filters) {
+		public Builder<K, T> addAllKeysFilters(final Collection<Filter<T>> filters) {
+			for (final Filter<T> filter : filters) {
 				addAllKeysFilter(filter);
 			}
 			return this;
 		}
 
-		public Builder<K, T> addAllKeysFilter(final TFilter<T> filter) {
+		public Builder<K, T> addAllKeysFilter(final Filter<T> filter) {
 			final List<K> keys = _proto._frameWalker.getKeys();
 			for (int i=0; i<keys.size(); i++) {
 				final K key = keys.get(i);
@@ -42,14 +44,14 @@ public final class TFrameFilter<K, T extends Comparable<T>> implements TFrameIte
 			return this;
 		}
 		
-		public Builder<K, T> addKeyFilters(final K key, final List<TFilter<T>> filters) {
-			for (final TFilter<T> filter : filters) {
+		public Builder<K, T> addKeyFilters(final K key, final List<Filter<T>> filters) {
+			for (final Filter<T> filter : filters) {
 				addKeyFilter(key, filter);
 			}
 			return this;
 		}
 			
-		public Builder<K, T> addKeyFilter(final K key, final TFilter<T> filter) {
+		public Builder<K, T> addKeyFilter(final K key, final Filter<T> filter) {
 			
 			if (_proto._underlyingKeysIndex.getIndex(key) == null) {
 				throw new IllegalArgumentException(
@@ -59,12 +61,12 @@ public final class TFrameFilter<K, T extends Comparable<T>> implements TFrameIte
 			}
 			_proto._filterKeysIndex.ensure(key);
 			
-			List<TFilter<T>> keyFilters = _proto._keyFilters.get(key);
+			List<Filter<T>> keyFilters = _proto._keyFilters.get(key);
 			if (keyFilters == null) {
 				keyFilters = new ArrayList<>();
 				_proto._keyFilters.put(key, keyFilters);
 			}
-			final TFilter<T> filterCopy = filter.clone();
+			final Filter<T> filterCopy = filter.clone();
 			filterCopy.setFieldName(key.toString());
 			keyFilters.add(filterCopy);
 			return this;
@@ -75,7 +77,7 @@ public final class TFrameFilter<K, T extends Comparable<T>> implements TFrameIte
 			return this;
 		}
 		
-		public TFrameFilter<K, T> build() {
+		public FrameFilter<K, T> build() {
 			return _proto;
 		}
 	}
@@ -85,7 +87,7 @@ public final class TFrameFilter<K, T extends Comparable<T>> implements TFrameIte
 	 * Don't forget to add filters for all keys!
 	 */
 	public static <K, T extends Comparable<T>> 
-	Builder<K, T> onAllKeysOf(final TFrameWalker<K, T> frameWalker) {
+	Builder<K, T> onAllKeysOf(final FrameWalker<K, T> frameWalker) {
 		
 		return new Builder<>(frameWalker, frameWalker.getKeys());
 	}
@@ -95,7 +97,7 @@ public final class TFrameFilter<K, T extends Comparable<T>> implements TFrameIte
 	 * Don't forget to add filters for some keys!
 	 */
 	public static <K, T extends Comparable<T>> 
-	Builder<K, T> onSomeKeysOf(final TFrameWalker<K, T> frameWalker) {
+	Builder<K, T> onSomeKeysOf(final FrameWalker<K, T> frameWalker) {
 		
 		return new Builder<>(frameWalker, new ArrayList<K>());
 	}
@@ -104,14 +106,14 @@ public final class TFrameFilter<K, T extends Comparable<T>> implements TFrameIte
 	 * Private frame filter data.
 	 * 
 	 */
-	private final TFrameWalker<K, T> _frameWalker;
+	private final FrameWalker<K, T> _frameWalker;
 	private final Index<K> _underlyingKeysIndex;
 	private final Index<K> _filterKeysIndex;
-	private final Map<K, List<TFilter<T>>> _keyFilters;
+	private final Map<K, List<Filter<T>>> _keyFilters;
 	private final Map<K, TItem<T>> _currStateItems;
 	private TLog _log;
 	
-	private TFrameFilter(final TFrameWalker<K, T> frameWalker, List<K> keys) {
+	private FrameFilter(final FrameWalker<K, T> frameWalker, List<K> keys) {
 		
 		if (frameWalker == null) {
 			throw new IllegalArgumentException("Walker cannot be null");
@@ -155,7 +157,7 @@ public final class TFrameFilter<K, T extends Comparable<T>> implements TFrameIte
 			final TItem<T> currItem = currItemsMap.get(key);
 			final List<TItem<T>> movedItems = movedItemsMap.get(key);
 			
-			final List<TFilter<T>> filters = _keyFilters.get(key);
+			final List<Filter<T>> filters = _keyFilters.get(key);
 			
 			TItem<T> currStateItem = null;
 			
@@ -165,7 +167,7 @@ public final class TFrameFilter<K, T extends Comparable<T>> implements TFrameIte
 			} else {
 				for (int j=0; j<filters.size(); j++) {
 					
-					final TFilter<T> state = filters.get(j);
+					final Filter<T> state = filters.get(j);
 					
 					state.next(_log, currTime, currItem, movedItems);
 					
@@ -183,6 +185,12 @@ public final class TFrameFilter<K, T extends Comparable<T>> implements TFrameIte
 			}
 			_currStateItems.put(key, currStateItem);
 		}
+	}
+
+	@Override
+	public void moveToTime(T time) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	
