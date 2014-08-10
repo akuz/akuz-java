@@ -11,7 +11,6 @@ import me.akuz.ts.log.TLogLevel;
 
 public class CheckDateGaps extends Filter<Date> {
 	
-	private String _fieldName;
 	private final Period _infoAfterPeriod;
 	private final Period _warningAfterPeriod;
 	private final Period _errorAfterPeriod;
@@ -23,17 +22,11 @@ public class CheckDateGaps extends Filter<Date> {
 			final Period warningAfterPeriod,
 			final Period errorAfterPeriod) {
 		
-		_fieldName = "unspecified";
 		_infoAfterPeriod = infoAfterPeriod;
 		_warningAfterPeriod = warningAfterPeriod;
 		_errorAfterPeriod = errorAfterPeriod;
 		_lastLevel = TLogLevel.None;
 		_lastDate = null;
-	}
-	
-	@Override
-	public void setFieldName(final String fieldName) {
-		_fieldName = fieldName;
 	}
 	
 	@Override
@@ -120,7 +113,7 @@ public class CheckDateGaps extends Filter<Date> {
 		}
 		
 		if (increasedLevel) {
-			log.add(_lastLevel, "Jump in \"" + _fieldName + "\" date: " + prevTime + " >> " + currTime);
+			log.add(_lastLevel, "Jump in \"" + getFieldName() + "\" field date: " + prevTime + " >> " + currTime);
 		}
 		
 		if (resetLevel) {

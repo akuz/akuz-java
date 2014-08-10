@@ -40,9 +40,4 @@ public final class RepeatWithoutExpiry<T extends Comparable<T>> extends Filter<T
 		return _currFilterItem;
 	}
 
-	@Override
-	public void setFieldName(final String fieldName) {
-		// don't need
-	}
-
 }

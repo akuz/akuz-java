@@ -10,7 +10,6 @@ import me.akuz.ts.log.TLog;
 
 public final class RepeatWithDateExpiry extends Filter<Date> {
 	
-	private String _fieldName;
 	private final Period _alivePeriod;
 	private final Object _defaultValue;
 	private TItem<Date> _lastAvailableItem;
@@ -62,15 +61,6 @@ public final class RepeatWithDateExpiry extends Filter<Date> {
 	@Override
 	public TItem<Date> getCurrItem() {
 		return _currFilterItem;
-	}
-
-	@Override
-	public void setFieldName(final String fieldName) {
-		_fieldName = fieldName;
-	}
-	
-	public String getFieldName() {
-		return _fieldName != null ? _fieldName : "unspecified";
 	}
 
 }

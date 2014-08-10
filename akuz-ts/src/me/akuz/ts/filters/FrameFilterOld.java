@@ -13,7 +13,7 @@ import me.akuz.ts.TItem;
 import me.akuz.ts.log.TLog;
 import me.akuz.ts.sync.Synchronizable;
 
-public final class FrameFilter<K, T extends Comparable<T>>
+public final class FrameFilterOld<K, T extends Comparable<T>>
 implements FrameIterOld<K, T>, Synchronizable<T> {
 	
 	/**
@@ -22,10 +22,10 @@ implements FrameIterOld<K, T>, Synchronizable<T> {
 	 */
 	public static final class Builder<K, T extends Comparable<T>> {
 		
-		private final FrameFilter<K, T> _proto;
+		private final FrameFilterOld<K, T> _proto;
 		
-		private Builder(final FrameWalker<K, T> frameWalker, final List<K> keys) {
-			_proto = new FrameFilter<>(frameWalker, keys);
+		private Builder(final FrameWalkerOld<K, T> frameWalker, final List<K> keys) {
+			_proto = new FrameFilterOld<>(frameWalker, keys);
 		}
 
 		public Builder<K, T> addAllKeysFilters(final Collection<Filter<T>> filters) {
@@ -77,7 +77,7 @@ implements FrameIterOld<K, T>, Synchronizable<T> {
 			return this;
 		}
 		
-		public FrameFilter<K, T> build() {
+		public FrameFilterOld<K, T> build() {
 			return _proto;
 		}
 	}
@@ -87,7 +87,7 @@ implements FrameIterOld<K, T>, Synchronizable<T> {
 	 * Don't forget to add filters for all keys!
 	 */
 	public static <K, T extends Comparable<T>> 
-	Builder<K, T> onAllKeysOf(final FrameWalker<K, T> frameWalker) {
+	Builder<K, T> onAllKeysOf(final FrameWalkerOld<K, T> frameWalker) {
 		
 		return new Builder<>(frameWalker, frameWalker.getKeys());
 	}
@@ -97,7 +97,7 @@ implements FrameIterOld<K, T>, Synchronizable<T> {
 	 * Don't forget to add filters for some keys!
 	 */
 	public static <K, T extends Comparable<T>> 
-	Builder<K, T> onSomeKeysOf(final FrameWalker<K, T> frameWalker) {
+	Builder<K, T> onSomeKeysOf(final FrameWalkerOld<K, T> frameWalker) {
 		
 		return new Builder<>(frameWalker, new ArrayList<K>());
 	}
@@ -106,14 +106,14 @@ implements FrameIterOld<K, T>, Synchronizable<T> {
 	 * Private frame filter data.
 	 * 
 	 */
-	private final FrameWalker<K, T> _frameWalker;
+	private final FrameWalkerOld<K, T> _frameWalker;
 	private final Index<K> _underlyingKeysIndex;
 	private final Index<K> _filterKeysIndex;
 	private final Map<K, List<Filter<T>>> _keyFilters;
 	private final Map<K, TItem<T>> _currStateItems;
 	private TLog _log;
 	
-	private FrameFilter(final FrameWalker<K, T> frameWalker, List<K> keys) {
+	private FrameFilterOld(final FrameWalkerOld<K, T> frameWalker, List<K> keys) {
 		
 		if (frameWalker == null) {
 			throw new IllegalArgumentException("Walker cannot be null");

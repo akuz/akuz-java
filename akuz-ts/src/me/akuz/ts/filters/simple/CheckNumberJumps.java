@@ -9,7 +9,6 @@ import me.akuz.ts.log.TLogLevel;
 
 public class CheckNumberJumps<T extends Comparable<T>> extends Filter<T> {
 	
-	private String _fieldName;
 	private final double _infoJump;
 	private final double _warningJump;
 	private final double _errorJump;
@@ -30,16 +29,10 @@ public class CheckNumberJumps<T extends Comparable<T>> extends Filter<T> {
 			throw new IllegalArgumentException("Argument errorJump must be positive");
 		}
 		
-		_fieldName = "unspecified";
 		_infoJump = infoJump;
 		_warningJump = warningJump;
 		_errorJump = errorJump;
 		_lastItem = null;
-	}
-	
-	@Override
-	public void setFieldName(final String fieldName) {
-		_fieldName = fieldName;
 	}
 	
 	@Override
@@ -90,11 +83,11 @@ public class CheckNumberJumps<T extends Comparable<T>> extends Filter<T> {
 			final double jump = distance / norm;
 
 			if (jump > _errorJump) {
-				log.add(TLogLevel.Error,   "Jump in \"" + _fieldName + "\" value: " + prevItem + " >> " + _lastItem);
+				log.add(TLogLevel.Error,   "Jump in \"" + getFieldName() + "\" field value: " + prevItem + " >> " + _lastItem);
 			} else if (jump > _warningJump) {
-				log.add(TLogLevel.Warning, "Jump in \"" + _fieldName + "\" value: " + prevItem + " >> " + _lastItem);
+				log.add(TLogLevel.Warning, "Jump in \"" + getFieldName() + "\" field value: " + prevItem + " >> " + _lastItem);
 			} else if (jump > _infoJump) {
-				log.add(TLogLevel.Info, "Jump in \"" + _fieldName + "\" value: " + prevItem + " >> " + _lastItem);
+				log.add(TLogLevel.Info, "Jump in \"" + getFieldName() + "\" field value: " + prevItem + " >> " + _lastItem);
 			}
 		}
 	}

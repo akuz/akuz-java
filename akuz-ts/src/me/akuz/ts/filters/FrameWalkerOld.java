@@ -18,7 +18,7 @@ import me.akuz.ts.Seq;
  * the sequences of items in time.
  * 
  */
-public final class FrameWalker<K, T extends Comparable<T>> implements FrameIterOld<K, T> {
+public final class FrameWalkerOld<K, T extends Comparable<T>> implements FrameIterOld<K, T> {
 
 	private final Frame<K, T> _frame;
 	private final List<T> _times;
@@ -33,7 +33,7 @@ public final class FrameWalker<K, T extends Comparable<T>> implements FrameIterO
 	 * Create frame iterator for all keys,
 	 * to iterate over all times in the frame.
 	 */
-	public FrameWalker(final Frame<K, T> frame) {
+	public FrameWalkerOld(final Frame<K, T> frame) {
 
 		this(frame, frame.getKeys(), frame.extractTimes());
 	}
@@ -42,7 +42,7 @@ public final class FrameWalker<K, T extends Comparable<T>> implements FrameIterO
 	 * Create frame iterator for specific keys,
 	 * to iterate over all times in the frame.
 	 */
-	public FrameWalker(
+	public FrameWalkerOld(
 			final Frame<K, T> frame,
 			final Collection<K> keys) {
 		
@@ -53,7 +53,7 @@ public final class FrameWalker<K, T extends Comparable<T>> implements FrameIterO
 	 * Create frame iterator for specific keys 
 	 * and times to iterate over.
 	 */
-	public FrameWalker(
+	public FrameWalkerOld(
 			final Frame<K, T> frame,
 			final Collection<K> keys,
 			final Collection<T> times) {

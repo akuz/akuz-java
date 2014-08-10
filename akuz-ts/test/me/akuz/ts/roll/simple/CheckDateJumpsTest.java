@@ -9,8 +9,8 @@ import me.akuz.core.DateFmt;
 import me.akuz.core.Period;
 import me.akuz.ts.Frame;
 import me.akuz.ts.Seq;
-import me.akuz.ts.filters.FrameWalker;
-import me.akuz.ts.filters.FrameFilter;
+import me.akuz.ts.filters.FrameWalkerOld;
+import me.akuz.ts.filters.FrameFilterOld;
 import me.akuz.ts.filters.simple.CheckDateGaps;
 import me.akuz.ts.log.TLog;
 
@@ -42,12 +42,12 @@ public class CheckDateJumpsTest {
 				warningAfterPeriod,
 				errorAfterPeriod);
 		
-		final FrameWalker<String, Date> frameWalker = new FrameWalker<>(
+		final FrameWalkerOld<String, Date> frameWalker = new FrameWalkerOld<>(
 				frame,
 				frame.getKeys(),
 				times);
 		
-		final FrameFilter<String, Date> frameFilter = FrameFilter
+		final FrameFilterOld<String, Date> frameFilter = FrameFilterOld
 				.onAllKeysOf(frameWalker)
 				.addAllKeysFilter(checkDateJumps)
 				.setLog(log)
@@ -118,12 +118,12 @@ public class CheckDateJumpsTest {
 		final TLog log = new TLog();
 		final CheckDateGaps checkDateJumps = new CheckDateGaps(infoAfterPeriod, warningAfterPeriod, errorAfterPeriod);
 		
-		final FrameWalker<String, Date> frameAligner = new FrameWalker<>(
+		final FrameWalkerOld<String, Date> frameAligner = new FrameWalkerOld<>(
 				frame,
 				frame.getKeys(),
 				times);
 		
-		final FrameFilter<String, Date> frameFilter = FrameFilter
+		final FrameFilterOld<String, Date> frameFilter = FrameFilterOld
 				.onAllKeysOf(frameAligner)
 				.addAllKeysFilter(checkDateJumps)
 				.setLog(log)

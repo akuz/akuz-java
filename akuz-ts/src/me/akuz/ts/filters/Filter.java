@@ -15,6 +15,8 @@ import me.akuz.ts.log.TLog;
  *
  */
 public abstract class Filter<T extends Comparable<T>> implements Cloneable {
+	
+	private String _fieldName;
 
 	/**
 	 * Notify filters about the next items moved through time;
@@ -38,10 +40,18 @@ public abstract class Filter<T extends Comparable<T>> implements Cloneable {
 	public abstract TItem<T> getCurrItem();
 	
 	/**
-	 * Set name of the filter (for logging).
+	 * Set filter field name (for logging).
 	 */
-	public abstract void setFieldName(
-			final String fieldName);
+	public final void setFieldName(final String fieldName) {
+		_fieldName = fieldName;
+	}
+	
+	/**
+	 * Get filter field name (for logging).
+	 */
+	public final String getFieldName() {
+		return _fieldName != null ? _fieldName : "unspecified";
+	}
 	
 	/**
 	 * Filter must be cloneable in order to be able

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import me.akuz.ts.filters.FrameWalker;
+import me.akuz.ts.filters.FrameWalkerOld;
 
 /**
  * Time series frame containing multiple sequences.
@@ -192,7 +192,7 @@ public final class Frame<K, T extends Comparable<T>> {
 	 * Create default frame walker.
 	 * 
 	 */
-	public FrameWalker<K, T> walker() {
-		return new FrameWalker<>(this);
+	public FrameWalkerOld<K, T> walker() {
+		return new FrameWalkerOld<>(this);
 	}
 }

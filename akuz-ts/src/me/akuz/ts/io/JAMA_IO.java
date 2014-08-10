@@ -9,8 +9,8 @@ import me.akuz.core.Index;
 import me.akuz.ts.Frame;
 import me.akuz.ts.TItem;
 import me.akuz.ts.filters.Filter;
-import me.akuz.ts.filters.FrameFilter;
-import me.akuz.ts.filters.FrameWalker;
+import me.akuz.ts.filters.FrameFilterOld;
+import me.akuz.ts.filters.FrameWalkerOld;
 import me.akuz.ts.log.TLog;
 import Jama.Matrix;
 
@@ -77,9 +77,9 @@ public final class JAMA_IO {
 		final Matrix m = new Matrix(times.size(), keysIndex.size(), Double.NaN);
 		int i = 0;
 
-		final FrameWalker<K, T> frameAligner = new FrameWalker<>(frame, keysIndex.getMap().keySet(), times);
+		final FrameWalkerOld<K, T> frameAligner = new FrameWalkerOld<>(frame, keysIndex.getMap().keySet(), times);
 		
-		final FrameFilter.Builder<K, T> frameFilterBuilder = FrameFilter.onAllKeysOf(frameAligner);
+		final FrameFilterOld.Builder<K, T> frameFilterBuilder = FrameFilterOld.onAllKeysOf(frameAligner);
 		if (filters != null) {
 			for (final Filter<T> filter : filters) {
 				frameFilterBuilder.addAllKeysFilter(filter);
@@ -87,7 +87,7 @@ public final class JAMA_IO {
 		}
 		frameFilterBuilder.setLog(log);
 		
-		final FrameFilter<K, T> frameFilter = frameFilterBuilder.build();
+		final FrameFilterOld<K, T> frameFilter = frameFilterBuilder.build();
 		
 		while (frameFilter.hasNext()) {
 			

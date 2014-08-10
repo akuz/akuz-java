@@ -8,7 +8,6 @@ import me.akuz.ts.log.TLog;
 
 public final class RepeatWithNumExpiry<T extends Comparable<T>> extends Filter<T> {
 	
-	private String _fieldName;
 	private final Number _alivePeriod;
 	private final Object _defaultValue;
 	private TItem<T> _lastAvailableItem;
@@ -44,7 +43,7 @@ public final class RepeatWithNumExpiry<T extends Comparable<T>> extends Filter<T
 			
 			if (diff < 0) {
 				throw new IllegalStateException(
-						"Times are not in chronological order in \"" + _fieldName + 
+						"Times are not in chronological order in \"" + getFieldName() + 
 						"\"; last known time: " + _lastAvailableItem + "; new time: " + currTime);
 			}
 			
@@ -62,15 +61,6 @@ public final class RepeatWithNumExpiry<T extends Comparable<T>> extends Filter<T
 	@Override
 	public TItem<T> getCurrItem() {
 		return _currFilterItem;
-	}
-
-	@Override
-	public void setFieldName(final String fieldName) {
-		_fieldName = fieldName;
-	}
-	
-	public String getFieldName() {
-		return _fieldName != null ? _fieldName : "unspecified";
 	}
 
 }

@@ -6,7 +6,7 @@ import java.util.Map;
 import me.akuz.ts.Frame;
 import me.akuz.ts.Seq;
 import me.akuz.ts.TItem;
-import me.akuz.ts.filters.FrameWalker;
+import me.akuz.ts.filters.FrameWalkerOld;
 
 public final class TradingModeTSDeriver<T extends Comparable<T>> {
 	
@@ -25,7 +25,7 @@ public final class TradingModeTSDeriver<T extends Comparable<T>> {
 		iteratorFrame.addSeq(SEQ_PRICE, seqPrice);
 		iteratorFrame.addSeq(SEQ_ACTIVE_PERIOD, seqActivePeriod);
 		
-		FrameWalker<Integer, T> frameAligner = new FrameWalker<>(iteratorFrame, iteratorFrame.getKeys(), times);
+		FrameWalkerOld<Integer, T> frameAligner = new FrameWalkerOld<>(iteratorFrame, iteratorFrame.getKeys(), times);
 		boolean rollingActivePeriod = false;
 		while (frameAligner.hasNext()) {
 			
