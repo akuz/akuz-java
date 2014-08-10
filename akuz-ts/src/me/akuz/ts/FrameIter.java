@@ -9,8 +9,8 @@ import java.util.Map;
 import me.akuz.ts.sync.Synchronizable;
 
 /**
- * Iterator over frame, helping to align 
- * the sequences of items in time.
+ * Iterator over frame, performing alignment 
+ * of multiple sequences of items in time.
  * 
  */
 public final class FrameIter<K, T extends Comparable<T>> implements Synchronizable<T> {

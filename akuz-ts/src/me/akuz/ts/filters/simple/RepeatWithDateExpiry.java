@@ -13,6 +13,7 @@ public final class RepeatWithDateExpiry extends Filter<Date> {
 	private String _fieldName;
 	private final Period _alivePeriod;
 	private final Object _defaultValue;
+	private TItem<Date> _lastAvailableItem;
 	private TItem<Date> _currFilterItem;
 	
 	public RepeatWithDateExpiry(final Period alivePeriod) {
@@ -20,7 +21,6 @@ public final class RepeatWithDateExpiry extends Filter<Date> {
 	}
 	
 	public RepeatWithDateExpiry(final Period alivePeriod, Object defaultValue) {
-		_fieldName = "unspecified";
 		_alivePeriod = alivePeriod;
 		_defaultValue = defaultValue;
 	}
@@ -33,25 +33,24 @@ public final class RepeatWithDateExpiry extends Filter<Date> {
 			final List<TItem<Date>> movedItems) {
 		
 		// update last item
-		TItem<Date> lastAvailableItem = _currFilterItem;
 		if (movedItems.size() > 0) {
-			lastAvailableItem = movedItems.get(movedItems.size()-1);
+			_lastAvailableItem = movedItems.get(movedItems.size()-1);
 		}
 		
 		// check if expired
-		if (lastAvailableItem != null) {
+		if (_lastAvailableItem != null) {
 			
-			final long diff = currTime.getTime() - lastAvailableItem.getTime().getTime();
+			final long diff = currTime.getTime() - _lastAvailableItem.getTime().getTime();
 			
 			if (diff < 0) {
 				throw new IllegalStateException(
-						"Times are not in chronological order in \"" + _fieldName + 
-						"\" field: " + lastAvailableItem + " must be <= than " + currTime);
+						"Times are not in chronological order in \"" + getFieldName() + 
+						"\"; last known time: " + _lastAvailableItem.getTime() + "; new time: " + currTime);
 			}
 			
 			// set last item
 			if (diff <= _alivePeriod.getMs()) {
-				_currFilterItem = new TItem<Date>(currTime, lastAvailableItem.getObject());
+				_currFilterItem = new TItem<Date>(currTime, _lastAvailableItem.getObject());
 			} else if (_defaultValue != null) {
 				_currFilterItem = new TItem<Date>(currTime, _defaultValue);
 			} else {
@@ -68,6 +67,10 @@ public final class RepeatWithDateExpiry extends Filter<Date> {
 	@Override
 	public void setFieldName(final String fieldName) {
 		_fieldName = fieldName;
+	}
+	
+	public String getFieldName() {
+		return _fieldName != null ? _fieldName : "unspecified";
 	}
 
 }
