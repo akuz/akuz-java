@@ -1,4 +1,4 @@
-package me.akuz.ts.imprt;
+package me.akuz.ts.io.custom;
 
 /**
  * Enumeration of quote fields.

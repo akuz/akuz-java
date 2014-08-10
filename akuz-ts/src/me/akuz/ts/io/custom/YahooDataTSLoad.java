@@ -1,4 +1,4 @@
-package me.akuz.ts.imprt;
+package me.akuz.ts.io.custom;
 
 import java.io.File;
 import java.io.IOException;
