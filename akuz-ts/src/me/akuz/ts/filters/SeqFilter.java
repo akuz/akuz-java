@@ -11,7 +11,12 @@ import me.akuz.ts.log.TLog;
 import me.akuz.ts.sync.Synchronizable;
 
 /**
- * {@link Seq} filter.
+ * {@link Seq} filter, which applies one or more 
+ * 1D filters to the underlying sequence and allows
+ * to obtain current filtered item for the sequence.
+ * 
+ * Only one of the filters is allowed to generate the 
+ * current item, otherwise an exception will occur.
  *
  */
 public final class SeqFilter<T extends Comparable<T>> implements Synchronizable<T> {
@@ -23,6 +28,9 @@ public final class SeqFilter<T extends Comparable<T>> implements Synchronizable<
 	private TLog _log;
 	
 	public SeqFilter(final Seq<T> seq) {
+		if (seq == null) {
+			throw new IllegalArgumentException("Cannot filter null sequence");
+		}
 		_seqIter = new SeqIter<>(seq);
 		_filters = new ArrayList<>();
 	}

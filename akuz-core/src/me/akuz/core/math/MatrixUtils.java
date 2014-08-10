@@ -554,4 +554,23 @@ public final class MatrixUtils {
 		}
 		return true;
 	}
+	
+	public static final List<Pair<Integer, Integer>> getNotFiniteIndices(final Matrix m) {
+		
+		final List<Pair<Integer, Integer>> list = new ArrayList<>();
+		
+		for (int i=0; i<m.getRowDimension(); i++) {
+			for (int j=0; j<m.getColumnDimension(); j++) {
+				final double value = m.get(i, j);
+				if (Double.isNaN(value)) {
+					list.add(new Pair<>(i, j));
+				}
+				if (Double.isInfinite(value)) {
+					list.add(new Pair<>(i, j));
+				}
+			}
+		}
+		
+		return list;
+	}
 }
