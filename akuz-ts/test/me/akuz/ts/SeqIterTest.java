@@ -20,7 +20,7 @@ public class SeqIterTest {
 		seq.add(3, rnd.nextInt(100));
 		seq.add(4, rnd.nextInt(100));
 		
-		SeqIter<Integer> iter = new SeqIter<>(seq);
+		SeqIterator<Integer> iter = new SeqIterator<>(seq);
 		
 		Assert.assertNull(iter.getCurrItem());
 		Assert.assertEquals(0, iter.getMovedItems().size());

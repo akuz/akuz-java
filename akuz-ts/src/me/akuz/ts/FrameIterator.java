@@ -13,11 +13,12 @@ import me.akuz.ts.sync.Synchronizable;
  * of multiple sequences of items in time.
  * 
  */
-public final class FrameIter<K, T extends Comparable<T>> implements Synchronizable<T> {
+public final class FrameIterator<K, T extends Comparable<T>> 
+implements Synchronizable<T>, FrameCursor<K, T> {
 
 	private final Frame<K, T> _frame;
 	private final List<K> _keys;
-	private final List<SeqIter<T>> _seqIters;
+	private final List<SeqIterator<T>> _seqIters;
 	private T _currTime;
 	private final Map<K, TItem<T>> _currItems;
 	private final Map<K, List<TItem<T>>> _movedItems;
@@ -25,7 +26,7 @@ public final class FrameIter<K, T extends Comparable<T>> implements Synchronizab
 	/**
 	 * Create frame iterator for all keys.
 	 */
-	public FrameIter(final Frame<K, T> frame) {
+	public FrameIterator(final Frame<K, T> frame) {
 
 		this(frame, frame.getKeys());
 	}
@@ -33,7 +34,7 @@ public final class FrameIter<K, T extends Comparable<T>> implements Synchronizab
 	/**
 	 * Create frame iterator for specific keys.
 	 */
-	public FrameIter(
+	public FrameIterator(
 			final Frame<K, T> frame,
 			final Collection<K> keys) {
 		
@@ -51,7 +52,7 @@ public final class FrameIter<K, T extends Comparable<T>> implements Synchronizab
 		_movedItems = new HashMap<>();
 		for (int i=0; i<_keys.size(); i++) {
 			final K key = _keys.get(i);
-			final SeqIter<T> seqIter = new SeqIter<>(frame.getSeq(key));
+			final SeqIterator<T> seqIter = new SeqIterator<>(frame.getSeq(key));
 			_seqIters.add(seqIter);
 			_movedItems.put(key, seqIter.getMovedItems());
 		}
@@ -67,6 +68,7 @@ public final class FrameIter<K, T extends Comparable<T>> implements Synchronizab
 	/**
 	 * Get keys that are being aligned.
 	 */
+	@Override
 	public List<K> getKeys() {
 		return _keys;
 	}
@@ -74,6 +76,7 @@ public final class FrameIter<K, T extends Comparable<T>> implements Synchronizab
 	/**
 	 * Get current iterator time.
 	 */
+	@Override
 	public T getCurrTime() {
 		return _currTime;
 	}
@@ -82,8 +85,19 @@ public final class FrameIter<K, T extends Comparable<T>> implements Synchronizab
 	 * Get items occurred *exactly* 
 	 * at the current iterator time.
 	 */
+	@Override
 	public Map<K, TItem<T>> getCurrItems() {
 		return _currItems;
+	}
+	
+	
+	/**
+	 * Get item occurred *exactly* 
+	 * at the current iterator time.
+	 */
+	@Override
+	public TItem<T> getCurrItem(K key) {
+		return _currItems.get(key);
 	}
 	
 	/**
@@ -105,7 +119,7 @@ public final class FrameIter<K, T extends Comparable<T>> implements Synchronizab
 		for (int i=0; i<_keys.size(); i++) {
 			
 			final K key = _keys.get(i);
-			final SeqIter<T> seqIter = _seqIters.get(i);
+			final SeqIterator<T> seqIter = _seqIters.get(i);
 			
 			seqIter.moveToTime(time);
 			

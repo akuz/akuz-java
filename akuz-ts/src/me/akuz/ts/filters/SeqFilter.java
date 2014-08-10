@@ -5,7 +5,8 @@ import java.util.Collection;
 import java.util.List;
 
 import me.akuz.ts.Seq;
-import me.akuz.ts.SeqIter;
+import me.akuz.ts.SeqCursor;
+import me.akuz.ts.SeqIterator;
 import me.akuz.ts.TItem;
 import me.akuz.ts.log.TLog;
 import me.akuz.ts.sync.Synchronizable;
@@ -19,11 +20,13 @@ import me.akuz.ts.sync.Synchronizable;
  * current item, otherwise an exception will occur.
  *
  */
-public final class SeqFilter<T extends Comparable<T>> implements Synchronizable<T> {
+public final class SeqFilter<T extends Comparable<T>> 
+implements Synchronizable<T>, SeqCursor<T> {
 	
 	private String _fieldName;
-	private final SeqIter<T> _seqIter;
+	private final SeqIterator<T> _seqIter;
 	private final List<Filter<T>> _filters;
+	private T _currTime;
 	private TItem<T> _currItem;
 	private TLog _log;
 	
@@ -31,7 +34,7 @@ public final class SeqFilter<T extends Comparable<T>> implements Synchronizable<
 		if (seq == null) {
 			throw new IllegalArgumentException("Cannot filter null sequence");
 		}
-		_seqIter = new SeqIter<>(seq);
+		_seqIter = new SeqIterator<>(seq);
 		_filters = new ArrayList<>();
 	}
 	
@@ -71,6 +74,12 @@ public final class SeqFilter<T extends Comparable<T>> implements Synchronizable<
 		}
 	}
 	
+	@Override
+	public T getCurrTime() {
+		return _currTime;
+	}
+	
+	@Override
 	public TItem<T> getCurrItem() {
 		return _currItem;
 	}
@@ -110,6 +119,7 @@ public final class SeqFilter<T extends Comparable<T>> implements Synchronizable<
 				newCurrItem = proposedItem;
 			}
 		}
+		_currTime = time;
 		_currItem = newCurrItem;
 	}
 

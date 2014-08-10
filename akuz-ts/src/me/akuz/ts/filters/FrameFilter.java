@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import me.akuz.ts.Frame;
+import me.akuz.ts.FrameCursor;
 import me.akuz.ts.TItem;
 import me.akuz.ts.sync.Synchronizable;
 
@@ -21,11 +22,13 @@ import me.akuz.ts.sync.Synchronizable;
  * an exception will occur.
  *
  */
-public final class FrameFilter<K, T extends Comparable<T>> implements Synchronizable<T> {
+public final class FrameFilter<K, T extends Comparable<T>> 
+implements Synchronizable<T>, FrameCursor<K, T> {
 	
 	private final Frame<K, T> _frame;
 	private final Map<K, SeqFilter<T>> _seqFilters;
 	private final List<K> _filterKeys;
+	private T _currTime;
 	private final Map<K, TItem<T>> _currItems;
 	
 	public FrameFilter(final Frame<K, T> frame) {
@@ -68,10 +71,22 @@ public final class FrameFilter<K, T extends Comparable<T>> implements Synchroniz
 		seqFilter.addFilter(filter);
 	}
 	
+	@Override
+	public List<K> getKeys() {
+		return _filterKeys;
+	}
+	
+	@Override
+	public T getCurrTime() {
+		return _currTime;
+	}
+	
+	@Override
 	public Map<K, TItem<T>> getCurrItems() {
 		return _currItems;
 	}
 	
+	@Override
 	public TItem<T> getCurrItem(final K key) {
 		return _currItems.get(key);
 	}
@@ -92,6 +107,7 @@ public final class FrameFilter<K, T extends Comparable<T>> implements Synchroniz
 			seqFilter.moveToTime(time);
 			_currItems.put(key, seqFilter.getCurrItem());
 		}
+		_currTime = time;
 	}
 
 }

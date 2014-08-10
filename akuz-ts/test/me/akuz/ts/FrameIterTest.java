@@ -28,7 +28,7 @@ public class FrameIterTest {
 
 		frame.add("f1", 4, rnd.nextInt(100));
 		
-		FrameIter<String, Integer> iter = new FrameIter<>(frame);
+		FrameIterator<String, Integer> iter = new FrameIterator<>(frame);
 		
 		Assert.assertNull(iter.getCurrTime());
 		Assert.assertEquals(0, iter.getCurrItems().size());
