@@ -79,6 +79,11 @@ public final class FrameFilter<K, T extends Comparable<T>> implements Synchroniz
 	@Override
 	public void moveToTime(T time) {
 		
+		if (_filterKeys.size() == 0) {
+			throw new IllegalStateException(
+					"FrameFilter does not have any 1D filters assigned");
+		}
+		
 		_currItems.clear();
 		for (int i=0; i<_filterKeys.size(); i++) {
 			
