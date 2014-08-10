@@ -6,7 +6,7 @@ import me.akuz.ts.TItem;
 import me.akuz.ts.filters.Filter;
 import me.akuz.ts.log.TLog;
 
-public final class RepeatWithNumberExpiry<T extends Comparable<T>> extends Filter<T> {
+public final class RepeatWithNumExpiry<T extends Comparable<T>> extends Filter<T> {
 	
 	private String _fieldName;
 	private final Number _alivePeriod;
@@ -14,11 +14,11 @@ public final class RepeatWithNumberExpiry<T extends Comparable<T>> extends Filte
 	private TItem<T> _lastAvailableItem;
 	private TItem<T> _currFilterItem;
 	
-	public RepeatWithNumberExpiry(final int aliveCount) {
+	public RepeatWithNumExpiry(final int aliveCount) {
 		this(aliveCount, null);
 	}
 	
-	public RepeatWithNumberExpiry(final Number alivePeriod, Object defaultValue) {
+	public RepeatWithNumExpiry(final Number alivePeriod, Object defaultValue) {
 		_alivePeriod = alivePeriod;
 		_defaultValue = defaultValue;
 	}

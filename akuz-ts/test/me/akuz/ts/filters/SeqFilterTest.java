@@ -7,7 +7,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import me.akuz.ts.Seq;
-import me.akuz.ts.filters.simple.RepeatWithNumberExpiry;
+import me.akuz.ts.filters.simple.RepeatWithNumExpiry;
 import me.akuz.ts.filters.simple.RepeatWithoutExpiry;
 
 public class SeqFilterTest {
@@ -51,7 +51,7 @@ public class SeqFilterTest {
 		seq.add(5, rnd.nextInt(100));
 		
 		SeqFilter<Integer> seqFilter = new SeqFilter<>(seq);
-		seqFilter.addFilter(new RepeatWithNumberExpiry<Integer>(1));
+		seqFilter.addFilter(new RepeatWithNumExpiry<Integer>(1));
 		
 		seqFilter.moveToTime(0);
 		
