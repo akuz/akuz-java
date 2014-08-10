@@ -28,8 +28,8 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 	private final Frame<K, T> _frame;
 	private final Map<K, SeqFilter<T>> _seqFilters;
 	private final List<K> _filterKeys;
-	private T _currTime;
 	private final Map<K, TItem<T>> _currItems;
+	private T _currTime;
 	
 	public FrameFilter(final Frame<K, T> frame) {
 		if (frame == null) {

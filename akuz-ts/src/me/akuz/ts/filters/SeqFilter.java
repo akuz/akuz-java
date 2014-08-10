@@ -26,8 +26,7 @@ implements Synchronizable<T>, SeqCursor<T> {
 	private String _fieldName;
 	private final SeqIterator<T> _seqIter;
 	private final List<Filter<T>> _filters;
-	private T _currTime;
-	private TItem<T> _currItem;
+	private TItem<T> _currFilteredItem;
 	private TLog _log;
 	
 	public SeqFilter(final Seq<T> seq) {
@@ -76,12 +75,12 @@ implements Synchronizable<T>, SeqCursor<T> {
 	
 	@Override
 	public T getCurrTime() {
-		return _currTime;
+		return _seqIter.getCurrTime();
 	}
 	
 	@Override
 	public TItem<T> getCurrItem() {
-		return _currItem;
+		return _currFilteredItem;
 	}
 
 	@Override
@@ -95,7 +94,7 @@ implements Synchronizable<T>, SeqCursor<T> {
 		
 		_seqIter.moveToTime(time);
 		
-		TItem<T> newCurrItem = null;
+		TItem<T> newCurrFilteredItem = null;
 		
 		for (int i=0; i<_filters.size(); i++) {
 			
@@ -110,17 +109,16 @@ implements Synchronizable<T>, SeqCursor<T> {
 			final TItem<T> proposedItem = filter.getCurrItem();
 			
 			if (proposedItem != null) {
-				if (newCurrItem != null) {
+				if (newCurrFilteredItem != null) {
 					throw new IllegalStateException(
 							"Two 1D filters have proposed current item " +
 							"for SeqFilter on field \"" + getFieldName() +
 							"\", cannot choose between them");
 				}
-				newCurrItem = proposedItem;
+				newCurrFilteredItem = proposedItem;
 			}
 		}
-		_currTime = time;
-		_currItem = newCurrItem;
+		_currFilteredItem = newCurrFilteredItem;
 	}
 
 }
