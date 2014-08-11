@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
+import me.akuz.core.FileUtils;
 import me.akuz.ts.Frame;
 import me.akuz.ts.TItem;
 import me.akuz.ts.filters.FrameWalkerOld;
@@ -35,6 +36,15 @@ public final class CSV_IO {
 	
 	private static final String[] split(final String str) {
 		return str.split(SEP_REGEX_UNESCAPED);
+	}
+
+	public static final <K, T extends Comparable<T>> void saveCSV(
+			final String fileName,
+			final Frame<K, T> frame,
+			final IOMap<K> ioMap) throws IOException {
+		
+		final String str = toCSV(frame, ioMap);
+		FileUtils.writeEntireFile(fileName, str);
 	}
 
 	public static final <K, T extends Comparable<T>> String toCSV(

@@ -45,7 +45,7 @@ public final class Synchronizer<T extends Comparable<T>> {
 		}
 	}
 	
-	public T getCurrentTime() {
+	public T getCurrTime() {
 		return _currTime;
 	}
 	
@@ -53,7 +53,7 @@ public final class Synchronizer<T extends Comparable<T>> {
 		return _nextCursor < _times.size();
 	}
 	
-	public void moveNext() {
+	public void next() {
 		
 		if (_nextCursor >= _times.size()) {
 			throw new IllegalStateException(
@@ -82,5 +82,11 @@ public final class Synchronizer<T extends Comparable<T>> {
 		}
 		
 		_currTime = nextTime;
+	}
+	
+	public void run() {
+		while (hasNext()) {
+			next();
+		}
 	}
 }

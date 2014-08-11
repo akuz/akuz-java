@@ -41,27 +41,27 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 		_currItems = new HashMap<>();
 	}
 	
-	public void addSeqFilters(final K key, Collection<Filter<T>> filters) {
+	public void addFilters(final K key, Collection<Filter<T>> filters) {
 		for (final Filter<T> filter : filters) {
-			addSeqFilter(key, filter);
+			addFilter(key, filter);
 		}
 	}
 	
-	public void addSeqFilters(final Collection<K> keys, Collection<Filter<T>> filters) {
+	public void addFilters(final Collection<K> keys, Collection<Filter<T>> filters) {
 		for (final K key : keys) {
 			for (final Filter<T> filter : filters) {
-				addSeqFilter(key, filter);
+				addFilter(key, filter);
 			}
 		}
 	}
 	
-	public void addSeqFilter(final Collection<K> keys, Filter<T> filter) {
+	public void addFilter(final Collection<K> keys, Filter<T> filter) {
 		for (final K key : keys) {
-			addSeqFilter(key, filter);
+			addFilter(key, filter);
 		}
 	}
 	
-	public void addSeqFilter(final K key, Filter<T> filter) {
+	public void addFilter(final K key, Filter<T> filter) {
 		SeqFilter<T> seqFilter = _seqFilters.get(key);
 		if (seqFilter == null) {
 			seqFilter = new SeqFilter<>(_frame.getSeq(key));
