@@ -15,7 +15,7 @@
   	</dependency>
   </dependencies>
   <properties>
-  	<AkuzDeployDir>../akuz-build/result</AkuzDeployDir>
+  	<AkuzDeployDir>../akuz-build/result/bin</AkuzDeployDir>
   </properties>
   <modules>
   	<module>../akuz-core</module>
