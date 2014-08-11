@@ -1,8 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <url>http://akuz.me</url>
-  <groupId>me.akuz</groupId>
-  <version>0.0.3</version>
   <artifactId>akuz-ml</artifactId>
   <name>Akuz ML library</name>
   <description>Machine Learning (ML) library.</description>
@@ -17,6 +15,34 @@
           <source>1.7</source>
           <target>1.7</target>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.4</version>
+      	  <configuration>
+            <outputDirectory>${AkuzDeployDir}</outputDirectory>
+      	  	<archive>
+      	  	  <manifest>
+      	  	    <addClasspath>true</addClasspath>
+      	  	    <classpathPrefix>lib/</classpathPrefix>
+      	  	  </manifest>
+      	  	</archive>
+      	 </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>install</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${AkuzDeployDir}/lib</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
@@ -36,4 +62,10 @@
   		<version>0.0.3</version>
   	</dependency>
   </dependencies>
+  <parent>
+  	<groupId>me.akuz</groupId>
+  	<artifactId>akuz-build</artifactId>
+  	<version>0.0.3</version>
+  	<relativePath>../akuz-build</relativePath>
+  </parent>
 </project>

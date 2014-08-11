@@ -2,9 +2,9 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>me.akuz</groupId>
   <version>0.0.3</version>
-  <artifactId>akuz-libs-build</artifactId>
-  <name>Akuz libraries build</name>
-  <description>Parent project for building all libraries.</description>
+  <artifactId>akuz-build</artifactId>
+  <name>Akuz Java build</name>
+  <description>Parent project for building all Java projects.</description>
   <packaging>pom</packaging>
   <dependencies>
   	<dependency>
@@ -14,6 +14,9 @@
   		<scope>test</scope>
   	</dependency>
   </dependencies>
+  <properties>
+  	<AkuzDeployDir>../akuz-build/result</AkuzDeployDir>
+  </properties>
   <modules>
   	<module>../akuz-core</module>
   	<module>../akuz-ml</module>
