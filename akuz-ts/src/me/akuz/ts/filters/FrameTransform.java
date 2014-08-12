@@ -52,5 +52,13 @@ implements Synchronizable<T> {
 			}
 		}
 	}
+	
+	public void run() {
+		
+		final Out<T> nextTime = new Out<>();
+		while (getNextTime(nextTime)) {
+			moveToTime(nextTime.getValue());
+		}
+	}
 
 }

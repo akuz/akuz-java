@@ -6,6 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import me.akuz.ts.filters.FrameFilter;
+import me.akuz.ts.filters.FrameTransform;
+import me.akuz.ts.filters.stats.Cumsum;
+
 /**
  * Time series frame containing multiple sequences.
  *
@@ -169,5 +173,20 @@ public final class Frame<K, T extends Comparable<T>> {
 	 */
 	public FrameIterator<K, T> iterator() {
 		return new FrameIterator<>(this);
+	}
+	
+	/**
+	 * Cumsum the frame.
+	 */
+	public Frame<K, T> cumsum() {
+		
+		FrameFilter<K, T> frameFilter = new FrameFilter<>(this);
+		frameFilter.addFilter(getKeys(), new Cumsum<T>());
+		
+		FrameTransform<K, T> frameTransform = new FrameTransform<>(frameFilter);
+		frameTransform.run();
+		
+		Frame<K, T> result = frameTransform.getOutput();
+		return result;
 	}
 }
