@@ -3,18 +3,16 @@ package me.akuz.ts;
 import java.util.List;
 import java.util.Map;
 
+import me.akuz.ts.sync.Synchronizable;
+
 /**
  * {@link Frame} cursor provides information
  * about keys and items in a frame at a
  * particular (current) point in time.
  * 
  */
-public interface FrameCursor<K, T extends Comparable<T>> {
-	
-	/**
-	 * Get current time.
-	 */
-	T getCurrTime();
+public interface FrameCursor<K, T extends Comparable<T>>
+extends Synchronizable<T> {
 	
 	/**
 	 * Get keys within cursor.

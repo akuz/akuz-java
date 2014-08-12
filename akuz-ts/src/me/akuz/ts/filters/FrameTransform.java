@@ -2,6 +2,7 @@ package me.akuz.ts.filters;
 
 import java.util.List;
 
+import me.akuz.core.Out;
 import me.akuz.ts.Frame;
 import me.akuz.ts.TItem;
 import me.akuz.ts.sync.Synchronizable;
@@ -25,6 +26,16 @@ implements Synchronizable<T> {
 	
 	public Frame<K, T> getOutput() {
 		return _frameOutput;
+	}
+	
+	@Override
+	public T getCurrTime() {
+		return _frameFilter.getCurrTime();
+	}
+	
+	@Override
+	public boolean getNextTime(Out<T> nextTime) {
+		return _frameFilter.getNextTime(nextTime);
 	}
 
 	@Override

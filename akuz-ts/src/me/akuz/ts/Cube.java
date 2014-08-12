@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Time series cube.
@@ -121,13 +120,5 @@ public final class Cube<K1, K2, T extends Comparable<T>> {
 			}
 		}
 		return resultCube;
-	}
-	
-	public void extractTimes(Set<T> times) {
-		for (Frame<K2, T> frame : _map.values()) {
-			for (Seq<T> seq : frame.getMap().values()) {
-				seq.extractTimes(times);
-			}
-		}
 	}
 }

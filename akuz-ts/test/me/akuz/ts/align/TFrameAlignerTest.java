@@ -1,10 +1,8 @@
 package me.akuz.ts.align;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import me.akuz.core.Out;
 import me.akuz.ts.Frame;
-import me.akuz.ts.filters.FrameWalkerOld;
+import me.akuz.ts.FrameIterator;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -27,19 +25,15 @@ public final class TFrameAlignerTest {
 	}
 
 	@Test
-	public void testSimpleValues() {
+	public void testMoveToSpecificTime() {
 		
 		Frame<String, Integer> frame = createSimpleFrame();
 		
-		List<Integer> times = new ArrayList<>();
-		times.add(0);
-		times.add(2);
-		times.add(3);
+		FrameIterator<String, Integer> iter = new FrameIterator<>(frame, frame.getKeys());
+		Out<Integer> nextTime = new Out<>();
 		
-		FrameWalkerOld<String, Integer> iter = new FrameWalkerOld<>(frame, frame.getKeys(), times);
-		
-		Assert.assertTrue(iter.hasNext());
-		iter.next();
+		Assert.assertTrue(iter.getNextTime(nextTime));
+		iter.moveToTime(0);
 
 		Assert.assertEquals((Integer)0, iter.getCurrTime());
 		
@@ -53,8 +47,8 @@ public final class TFrameAlignerTest {
 		Assert.assertEquals((Integer)0, iter.getCurrItems().get("f2").getTime());
 		Assert.assertEquals((Integer)20, iter.getCurrItems().get("f2").getInteger());
 		
-		Assert.assertTrue(iter.hasNext());
-		iter.next();
+		Assert.assertTrue(iter.getNextTime(nextTime));
+		iter.moveToTime(2);
 
 		Assert.assertEquals((Integer)2, iter.getCurrTime());
 		
@@ -66,8 +60,8 @@ public final class TFrameAlignerTest {
 		Assert.assertEquals(0, iter.getMovedItems().get("f2").size());
 		Assert.assertFalse(iter.getCurrItems().containsKey("f2"));
 		
-		Assert.assertTrue(iter.hasNext());
-		iter.next();
+		Assert.assertTrue(iter.getNextTime(nextTime));
+		iter.moveToTime(3);
 
 		Assert.assertEquals((Integer)3, iter.getCurrTime());
 		
@@ -81,8 +75,74 @@ public final class TFrameAlignerTest {
 		Assert.assertEquals((Integer)3, iter.getCurrItems().get("f2").getTime());
 		Assert.assertEquals((Integer)23, iter.getCurrItems().get("f2").getInteger());
 		
-		Assert.assertFalse(iter.hasNext());
+		Assert.assertFalse(iter.getNextTime(nextTime));
+	}
+
+	@Test
+	public void testMoveToNextTime() {
 		
+		Frame<String, Integer> frame = createSimpleFrame();
+		
+		FrameIterator<String, Integer> iter = new FrameIterator<>(frame, frame.getKeys());
+		Out<Integer> nextTime = new Out<>();
+		
+		Assert.assertTrue(iter.getNextTime(nextTime));
+		iter.moveToTime(nextTime.getValue());
+
+		Assert.assertEquals((Integer)0, iter.getCurrTime());
+		
+		Assert.assertEquals(1, iter.getMovedItems().get("f1").size());
+		Assert.assertTrue(iter.getCurrItems().containsKey("f1"));
+		Assert.assertEquals((Integer)0, iter.getCurrItems().get("f1").getTime());
+		Assert.assertEquals((Integer)10, iter.getCurrItems().get("f1").getInteger());
+		
+		Assert.assertEquals(1, iter.getMovedItems().get("f2").size());
+		Assert.assertTrue(iter.getCurrItems().containsKey("f2"));
+		Assert.assertEquals((Integer)0, iter.getCurrItems().get("f2").getTime());
+		Assert.assertEquals((Integer)20, iter.getCurrItems().get("f2").getInteger());
+		
+		Assert.assertTrue(iter.getNextTime(nextTime));
+		iter.moveToTime(nextTime.getValue());
+
+		Assert.assertEquals((Integer)1, iter.getCurrTime());
+		
+		Assert.assertEquals(1, iter.getMovedItems().get("f1").size());
+		Assert.assertTrue(iter.getCurrItems().containsKey("f1"));
+		Assert.assertEquals((Integer)1, iter.getCurrItems().get("f1").getTime());
+		Assert.assertEquals((Integer)11, iter.getCurrItems().get("f1").getInteger());
+		
+		Assert.assertEquals(0, iter.getMovedItems().get("f2").size());
+		Assert.assertFalse(iter.getCurrItems().containsKey("f2"));
+		
+		Assert.assertTrue(iter.getNextTime(nextTime));
+		iter.moveToTime(nextTime.getValue());
+
+		Assert.assertEquals((Integer)2, iter.getCurrTime());
+		
+		Assert.assertEquals(1, iter.getMovedItems().get("f1").size());
+		Assert.assertTrue(iter.getCurrItems().containsKey("f1"));
+		Assert.assertEquals((Integer)2, iter.getCurrItems().get("f1").getTime());
+		Assert.assertEquals((Integer)12, iter.getCurrItems().get("f1").getInteger());
+		
+		Assert.assertEquals(0, iter.getMovedItems().get("f2").size());
+		Assert.assertFalse(iter.getCurrItems().containsKey("f2"));
+		
+		Assert.assertTrue(iter.getNextTime(nextTime));
+		iter.moveToTime(nextTime.getValue());
+
+		Assert.assertEquals((Integer)3, iter.getCurrTime());
+		
+		Assert.assertEquals(1, iter.getMovedItems().get("f1").size());
+		Assert.assertTrue(iter.getCurrItems().containsKey("f1"));
+		Assert.assertEquals((Integer)3, iter.getCurrItems().get("f1").getTime());
+		Assert.assertEquals((Integer)13, iter.getCurrItems().get("f1").getInteger());
+		
+		Assert.assertEquals(1, iter.getMovedItems().get("f2").size());
+		Assert.assertTrue(iter.getCurrItems().containsKey("f2"));
+		Assert.assertEquals((Integer)3, iter.getCurrItems().get("f2").getTime());
+		Assert.assertEquals((Integer)23, iter.getCurrItems().get("f2").getInteger());
+		
+		Assert.assertFalse(iter.getNextTime(nextTime));
 	}
 
 	@Test
@@ -90,17 +150,11 @@ public final class TFrameAlignerTest {
 		
 		Frame<String, Integer> frame = createSimpleFrame();
 		
-		List<Integer> times = new ArrayList<>();
-		times.add(0);
-		times.add(2);
-		times.add(1);
-		
-		FrameWalkerOld<String, Integer> iter = new FrameWalkerOld<>(frame, frame.getKeys(), times);
+		FrameIterator<String, Integer> iter = new FrameIterator<>(frame, frame.getKeys());
 		
 		try {
-			while (iter.hasNext()) {
-				iter.next();
-			}
+			iter.moveToTime(2);
+			iter.moveToTime(0);
 			throw new IllegalStateException("Should have thrown exception because of bad times");
 		} catch (Exception ex) {
 			// expected exception

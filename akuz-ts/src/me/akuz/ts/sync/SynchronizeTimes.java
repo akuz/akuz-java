@@ -8,25 +8,25 @@ import java.util.List;
 /**
  * Time synchronizer that propagates the same time to 
  * multiple {@link Synchronizable}s in the same order, 
- * in which they were added to the {@link Synchronizer}.
+ * in which they were added to the {@link SynchronizeTimes}.
  * 
  * If a new {@link Synchronizable} is added after some
  * times have already been propagated, it's automatically
- * fast-forwarded to the current {@link Synchronizer} time.
+ * fast-forwarded to the current {@link SynchronizeTimes} time.
  *
  */
-public final class Synchronizer<T extends Comparable<T>> {
+public final class SynchronizeTimes<T extends Comparable<T>> {
 	
 	private final List<Synchronizable<T>> _synchronizables;
 	private final List<T> _times;
 	private int _nextCursor;
 	private T _currTime;
 	
-	public Synchronizer(final Collection<T> times) {
+	public SynchronizeTimes(final Collection<T> times) {
 		this(times, false);
 	}
 	
-	private Synchronizer(final Collection<T> times, final boolean timesAreAlreadySorted) {
+	private SynchronizeTimes(final Collection<T> times, final boolean timesAreAlreadySorted) {
 
 		_synchronizables = new ArrayList<>();
 		_times = new ArrayList<>(times);

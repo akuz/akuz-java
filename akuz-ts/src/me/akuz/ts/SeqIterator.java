@@ -3,6 +3,7 @@ package me.akuz.ts;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.akuz.core.Out;
 import me.akuz.ts.sync.Synchronizable;
 
 /**
@@ -13,7 +14,6 @@ public final class SeqIterator<T extends Comparable<T>>
 implements Synchronizable<T>, SeqCursor<T> {
 	
 	private final Seq<T> _seq;
-	private final List<TItem<T>> _items;
 	private int _nextCursor;
 	private T _currTime;
 	private TItem<T> _currItem;
@@ -24,7 +24,6 @@ implements Synchronizable<T>, SeqCursor<T> {
 			throw new IllegalArgumentException("Cannot iterate over null sequence");
 		}
 		_seq = seq;
-		_items = seq.getItems();
 		_movedItems = new ArrayList<>();
 	}
 	
@@ -45,6 +44,19 @@ implements Synchronizable<T>, SeqCursor<T> {
 	public List<TItem<T>> getMovedItems() {
 		return _movedItems;
 	}
+	
+	@Override
+	public boolean getNextTime(final Out<T> nextTime) {
+		
+		final List<TItem<T>> items = _seq.getItems();
+		if (_nextCursor < items.size()) {
+			nextTime.setValue(items.get(_nextCursor).getTime());
+			return true;
+		} else {
+			nextTime.setValue(null);
+			return false;
+		}
+	}
 
 	@Override
 	public void moveToTime(T time) {
@@ -52,11 +64,13 @@ implements Synchronizable<T>, SeqCursor<T> {
 		_currItem = null;
 		_movedItems.clear();
 		
+		final List<TItem<T>> items = _seq.getItems();
+		
 		// move to new time
 		// item by item
 		while (true) {
 			
-			if (_nextCursor >= _items.size()) {
+			if (_nextCursor >= items.size()) {
 				
 				// reached the end of 
 				// available items
@@ -65,7 +79,7 @@ implements Synchronizable<T>, SeqCursor<T> {
 			} else {
 				
 				// get next item info
-				final TItem<T> nextItem = _items.get(_nextCursor);
+				final TItem<T> nextItem = items.get(_nextCursor);
 				final int cmp = nextItem.getTime().compareTo(time);
 
 				// check if next item

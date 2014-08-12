@@ -1,8 +1,5 @@
 package me.akuz.ts.derive;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import me.akuz.ts.Cube;
 import me.akuz.ts.Frame;
 
@@ -18,9 +15,6 @@ public final class IsTrading {
 		final Cube<Integer, K, T> cube = new Cube<>();
 		cube.addFrame(0, prices);
 		cube.addFrame(1, isActive);
-		
-		final Set<T> times = new HashSet<T>();
-		cube.extractTimes(times);
 		
 		return null;
 	}

@@ -1,14 +1,13 @@
 package me.akuz.ts.derive;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
-import me.akuz.ts.TItem;
+import me.akuz.core.Out;
 import me.akuz.ts.Frame;
-import me.akuz.ts.filters.FrameWalkerOld;
+import me.akuz.ts.FrameIterator;
+import me.akuz.ts.TItem;
 
 public final class Average {
 
@@ -74,9 +73,6 @@ public final class Average {
 			final K toKey,
 			final boolean inPlace) {
 		
-		final Set<T> times = new HashSet<>();
-		frame.extractTimes(times);
-		
 		final Frame<K, T> toFrame;
 		if (inPlace) {
 			toFrame = frame;
@@ -84,12 +80,13 @@ public final class Average {
 			toFrame = new Frame<>();
 		}
 		
-		final FrameWalkerOld<K, T> frameAligner = new FrameWalkerOld<>(frame, keys, times);
-		while (frameAligner.hasNext()) {
+		final FrameIterator<K, T> frameIterator = new FrameIterator<K, T>(frame, keys);
+		final Out<T> nextTime = new Out<>();
+		while (frameIterator.getNextTime(nextTime)) {
 			
-			frameAligner.next();
+			frameIterator.moveToTime(nextTime.getValue());
 			
-			final Map<K, TItem<T>> currValues = frameAligner.getCurrItems();
+			final Map<K, TItem<T>> currValues = frameIterator.getCurrItems();
 			
 			double average = 0;
 			for (Entry<K, TItem<T>> entry : currValues.entrySet()) {
@@ -100,7 +97,7 @@ public final class Average {
 			
 			average /= keys.size();
 			
-			toFrame.add(toKey, frameAligner.getCurrTime(), average);
+			toFrame.add(toKey, frameIterator.getCurrTime(), average);
 		}
 	
 		return toFrame;

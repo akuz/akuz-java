@@ -3,7 +3,6 @@ package me.akuz.ts;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Time series sequence of values.
@@ -90,9 +89,10 @@ public final class Seq<T extends Comparable<T>> {
 		}
 	}
 	
-	public void extractTimes(final Set<T> times) {
-		for (int i=0; i<_items.size(); i++) {
-			times.add(_items.get(i).getTime());
-		}
+	/**
+	 * Returns iterator on this sequence.
+	 */
+	public SeqIterator<T> iterator() {
+		return new SeqIterator<>(this);
 	}
 }

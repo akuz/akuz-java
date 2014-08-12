@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import me.akuz.core.Out;
 import me.akuz.ts.sync.Synchronizable;
 
 /**
@@ -107,6 +108,32 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 	 */
 	public Map<K, List<TItem<T>>> getMovedItems() {
 		return _movedItems;
+	}
+	
+	@Override
+	public boolean getNextTime(final Out<T> nextTime) {
+
+		nextTime.setValue(null);
+		
+		final Out<T> seqNextTime = new Out<>();
+		
+		for (int i=0; i<_seqIters.size(); i++) {
+			
+			final SeqIterator<T> seqIter = _seqIters.get(i);
+			
+			if (seqIter.getNextTime(seqNextTime)) {
+				
+				// if we haven't found next time yet
+				// or the seq next time is *earlier*
+				if (nextTime.getValue() == null ||
+					nextTime.getValue().compareTo(seqNextTime.getValue()) > 0) {
+					
+					nextTime.setValue(seqNextTime.getValue());
+				}
+			}
+		}
+		
+		return nextTime.getValue() != null;
 	}
 	
 	/**

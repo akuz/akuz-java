@@ -1,15 +1,14 @@
 package me.akuz.ts.io;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
+import me.akuz.core.Out;
 import me.akuz.ts.Frame;
+import me.akuz.ts.FrameIterator;
 import me.akuz.ts.TItem;
-import me.akuz.ts.filters.FrameWalkerOld;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -30,24 +29,22 @@ public final class JSON_IO {
 		
 		final JsonArray jsonArr = new JsonArray();
 		
-		final Set<T> timeSet = new HashSet<>();
-		frame.extractTimes(timeSet);
-		
 		final List<K> keys = ioMap.getKeys();
 
-		final FrameWalkerOld<K, T> frameAligner = new FrameWalkerOld<K, T>(frame, keys, timeSet);
-		while (frameAligner.hasNext()) {
+		final FrameIterator<K, T> frameIter = new FrameIterator<K, T>(frame, keys);
+		final Out<T> nextTime = new Out<>();
+		while (frameIter.getNextTime(nextTime)) {
 			
-			frameAligner.next();
+			frameIter.moveToTime(nextTime.getValue());
 			
-			final Map<K, TItem<T>> currKeyItems = frameAligner.getCurrItems();
+			final Map<K, TItem<T>> currKeyItems = frameIter.getCurrItems();
 
 			final JsonObject jsonObj = new JsonObject();
 			
 			ioMap.getTimeDataType().toJsonField(
 					jsonObj, 
 					ioMap.getTimeFieldName(), 
-					frameAligner.getCurrTime());
+					frameIter.getCurrTime());
 
 			for (int j=0; j<keys.size(); j++) {
 				

@@ -9,8 +9,7 @@ import me.akuz.core.DateFmt;
 import me.akuz.core.Period;
 import me.akuz.ts.Frame;
 import me.akuz.ts.Seq;
-import me.akuz.ts.filters.FrameWalkerOld;
-import me.akuz.ts.filters.FrameFilterOld;
+import me.akuz.ts.filters.FrameFilter;
 import me.akuz.ts.filters.simple.CheckDateGaps;
 import me.akuz.ts.log.TLog;
 
@@ -42,55 +41,41 @@ public class CheckDateJumpsTest {
 				warningAfterPeriod,
 				errorAfterPeriod);
 		
-		final FrameWalkerOld<String, Date> frameWalker = new FrameWalkerOld<>(
-				frame,
-				frame.getKeys(),
-				times);
-		
-		final FrameFilterOld<String, Date> frameFilter = FrameFilterOld
-				.onAllKeysOf(frameWalker)
-				.addAllKeysFilter(checkDateJumps)
-				.setLog(log)
-				.build();
+		final FrameFilter<String, Date> frameFilter = new FrameFilter<>(frame);
+		frameFilter.addFilter(frame.getKeys(), checkDateJumps);
+		frameFilter.setLog(log);
 		
 		int i=0;
 		
-		Assert.assertTrue(frameFilter.hasNext());
-		frameFilter.next();
+		frameFilter.moveToTime(times.get(i));
 		Assert.assertEquals(frameFilter.getCurrTime(), times.get(i++));
 		Assert.assertEquals(0, log.getInfosCount());
 		Assert.assertEquals(0, log.getWarningsCount());
 		Assert.assertEquals(0, log.getErrorsCount());
 		
-		Assert.assertTrue(frameFilter.hasNext());
-		frameFilter.next();
+		frameFilter.moveToTime(times.get(i));
 		Assert.assertEquals(frameFilter.getCurrTime(), times.get(i++));
 		Assert.assertEquals(0, log.getInfosCount());
 		Assert.assertEquals(0, log.getWarningsCount());
 		Assert.assertEquals(0, log.getErrorsCount());
 		
-		Assert.assertTrue(frameFilter.hasNext());
-		frameFilter.next();
+		frameFilter.moveToTime(times.get(i));
 		Assert.assertEquals(frameFilter.getCurrTime(), times.get(i++));
 		Assert.assertEquals(1, log.getInfosCount());
 		Assert.assertEquals(0, log.getWarningsCount());
 		Assert.assertEquals(0, log.getErrorsCount());
 		
-		Assert.assertTrue(frameFilter.hasNext());
-		frameFilter.next();
+		frameFilter.moveToTime(times.get(i));
 		Assert.assertEquals(frameFilter.getCurrTime(), times.get(i++));
 		Assert.assertEquals(1, log.getInfosCount());
 		Assert.assertEquals(1, log.getWarningsCount());
 		Assert.assertEquals(0, log.getErrorsCount());
 		
-		Assert.assertTrue(frameFilter.hasNext());
-		frameFilter.next();
+		frameFilter.moveToTime(times.get(i));
 		Assert.assertEquals(frameFilter.getCurrTime(), times.get(i++));
 		Assert.assertEquals(1, log.getInfosCount());
 		Assert.assertEquals(1, log.getWarningsCount());
 		Assert.assertEquals(1, log.getErrorsCount());
-		
-		Assert.assertFalse(frameFilter.hasNext());
 	}
 	
 	@Test
@@ -118,83 +103,65 @@ public class CheckDateJumpsTest {
 		final TLog log = new TLog();
 		final CheckDateGaps checkDateJumps = new CheckDateGaps(infoAfterPeriod, warningAfterPeriod, errorAfterPeriod);
 		
-		final FrameWalkerOld<String, Date> frameAligner = new FrameWalkerOld<>(
-				frame,
-				frame.getKeys(),
-				times);
-		
-		final FrameFilterOld<String, Date> frameFilter = FrameFilterOld
-				.onAllKeysOf(frameAligner)
-				.addAllKeysFilter(checkDateJumps)
-				.setLog(log)
-				.build();
+		final FrameFilter<String, Date> frameFilter = new FrameFilter<>(frame);
+		frameFilter.addFilter(frame.getKeys(), checkDateJumps);
+		frameFilter.setLog(log);
 		
 		int i=0;
 		
-		Assert.assertTrue(frameFilter.hasNext());
-		frameFilter.next();
+		frameFilter.moveToTime(times.get(i));
 		Assert.assertEquals(frameFilter.getCurrTime(), times.get(i++));
 		Assert.assertEquals(0, log.getInfosCount());
 		Assert.assertEquals(0, log.getWarningsCount());
 		Assert.assertEquals(0, log.getErrorsCount());
 		
-		Assert.assertTrue(frameFilter.hasNext());
-		frameFilter.next();
+		frameFilter.moveToTime(times.get(i));
 		Assert.assertEquals(frameFilter.getCurrTime(), times.get(i++));
 		Assert.assertEquals(1, log.getInfosCount());
 		Assert.assertEquals(0, log.getWarningsCount());
 		Assert.assertEquals(0, log.getErrorsCount());
 		
-		Assert.assertTrue(frameFilter.hasNext());
-		frameFilter.next();
+		frameFilter.moveToTime(times.get(i));
 		Assert.assertEquals(frameFilter.getCurrTime(), times.get(i++));
 		Assert.assertEquals(1, log.getInfosCount());
 		Assert.assertEquals(1, log.getWarningsCount());
 		Assert.assertEquals(0, log.getErrorsCount());
 		
-		Assert.assertTrue(frameFilter.hasNext());
-		frameFilter.next();
+		frameFilter.moveToTime(times.get(i));
 		Assert.assertEquals(frameFilter.getCurrTime(), times.get(i++));
 		Assert.assertEquals(1, log.getInfosCount());
 		Assert.assertEquals(1, log.getWarningsCount());
 		Assert.assertEquals(1, log.getErrorsCount());
 		
-		Assert.assertTrue(frameFilter.hasNext());
-		frameFilter.next();
+		frameFilter.moveToTime(times.get(i));
 		Assert.assertEquals(frameFilter.getCurrTime(), times.get(i++));
 		Assert.assertEquals(1, log.getInfosCount());
 		Assert.assertEquals(1, log.getWarningsCount());
 		Assert.assertEquals(1, log.getErrorsCount());
 		
-		Assert.assertTrue(frameFilter.hasNext());
-		frameFilter.next();
+		frameFilter.moveToTime(times.get(i));
 		Assert.assertEquals(frameFilter.getCurrTime(), times.get(i++));
 		Assert.assertEquals(2, log.getInfosCount());
 		Assert.assertEquals(1, log.getWarningsCount());
 		Assert.assertEquals(1, log.getErrorsCount());
 		
-		Assert.assertTrue(frameFilter.hasNext());
-		frameFilter.next();
+		frameFilter.moveToTime(times.get(i));
 		Assert.assertEquals(frameFilter.getCurrTime(), times.get(i++));
 		Assert.assertEquals(2, log.getInfosCount());
 		Assert.assertEquals(2, log.getWarningsCount());
 		Assert.assertEquals(1, log.getErrorsCount());
 		
-		Assert.assertTrue(frameFilter.hasNext());
-		frameFilter.next();
+		frameFilter.moveToTime(times.get(i));
 		Assert.assertEquals(frameFilter.getCurrTime(), times.get(i++));
 		Assert.assertEquals(2, log.getInfosCount());
 		Assert.assertEquals(2, log.getWarningsCount());
 		Assert.assertEquals(2, log.getErrorsCount());
 		
-		Assert.assertTrue(frameFilter.hasNext());
-		frameFilter.next();
+		frameFilter.moveToTime(times.get(i));
 		Assert.assertEquals(frameFilter.getCurrTime(), times.get(i++));
 		Assert.assertEquals(2, log.getInfosCount());
 		Assert.assertEquals(2, log.getWarningsCount());
 		Assert.assertEquals(2, log.getErrorsCount());
-		
-		Assert.assertFalse(frameFilter.hasNext());
 	}
 
 }

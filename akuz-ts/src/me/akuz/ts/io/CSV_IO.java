@@ -2,16 +2,15 @@ package me.akuz.ts.io;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.Set;
 
 import me.akuz.core.FileUtils;
+import me.akuz.core.Out;
 import me.akuz.ts.Frame;
+import me.akuz.ts.FrameIterator;
 import me.akuz.ts.TItem;
-import me.akuz.ts.filters.FrameWalkerOld;
 
 /**
  * CSV time series IO functions.
@@ -63,17 +62,15 @@ public final class CSV_IO {
 		}
 		sb.append(NEW_LINE);
 		
-		final Set<T> timeSet = new HashSet<>();
-		frame.extractTimes(timeSet);
-
-		final FrameWalkerOld<K, T> frameAligner = new FrameWalkerOld<>(frame, keys, timeSet);
-		while (frameAligner.hasNext()) {
+		final FrameIterator<K, T> frameIter = new FrameIterator<>(frame, keys);
+		final Out<T> nextTime = new Out<>();
+		while (frameIter.getNextTime(nextTime)) {
 			
-			frameAligner.next();
+			frameIter.moveToTime(nextTime.getValue());
 			
-			final Map<K, TItem<T>> currKeyItems = frameAligner.getCurrItems();
+			final Map<K, TItem<T>> currKeyItems = frameIter.getCurrItems();
 			
-			sb.append(escape(ioMap.getTimeDataType().toString(frameAligner.getCurrTime())));
+			sb.append(escape(ioMap.getTimeDataType().toString(frameIter.getCurrTime())));
 			for (int j=0; j<keys.size(); j++) {
 				
 				sb.append(SEP);

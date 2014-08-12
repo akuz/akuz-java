@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import me.akuz.core.Out;
 import me.akuz.ts.Seq;
 import me.akuz.ts.SeqCursor;
 import me.akuz.ts.SeqIterator;
@@ -81,6 +82,11 @@ implements Synchronizable<T>, SeqCursor<T> {
 	@Override
 	public TItem<T> getCurrItem() {
 		return _currFilteredItem;
+	}
+	
+	@Override
+	public boolean getNextTime(final Out<T> nextTime) {
+		return _seqIter.getNextTime(nextTime);
 	}
 
 	@Override

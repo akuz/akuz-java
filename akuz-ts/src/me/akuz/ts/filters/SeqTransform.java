@@ -1,11 +1,12 @@
 package me.akuz.ts.filters;
 
+import me.akuz.core.Out;
 import me.akuz.ts.Seq;
 import me.akuz.ts.TItem;
 import me.akuz.ts.sync.Synchronizable;
 
 public final class SeqTransform<T extends Comparable<T>>
-implements Synchronizable<T>{
+implements Synchronizable<T> {
 
 	private final SeqFilter<T> _seqFilter;
 	private final Seq<T> _seqOutput;
@@ -21,6 +22,16 @@ implements Synchronizable<T>{
 	
 	public Seq<T> getOutput() {
 		return _seqOutput;
+	}
+	
+	@Override
+	public T getCurrTime() {
+		return _seqFilter.getCurrTime();
+	}
+	
+	@Override
+	public boolean getNextTime(final Out<T> nextTime) {
+		return _seqFilter.getNextTime(nextTime);
 	}
 	
 	@Override

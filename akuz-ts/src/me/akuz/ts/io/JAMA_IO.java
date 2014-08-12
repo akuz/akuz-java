@@ -1,16 +1,18 @@
 package me.akuz.ts.io;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import me.akuz.core.HashIndex;
 import me.akuz.core.Index;
+import me.akuz.core.Out;
 import me.akuz.ts.Frame;
+import me.akuz.ts.FrameCursor;
+import me.akuz.ts.FrameIterator;
 import me.akuz.ts.TItem;
 import me.akuz.ts.filters.Filter;
-import me.akuz.ts.filters.FrameFilterOld;
-import me.akuz.ts.filters.FrameWalkerOld;
+import me.akuz.ts.filters.FrameFilter;
 import me.akuz.ts.log.TLog;
 import Jama.Matrix;
 
@@ -38,31 +40,6 @@ public final class JAMA_IO {
 		return intoMatrix(
 				frame,
 				keysIndex,
-				frame.extractTimes());
-	}
-
-	public static <K, T extends Comparable<T>> Matrix intoMatrix(
-			final Frame<K, T> frame,
-			final Collection<T> times) {
-		
-		Index<K> keysIndex = new HashIndex<>();
-		keysIndex.ensureAll(frame.getKeys());
-		
-		return intoMatrix(
-				frame,
-				keysIndex,
-				times);
-	}
-
-	public static <K, T extends Comparable<T>> Matrix intoMatrix(
-			final Frame<K, T> frame,
-			final Index<K> keysIndex,
-			final Collection<T> times) {
-		
-		return intoMatrix(
-				frame, 
-				keysIndex,
-				times, 
 				null,
 				null);
 	}
@@ -70,46 +47,52 @@ public final class JAMA_IO {
 	public static <K, T extends Comparable<T>> Matrix intoMatrix(
 			final Frame<K, T> frame,
 			final Index<K> keysIndex,
-			final Collection<T> times,
 			final List<Filter<T>> filters,
 			final TLog log) {
 		
-		final Matrix m = new Matrix(times.size(), keysIndex.size(), Double.NaN);
-		int i = 0;
-
-		final FrameWalkerOld<K, T> frameAligner = new FrameWalkerOld<>(frame, keysIndex.getMap().keySet(), times);
+		final List<double[]> rows = new ArrayList<>();
 		
-		final FrameFilterOld.Builder<K, T> frameFilterBuilder = FrameFilterOld.onAllKeysOf(frameAligner);
+		final FrameCursor<K, T> frameCursor;
 		if (filters != null) {
-			for (final Filter<T> filter : filters) {
-				frameFilterBuilder.addAllKeysFilter(filter);
-			}
+			
+			final FrameFilter<K, T> frameFilter = new FrameFilter<>(frame);
+			frameFilter.addFilters(keysIndex.getMap().keySet(), filters);
+			frameFilter.setLog(log);
+			frameCursor = frameFilter;
+			
+		} else {
+			frameCursor = new FrameIterator<>(frame, keysIndex.getMap().keySet());
 		}
-		frameFilterBuilder.setLog(log);
 		
-		final FrameFilterOld<K, T> frameFilter = frameFilterBuilder.build();
-		
-		while (frameFilter.hasNext()) {
+		Out<T> nextTime = new Out<>();
+		while (frameCursor.getNextTime(nextTime)) {
 			
-			frameFilter.next();
+			frameCursor.moveToTime(nextTime.getValue());
 			
-			final Map<K, TItem<T>> currKeyValues = frameFilter.getCurrItems();
+			final Map<K, TItem<T>> currKeyValues = frameCursor.getCurrItems();
 
+			final double[] row = new double[keysIndex.size()];
+			
 			for (int j=0; j<keysIndex.size(); j++) {
 				
 				final K key = keysIndex.getValue(j);
 				final TItem<T> item = currKeyValues.get(key);
 				
 				if (item != null) {
-					m.set(i, j, item.getNumber().doubleValue());
+					row[j] = item.getNumber().doubleValue();
 				} else {
-					m.set(i, j, Double.NaN);
+					row[j] = Double.NaN;
 				}
 			}
-			i++;
+			rows.add(row);
+		}
+		
+		final double[][] arr = new double[rows.size()][keysIndex.size()];
+		for (int i=0; i<rows.size(); i++) {
+			arr[i] = rows.get(i);
 		}
 
-		return m;
+		return new Matrix(arr);
 	}
 
 //	public <K> TFrame<K, T> intoFrame(Set<K> keys, TFrame<K, T> frame) {

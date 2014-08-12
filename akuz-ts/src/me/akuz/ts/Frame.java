@@ -3,12 +3,8 @@ package me.akuz.ts;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import me.akuz.ts.filters.FrameWalkerOld;
 
 /**
  * Time series frame containing multiple sequences.
@@ -169,30 +165,9 @@ public final class Frame<K, T extends Comparable<T>> {
 	}
 	
 	/**
-	 * Extract times present in all sequences 
-	 * of this frame into a provided set.
+	 * Returns iterator on this frame.
 	 */
-	public void extractTimes(final Set<T> times) {
-		for (Seq<T> seq : _map.values()) {
-			seq.extractTimes(times);
-		}
-	}
-
-	/**
-	 * Extract times present in all sequences 
-	 * of this frame into a new set.
-	 */
-	public Set<T> extractTimes() {
-		final Set<T> times = new HashSet<>();
-		extractTimes(times);
-		return times;
-	}
-	
-	/**
-	 * Create default frame walker.
-	 * 
-	 */
-	public FrameWalkerOld<K, T> walker() {
-		return new FrameWalkerOld<>(this);
+	public FrameIterator<K, T> iterator() {
+		return new FrameIterator<>(this);
 	}
 }

@@ -26,7 +26,8 @@ public final class YahooDataTSLoad {
 			final Date minDate,
 			final Date maxDate,
 			final TimeZone timeZone, 
-			final EnumSet<QuoteField> fields) throws IOException, ParseException {
+			final EnumSet<QuoteField> fields,
+			final Set<Date> fillDateSet) throws IOException, ParseException {
 
 		Frame<QuoteField, Date> frame = new Frame<>();
 	
@@ -56,6 +57,8 @@ public final class YahooDataTSLoad {
 					if (date.compareTo(maxDate) > 0) {
 						continue;
 					}
+					fillDateSet.add(date);
+					
 					final Double open      = Double.parseDouble(parts[1]);
 					if (fields.contains(QuoteField.Open)) {
 						frame.stage(QuoteField.Open, date, open);
@@ -113,7 +116,8 @@ public final class YahooDataTSLoad {
 			final Date maxDate,
 			final Set<String> ignoreTickers, 
 			final TimeZone timeZone,
-			final EnumSet<QuoteField> fields) throws IOException, ParseException {
+			final EnumSet<QuoteField> fields,
+			final Set<Date> fillDateSet) throws IOException, ParseException {
 		
 		Cube<String, QuoteField, Date> cube = new Cube<>();
 		List<File> files = FileUtils.getFiles(dirPath);
@@ -130,7 +134,8 @@ public final class YahooDataTSLoad {
 						minDate,
 						maxDate,
 						timeZone,
-						fields);
+						fields,
+						fillDateSet);
 				cube.addFrame(ticker, map);
 			}
 		}

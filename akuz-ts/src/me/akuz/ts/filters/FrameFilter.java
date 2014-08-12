@@ -6,9 +6,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import me.akuz.core.Out;
 import me.akuz.ts.Frame;
 import me.akuz.ts.FrameCursor;
 import me.akuz.ts.TItem;
+import me.akuz.ts.log.TLog;
 import me.akuz.ts.sync.Synchronizable;
 
 /**
@@ -28,6 +30,7 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 	private final Frame<K, T> _frame;
 	private final Map<K, SeqFilter<T>> _seqFilters;
 	private final List<K> _filterKeys;
+	private TLog _log;
 	private final Map<K, TItem<T>> _currItems;
 	private T _currTime;
 	
@@ -65,10 +68,19 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 		SeqFilter<T> seqFilter = _seqFilters.get(key);
 		if (seqFilter == null) {
 			seqFilter = new SeqFilter<>(_frame.getSeq(key));
+			seqFilter.setFieldName(key.toString());
+			seqFilter.setLog(_log);
 			_seqFilters.put(key, seqFilter);
 			_filterKeys.add(key);
 		}
 		seqFilter.addFilter(filter);
+	}
+	
+	public void setLog(final TLog log) {
+		_log = log;
+		for (final SeqFilter<T> seqFilter : _seqFilters.values()) {
+			seqFilter.setLog(log);
+		}
 	}
 	
 	@Override
@@ -90,7 +102,33 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 	public TItem<T> getCurrItem(final K key) {
 		return _currItems.get(key);
 	}
-
+	
+	@Override
+	public boolean getNextTime(Out<T> nextTime) {
+		
+		nextTime.setValue(null);
+		
+		final Out<T> seqNextTime = new Out<>();
+		
+		for (int i=0; i<_filterKeys.size(); i++) {
+			
+			final K key = _filterKeys.get(i);
+			
+			final SeqFilter<T> seqFilter = _seqFilters.get(key);
+			
+			if (seqFilter.getNextTime(seqNextTime)) {
+				
+				if (nextTime.getValue() == null ||
+					nextTime.getValue().compareTo(seqNextTime.getValue()) > 0) {
+					
+					nextTime.setValue(seqNextTime.getValue());
+				}
+			}
+		}
+		
+		return nextTime.getValue() != null;
+	}
+	
 	@Override
 	public void moveToTime(T time) {
 		

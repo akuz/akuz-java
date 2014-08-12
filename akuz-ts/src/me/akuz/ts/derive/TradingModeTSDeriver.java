@@ -1,12 +1,12 @@
 package me.akuz.ts.derive;
 
-import java.util.Collection;
 import java.util.Map;
 
+import me.akuz.core.Out;
 import me.akuz.ts.Frame;
+import me.akuz.ts.FrameIterator;
 import me.akuz.ts.Seq;
 import me.akuz.ts.TItem;
-import me.akuz.ts.filters.FrameWalkerOld;
 
 public final class TradingModeTSDeriver<T extends Comparable<T>> {
 	
@@ -17,7 +17,7 @@ public final class TradingModeTSDeriver<T extends Comparable<T>> {
 		// nothing
 	}
 	
-	public Seq<T> derive(Collection<T> times, Seq<T> seqPrice, Seq<T> seqActivePeriod) {
+	public Seq<T> derive(Seq<T> seqPrice, Seq<T> seqActivePeriod) {
 		
 		final Seq<T> seqTradingMode = new Seq<>();
 		
@@ -25,11 +25,12 @@ public final class TradingModeTSDeriver<T extends Comparable<T>> {
 		iteratorFrame.addSeq(SEQ_PRICE, seqPrice);
 		iteratorFrame.addSeq(SEQ_ACTIVE_PERIOD, seqActivePeriod);
 		
-		FrameWalkerOld<Integer, T> frameAligner = new FrameWalkerOld<>(iteratorFrame, iteratorFrame.getKeys(), times);
+		FrameIterator<Integer, T> frameAligner = new FrameIterator<>(iteratorFrame);
 		boolean rollingActivePeriod = false;
-		while (frameAligner.hasNext()) {
+		final Out<T> nextTime = new Out<>();
+		while (frameAligner.getNextTime(nextTime)) {
 			
-			frameAligner.next();
+			frameAligner.moveToTime(nextTime.getValue());
 			
 			final Map<Integer, TItem<T>> currValues = frameAligner.getCurrItems();
 			final T currTime = frameAligner.getCurrTime();
