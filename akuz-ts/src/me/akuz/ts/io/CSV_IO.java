@@ -37,13 +37,19 @@ public final class CSV_IO {
 		return str.split(SEP_REGEX_UNESCAPED);
 	}
 
-	public static final <K, T extends Comparable<T>> void saveCSV(
-			final String fileName,
-			final Frame<K, T> frame,
-			final IOMap<K> ioMap) throws IOException {
+	public static final <K, T extends Comparable<T>> String toCSV(
+			final Frame<K, T> frame, 
+			final String timeField,
+			final IOType timeType,
+			final IOType dataType) {
 		
-		final String str = toCSV(frame, ioMap);
-		FileUtils.writeEntireFile(fileName, str);
+		return toCSV(
+				frame,
+				new IOMap<>(
+						timeField, 
+						timeType,
+						frame,
+						dataType));
 	}
 
 	public static final <K, T extends Comparable<T>> String toCSV(
