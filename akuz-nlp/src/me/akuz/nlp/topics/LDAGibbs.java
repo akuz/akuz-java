@@ -92,13 +92,64 @@ public final class LDAGibbs {
 		_topicCount = topics.size();
 		_stemCount = corpus.getStemsIndex().size();
 		
-		_alpha = alpha;
-		_beta = beta;
-
+		if (_monitor != null) {
+			_monitor.write("Allocating matrices...");
+		}
 		_countDocTopic = new Matrix(_docs.size(), _topicCount);
 		_countTopicStem = new Matrix(_topicCount, _stemCount);
 		_countTopic = new double[_topicCount];
 		
+		if (_monitor != null) {
+			_monitor.write("Initializing counts...");
+		}
+		for (int docIndex=0; docIndex<_docs.size(); docIndex++) {
+			final CorpusDoc doc = _docs.get(docIndex);
+			final List<CorpusPlace> places = doc.getPlaces();
+			for (int j=0; j<places.size(); j++) {
+				final CorpusPlace place = places.get(j);
+				final int stemIndex = place.getStemIndex();
+				if (stemIndex < 0) {
+					continue;
+				}
+				if (stemIndex >= _stemCount) {
+					throw new IllegalStateException(
+							"Corpus word place is invalid " + 
+							"(stem index " + stemIndex + " is outside " + 
+							"of stems index length " + _stemCount + ")");
+				}
+				final int[] topicAlloc;
+				try {
+					topicAlloc = (int[])place.getTag();
+				} catch (Exception ex) {
+					throw new IllegalStateException(
+							"Corpus word place contains invalid tag of type: " + 
+							place.getTag().getClass().getSimpleName());
+				}
+				if (topicAlloc != null) {
+					if (topicAlloc.length != 2) {
+						throw new IllegalStateException(
+								"Corpus word place contains invalid tag " + 
+								"(array of wrong length " + topicAlloc.length + ")");
+					}
+					final int topicIndex = topicAlloc[0];
+					if (topicIndex >= 0) {
+						if (topicIndex >= _topicCount) {
+							throw new IllegalStateException(
+									"Corpus word place contains invalid tag " + 
+									"(topic index " + topicIndex + " is outside " + 
+									"of topics list length " + _topicCount + ")");
+						}
+						_countDocTopic.set(docIndex, topicIndex, _countDocTopic.get(docIndex, topicIndex) + 1);
+						_countTopicStem.set(topicIndex, stemIndex, _countTopicStem.get(topicIndex, stemIndex) + 1);
+						_countTopic[topicIndex] += 1;
+					}
+				}
+			}
+		}
+		
+		_alpha = alpha;
+		_beta = beta;
+
 		// initialize threads
 		if (_docs.size() < _threadCount) {
 			throw new IllegalStateException("Document count (" + _docs.size() + ") must be > thread count (" + _threadCount + ")");
@@ -110,7 +161,7 @@ public final class LDAGibbs {
 		final int threadDocCount = _docs.size() / _threadCount;
 		final int threadStemCount = _stemCount / _threadCount;
 		if (_monitor != null) {
-			_monitor.write("batches...");
+			_monitor.write("Creating batches...");
 		}
 		for (int i=0; i<_threadCount; i++) {
 
@@ -181,13 +232,14 @@ public final class LDAGibbs {
 		}
 		
 		if (_threadCount > 1) {
-			
-			// only create thread pool for multi-threading
+			if (_monitor != null) {
+				_monitor.write("Creating fixed thread pool of " + _threadCount + " threads...");
+			}
 			_executorService = Executors.newFixedThreadPool(_threadCount);
-			
 		} else {
-			
-			// will execute directly on calling thread
+			if (_monitor != null) {
+				_monitor.write("Not creating thread pool, will execute on caller thread...");
+			}
 			_executorService = null;
 		}
 	}
@@ -307,8 +359,11 @@ public final class LDAGibbs {
 			for (int placeIndex=0; placeIndex<places.size(); placeIndex++) {
 				
 				// get word place
-				CorpusPlace place = places.get(placeIndex);
-				int stemIndex = place.getStemIndex();
+				final CorpusPlace place = places.get(placeIndex);
+				final int stemIndex = place.getStemIndex();
+				if (stemIndex < 0) {
+					continue;
+				}
 				
 				// get current topic allocations
 				int[] topicAlloc = (int[])place.getTag();
@@ -570,10 +625,13 @@ public final class LDAGibbs {
 				for (int placeIndex=0; placeIndex<places.size(); placeIndex++) {
 					
 					// get word place
-					CorpusPlace place = places.get(placeIndex);
+					final CorpusPlace place = places.get(placeIndex);
 					
 					// get word index (doesn't change)
-					int stemIndex = place.getStemIndex();
+					final int stemIndex = place.getStemIndex();
+					if (stemIndex < 0) {
+						continue;
+					}
 					
 					// get current topic allocations
 					int[] topicAlloc = (int[])place.getTag();
