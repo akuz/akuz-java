@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-import me.akuz.core.FileUtils;
 import me.akuz.core.Out;
 import me.akuz.ts.Frame;
 import me.akuz.ts.FrameIterator;
