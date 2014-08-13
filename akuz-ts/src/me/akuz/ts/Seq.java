@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import me.akuz.ts.filters.SeqFilter;
+import me.akuz.ts.filters.SeqTransform;
+import me.akuz.ts.filters.stats.Cumsum;
+
 /**
  * Time series sequence of values.
  *
@@ -94,5 +98,20 @@ public final class Seq<T extends Comparable<T>> {
 	 */
 	public SeqIterator<T> iterator() {
 		return new SeqIterator<>(this);
+	}
+	
+	/**
+	 * Cumsum the sequence.
+	 */
+	public Seq<T> cumsum() {
+		
+		SeqFilter<T> filter = new SeqFilter<>(this);
+		filter.addFilter(new Cumsum<T>());
+		
+		SeqTransform<T> transform = new SeqTransform<>(filter);
+		transform.runToEnd();
+		
+		Seq<T> result = transform.getOutput();
+		return result;
 	}
 }

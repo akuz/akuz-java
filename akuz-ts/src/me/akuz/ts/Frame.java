@@ -180,13 +180,13 @@ public final class Frame<K, T extends Comparable<T>> {
 	 */
 	public Frame<K, T> cumsum() {
 		
-		FrameFilter<K, T> frameFilter = new FrameFilter<>(this);
-		frameFilter.addFilter(getKeys(), new Cumsum<T>());
+		FrameFilter<K, T> filter = new FrameFilter<>(this);
+		filter.addFilter(getKeys(), new Cumsum<T>());
 		
-		FrameTransform<K, T> frameTransform = new FrameTransform<>(frameFilter);
-		frameTransform.run();
+		FrameTransform<K, T> transform = new FrameTransform<>(filter);
+		transform.runToEnd();
 		
-		Frame<K, T> result = frameTransform.getOutput();
+		Frame<K, T> result = transform.getOutput();
 		return result;
 	}
 }

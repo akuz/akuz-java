@@ -44,5 +44,12 @@ implements Synchronizable<T> {
 			_seqOutput.add(filteredItem);
 		}
 	}
-
+	
+	public void runToEnd() {
+		
+		final Out<T> nextTime = new Out<>();
+		while (getNextTime(nextTime)) {
+			moveToTime(nextTime.getValue());
+		}
+	}
 }

@@ -53,7 +53,7 @@ implements Synchronizable<T> {
 		}
 	}
 	
-	public void run() {
+	public void runToEnd() {
 		
 		final Out<T> nextTime = new Out<>();
 		while (getNextTime(nextTime)) {
