@@ -111,7 +111,7 @@ public final class Seq<T extends Comparable<T>> {
 		SeqTransform<T> transform = new SeqTransform<>(filter);
 		transform.runToEnd();
 		
-		Seq<T> result = transform.getOutput();
+		Seq<T> result = transform.getSeq();
 		return result;
 	}
 }

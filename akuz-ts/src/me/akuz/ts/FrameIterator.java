@@ -141,6 +141,16 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 	 */
 	@Override
 	public void moveToTime(final T time) {
+
+		if (_currTime != null) {
+			final int cmp = _currTime.compareTo(time);
+			if (cmp > 0)
+				throw new IllegalStateException(
+						"Trying to move backwards in time from " + 
+						_currTime + " to " + time);
+			if (cmp == 0)
+				return;
+		}
 		
 		_currItems.clear();
 		for (int i=0; i<_keys.size(); i++) {

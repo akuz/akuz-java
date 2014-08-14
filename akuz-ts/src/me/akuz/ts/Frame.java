@@ -176,7 +176,8 @@ public final class Frame<K, T extends Comparable<T>> {
 	}
 	
 	/**
-	 * Cumsum the frame.
+	 * Cumsum the frame, return a new frame with
+	 * the same keys but accumulated values.
 	 */
 	public Frame<K, T> cumsum() {
 		
@@ -186,7 +187,7 @@ public final class Frame<K, T extends Comparable<T>> {
 		FrameTransform<K, T> transform = new FrameTransform<>(filter);
 		transform.runToEnd();
 		
-		Frame<K, T> result = transform.getOutput();
+		Frame<K, T> result = transform.getFrame();
 		return result;
 	}
 }

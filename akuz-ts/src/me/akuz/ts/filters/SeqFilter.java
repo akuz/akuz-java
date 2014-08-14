@@ -28,6 +28,7 @@ implements Synchronizable<T>, SeqCursor<T> {
 	private final SeqIterator<T> _seqIter;
 	private final List<Filter<T>> _filters;
 	private TItem<T> _currFilteredItem;
+	private T _currTime;
 	private TLog _log;
 	
 	public SeqFilter(final Seq<T> seq) {
@@ -76,7 +77,7 @@ implements Synchronizable<T>, SeqCursor<T> {
 	
 	@Override
 	public T getCurrTime() {
-		return _seqIter.getCurrTime();
+		return _currTime;
 	}
 	
 	@Override
@@ -96,6 +97,16 @@ implements Synchronizable<T>, SeqCursor<T> {
 			throw new IllegalStateException(
 					"SeqFilter on field \"" + getFieldName() + 
 					"\" does not have any 1D filters assigned");
+		}
+
+		if (_currTime != null) {
+			final int cmp = _currTime.compareTo(time);
+			if (cmp > 0)
+				throw new IllegalStateException(
+						"Trying to move backwards in time from " + 
+						_currTime + " to " + time);
+			if (cmp == 0)
+				return;
 		}
 		
 		_seqIter.moveToTime(time);
@@ -125,6 +136,7 @@ implements Synchronizable<T>, SeqCursor<T> {
 			}
 		}
 		_currFilteredItem = newCurrFilteredItem;
+		_currTime = time;
 	}
 
 }

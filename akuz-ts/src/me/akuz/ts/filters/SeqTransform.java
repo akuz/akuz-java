@@ -2,47 +2,58 @@ package me.akuz.ts.filters;
 
 import me.akuz.core.Out;
 import me.akuz.ts.Seq;
+import me.akuz.ts.SeqCursor;
 import me.akuz.ts.TItem;
 import me.akuz.ts.sync.Synchronizable;
 
 public final class SeqTransform<T extends Comparable<T>>
 implements Synchronizable<T> {
 
-	private final SeqFilter<T> _seqFilter;
-	private final Seq<T> _seqOutput;
+	private final SeqCursor<T> _seqCursor;
+	private T _currTime;
+	private final Seq<T> _outputSeq;
 	
-	public SeqTransform(final SeqFilter<T> seqFilter) {
-		_seqFilter = seqFilter;
-		_seqOutput = new Seq<>();
+	public SeqTransform(final SeqCursor<T> seqCursor) {
+		_seqCursor = seqCursor;
+		_outputSeq = new Seq<>();
 	}
 	
-	public SeqFilter<T> getFilter() {
-		return _seqFilter;
-	}
-	
-	public Seq<T> getOutput() {
-		return _seqOutput;
+	public Seq<T> getSeq() {
+		return _outputSeq;
 	}
 	
 	@Override
 	public T getCurrTime() {
-		return _seqFilter.getCurrTime();
+		return _currTime;
 	}
 	
 	@Override
 	public boolean getNextTime(final Out<T> nextTime) {
-		return _seqFilter.getNextTime(nextTime);
+		return _seqCursor.getNextTime(nextTime);
 	}
 	
 	@Override
 	public void moveToTime(T time) {
+
+		if (_currTime != null) {
+			final int cmp = _currTime.compareTo(time);
+			if (cmp > 0)
+				throw new IllegalStateException(
+						"Trying to move backwards in time from " + 
+						_currTime + " to " + time);
+			if (cmp == 0)
+				return;
+		}
+
+		_seqCursor.moveToTime(time);
 		
-		_seqFilter.moveToTime(time);
-		TItem<T> filteredItem = _seqFilter.getCurrItem();
+		final TItem<T> filteredItem = _seqCursor.getCurrItem();
 		
 		if (filteredItem != null) {
-			_seqOutput.add(filteredItem);
+			_outputSeq.add(filteredItem);
 		}
+		
+		_currTime = time;
 	}
 	
 	public void runToEnd() {

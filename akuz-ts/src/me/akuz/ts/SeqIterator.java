@@ -61,6 +61,16 @@ implements Synchronizable<T>, SeqCursor<T> {
 	@Override
 	public void moveToTime(T time) {
 
+		if (_currTime != null) {
+			final int cmp = _currTime.compareTo(time);
+			if (cmp > 0)
+				throw new IllegalStateException(
+						"Trying to move backwards in time from " + 
+						_currTime + " to " + time);
+			if (cmp == 0)
+				return;
+		}
+		
 		_currItem = null;
 		_movedItems.clear();
 		

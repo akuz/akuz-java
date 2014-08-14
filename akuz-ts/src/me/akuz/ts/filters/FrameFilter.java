@@ -137,6 +137,16 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 					"FrameFilter does not have any 1D filters assigned");
 		}
 		
+		if (_currTime != null) {
+			final int cmp = _currTime.compareTo(time);
+			if (cmp > 0)
+				throw new IllegalStateException(
+						"Trying to move backwards in time from " + 
+						_currTime + " to " + time);
+			if (cmp == 0)
+				return;
+		}
+		
 		_currItems.clear();
 		for (int i=0; i<_filterKeys.size(); i++) {
 			
