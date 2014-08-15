@@ -4,9 +4,9 @@ import java.util.Date;
 import java.util.List;
 
 import me.akuz.core.Period;
+import me.akuz.ts.Filter;
 import me.akuz.ts.SeqIterator;
 import me.akuz.ts.TItem;
-import me.akuz.ts.filters.Filter;
 import me.akuz.ts.log.TLog;
 
 public final class RepeatWithDateExpiry extends Filter<Date> {

@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import me.akuz.ts.filters.SeqFilter;
-import me.akuz.ts.filters.SeqTransform;
 import me.akuz.ts.filters.stats.Cumsum;
 
 /**

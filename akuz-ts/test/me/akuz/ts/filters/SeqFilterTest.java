@@ -7,6 +7,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import me.akuz.ts.Seq;
+import me.akuz.ts.SeqFilter;
 import me.akuz.ts.filters.simple.RepeatWithNumExpiry;
 import me.akuz.ts.filters.simple.RepeatWithoutExpiry;
 

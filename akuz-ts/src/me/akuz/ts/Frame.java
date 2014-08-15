@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import me.akuz.ts.filters.FrameFilter;
-import me.akuz.ts.filters.FrameTransform;
 import me.akuz.ts.filters.stats.Cumsum;
 
 /**

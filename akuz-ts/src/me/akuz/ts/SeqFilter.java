@@ -1,14 +1,10 @@
-package me.akuz.ts.filters;
+package me.akuz.ts;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import me.akuz.core.Out;
-import me.akuz.ts.Seq;
-import me.akuz.ts.SeqCursor;
-import me.akuz.ts.SeqIterator;
-import me.akuz.ts.TItem;
 import me.akuz.ts.log.TLog;
 import me.akuz.ts.sync.Synchronizable;
 

@@ -1,4 +1,4 @@
-package me.akuz.ts.filters;
+package me.akuz.ts;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,9 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import me.akuz.core.Out;
-import me.akuz.ts.Frame;
-import me.akuz.ts.FrameCursor;
-import me.akuz.ts.TItem;
 import me.akuz.ts.log.TLog;
 import me.akuz.ts.sync.Synchronizable;
 

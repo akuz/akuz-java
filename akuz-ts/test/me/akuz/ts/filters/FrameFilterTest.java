@@ -4,6 +4,7 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import me.akuz.ts.Frame;
+import me.akuz.ts.FrameFilter;
 import me.akuz.ts.filters.simple.RepeatWithNumExpiry;
 
 import org.junit.Assert;

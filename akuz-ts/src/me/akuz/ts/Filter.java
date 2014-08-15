@@ -1,7 +1,5 @@
-package me.akuz.ts.filters;
+package me.akuz.ts;
 
-import me.akuz.ts.SeqIterator;
-import me.akuz.ts.TItem;
 import me.akuz.ts.log.TLog;
 
 /**

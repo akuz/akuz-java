@@ -2,9 +2,9 @@ package me.akuz.ts.filters.simple;
 
 import java.util.List;
 
+import me.akuz.ts.Filter;
 import me.akuz.ts.SeqIterator;
 import me.akuz.ts.TItem;
-import me.akuz.ts.filters.Filter;
 import me.akuz.ts.log.TLog;
 
 public final class RepeatWithoutExpiry<T extends Comparable<T>> extends Filter<T> {

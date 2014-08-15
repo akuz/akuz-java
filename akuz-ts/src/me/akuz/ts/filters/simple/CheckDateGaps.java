@@ -4,9 +4,9 @@ import java.util.Date;
 import java.util.List;
 
 import me.akuz.core.Period;
+import me.akuz.ts.Filter;
 import me.akuz.ts.SeqIterator;
 import me.akuz.ts.TItem;
-import me.akuz.ts.filters.Filter;
 import me.akuz.ts.log.TLog;
 import me.akuz.ts.log.TLogLevel;
 

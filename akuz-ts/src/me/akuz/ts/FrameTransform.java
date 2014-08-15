@@ -1,11 +1,8 @@
-package me.akuz.ts.filters;
+package me.akuz.ts;
 
 import java.util.List;
 
 import me.akuz.core.Out;
-import me.akuz.ts.Frame;
-import me.akuz.ts.FrameCursor;
-import me.akuz.ts.TItem;
 import me.akuz.ts.sync.Synchronizable;
 
 public final class FrameTransform<K, T extends Comparable<T>> 

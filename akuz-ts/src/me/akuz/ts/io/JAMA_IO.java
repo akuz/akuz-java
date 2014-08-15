@@ -7,12 +7,12 @@ import java.util.Map;
 import me.akuz.core.HashIndex;
 import me.akuz.core.Index;
 import me.akuz.core.Out;
+import me.akuz.ts.Filter;
 import me.akuz.ts.Frame;
 import me.akuz.ts.FrameCursor;
+import me.akuz.ts.FrameFilter;
 import me.akuz.ts.FrameIterator;
 import me.akuz.ts.TItem;
-import me.akuz.ts.filters.Filter;
-import me.akuz.ts.filters.FrameFilter;
 import me.akuz.ts.log.TLog;
 import Jama.Matrix;
 

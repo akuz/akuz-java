@@ -1,9 +1,6 @@
-package me.akuz.ts.filters;
+package me.akuz.ts;
 
 import me.akuz.core.Out;
-import me.akuz.ts.Seq;
-import me.akuz.ts.SeqCursor;
-import me.akuz.ts.TItem;
 import me.akuz.ts.sync.Synchronizable;
 
 public final class SeqTransform<T extends Comparable<T>>
