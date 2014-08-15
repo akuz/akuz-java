@@ -22,6 +22,22 @@ public final class Period implements Comparable<Period> {
 		return _ms;
 	}
 	
+	public final double getDays() {
+		return (double)_ms / (double)MS_IN_DAY;
+	}
+	
+	public final double getHours() {
+		return (double)_ms / (double)MS_IN_HOUR;
+	}
+	
+	public final double getMinutes() {
+		return (double)_ms / (double)MS_IN_MINUTE;
+	}
+	
+	public final double getSeconds() {
+		return (double)_ms / (double)MS_IN_SECOND;
+	}
+	
 	public static final Period fromDays(double days) {
 		return new Period((long)(days * MS_IN_DAY));
 	}
