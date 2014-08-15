@@ -2,6 +2,7 @@ package me.akuz.ts.filters.simple;
 
 import java.util.List;
 
+import me.akuz.ts.SeqIterator;
 import me.akuz.ts.TItem;
 import me.akuz.ts.filters.Filter;
 import me.akuz.ts.log.TLog;
@@ -45,15 +46,15 @@ public class CheckNumberJumps<T extends Comparable<T>> extends Filter<T> {
 
 	@Override
 	public void next(
-			TLog log,
-			T currTime, 
-			TItem<T> currItem,
-			List<TItem<T>> movedItems) {
+			final TLog log,
+			final T currTime, 
+			final SeqIterator<T> iter) {
 
 		if (log == null) {
 			throw new IllegalArgumentException(this.getClass().getSimpleName() + " filter requires a log");
 		}
 		
+		final List<TItem<T>> movedItems = iter.getMovedItems();
 		for (int i=0; i<movedItems.size(); i++) {
 			
 			final TItem<T> prevItem = _lastItem;

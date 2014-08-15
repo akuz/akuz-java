@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import me.akuz.core.Period;
+import me.akuz.ts.SeqIterator;
 import me.akuz.ts.TItem;
 import me.akuz.ts.filters.Filter;
 import me.akuz.ts.log.TLog;
@@ -28,10 +29,10 @@ public final class RepeatWithDateExpiry extends Filter<Date> {
 	public void next(
 			final TLog log,
 			final Date currTime,
-			final TItem<Date> currItem,
-			final List<TItem<Date>> movedItems) {
+			final SeqIterator<Date> iter) {
 		
 		// update last item
+		final List<TItem<Date>> movedItems = iter.getMovedItems();
 		if (movedItems.size() > 0) {
 			_lastAvailableItem = movedItems.get(movedItems.size()-1);
 		}

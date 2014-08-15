@@ -1,7 +1,6 @@
 package me.akuz.ts.filters;
 
-import java.util.List;
-
+import me.akuz.ts.SeqIterator;
 import me.akuz.ts.TItem;
 import me.akuz.ts.log.TLog;
 
@@ -29,8 +28,7 @@ public abstract class Filter<T extends Comparable<T>> implements Cloneable {
 	public abstract void next(
 			final TLog log,
 			final T currTime, 
-			final TItem<T> currItem, 
-			final List<TItem<T>> movedItems);
+			final SeqIterator<T> iter);
 	
 	/**
 	 * Get time series item that represents 

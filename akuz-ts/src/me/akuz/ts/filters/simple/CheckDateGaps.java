@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import me.akuz.core.Period;
+import me.akuz.ts.SeqIterator;
 import me.akuz.ts.TItem;
 import me.akuz.ts.filters.Filter;
 import me.akuz.ts.log.TLog;
@@ -39,10 +40,9 @@ public class CheckDateGaps extends Filter<Date> {
 
 	@Override
 	public void next(
-			TLog log,
-			Date currTime, 
-			TItem<Date> currItem,
-			List<TItem<Date>> movedItems) {
+			final TLog log,
+			final Date currTime, 
+			final SeqIterator<Date> iter) {
 		
 		if (log == null) {
 			throw new IllegalArgumentException(this.getClass().getSimpleName() + " filter requires a log");
@@ -51,6 +51,7 @@ public class CheckDateGaps extends Filter<Date> {
 		/**
 		 * Process items moved through time.
 		 */
+		final List<TItem<Date>> movedItems = iter.getMovedItems();
 		for (int i=0; i<movedItems.size(); i++) {
 			
 			final Date prevDate = _lastDate;
@@ -66,6 +67,7 @@ public class CheckDateGaps extends Filter<Date> {
 		 * already saw some previous items, then
 		 * check the date jump from last item to now.
 		 */
+		final TItem<Date> currItem = iter.getCurrItem();
 		if (currItem == null && _lastDate != null) {
 			checkDateJump(log, _lastDate, currTime, false);
 		}

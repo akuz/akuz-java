@@ -2,6 +2,7 @@ package me.akuz.ts.filters.simple;
 
 import java.util.List;
 
+import me.akuz.ts.SeqIterator;
 import me.akuz.ts.TItem;
 import me.akuz.ts.filters.Filter;
 import me.akuz.ts.log.TLog;
@@ -26,10 +27,10 @@ public final class RepeatWithNumExpiry<T extends Comparable<T>> extends Filter<T
 	public void next(
 			final TLog log,
 			final T currTime,
-			final TItem<T> currItem,
-			final List<TItem<T>> movedItems) {
+			final SeqIterator<T> iter) {
 
 		// update last item
+		final List<TItem<T>> movedItems = iter.getMovedItems();
 		if (movedItems.size() > 0) {
 			_lastAvailableItem = movedItems.get(movedItems.size()-1);
 		}

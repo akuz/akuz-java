@@ -120,8 +120,7 @@ implements Synchronizable<T>, SeqCursor<T> {
 			filter.next(
 					_log,
 					time,
-					_seqIter.getCurrItem(),
-					_seqIter.getMovedItems());
+					_seqIter);
 			
 			final TItem<T> proposedItem = filter.getCurrItem();
 			

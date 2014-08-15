@@ -45,6 +45,10 @@ implements Synchronizable<T>, SeqCursor<T> {
 		return _movedItems;
 	}
 	
+	public int getNextCursor() {
+		return _nextCursor;
+	}
+	
 	@Override
 	public boolean getNextTime(final Out<T> nextTime) {
 		
