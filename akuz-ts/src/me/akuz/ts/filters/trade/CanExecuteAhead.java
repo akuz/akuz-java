@@ -53,14 +53,14 @@ public final class CanExecuteAhead extends Filter<Date> {
 			final TItem<Date> loopItem = items.get(cursor);
 			
 			// check if already in the future ahead of max time
-			if (DateUtils.msBetween(loopItem.getTime(), maxTime) > 0) {
+			if (loopItem.getTime().compareTo(maxTime) > 0) {
 				_currItem = new TItem<Date>(currTime, false);
 				return;
 			}
 			
 			// check if found item between min and max time
-			if (DateUtils.msBetween(minTime, loopItem.getTime()) >= 0 &&
-				DateUtils.msBetween(loopItem.getTime(), maxTime) <= 0) {
+			if (minTime.compareTo(loopItem.getTime()) <= 0 &&
+				loopItem.getTime().compareTo(maxTime) <= 0) {
 				
 				_currItem = new TItem<Date>(currTime, true);
 				return;

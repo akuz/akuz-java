@@ -58,7 +58,7 @@ public final class HasTimeGapsAhead extends Filter<Date> {
 			}
 			
 			// determine if we need to stop checking
-			if (DateUtils.msBetween(loopTime, maxAheadTime) >= 0) {
+			if (loopTime.compareTo(maxAheadTime) >= 0) {
 				_currItem = new TItem<Date>(currTime, false);
 				return;
 			}
