@@ -13,90 +13,106 @@ public final class DateUtils {
 	private final static long MS_in_WEEK = 7  * MS_in_DAY;
 
 	public static Calendar getUTCCalendar() {
-		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		final Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 		return cal;
 	}
 
 	public static Date addDays(Date date, double days) {
 		
-		// milliseconds in one day
-		final long MS_IN_DAY = 1000 * 60 * 60 * 24;
-
-		// add required number of milliseconds
-		long newTime = date.getTime() + (long)(MS_IN_DAY * days);
-		Date newDate = (Date)date.clone();
+		final long newTime = date.getTime() + (long)(MS_in_DAY * days);
+		final Date newDate = (Date)date.clone();
 		newDate.setTime(newTime);
-		
 		return newDate;
 	}
 
 	public static Date addHours(Date date, double hours) {
 		
-		// milliseconds in one hour
-		final long MS_IN_HR = 1000 * 60 * 60;
-
-		// add required number of milliseconds
-		long newTime = date.getTime() + (long)(MS_IN_HR * hours);
-		Date newDate = (Date)date.clone();
+		final long newTime = date.getTime() + (long)(MS_in_HOUR * hours);
+		final Date newDate = (Date)date.clone();
 		newDate.setTime(newTime);
-		
 		return newDate;
 	}
 
-	public static Date addMins(Date date, double mins) {
+	public static Date addMinutes(Date date, double mins) {
 		
-		// milliseconds in one min
-		final long MS_IN_MIN = 1000 * 60;
-
-		// add required number of milliseconds
-		long newTime = date.getTime() + (long)(MS_IN_MIN * mins);
-		Date newDate = (Date)date.clone();
+		final long newTime = date.getTime() + (long)(MS_in_MIN * mins);
+		final Date newDate = (Date)date.clone();
 		newDate.setTime(newTime);
+		return newDate;
+	}
+
+	public static Date addSeconds(Date date, double seconds) {
 		
+		final long newTime = date.getTime() + (long)(MS_in_SEC * seconds);
+		final Date newDate = (Date)date.clone();
+		newDate.setTime(newTime);
+		return newDate;
+	}
+
+	public static Date addMs(Date date, long ms) {
+		
+		final long newTime = date.getTime() + ms;
+		final Date newDate = (Date)date.clone();
+		newDate.setTime(newTime);
 		return newDate;
 	}
 
 	public static double daysBetween(Date date1, Date date2) {
 		
-		// milliseconds in one day
-		final long MS_IN_DAY = 1000 * 60 * 60 * 24;
-
 		// take times of observations in milliseconds
 		long longHistTime1 = date1.getTime();
 		long longHistTime2 = date2.getTime();
 		
 		// calculate the difference between dates in days
-		double interval = ((double)(longHistTime2 - longHistTime1)) / MS_IN_DAY;
+		double interval = ((double)(longHistTime2 - longHistTime1)) / MS_in_DAY;
 		
 		return interval;
 	}
 
 	public static double hoursBetween(Date date1, Date date2) {
 		
-		// milliseconds in one hour
-		final long MS_IN_HOUR = 1000 * 60 * 60;
-
 		// take times of observations in milliseconds
 		long longHistTime1 = date1.getTime();
 		long longHistTime2 = date2.getTime();
 		
 		// calculate the difference between dates in days
-		double interval = ((double)(longHistTime2 - longHistTime1)) / MS_IN_HOUR;
+		double interval = ((double)(longHistTime2 - longHistTime1)) / MS_in_HOUR;
 		
 		return interval;
 	}
 
 	public static double minutesBetween(Date date1, Date date2) {
 		
-		// milliseconds in one minute
-		final long MS_IN_MINUTE = 1000 * 60;
-
 		// take times of observations in milliseconds
 		long longHistTime1 = date1.getTime();
 		long longHistTime2 = date2.getTime();
 		
 		// calculate the difference between dates in days
-		double interval = ((double)(longHistTime2 - longHistTime1)) / MS_IN_MINUTE;
+		double interval = ((double)(longHistTime2 - longHistTime1)) / MS_in_MIN;
+		
+		return interval;
+	}
+
+	public static double secondsBetween(Date date1, Date date2) {
+		
+		// take times of observations in milliseconds
+		long longHistTime1 = date1.getTime();
+		long longHistTime2 = date2.getTime();
+		
+		// calculate the difference between dates in days
+		double interval = ((double)(longHistTime2 - longHistTime1)) / MS_in_SEC;
+		
+		return interval;
+	}
+
+	public static long msBetween(Date date1, Date date2) {
+		
+		// take times of observations in milliseconds
+		long longHistTime1 = date1.getTime();
+		long longHistTime2 = date2.getTime();
+		
+		// calculate the difference between dates in days
+		long interval = longHistTime2 - longHistTime1;
 		
 		return interval;
 	}
