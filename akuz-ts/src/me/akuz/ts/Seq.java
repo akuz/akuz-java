@@ -106,7 +106,7 @@ public final class Seq<T extends Comparable<T>> {
 		SeqFilter<T> filter = new SeqFilter<>(this);
 		filter.addFilter(new Cumsum<T>());
 		
-		SeqTransform<T> transform = new SeqTransform<>(filter);
+		SeqOutput<T> transform = new SeqOutput<>(filter);
 		transform.runToEnd();
 		
 		Seq<T> result = transform.getSeq();

@@ -5,7 +5,7 @@ import java.util.List;
 import me.akuz.core.Out;
 import me.akuz.ts.sync.Synchronizable;
 
-public final class FrameTransform<K, T extends Comparable<T>> 
+public final class FrameOutput<K, T extends Comparable<T>> 
 implements Synchronizable<T> {
 	
 	private final FrameCursor<K, T> _frameCursor;
@@ -13,13 +13,13 @@ implements Synchronizable<T> {
 	private T _currTime;
 	private final Frame<K, T> _outputFrame;
 	
-	public FrameTransform(
+	public FrameOutput(
 			final FrameCursor<K, T> frameCursor) {
 		
 		this(frameCursor, new Frame<K, T>());
 	}
 	
-	public FrameTransform(
+	public FrameOutput(
 			final FrameCursor<K, T> frameCursor,
 			final Frame<K, T> outputFrame) {
 		

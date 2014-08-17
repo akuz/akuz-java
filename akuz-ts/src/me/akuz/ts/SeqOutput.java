@@ -3,14 +3,14 @@ package me.akuz.ts;
 import me.akuz.core.Out;
 import me.akuz.ts.sync.Synchronizable;
 
-public final class SeqTransform<T extends Comparable<T>>
+public final class SeqOutput<T extends Comparable<T>>
 implements Synchronizable<T> {
 
 	private final SeqCursor<T> _seqCursor;
 	private T _currTime;
 	private final Seq<T> _outputSeq;
 	
-	public SeqTransform(final SeqCursor<T> seqCursor) {
+	public SeqOutput(final SeqCursor<T> seqCursor) {
 		_seqCursor = seqCursor;
 		_outputSeq = new Seq<>();
 	}
