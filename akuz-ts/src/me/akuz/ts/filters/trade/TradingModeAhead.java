@@ -27,13 +27,17 @@ public final class TradingModeAhead extends Filter<Date> {
 	
 	public TradingModeAhead(
 			final Period gapOkPeriod,
-			final Period softExitPeriod,
 			final Period hardExitPeriod,
+			final Period softExitPeriod,
 			final Period minExecutePeriod,
 			final Period maxExecutePeriod) {
 		
-		_hasGapsSoft = new HasTimeGapsAhead(gapOkPeriod, softExitPeriod);
+		if (hardExitPeriod.getMs() >= softExitPeriod.getMs()) {
+			throw new IllegalArgumentException("Hard exit period must be shorted than soft exit period");
+		}
+		
 		_hasGapsHard = new HasTimeGapsAhead(gapOkPeriod, hardExitPeriod);
+		_hasGapsSoft = new HasTimeGapsAhead(gapOkPeriod, softExitPeriod);
 		_canExecute = new CanExecuteAhead(minExecutePeriod, maxExecutePeriod);
 	}
 
@@ -43,12 +47,12 @@ public final class TradingModeAhead extends Filter<Date> {
 			final Date currTime, 
 			final SeqIterator<Date> iter) {
 		
-		_hasGapsSoft.next(log, currTime, iter);
 		_hasGapsHard.next(log, currTime, iter);
+		_hasGapsSoft.next(log, currTime, iter);
 		_canExecute.next(log, currTime, iter);
 		
-		final boolean hasGapsSoft = _hasGapsSoft.getCurrItem().getBoolean();
 		final boolean hasGapsHard = _hasGapsHard.getCurrItem().getBoolean();
+		final boolean hasGapsSoft = _hasGapsSoft.getCurrItem().getBoolean();
 		final boolean canExecute = _canExecute.getCurrItem().getBoolean();
 		
 		if (hasGapsHard) {
