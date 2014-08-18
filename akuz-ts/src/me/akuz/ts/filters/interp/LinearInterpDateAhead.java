@@ -9,7 +9,7 @@ import me.akuz.ts.SeqIterator;
 import me.akuz.ts.TItem;
 import me.akuz.ts.log.TLog;
 
-public final class LinearInterpDate extends Filter<Date> {
+public final class LinearInterpDateAhead extends Filter<Date> {
 	
 	private TItem<Date> _lastItem;
 	private TItem<Date> _currItem;
