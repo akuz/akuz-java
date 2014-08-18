@@ -53,6 +53,10 @@ public final class TItem<T extends Comparable<T>> implements Comparable<TItem<T>
 	public Object getObject() {
 		return _value;
 	}
+	@SuppressWarnings("unchecked")
+	public TItem<T> getItem() {
+		return (TItem<T>)_value;
+	}
 
 	@Override
 	public int compareTo(TItem<T> o) {
