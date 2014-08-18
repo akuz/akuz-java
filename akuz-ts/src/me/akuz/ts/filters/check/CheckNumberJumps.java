@@ -1,4 +1,4 @@
-package me.akuz.ts.filters.simple;
+package me.akuz.ts.filters.check;
 
 import java.util.List;
 

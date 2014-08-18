@@ -10,7 +10,7 @@ import me.akuz.core.Period;
 import me.akuz.ts.Frame;
 import me.akuz.ts.FrameFilter;
 import me.akuz.ts.Seq;
-import me.akuz.ts.filters.simple.CheckDateGaps;
+import me.akuz.ts.filters.check.CheckDateGaps;
 import me.akuz.ts.log.TLog;
 
 import org.junit.Assert;
