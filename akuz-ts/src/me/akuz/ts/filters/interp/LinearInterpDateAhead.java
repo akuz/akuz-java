@@ -9,6 +9,11 @@ import me.akuz.ts.SeqIterator;
 import me.akuz.ts.TItem;
 import me.akuz.ts.log.TLog;
 
+/**
+ * Linearly interpolates the value between sequence
+ * items, by looking ahead at the next item, if needed.
+ *
+ */
 public final class LinearInterpDateAhead extends Filter<Date> {
 	
 	private TItem<Date> _lastItem;
@@ -30,22 +35,32 @@ public final class LinearInterpDateAhead extends Filter<Date> {
 			return;
 		}
 		
-		final List<TItem<Date>> items = iter.getSeq().getItems();
-		final int nextCursor = iter.getNextCursor();
-		if (_lastItem != null && nextCursor < items.size()) {
-			
-			final TItem<Date> nextItem = items.get(nextCursor);
-			
-			final double partMs = (double)DateUtils.msBetween(_lastItem.getTime(), currTime);
-			final double totalMs = (double)DateUtils.msBetween(_lastItem.getTime(), nextItem.getTime());
-			
-			double currValue = 0.0;
-			currValue += _lastItem.getNumber().doubleValue() / totalMs * (totalMs - partMs);
-			currValue += nextItem.getNumber().doubleValue() / totalMs * partMs;
-			
-			_currItem = new TItem<>(currTime, currValue);
+		if (_lastItem != null) {
+
+			final List<TItem<Date>> items = iter.getSeq().getItems();
+			final int nextCursor = iter.getNextCursor();
+
+			if (nextCursor < items.size()) {
+				
+				final TItem<Date> nextItem = items.get(nextCursor);
+				final double partMs = (double)DateUtils.msBetween(_lastItem.getTime(), currTime);
+				final double totalMs = (double)DateUtils.msBetween(_lastItem.getTime(), nextItem.getTime());
+				
+				// interpolate between
+				double currValue = 0.0;
+				currValue += _lastItem.getNumber().doubleValue() / totalMs * (totalMs - partMs);
+				currValue += nextItem.getNumber().doubleValue() / totalMs * partMs;
+				_currItem = new TItem<>(currTime, currValue);
+				
+			} else {
+				
+				// propagate last value
+				_currItem = new TItem<>(currTime, _lastItem.getNumber().doubleValue());
+			}
 			
 		} else {
+			
+			// there was no items yet
 			_currItem = null;
 		}
 	}
