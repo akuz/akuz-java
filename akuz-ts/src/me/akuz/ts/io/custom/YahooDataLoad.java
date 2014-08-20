@@ -28,7 +28,7 @@ public final class YahooDataLoad {
 	
 	private static final Pattern _csvExtensionPattern = Pattern.compile("\\.csv$", Pattern.CASE_INSENSITIVE);
 	
-	public final static Seq<Date> loadAdjOpenAdjCloseSeq(
+	public final static Seq<Date> loadAdjQuoteSeq(
 			final String fileName, 
 			final Date minDate,
 			final Date maxDate,
@@ -52,12 +52,13 @@ public final class YahooDataLoad {
 				maxDate, 
 				timeZone, 
 				EnumSet.of(
-						QuoteField.AdjOpen,
-						QuoteField.AdjClose), 
+						QuoteField.AdjOpenPrice,
+						QuoteField.AdjClosePrice,
+						QuoteField.AdjCloseVolume), 
 				null);
 		
 		final Seq<Date> seq = new Seq<>();
-		
+
 		final FrameIterator<QuoteField, Date> iter = frame.iterator();
 		final Out<Date> nextTime = new Out<>();
 		while (iter.getNextTime(nextTime)) {
@@ -66,8 +67,9 @@ public final class YahooDataLoad {
 			
 			final Date currTime = iter.getCurrTime();
 			
-			final TItem<Date> adjOpenItem = iter.getCurrItem(QuoteField.AdjOpen);
-			final TItem<Date> adjCloseItem = iter.getCurrItem(QuoteField.AdjClose);
+			final TItem<Date> adjOpenItem = iter.getCurrItem(QuoteField.AdjOpenPrice);
+			final TItem<Date> adjCloseItem = iter.getCurrItem(QuoteField.AdjClosePrice);
+			final TItem<Date> adjVolumeItem = iter.getCurrItem(QuoteField.AdjCloseVolume);
 			
 			if (adjOpenItem == null) {
 				throw new IllegalStateException("AdjOpen item is null at " + currTime);
@@ -75,30 +77,41 @@ public final class YahooDataLoad {
 			if (adjCloseItem == null) {
 				throw new IllegalStateException("AdjClose item is null at " + currTime);
 			}
+			if (adjVolumeItem == null) {
+				throw new IllegalStateException("AdjVolume item is null at " + currTime);
+			}
+			
 			if (Double.isNaN(adjOpenItem.getDouble())) {
 				throw new IllegalStateException("AdjOpen item is NaN at " + currTime);
 			}
 			if (Double.isNaN(adjCloseItem.getDouble())) {
 				throw new IllegalStateException("AdjClose item is NaN at " + currTime);
 			}
+			if (Double.isNaN(adjVolumeItem.getDouble())) {
+				throw new IllegalStateException("AdjVolume item is NaN at " + currTime);
+			}
+			
 			final Date openTime = DateUtils.addHours(currTime, assumeOpenHour);
 			final Date closeTime = DateUtils.addHours(currTime, assumeCloseHour);
 			
-			seq.add(openTime, 
-					new Quote(
-							QuoteField.AdjOpen,
-							adjOpenItem.getDouble()));
+			final Quote openQuote = Quote.build()
+					.set(QuoteField.AdjOpenPrice, adjOpenItem.getDouble())
+					.set(QuoteField.AdjOpenVolume, 0.0)
+					.create();
 			
-			seq.add(closeTime,
-					new Quote(
-							QuoteField.AdjClose,
-							adjCloseItem.getDouble()));
+			final Quote closeQuote = Quote.build()
+					.set(QuoteField.AdjClosePrice, adjCloseItem.getDouble())
+					.set(QuoteField.AdjCloseVolume, adjVolumeItem.getDouble())
+					.create();
+			
+			seq.add(openTime, openQuote);
+			seq.add(closeTime, closeQuote);
 		}
 		
 		return seq;
 	}
 	
-	public static final Frame<String, Date> loadAdjOpenAdjCloseFrame(
+	public static final Frame<String, Date> loadAdjQuoteFrame(
 			final String dirPath, 
 			final Date minDate,
 			final Date maxDate,
@@ -115,7 +128,7 @@ public final class YahooDataLoad {
 			final String ticker = pair.v1();
 			final File file = pair.v2();
 			
-			final Seq<Date> seq = loadAdjOpenAdjCloseSeq(
+			final Seq<Date> seq = loadAdjQuoteSeq(
 					file.getAbsolutePath(),
 					minDate,
 					maxDate,
@@ -169,45 +182,45 @@ public final class YahooDataLoad {
 					}
 					
 					final Double open      = Double.parseDouble(parts[1]);
-					if (fields.contains(QuoteField.Open)) {
-						frame.stage(QuoteField.Open, date, open);
+					if (fields.contains(QuoteField.OpenPrice)) {
+						frame.stage(QuoteField.OpenPrice, date, open);
 					}
 					final Double high      = Double.parseDouble(parts[2]);
-					if (fields.contains(QuoteField.High)) {
-						frame.stage(QuoteField.High, date, high);
+					if (fields.contains(QuoteField.HighPrice)) {
+						frame.stage(QuoteField.HighPrice, date, high);
 					}
 					final Double low       = Double.parseDouble(parts[3]);
-					if (fields.contains(QuoteField.Low)) {
-						frame.stage(QuoteField.Low, date, low);
+					if (fields.contains(QuoteField.LowPrice)) {
+						frame.stage(QuoteField.LowPrice, date, low);
 					}
 					final Double close     = Double.parseDouble(parts[4]);
-					if (fields.contains(QuoteField.Close)) {
-						frame.stage(QuoteField.Close, date, close);
+					if (fields.contains(QuoteField.ClosePrice)) {
+						frame.stage(QuoteField.ClosePrice, date, close);
 					}
 					final Double volume    = Double.parseDouble(parts[5]);
-					if (fields.contains(QuoteField.Volume)) {
-						frame.stage(QuoteField.Volume, date, volume);
+					if (fields.contains(QuoteField.CloseVolume)) {
+						frame.stage(QuoteField.CloseVolume, date, volume);
 					}
 					final Double adjClose  = Double.parseDouble(parts[6]);
-					if (fields.contains(QuoteField.AdjClose)) {
-						frame.stage(QuoteField.AdjClose, date, adjClose);
+					if (fields.contains(QuoteField.AdjClosePrice)) {
+						frame.stage(QuoteField.AdjClosePrice, date, adjClose);
 					}
 					final Double adjFactor = adjClose / close;
 					final Double adjOpen   = open * adjFactor;
-					if (fields.contains(QuoteField.AdjOpen)) {
-						frame.stage(QuoteField.AdjOpen, date, adjOpen);
+					if (fields.contains(QuoteField.AdjOpenPrice)) {
+						frame.stage(QuoteField.AdjOpenPrice, date, adjOpen);
 					}
 					final Double adjHigh   = high * adjFactor;
-					if (fields.contains(QuoteField.AdjHigh)) {
-						frame.stage(QuoteField.AdjHigh, date, adjHigh);
+					if (fields.contains(QuoteField.AdjHighPrice)) {
+						frame.stage(QuoteField.AdjHighPrice, date, adjHigh);
 					}
 					final Double adjLow    = low * adjFactor;
-					if (fields.contains(QuoteField.AdjLow)) {
-						frame.stage(QuoteField.AdjLow, date, adjLow);
+					if (fields.contains(QuoteField.AdjLowPrice)) {
+						frame.stage(QuoteField.AdjLowPrice, date, adjLow);
 					}
 					final Double adjVolume = volume / adjFactor;
-					if (fields.contains(QuoteField.AdjVolume)) {
-						frame.stage(QuoteField.AdjVolume, date, adjVolume);
+					if (fields.contains(QuoteField.AdjCloseVolume)) {
+						frame.stage(QuoteField.AdjCloseVolume, date, adjVolume);
 					}
 				}
 			}

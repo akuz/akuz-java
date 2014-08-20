@@ -6,15 +6,17 @@ package me.akuz.ts.io.custom;
  */
 public enum QuoteField {
 	
-	Open,
-	High,
-	Low,
-	Close,
-	Volume,
+	OpenPrice,
+	OpenVolume,
+	HighPrice,
+	LowPrice,
+	ClosePrice,
+	CloseVolume,
 	
-	AdjOpen,
-	AdjHigh,
-	AdjLow,
-	AdjClose,
-	AdjVolume,
+	AdjOpenPrice,
+	AdjOpenVolume,
+	AdjHighPrice,
+	AdjLowPrice,
+	AdjClosePrice,
+	AdjCloseVolume,
 }
