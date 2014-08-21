@@ -54,6 +54,10 @@ public final class TItem<T extends Comparable<T>> implements Comparable<TItem<T>
 		return _value;
 	}
 	@SuppressWarnings("unchecked")
+	public <TT> TT get() {
+		return (TT)_value;
+	}
+	@SuppressWarnings("unchecked")
 	public TItem<T> getItem() {
 		return (TItem<T>)_value;
 	}

@@ -18,9 +18,12 @@ import me.akuz.core.DateUtils;
 import me.akuz.core.FileUtils;
 import me.akuz.core.Out;
 import me.akuz.core.Pair;
+import me.akuz.core.Rounding;
 import me.akuz.ts.Frame;
 import me.akuz.ts.Cube;
 import me.akuz.ts.FrameIterator;
+import me.akuz.ts.Quote;
+import me.akuz.ts.QuoteField;
 import me.akuz.ts.Seq;
 import me.akuz.ts.TItem;
 
@@ -28,7 +31,7 @@ public final class YahooDataLoad {
 	
 	private static final Pattern _csvExtensionPattern = Pattern.compile("\\.csv$", Pattern.CASE_INSENSITIVE);
 	
-	public final static Seq<Date> loadAdjQuoteSeq(
+	public final static Seq<Date> loadDailyAdjQuoteSeq(
 			final String fileName, 
 			final Date minDate,
 			final Date maxDate,
@@ -46,15 +49,15 @@ public final class YahooDataLoad {
 			throw new IllegalArgumentException("Open hour hour must < close hour");
 		}
 		
-		final Frame<QuoteField, Date> frame = loadQuoteFieldDateFrame(
+		final Frame<QuoteField, Date> frame = loadDailyQuoteFieldFrame(
 				fileName, 
 				minDate, 
 				maxDate, 
 				timeZone, 
 				EnumSet.of(
-						QuoteField.AdjOpenPrice,
-						QuoteField.AdjClosePrice,
-						QuoteField.AdjCloseVolume), 
+						QuoteField.AdjOpen,
+						QuoteField.AdjClose,
+						QuoteField.AdjVolume), 
 				null);
 		
 		final Seq<Date> seq = new Seq<>();
@@ -67,9 +70,9 @@ public final class YahooDataLoad {
 			
 			final Date currTime = iter.getCurrTime();
 			
-			final TItem<Date> adjOpenItem = iter.getCurrItem(QuoteField.AdjOpenPrice);
-			final TItem<Date> adjCloseItem = iter.getCurrItem(QuoteField.AdjClosePrice);
-			final TItem<Date> adjVolumeItem = iter.getCurrItem(QuoteField.AdjCloseVolume);
+			final TItem<Date> adjOpenItem = iter.getCurrItem(QuoteField.AdjOpen);
+			final TItem<Date> adjCloseItem = iter.getCurrItem(QuoteField.AdjClose);
+			final TItem<Date> adjVolumeItem = iter.getCurrItem(QuoteField.AdjVolume);
 			
 			if (adjOpenItem == null) {
 				throw new IllegalStateException("AdjOpen item is null at " + currTime);
@@ -94,24 +97,20 @@ public final class YahooDataLoad {
 			final Date openTime = DateUtils.addHours(currTime, assumeOpenHour);
 			final Date closeTime = DateUtils.addHours(currTime, assumeCloseHour);
 			
-			final Quote openQuote = Quote.build()
-					.set(QuoteField.AdjOpenPrice, adjOpenItem.getDouble())
-					.set(QuoteField.AdjOpenVolume, 0.0)
+			final Quote quote = Quote.build()
+					.set(QuoteField.AdjOpen, adjOpenItem.getDouble())
+					.set(QuoteField.AdjClose, adjCloseItem.getDouble())
+					.set(QuoteField.AdjVolume, adjVolumeItem.getDouble())
+					.set(QuoteField.OpenTime, openTime)
 					.create();
 			
-			final Quote closeQuote = Quote.build()
-					.set(QuoteField.AdjClosePrice, adjCloseItem.getDouble())
-					.set(QuoteField.AdjCloseVolume, adjVolumeItem.getDouble())
-					.create();
-			
-			seq.add(openTime, openQuote);
-			seq.add(closeTime, closeQuote);
+			seq.add(closeTime, quote);
 		}
 		
 		return seq;
 	}
 	
-	public static final Frame<String, Date> loadAdjQuoteFrame(
+	public static final Frame<String, Date> loadDailyTickerAdjQuoteFrame(
 			final String dirPath, 
 			final Date minDate,
 			final Date maxDate,
@@ -128,7 +127,7 @@ public final class YahooDataLoad {
 			final String ticker = pair.v1();
 			final File file = pair.v2();
 			
-			final Seq<Date> seq = loadAdjQuoteSeq(
+			final Seq<Date> seq = loadDailyAdjQuoteSeq(
 					file.getAbsolutePath(),
 					minDate,
 					maxDate,
@@ -141,7 +140,7 @@ public final class YahooDataLoad {
 		return frame;
 	}
 	
-	public final static Frame<QuoteField, Date> loadQuoteFieldDateFrame(
+	public final static Frame<QuoteField, Date> loadDailyQuoteFieldFrame(
 			final String fileName, 
 			final Date minDate,
 			final Date maxDate,
@@ -182,45 +181,45 @@ public final class YahooDataLoad {
 					}
 					
 					final Double open      = Double.parseDouble(parts[1]);
-					if (fields.contains(QuoteField.OpenPrice)) {
-						frame.stage(QuoteField.OpenPrice, date, open);
+					if (fields.contains(QuoteField.Open)) {
+						frame.stage(QuoteField.Open, date, open);
 					}
 					final Double high      = Double.parseDouble(parts[2]);
-					if (fields.contains(QuoteField.HighPrice)) {
-						frame.stage(QuoteField.HighPrice, date, high);
+					if (fields.contains(QuoteField.High)) {
+						frame.stage(QuoteField.High, date, high);
 					}
 					final Double low       = Double.parseDouble(parts[3]);
-					if (fields.contains(QuoteField.LowPrice)) {
-						frame.stage(QuoteField.LowPrice, date, low);
+					if (fields.contains(QuoteField.Low)) {
+						frame.stage(QuoteField.Low, date, low);
 					}
 					final Double close     = Double.parseDouble(parts[4]);
-					if (fields.contains(QuoteField.ClosePrice)) {
-						frame.stage(QuoteField.ClosePrice, date, close);
+					if (fields.contains(QuoteField.Close)) {
+						frame.stage(QuoteField.Close, date, close);
 					}
 					final Double volume    = Double.parseDouble(parts[5]);
-					if (fields.contains(QuoteField.CloseVolume)) {
-						frame.stage(QuoteField.CloseVolume, date, volume);
+					if (fields.contains(QuoteField.Volume)) {
+						frame.stage(QuoteField.Volume, date, volume);
 					}
 					final Double adjClose  = Double.parseDouble(parts[6]);
-					if (fields.contains(QuoteField.AdjClosePrice)) {
-						frame.stage(QuoteField.AdjClosePrice, date, adjClose);
+					if (fields.contains(QuoteField.AdjClose)) {
+						frame.stage(QuoteField.AdjClose, date, adjClose);
 					}
 					final Double adjFactor = adjClose / close;
-					final Double adjOpen   = open * adjFactor;
-					if (fields.contains(QuoteField.AdjOpenPrice)) {
-						frame.stage(QuoteField.AdjOpenPrice, date, adjOpen);
+					final Double adjOpen   = Rounding.round(open * adjFactor, 4);
+					if (fields.contains(QuoteField.AdjOpen)) {
+						frame.stage(QuoteField.AdjOpen, date, adjOpen);
 					}
-					final Double adjHigh   = high * adjFactor;
-					if (fields.contains(QuoteField.AdjHighPrice)) {
-						frame.stage(QuoteField.AdjHighPrice, date, adjHigh);
+					final Double adjHigh   = Rounding.round(high * adjFactor, 4);
+					if (fields.contains(QuoteField.AdjHigh)) {
+						frame.stage(QuoteField.AdjHigh, date, adjHigh);
 					}
-					final Double adjLow    = low * adjFactor;
-					if (fields.contains(QuoteField.AdjLowPrice)) {
-						frame.stage(QuoteField.AdjLowPrice, date, adjLow);
+					final Double adjLow    = Rounding.round(low * adjFactor, 4);
+					if (fields.contains(QuoteField.AdjLow)) {
+						frame.stage(QuoteField.AdjLow, date, adjLow);
 					}
-					final Double adjVolume = volume / adjFactor;
-					if (fields.contains(QuoteField.AdjCloseVolume)) {
-						frame.stage(QuoteField.AdjCloseVolume, date, adjVolume);
+					final Double adjVolume = Rounding.round(volume / adjFactor, 4);
+					if (fields.contains(QuoteField.AdjVolume)) {
+						frame.stage(QuoteField.AdjVolume, date, adjVolume);
 					}
 				}
 			}
@@ -232,7 +231,7 @@ public final class YahooDataLoad {
 		return frame;
 	}
 	
-	public static final Cube<String, QuoteField, Date> loadQuoteFieldDateCube(
+	public static final Cube<String, QuoteField, Date> loadDailyTickerQuoteFieldCube(
 			final String dirPath, 
 			final Date minDate,
 			final Date maxDate,
@@ -249,7 +248,7 @@ public final class YahooDataLoad {
 			final String ticker = pair.v1();
 			final File file = pair.v2();
 			
-			final Frame<QuoteField, Date> frame = loadQuoteFieldDateFrame(
+			final Frame<QuoteField, Date> frame = loadDailyQuoteFieldFrame(
 					file.getAbsolutePath(),
 					minDate,
 					maxDate,

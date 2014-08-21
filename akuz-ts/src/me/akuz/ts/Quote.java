@@ -1,17 +1,18 @@
-package me.akuz.ts.io.custom;
+package me.akuz.ts;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
 /**
- * Quote containing one or more fields with a value.
+ * Quote containing values in one or more fields.
  *
  */
 public final class Quote {
 	
 	private final QuoteField[] _fields;
-	private final double[] _values;
+	private final Object[] _values;
 	
 	/**
 	 * Quote builder for optimizing the data use.
@@ -19,7 +20,7 @@ public final class Quote {
 	 */
 	public final static class Builder {
 		
-		private final Map<QuoteField, Double> _values;
+		private Map<QuoteField, Object>  _values;
 		
 		private Builder() {
 			_values = new HashMap<>();
@@ -29,7 +30,7 @@ public final class Quote {
 		 * Set quote field value.
 		 * 
 		 */
-		public Builder set(final QuoteField field, final double value) {
+		public Builder set(final QuoteField field, final Object value) {
 			_values.put(field, value);
 			return this;
 		}
@@ -43,9 +44,9 @@ public final class Quote {
 				throw new IllegalStateException("Quote built so far doesn't have any values");
 			}
 			final QuoteField[] fields = new QuoteField[_values.size()];
-			final double[] values = new double[_values.size()];
+			final Object[] values = new Object[_values.size()];
 			int i = 0;
-			for (Entry<QuoteField, Double> entry : _values.entrySet()) {
+			for (Entry<QuoteField, Object> entry : _values.entrySet()) {
 				fields[i] = entry.getKey();
 				values[i] = entry.getValue();
 				i++;
@@ -64,17 +65,58 @@ public final class Quote {
 	
 	private Quote(
 			final QuoteField[] fields,
-			final double[] values) {
+			final Object[] values) {
 		
 		_fields = fields;
 		_values = values;
 	}
 	
 	/**
+	 * Check field is populated or not.
+	 * 
+	 */
+	public boolean has(final QuoteField field) { 
+		for (int i=0; i<_fields.length; i++) {
+			if (field.equals(_fields[i])) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public Date getDate(final QuoteField field) {
+		return (Date)getObject(field);
+	}
+	public Date getDate(final QuoteField field, final Date defaultValue) {
+		return (Date)getObject(field, defaultValue);
+	}
+	
+	public Boolean getBoolean(final QuoteField field) {
+		return (Boolean)getObject(field);
+	}
+	public Boolean getBoolean(final QuoteField field, final Boolean defaultValue) {
+		return (Boolean)getObject(field, defaultValue);
+	}
+	
+	public Integer getInteger(final QuoteField field) {
+		return (Integer)getObject(field);
+	}
+	public Integer getInteger(final QuoteField field, final Integer defaultValue) {
+		return (Integer)getObject(field, defaultValue);
+	}
+	
+	public Double getDouble(final QuoteField field) {
+		return (Double)getObject(field);
+	}
+	public Double getDouble(final QuoteField field, final Double defaultValue) {
+		return (Double)getObject(field, defaultValue);
+	}
+	
+	/**
 	 * Get field value, throw exception if missing.
 	 * 
 	 */
-	public double get(final QuoteField field) { 
+	public Object getObject(final QuoteField field) { 
 		for (int i=0; i<_fields.length; i++) {
 			if (field.equals(_fields[i])) {
 				return _values[i];
@@ -87,7 +129,7 @@ public final class Quote {
 	 * Get field value, return default if missing.
 	 * 
 	 */
-	public double get(final QuoteField field, final double defaultValue) { 
+	public Object getObject(final QuoteField field, final Object defaultValue) { 
 		for (int i=0; i<_fields.length; i++) {
 			if (field.equals(_fields[i])) {
 				return _values[i];

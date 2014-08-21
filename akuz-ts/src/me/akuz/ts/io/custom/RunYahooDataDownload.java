@@ -19,6 +19,10 @@ import me.akuz.core.logs.SystemOutMonitor;
 import com.google.gson.JsonArray;
 
 public final class RunYahooDataDownload {
+
+	public static final String MINDATE = "mindate";
+	public static final String MAXDATE = "maxdate";
+	public static final String TICKERS = "tickers";
 	
 	private static final Pattern _newLinesPattern = Pattern.compile("\\n(\\r)?");
 	private static final String ENCODING = "UTF-8";
@@ -57,24 +61,24 @@ public final class RunYahooDataDownload {
 		}
 		
 		JsonArray tickers = null;
-		if (spec.has(PortfolioDataSpec.TICKERS)) {
-			tickers = spec.getJsonArray(PortfolioDataSpec.TICKERS);
+		if (spec.has(TICKERS)) {
+			tickers = spec.getJsonArray(TICKERS);
 		}
 		if (tickers != null && tickers.size() > 0) {
 			
 			monitor.write(tickers.size() + " tickers in portfolio data spec.");
 			
 			UtcDate minDate = null;
-			if (spec.has(PortfolioDataSpec.MINDATE)) {
-				String minDateStr = spec.getString(PortfolioDataSpec.MINDATE);
+			if (spec.has(MINDATE)) {
+				String minDateStr = spec.getString(MINDATE);
 				if (minDateStr != null) {
 					minDate = new UtcDate(new Date(), UtcDate.NumbersDateOnlyFormatString, TIMEZONE);
 					minDate.parse(minDateStr);
 				}
 			}
 			UtcDate maxDate = null;
-			if (spec.has(PortfolioDataSpec.MAXDATE)) {
-				String maxDateStr = spec.getString(PortfolioDataSpec.MAXDATE);
+			if (spec.has(MAXDATE)) {
+				String maxDateStr = spec.getString(MAXDATE);
 				if (maxDateStr != null) {
 					maxDate = new UtcDate(new Date(), UtcDate.NumbersDateOnlyFormatString, TIMEZONE);
 					maxDate.parse(maxDateStr);
