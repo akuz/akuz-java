@@ -1,17 +1,15 @@
 package me.akuz.ts.io.types;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.util.Date;
 
-import me.akuz.core.DateFmt;
+import me.akuz.core.DateAK;
 import me.akuz.ts.io.IOType;
 
 import com.google.gson.JsonObject;
 
-public final class TDate extends IOType {
+public final class TDateAK extends IOType {
 
-	public TDate() {
+	public TDateAK() {
 	}
 
 	@Override
@@ -37,18 +35,12 @@ public final class TDate extends IOType {
 		if (value == null) {
 			return null;
 		}
-		final Date date = (Date)value;
-		final String str = DateFmt.format(date, DateFmt.StandardUtcFormat, DateFmt.UTC_TIMEZONE);
-		return str;
+		final DateAK date = (DateAK)value;
+		return date.toString();
 	}
 	
 	@Override
 	public Object fromString(String str) throws IOException {
-		try {
-			final Date date = DateFmt.parse(str, DateFmt.StandardUtcFormat, DateFmt.UTC_TIMEZONE);
-			return date;
-		} catch (ParseException e) {
-			throw new IOException("Could not parse date '" + str + "'", e);
-		}
+		return new DateAK(str);
 	}
 }

@@ -10,15 +10,19 @@ import me.akuz.ts.log.TLogLevel;
 
 public class CheckNumberJumps<T extends Comparable<T>> extends Filter<T> {
 	
+	private final String _tag;
 	private final double _infoJump;
 	private final double _warningJump;
 	private final double _errorJump;
+	private final boolean _ignore0;
 	private TItem<T> _lastItem;
 	
 	public CheckNumberJumps(
+			final String tag,
 			final double infoJump,
 			final double warningJump,
-			final double errorJump) {
+			final double errorJump,
+			final boolean ignore0) {
 		
 		if (infoJump <= 0.0) {
 			throw new IllegalArgumentException("Argument infoJump must be positive");
@@ -30,9 +34,11 @@ public class CheckNumberJumps<T extends Comparable<T>> extends Filter<T> {
 			throw new IllegalArgumentException("Argument errorJump must be positive");
 		}
 		
+		_tag = tag;
 		_infoJump = infoJump;
 		_warningJump = warningJump;
 		_errorJump = errorJump;
+		_ignore0 = ignore0;
 		_lastItem = null;
 	}
 	
@@ -74,6 +80,13 @@ public class CheckNumberJumps<T extends Comparable<T>> extends Filter<T> {
 		double prevNumber = prevItem.getNumber().doubleValue();
 		double currNumber = _lastItem.getNumber().doubleValue();
 		
+		if (Math.abs(prevNumber) < Double.MIN_NORMAL && _ignore0) {
+			return;
+		}
+		if (Math.abs(currNumber) < Double.MIN_NORMAL && _ignore0) {
+			return;
+		}
+		
 		final double distance = Math.abs(currNumber - prevNumber);
 		if (distance > Double.MIN_NORMAL) {
 			
@@ -83,12 +96,20 @@ public class CheckNumberJumps<T extends Comparable<T>> extends Filter<T> {
 			final double norm = Math.min(absPrevNumber, absCurrNumber);
 			final double jump = distance / norm;
 
-			if (jump > _errorJump) {
-				log.add(TLogLevel.Error,   "Jump in \"" + getFieldName() + "\" field value: " + prevItem + " >> " + _lastItem);
-			} else if (jump > _warningJump) {
-				log.add(TLogLevel.Warning, "Jump in \"" + getFieldName() + "\" field value: " + prevItem + " >> " + _lastItem);
-			} else if (jump > _infoJump) {
-				log.add(TLogLevel.Info, "Jump in \"" + getFieldName() + "\" field value: " + prevItem + " >> " + _lastItem);
+			if (!Double.isNaN(_errorJump) && jump > _errorJump) {
+				
+				log.add(TLogLevel.Error, "[" + _tag + "] Jump in \"" + getFieldName() 
+						+ "\" field value: " + prevItem + " >> " + _lastItem);
+				
+			} else if (!Double.isNaN(_warningJump) && jump > _warningJump) {
+				
+				log.add(TLogLevel.Warning, "[" + _tag + "] Jump in \"" + getFieldName() + 
+						"\" field value: " + prevItem + " >> " + _lastItem);
+				
+			} else if (!Double.isNaN(_infoJump) && jump > _infoJump) {
+				
+				log.add(TLogLevel.Info, "[" + _tag + "] Jump in \"" + getFieldName() + 
+						"\" field value: " + prevItem + " >> " + _lastItem);
 			}
 		}
 	}

@@ -1,38 +1,38 @@
 package me.akuz.ts.derive;
 
-import java.util.Date;
 import java.util.List;
 
-import me.akuz.core.Period;
+import me.akuz.core.DateAK;
 import me.akuz.ts.Seq;
 import me.akuz.ts.TItem;
 
+import org.joda.time.Days;
+
 public final class IsActive {
 	
-	public static Seq<Date> calc(
-			final Seq<Date> seq,
-			final Period onPeriod,
-			final Period offPeriod) {
+	public static Seq<DateAK> calc(
+			final Seq<DateAK> seq,
+			final Days onAfterDays,
+			final Days offAfterDays) {
 		
-		final long onPeriodMs = onPeriod.getMs();
-		final long offPeriodMs = offPeriod.getMs();
-		final Seq<Date> seqActive = new Seq<>();
+		final Seq<DateAK> seqActive = new Seq<>();
 
-		Date prevDate = null;
-		Date lastTurnOnDate = null;
-		Date currActiveStartDate = null;
+		DateAK prevDate = null;
+		DateAK lastTurnOnDate = null;
+		DateAK currActiveStartDate = null;
 		boolean isActive = false;
 		
-		final List<TItem<Date>> items = seq.getItems();
+		final List<TItem<DateAK>> items = seq.getItems();
 		for (int i=0; i<items.size(); i++) {
 			
-			final TItem<Date> item = items.get(i);
-			final Date date = item.getTime();
+			final TItem<DateAK> item = items.get(i);
+			final DateAK date = item.getTime();
 			
 			if (isActive) {
 				
 				// check if still on
-				if (getDistanceMs(prevDate, date) > offPeriodMs) {
+				final Days days = Days.daysBetween(prevDate.get(), date.get());
+				if (days.compareTo(offAfterDays) > 0) {
 					
 					if (lastTurnOnDate != null) {
 						
@@ -41,7 +41,7 @@ public final class IsActive {
 							
 							// non-empty active period ended
 							seqActive.acceptStaged();
-							seqActive.add(new TItem<Date>(prevDate, false));
+							seqActive.add(new TItem<DateAK>(prevDate, false));
 							
 						} else {
 	
@@ -61,7 +61,8 @@ public final class IsActive {
 				if (prevDate != null) {
 					
 					// check if there were no items for a long time
-					if (getDistanceMs(prevDate, date) > offPeriodMs) {
+					final Days days = Days.daysBetween(prevDate.get(), date.get());
+					if (days.compareTo(offAfterDays) > 0) {
 						
 						// reset active stretch start
 						currActiveStartDate = date;
@@ -74,7 +75,8 @@ public final class IsActive {
 				}
 				
 				// check if time to turn on
-				if (getDistanceMs(currActiveStartDate, date) >= onPeriodMs) {
+				final Days days = Days.daysBetween(currActiveStartDate.get(), date.get());
+				if (days.compareTo(onAfterDays) >= 0) {
 					
 					isActive = true;
 					lastTurnOnDate = date;
@@ -94,7 +96,7 @@ public final class IsActive {
 					
 					// non-empty active period ended
 					seqActive.acceptStaged();
-					seqActive.add(new TItem<Date>(prevDate, false));
+					seqActive.add(new TItem<DateAK>(prevDate, false));
 					
 				} else {
 	
@@ -105,20 +107,6 @@ public final class IsActive {
 		}
 		
 		return seqActive;
-	}
-	
-	private final static long getDistanceMs(
-			final Date fromDate, 
-			final Date toDate) {
-		
-		final long fromMs = fromDate.getTime();
-		final long toMs = toDate.getTime();
-		
-		if (fromMs > toMs) {
-			throw new IllegalArgumentException("Dates are not in chronological order");
-		}
-		
-		return toMs - fromMs;
 	}
 
 }
