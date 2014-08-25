@@ -11,7 +11,7 @@ import me.akuz.ts.sync.Synchronizable;
  *
  */
 public final class SeqIterator<T extends Comparable<T>> 
-implements Synchronizable<T>, SeqCursor<T> {
+implements Synchronizable<T>, SeqCursor<T>, Cloneable {
 	
 	private final Seq<T> _seq;
 	private int _nextCursor;
@@ -119,6 +119,16 @@ implements Synchronizable<T>, SeqCursor<T> {
 		}
 		
 		_currTime = time;
+	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public SeqIterator<T> clone() {
+		try {
+			return (SeqIterator<T>)super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new InternalError("Clone error");
+		}
 	}
 
 }
