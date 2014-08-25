@@ -2,7 +2,7 @@ package me.akuz.ts.filters;
 
 import java.util.List;
 
-import me.akuz.core.DateAK;
+import me.akuz.core.TDate;
 import me.akuz.ts.Filter;
 import me.akuz.ts.SeqIterator;
 import me.akuz.ts.TItem;
@@ -10,12 +10,12 @@ import me.akuz.ts.log.TLog;
 
 import org.joda.time.Days;
 
-public final class RepeatWithDateExpiry extends Filter<DateAK> {
+public final class RepeatWithDateExpiry extends Filter<TDate> {
 	
 	private final Days _aliveDays;
 	private final Object _defaultValue;
-	private TItem<DateAK> _lastAvailableItem;
-	private TItem<DateAK> _currFilterItem;
+	private TItem<TDate> _lastAvailableItem;
+	private TItem<TDate> _currFilterItem;
 	
 	public RepeatWithDateExpiry(final Days aliveDays) {
 		this(aliveDays, null);
@@ -29,11 +29,11 @@ public final class RepeatWithDateExpiry extends Filter<DateAK> {
 	@Override
 	public void next(
 			final TLog log,
-			final DateAK currTime,
-			final SeqIterator<DateAK> iter) {
+			final TDate currTime,
+			final SeqIterator<TDate> iter) {
 		
 		// update last item
-		final List<TItem<DateAK>> movedItems = iter.getMovedItems();
+		final List<TItem<TDate>> movedItems = iter.getMovedItems();
 		if (movedItems.size() > 0) {
 			_lastAvailableItem = movedItems.get(movedItems.size()-1);
 		}
@@ -51,9 +51,9 @@ public final class RepeatWithDateExpiry extends Filter<DateAK> {
 			
 			// set last item
 			if (diff.compareTo(_aliveDays) <= 0) {
-				_currFilterItem = new TItem<DateAK>(currTime, _lastAvailableItem.getObject());
+				_currFilterItem = new TItem<TDate>(currTime, _lastAvailableItem.getObject());
 			} else if (_defaultValue != null) {
-				_currFilterItem = new TItem<DateAK>(currTime, _defaultValue);
+				_currFilterItem = new TItem<TDate>(currTime, _defaultValue);
 			} else {
 				_currFilterItem = null;
 			}
@@ -61,7 +61,7 @@ public final class RepeatWithDateExpiry extends Filter<DateAK> {
 	}
 
 	@Override
-	public TItem<DateAK> getCurrItem() {
+	public TItem<TDate> getCurrItem() {
 		return _currFilterItem;
 	}
 

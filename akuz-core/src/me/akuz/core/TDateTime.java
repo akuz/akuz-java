@@ -10,19 +10,19 @@ import org.joda.time.DateTime;
  * akuz-ts library.
  *
  */
-public final class DateTimeAK implements Comparable<DateTimeAK> {
+public final class TDateTime implements Comparable<TDateTime> {
 	
 	private final DateTime _dateTime;
 	
-	public static final DateTimeAK parse(final String str) {
-		return DateTimeAK.from(DateTime.parse(str));
+	public static final TDateTime parse(final String str) {
+		return TDateTime.from(DateTime.parse(str));
 	}
 	
-	public static final DateTimeAK from(final DateTime dateTime) {
-		return new DateTimeAK(dateTime);
+	public static final TDateTime from(final DateTime dateTime) {
+		return new TDateTime(dateTime);
 	}
 	
-	public DateTimeAK(final DateTime dateTime) {
+	public TDateTime(final DateTime dateTime) {
 		_dateTime = dateTime;
 	}
 	
@@ -31,7 +31,7 @@ public final class DateTimeAK implements Comparable<DateTimeAK> {
 	}
 
 	@Override
-	public int compareTo(DateTimeAK o) {
+	public int compareTo(TDateTime o) {
 		return _dateTime.compareTo(o._dateTime);
 	}
 	
@@ -53,7 +53,7 @@ public final class DateTimeAK implements Comparable<DateTimeAK> {
 		if (obj == this) {
 			return true;
 		}
-		return _dateTime.equals(((DateTimeAK)obj)._dateTime);
+		return _dateTime.equals(((TDateTime)obj)._dateTime);
 	}
 
 }

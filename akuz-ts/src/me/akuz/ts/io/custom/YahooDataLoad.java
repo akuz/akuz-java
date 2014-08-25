@@ -11,8 +11,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import me.akuz.core.DateAK;
-import me.akuz.core.DateTimeAK;
+import me.akuz.core.TDate;
+import me.akuz.core.TDateTime;
 import me.akuz.core.FileUtils;
 import me.akuz.core.Out;
 import me.akuz.core.Pair;
@@ -31,10 +31,10 @@ public final class YahooDataLoad {
 	
 	private static final Pattern _csvExtensionPattern = Pattern.compile("\\.csv$", Pattern.CASE_INSENSITIVE);
 	
-	public final static Seq<DateTimeAK> loadDailyAdjQuoteSeq(
+	public final static Seq<TDateTime> loadAdjQuoteSeq(
 			final String fileName, 
-			final DateAK minDate,
-			final DateAK maxDate,
+			final TDate minDate,
+			final TDate maxDate,
 			final DateTimeZone timeZone,
 			final int assumeOpenHour,
 			final int assumeCloseHour) throws IOException, ParseException {
@@ -49,7 +49,7 @@ public final class YahooDataLoad {
 			throw new IllegalArgumentException("Open hour hour must < close hour");
 		}
 		
-		final Frame<QuoteField, DateAK> frame = loadDailyQuoteFieldFrame(
+		final Frame<QuoteField, TDate> frame = loadQuoteFieldFrame(
 				fileName, 
 				minDate, 
 				maxDate, 
@@ -59,19 +59,19 @@ public final class YahooDataLoad {
 						QuoteField.AdjVolume), 
 				null);
 		
-		final Seq<DateTimeAK> seq = new Seq<>();
+		final Seq<TDateTime> seq = new Seq<>();
 
-		final FrameIterator<QuoteField, DateAK> iter = frame.iterator();
-		final Out<DateAK> nextTime = new Out<>();
+		final FrameIterator<QuoteField, TDate> iter = frame.iterator();
+		final Out<TDate> nextTime = new Out<>();
 		while (iter.getNextTime(nextTime)) {
 			
 			iter.moveToTime(nextTime.getValue());
 			
-			final DateAK currDate = iter.getCurrTime();
+			final TDate currDate = iter.getCurrTime();
 			
-			final TItem<DateAK> adjOpenItem = iter.getCurrItem(QuoteField.AdjOpen);
-			final TItem<DateAK> adjCloseItem = iter.getCurrItem(QuoteField.AdjClose);
-			final TItem<DateAK> adjVolumeItem = iter.getCurrItem(QuoteField.AdjVolume);
+			final TItem<TDate> adjOpenItem = iter.getCurrItem(QuoteField.AdjOpen);
+			final TItem<TDate> adjCloseItem = iter.getCurrItem(QuoteField.AdjClose);
+			final TItem<TDate> adjVolumeItem = iter.getCurrItem(QuoteField.AdjVolume);
 			
 			if (adjOpenItem == null) {
 				throw new IllegalStateException("AdjOpen item is null at " + currDate);
@@ -93,38 +93,38 @@ public final class YahooDataLoad {
 				throw new IllegalStateException("AdjVolume item is NaN at " + currDate);
 			}
 			
-			final DateTimeAK startOfDay = DateTimeAK.from(
+			final TDateTime startOfDay = TDateTime.from(
 					currDate.get().toDateTimeAtStartOfDay(timeZone));
 			
-			final DateTimeAK openTime = DateTimeAK.from(
+			final TDateTime openTime = TDateTime.from(
 					startOfDay.get().withHourOfDay(assumeOpenHour));
 			
-			final DateTimeAK closeTime = DateTimeAK.from(
+			final TDateTime closeTime = TDateTime.from(
 					startOfDay.get().withHourOfDay(assumeCloseHour));
 			
-			final Quote quote = Quote.build()
+			seq.add(openTime, Quote.build()
 					.set(QuoteField.AdjOpen, adjOpenItem.getDouble())
+					.create());
+			
+			seq.add(closeTime, Quote.build()
 					.set(QuoteField.AdjClose, adjCloseItem.getDouble())
 					.set(QuoteField.AdjVolume, adjVolumeItem.getDouble())
-					.set(QuoteField.OpenTime, openTime)
-					.create();
-			
-			seq.add(closeTime, quote);
+					.create());
 		}
 		
 		return seq;
 	}
 	
-	public static final Frame<String, DateTimeAK> loadDailyTickerAdjQuoteFrame(
+	public static final Frame<String, TDateTime> loadTickerAdjQuoteFrame(
 			final String dirPath, 
-			final DateAK minDate,
-			final DateAK maxDate,
+			final TDate minDate,
+			final TDate maxDate,
 			final Set<String> ignoreTickers, 
 			final DateTimeZone timeZone,
 			final int assumeOpenHour,
 			final int assumeCloseHour) throws IOException, ParseException {
 		
-		final Frame<String, DateTimeAK> frame = new Frame<>();
+		final Frame<String, TDateTime> frame = new Frame<>();
 		final List<Pair<String, File>> tickerFiles = loadDirTickerFiles(dirPath, ignoreTickers);
 		for (int i=0; i<tickerFiles.size(); i++) {
 			
@@ -132,7 +132,7 @@ public final class YahooDataLoad {
 			final String ticker = pair.v1();
 			final File file = pair.v2();
 			
-			final Seq<DateTimeAK> seq = loadDailyAdjQuoteSeq(
+			final Seq<TDateTime> seq = loadAdjQuoteSeq(
 					file.getAbsolutePath(),
 					minDate,
 					maxDate,
@@ -145,14 +145,14 @@ public final class YahooDataLoad {
 		return frame;
 	}
 	
-	public final static Frame<QuoteField, DateAK> loadDailyQuoteFieldFrame(
+	public final static Frame<QuoteField, TDate> loadQuoteFieldFrame(
 			final String fileName, 
-			final DateAK minDate,
-			final DateAK maxDate,
+			final TDate minDate,
+			final TDate maxDate,
 			final EnumSet<QuoteField> quoteFields,
-			final Set<DateAK> fillDateSet) throws IOException, ParseException {
+			final Set<TDate> fillDateSet) throws IOException, ParseException {
 
-		Frame<QuoteField, DateAK> frame = new Frame<>();
+		Frame<QuoteField, TDate> frame = new Frame<>();
 	
 		Scanner scanner = FileUtils.openScanner(fileName, "UTF-8");
 		try {
@@ -173,7 +173,7 @@ public final class YahooDataLoad {
 					if (parts.length != 7) {
 						throw new IOException("Incorrect format in line #" + (lineNumber) + " of file " + fileName);
 					}
-					final DateAK date        = new DateAK(parts[0]);
+					final TDate date        = new TDate(parts[0]);
 					if (date.compareTo(minDate) < 0) {
 						continue;
 					}
@@ -235,15 +235,15 @@ public final class YahooDataLoad {
 		return frame;
 	}
 	
-	public static final Cube<String, QuoteField, DateAK> loadDailyTickerQuoteFieldCube(
+	public static final Cube<String, QuoteField, TDate> loadTickerQuoteFieldCube(
 			final String dirPath, 
-			final DateAK minDate,
-			final DateAK maxDate,
+			final TDate minDate,
+			final TDate maxDate,
 			final Set<String> ignoreTickers, 
 			final EnumSet<QuoteField> quoteFields,
-			final Set<DateAK> fillDateSet) throws IOException, ParseException {
+			final Set<TDate> fillDateSet) throws IOException, ParseException {
 		
-		final Cube<String, QuoteField, DateAK> cube = new Cube<>();
+		final Cube<String, QuoteField, TDate> cube = new Cube<>();
 		final List<Pair<String, File>> tickerFiles = loadDirTickerFiles(dirPath, ignoreTickers);
 		for (int i=0; i<tickerFiles.size(); i++) {
 			
@@ -251,7 +251,7 @@ public final class YahooDataLoad {
 			final String ticker = pair.v1();
 			final File file = pair.v2();
 			
-			final Frame<QuoteField, DateAK> frame = loadDailyQuoteFieldFrame(
+			final Frame<QuoteField, TDate> frame = loadQuoteFieldFrame(
 					file.getAbsolutePath(),
 					minDate,
 					maxDate,

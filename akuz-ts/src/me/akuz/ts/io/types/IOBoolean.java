@@ -4,16 +4,17 @@ import java.io.IOException;
 
 import me.akuz.ts.io.IOType;
 
+
 import com.google.gson.JsonObject;
 
-public final class TString extends IOType {
+public final class IOBoolean extends IOType {
 
 	@Override
 	public Object fromJsonField(JsonObject obj, String name) {
 		if (!obj.has(name)) {
 			return null;
 		}
-		return obj.get(name).getAsString();
+		return obj.get(name).getAsBoolean();
 	}
 
 	@Override
@@ -21,7 +22,7 @@ public final class TString extends IOType {
 		if (value == null) {
 			return;
 		}
-		obj.addProperty(name, toString(value));
+		obj.addProperty(name, (Boolean)value);
 	}
 	
 	@Override
@@ -29,11 +30,11 @@ public final class TString extends IOType {
 		if (value == null) {
 			return null;
 		}
-		return value.toString();
+		return ((Boolean)value).toString();
 	}
 	
 	@Override
 	public Object fromString(String str) throws IOException {
-		return str;
+		return Boolean.parseBoolean(str);
 	}
 }

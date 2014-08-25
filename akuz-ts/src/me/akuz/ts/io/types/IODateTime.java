@@ -2,14 +2,14 @@ package me.akuz.ts.io.types;
 
 import java.io.IOException;
 
-import me.akuz.core.DateAK;
+import me.akuz.core.TDateTime;
 import me.akuz.ts.io.IOType;
 
 import com.google.gson.JsonObject;
 
-public final class TDateAK extends IOType {
+public final class IODateTime extends IOType {
 
-	public TDateAK() {
+	public IODateTime() {
 	}
 
 	@Override
@@ -35,12 +35,12 @@ public final class TDateAK extends IOType {
 		if (value == null) {
 			return null;
 		}
-		final DateAK date = (DateAK)value;
+		final TDateTime date = (TDateTime)value;
 		return date.toString();
 	}
 	
 	@Override
 	public Object fromString(String str) throws IOException {
-		return new DateAK(str);
+		return TDateTime.parse(str);
 	}
 }

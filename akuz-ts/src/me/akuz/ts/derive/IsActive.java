@@ -2,7 +2,7 @@ package me.akuz.ts.derive;
 
 import java.util.List;
 
-import me.akuz.core.DateAK;
+import me.akuz.core.TDate;
 import me.akuz.ts.Seq;
 import me.akuz.ts.TItem;
 
@@ -10,23 +10,23 @@ import org.joda.time.Days;
 
 public final class IsActive {
 	
-	public static Seq<DateAK> calc(
-			final Seq<DateAK> seq,
+	public static Seq<TDate> calc(
+			final Seq<TDate> seq,
 			final Days onAfterDays,
 			final Days offAfterDays) {
 		
-		final Seq<DateAK> seqActive = new Seq<>();
+		final Seq<TDate> seqActive = new Seq<>();
 
-		DateAK prevDate = null;
-		DateAK lastTurnOnDate = null;
-		DateAK currActiveStartDate = null;
+		TDate prevDate = null;
+		TDate lastTurnOnDate = null;
+		TDate currActiveStartDate = null;
 		boolean isActive = false;
 		
-		final List<TItem<DateAK>> items = seq.getItems();
+		final List<TItem<TDate>> items = seq.getItems();
 		for (int i=0; i<items.size(); i++) {
 			
-			final TItem<DateAK> item = items.get(i);
-			final DateAK date = item.getTime();
+			final TItem<TDate> item = items.get(i);
+			final TDate date = item.getTime();
 			
 			if (isActive) {
 				
@@ -41,7 +41,7 @@ public final class IsActive {
 							
 							// non-empty active period ended
 							seqActive.acceptStaged();
-							seqActive.add(new TItem<DateAK>(prevDate, false));
+							seqActive.add(new TItem<TDate>(prevDate, false));
 							
 						} else {
 	
@@ -96,7 +96,7 @@ public final class IsActive {
 					
 					// non-empty active period ended
 					seqActive.acceptStaged();
-					seqActive.add(new TItem<DateAK>(prevDate, false));
+					seqActive.add(new TItem<TDate>(prevDate, false));
 					
 				} else {
 	

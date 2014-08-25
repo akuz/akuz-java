@@ -10,15 +10,15 @@ import org.joda.time.LocalDate;
  * akuz-ts library.
  *
  */
-public final class DateAK implements Comparable<DateAK> {
+public final class TDate implements Comparable<TDate> {
 	
 	private final LocalDate _date;
 	
-	public DateAK(final String str) {
+	public TDate(final String str) {
 		_date = LocalDate.parse(str);
 	}
 	
-	public DateAK(final int num) {
+	public TDate(final int num) {
 		if (num < 0) {
 			throw new IllegalArgumentException("DateOnly integer representation cannot be negative");
 		}
@@ -46,7 +46,7 @@ public final class DateAK implements Comparable<DateAK> {
 	}
 
 	@Override
-	public int compareTo(DateAK o) {
+	public int compareTo(TDate o) {
 		return _date.compareTo(o._date);
 	}
 	
@@ -68,7 +68,7 @@ public final class DateAK implements Comparable<DateAK> {
 		if (obj == this) {
 			return true;
 		}
-		return _date.equals(((DateAK)obj)._date);
+		return _date.equals(((TDate)obj)._date);
 	}
 
 }

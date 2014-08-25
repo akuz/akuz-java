@@ -4,17 +4,16 @@ import java.io.IOException;
 
 import me.akuz.ts.io.IOType;
 
-
 import com.google.gson.JsonObject;
 
-public final class TBoolean extends IOType {
+public final class IODouble extends IOType {
 
 	@Override
 	public Object fromJsonField(JsonObject obj, String name) {
 		if (!obj.has(name)) {
 			return null;
 		}
-		return obj.get(name).getAsBoolean();
+		return obj.get(name).getAsDouble();
 	}
 
 	@Override
@@ -22,19 +21,23 @@ public final class TBoolean extends IOType {
 		if (value == null) {
 			return;
 		}
-		obj.addProperty(name, (Boolean)value);
+		obj.addProperty(name, (Double)value);
 	}
-	
+
 	@Override
 	public String toString(Object value) {
 		if (value == null) {
 			return null;
 		}
-		return ((Boolean)value).toString();
+		return ((Double)value).toString();
 	}
 	
 	@Override
 	public Object fromString(String str) throws IOException {
-		return Boolean.parseBoolean(str);
+		try {
+			return Double.parseDouble(str);
+		} catch (NumberFormatException e) {
+			throw new IOException("Could not parse double '" + str + "'", e);
+		}
 	}
 }
