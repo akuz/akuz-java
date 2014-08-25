@@ -28,6 +28,10 @@ public final class TDuration implements Comparable<TDuration> {
 		_dur = dur;
 	}
 	
+	public TDuration(final TDateTime dateTime1, final TDateTime dateTime2) {
+		this(new Duration(dateTime1.get(), dateTime2.get()));
+	}
+	
 	public Duration get() {
 		return _dur;
 	}
