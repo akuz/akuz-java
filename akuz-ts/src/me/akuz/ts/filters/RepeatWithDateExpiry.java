@@ -28,7 +28,7 @@ public final class RepeatWithDateExpiry extends Filter<TDate> {
 
 	@Override
 	public void next(
-			final TLog log,
+			final TLog<TDate> log,
 			final TDate currTime,
 			final SeqIterator<TDate> iter) {
 		

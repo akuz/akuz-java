@@ -22,7 +22,7 @@ public final class RepeatWithoutExpiry<T extends Comparable<T>> extends Filter<T
 
 	@Override
 	public void next(
-			final TLog log,
+			final TLog<T> log,
 			final T currTime,
 			final SeqIterator<T> iter) {
 		

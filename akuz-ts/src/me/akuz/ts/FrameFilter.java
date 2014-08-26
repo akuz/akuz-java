@@ -27,7 +27,7 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 	private final Frame<K, T> _frame;
 	private final Map<K, SeqFilter<T>> _seqFilters;
 	private final List<K> _filterKeys;
-	private TLog _log;
+	private TLog<T> _log;
 	private final Map<K, TItem<T>> _currItems;
 	private T _currTime;
 	
@@ -73,7 +73,7 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 		seqFilter.addFilter(filter);
 	}
 	
-	public void setLog(final TLog log) {
+	public void setLog(final TLog<T> log) {
 		_log = log;
 		for (final SeqFilter<T> seqFilter : _seqFilters.values()) {
 			seqFilter.setLog(log);

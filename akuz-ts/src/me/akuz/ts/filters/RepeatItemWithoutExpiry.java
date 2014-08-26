@@ -16,7 +16,7 @@ public final class RepeatItemWithoutExpiry<T extends Comparable<T>> extends Filt
 	
 	@Override
 	public void next(
-			final TLog log,
+			final TLog<T> log,
 			final T currTime,
 			final SeqIterator<T> iter) {
 		

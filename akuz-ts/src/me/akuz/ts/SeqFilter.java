@@ -25,7 +25,7 @@ implements Synchronizable<T>, SeqCursor<T> {
 	private final List<Filter<T>> _filters;
 	private TItem<T> _currFilteredItem;
 	private T _currTime;
-	private TLog _log;
+	private TLog<T> _log;
 	
 	public SeqFilter(final Seq<T> seq) {
 		if (seq == null) {
@@ -53,7 +53,7 @@ implements Synchronizable<T>, SeqCursor<T> {
 		_fieldName = fieldName;
 	}
 	
-	public void setLog(final TLog log) {
+	public void setLog(final TLog<T> log) {
 		_log = log;
 	}
 	

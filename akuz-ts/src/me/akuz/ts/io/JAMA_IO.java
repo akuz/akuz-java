@@ -48,7 +48,7 @@ public final class JAMA_IO {
 			final Frame<K, T> frame,
 			final Index<K> keysIndex,
 			final List<Filter<T>> filters,
-			final TLog log) {
+			final TLog<T> log) {
 		
 		final List<double[]> rows = new ArrayList<>();
 		
@@ -94,42 +94,5 @@ public final class JAMA_IO {
 
 		return new Matrix(arr);
 	}
-
-//	public <K> TFrame<K, T> intoFrame(Set<K> keys, TFrame<K, T> frame) {
-//		return intoFrame(keys, frame, null, null);
-//	}
-//
-//	public <K> TFrame<K, T> intoFrame(Set<K> keys, TFrame<K, T> frame, List<TFilter<T>> filters, TLog log) {
-//		
-//		TFrame<K, T> result = new TFrame<>();
-//
-//		final TFrameWalker<K, T> frameAligner = new TFrameWalker<>(frame, keys, _times);
-//		
-//		final TFrameFilter.Builder<K, T> frameFilterBuilder = TFrameFilter.onAllKeysOf(frameAligner);
-//		for (TFilter<T> filter : filters) {
-//			frameFilterBuilder.addAllKeysFilter(filter);
-//		}
-//		frameFilterBuilder.setLog(log);
-//		
-//		final TFrameFilter<K, T> frameFilter = frameFilterBuilder.build();
-//		
-//		while (frameFilter.hasNext()) {
-//			
-//			frameFilter.next();
-//			
-//			final Map<K, TItem<T>> currKeyValues = frameFilter.getCurrItems();
-//
-//			for (final K key : keys) {
-//	
-//				final TItem<T> item = currKeyValues.get(key);
-//				
-//				if (item != null) {
-//					result.add(key, item);
-//				}
-//			}
-//		}
-//
-//		return result;
-//	}
 
 }

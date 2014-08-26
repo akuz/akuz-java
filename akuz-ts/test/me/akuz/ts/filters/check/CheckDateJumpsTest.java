@@ -1,4 +1,4 @@
-package me.akuz.ts.roll.simple;
+package me.akuz.ts.filters.check;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ public class CheckDateJumpsTest {
 		TDuration warningAfterPeriod = TDuration.fromDays(2.0);
 		TDuration errorAfterPeriod   = TDuration.fromDays(3.5);
 		
-		final TLog log = new TLog();
+		final TLog<Date> log = new TLog<>();
 		final CheckDateGaps checkDateJumps = new CheckDateGaps(
 				infoAfterPeriod,
 				warningAfterPeriod,
@@ -100,7 +100,7 @@ public class CheckDateJumpsTest {
 		TDuration warningAfterPeriod = TDuration.fromDays(1.99);
 		TDuration errorAfterPeriod   = TDuration.fromDays(2.99);
 		
-		final TLog log = new TLog();
+		final TLog<Date> log = new TLog<>();
 		final CheckDateGaps checkDateJumps = new CheckDateGaps(infoAfterPeriod, warningAfterPeriod, errorAfterPeriod);
 		
 		final FrameFilter<String, Date> frameFilter = new FrameFilter<>(frame);

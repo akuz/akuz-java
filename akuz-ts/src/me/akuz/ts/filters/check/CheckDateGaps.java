@@ -40,7 +40,7 @@ public class CheckDateGaps extends Filter<Date> {
 
 	@Override
 	public void next(
-			final TLog log,
+			final TLog<Date> log,
 			final Date currTime, 
 			final SeqIterator<Date> iter) {
 		
@@ -83,7 +83,7 @@ public class CheckDateGaps extends Filter<Date> {
 	}
 	
 	private final void checkDateJump(
-			final TLog log, 
+			final TLog<Date> log, 
 			final Date prevTime,
 			final Date currTime,
 			final boolean resetLevel) {
@@ -115,7 +115,7 @@ public class CheckDateGaps extends Filter<Date> {
 		}
 		
 		if (increasedLevel) {
-			log.add(_lastLevel, "Jump in \"" + getFieldName() + "\" field date: " + prevTime + " >> " + currTime);
+			log.add(currTime, _lastLevel, "Jump in \"" + getFieldName() + "\" field date: " + prevTime + " >> " + currTime);
 		}
 		
 		if (resetLevel) {

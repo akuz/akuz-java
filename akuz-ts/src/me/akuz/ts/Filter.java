@@ -24,7 +24,7 @@ public abstract class Filter<T extends Comparable<T>> implements Cloneable {
 	 * arranged in strict chronological order.
 	 */
 	public abstract void next(
-			final TLog log,
+			final TLog<T> log,
 			final T currTime, 
 			final SeqIterator<T> iter);
 	

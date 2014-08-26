@@ -52,7 +52,7 @@ public class CheckNumberJumps<T extends Comparable<T>> extends Filter<T> {
 
 	@Override
 	public void next(
-			final TLog log,
+			final TLog<T> log,
 			final T currTime, 
 			final SeqIterator<T> iter) {
 
@@ -73,7 +73,7 @@ public class CheckNumberJumps<T extends Comparable<T>> extends Filter<T> {
 	}
 	
 	private final void checkNumberJump(
-			final TLog log,
+			final TLog<T> log,
 			final TItem<T> prevItem,
 			final TItem<T> currItem) {
 		
@@ -98,17 +98,20 @@ public class CheckNumberJumps<T extends Comparable<T>> extends Filter<T> {
 
 			if (!Double.isNaN(_errorJump) && jump > _errorJump) {
 				
-				log.add(TLogLevel.Error, "[" + _tag + "] Jump in \"" + getFieldName() 
+				log.add(currItem.getTime(),
+						TLogLevel.Error, "[" + _tag + "] Jump in \"" + getFieldName() 
 						+ "\" field value: " + prevItem + " >> " + _lastItem);
 				
 			} else if (!Double.isNaN(_warningJump) && jump > _warningJump) {
 				
-				log.add(TLogLevel.Warning, "[" + _tag + "] Jump in \"" + getFieldName() + 
+				log.add(currItem.getTime(),
+						TLogLevel.Warning, "[" + _tag + "] Jump in \"" + getFieldName() + 
 						"\" field value: " + prevItem + " >> " + _lastItem);
 				
 			} else if (!Double.isNaN(_infoJump) && jump > _infoJump) {
 				
-				log.add(TLogLevel.Info, "[" + _tag + "] Jump in \"" + getFieldName() + 
+				log.add(currItem.getTime(),
+						TLogLevel.Info, "[" + _tag + "] Jump in \"" + getFieldName() + 
 						"\" field value: " + prevItem + " >> " + _lastItem);
 			}
 		}
