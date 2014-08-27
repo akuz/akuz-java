@@ -82,7 +82,7 @@ public final class TDuration implements Comparable<TDuration> {
 
 	@Override
 	public int compareTo(final TDuration o) {
-		return _dur.compareTo(o.get());
+		return _dur.compareTo(o._dur);
 	}
 	
 	@Override
