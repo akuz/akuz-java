@@ -1,5 +1,7 @@
 package me.akuz.core;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
 
 /**
@@ -88,6 +90,15 @@ public final class TDate implements Comparable<TDate> {
 	
 	public int getDayOfYear() {
 		return _date.getDayOfYear();
+	}
+	
+	public TDateTime toDateTimeAtStartOfDay(final DateTimeZone timeZone) {
+		return TDateTime.from(_date.toDateTimeAtStartOfDay(timeZone));
+	}
+	
+	public TDateTime toDateTimeAtHourOfDay(final DateTimeZone timeZone, final int hourOfDay) {
+		final DateTime startOfDay = _date.toDateTimeAtStartOfDay(timeZone);
+		return TDateTime.from(startOfDay.withHourOfDay(hourOfDay));
 	}
 
 	@Override
