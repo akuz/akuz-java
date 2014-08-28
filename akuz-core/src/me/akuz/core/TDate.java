@@ -14,6 +14,10 @@ public final class TDate implements Comparable<TDate> {
 	
 	private final LocalDate _date;
 	
+	public TDate(final LocalDate date) {
+		_date = date;
+	}
+	
 	public TDate(final String str) {
 		_date = LocalDate.parse(str);
 	}
@@ -43,6 +47,34 @@ public final class TDate implements Comparable<TDate> {
 	
 	public LocalDate get() {
 		return _date;
+	}
+	
+	public TDate plusYears(final int years) {
+		return new TDate(_date.plusYears(years));
+	}
+	
+	public TDate plusMonths(final int months) {
+		return new TDate(_date.plusMonths(months));
+	}
+	
+	public TDate plusWeeks(final int weeks) {
+		return new TDate(_date.plusWeeks(weeks));
+	}
+	
+	public TDate plusDays(final int days) {
+		return new TDate(_date.plusDays(days));
+	}
+	
+	public int getDayOfWeek() {
+		return _date.getDayOfWeek();
+	}
+	
+	public int getDayOfMonth() {
+		return _date.getDayOfMonth();
+	}
+	
+	public int getDayOfYear() {
+		return _date.getDayOfYear();
 	}
 
 	@Override

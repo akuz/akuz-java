@@ -1,4 +1,4 @@
-package me.akuz.core.test;
+package me.akuz.core;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;

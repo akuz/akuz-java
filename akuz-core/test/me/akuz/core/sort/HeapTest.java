@@ -1,4 +1,4 @@
-package me.akuz.core.test.sort;
+package me.akuz.core.sort;
 
 import me.akuz.core.StringUtils;
 import me.akuz.core.sort.Heap;

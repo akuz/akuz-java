@@ -1,4 +1,4 @@
-package me.akuz.core.test.sort;
+package me.akuz.core.sort;
 
 import java.util.List;
 
