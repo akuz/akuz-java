@@ -22,6 +22,11 @@ public final class TDate implements Comparable<TDate> {
 		_date = LocalDate.parse(str);
 	}
 	
+	public TDate(final int year, final int month, final int dayOfMonth) {
+		
+		_date = new LocalDate(year, month, dayOfMonth);
+	}
+	
 	public TDate(final int num) {
 		if (num < 0) {
 			throw new IllegalArgumentException("DateOnly integer representation cannot be negative");
@@ -33,9 +38,9 @@ public final class TDate implements Comparable<TDate> {
 		final int month = (int)Math.floor(remaining / 100.0);
 		
 		remaining -= month * 100;
-		final int day = remaining;
+		final int dayOfMonth = remaining;
 		
-		_date = new LocalDate(year, month, day);
+		_date = new LocalDate(year, month, dayOfMonth);
 	}
 	
 	public int getNum() {
@@ -63,6 +68,14 @@ public final class TDate implements Comparable<TDate> {
 	
 	public TDate plusDays(final int days) {
 		return new TDate(_date.plusDays(days));
+	}
+	
+	public int getYear() {
+		return _date.getYear();
+	}
+	
+	public int getMonthOfYear() {
+		return _date.getMonthOfYear();
 	}
 	
 	public int getDayOfWeek() {
