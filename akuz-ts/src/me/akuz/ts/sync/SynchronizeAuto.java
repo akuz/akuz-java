@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.akuz.core.Out;
+import me.akuz.ts.CurrTime;
 
 /**
  * Time synchronizer that propagates the same time to 
@@ -34,6 +35,7 @@ implements Synchronizable<T> {
 	
 	@Override
 	public T getCurrTime() {
+		CurrTime.checkSet(_currTime);
 		return _currTime;
 	}
 	
@@ -60,17 +62,9 @@ implements Synchronizable<T> {
 	}
 	
 	@Override
-	public void moveToTime(T time) {
+	public void moveToTime(final T time) {
 		
-		if (_currTime != null) {
-			if (_currTime.compareTo(time) >= 0) {
-				throw new IllegalArgumentException(
-						"Synchronizing times must be " +
-						"strictly chronological" +
-						"; current time: " + _currTime + 
-						", next time: " + time);
-			}
-		}
+		CurrTime.checkNew(_currTime, time);
 		
 		for (int i=0; i<_synchronizables.size(); i++) {
 			_synchronizables.get(i).moveToTime(time);
@@ -79,7 +73,7 @@ implements Synchronizable<T> {
 		_currTime = time;
 	}
 	
-	public void run() {
+	public void runToEnd() {
 		Out<T> nextTime = new Out<>();
 		while (getNextTime(nextTime)) {
 			moveToTime(nextTime.getValue());

@@ -55,7 +55,6 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 			final K key = _keys.get(i);
 			final SeqIterator<T> seqIter = new SeqIterator<>(frame.getSeq(key));
 			_seqIters.add(seqIter);
-			_movedItems.put(key, seqIter.getMovedItems());
 		}
 	}
 	
@@ -79,6 +78,7 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 	 */
 	@Override
 	public T getCurrTime() {
+		CurrTime.checkSet(_currTime);
 		return _currTime;
 	}
 	
@@ -88,6 +88,7 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 	 */
 	@Override
 	public Map<K, TItem<T>> getCurrItems() {
+		CurrTime.checkSet(_currTime);
 		return _currItems;
 	}
 	
@@ -98,6 +99,7 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 	 */
 	@Override
 	public TItem<T> getCurrItem(K key) {
+		CurrTime.checkSet(_currTime);
 		return _currItems.get(key);
 	}
 	
@@ -107,6 +109,7 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 	 * current iterator time.
 	 */
 	public Map<K, List<TItem<T>>> getMovedItems() {
+		CurrTime.checkSet(_currTime);
 		return _movedItems;
 	}
 	
@@ -142,15 +145,7 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 	@Override
 	public void moveToTime(final T time) {
 
-		if (_currTime != null) {
-			final int cmp = _currTime.compareTo(time);
-			if (cmp > 0)
-				throw new IllegalStateException(
-						"Trying to move backwards in time from " + 
-						_currTime + " to " + time);
-			if (cmp == 0)
-				return;
-		}
+		CurrTime.checkNew(_currTime, time);
 		
 		_currItems.clear();
 		for (int i=0; i<_keys.size(); i++) {

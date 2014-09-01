@@ -73,11 +73,13 @@ implements Synchronizable<T>, SeqCursor<T> {
 	
 	@Override
 	public T getCurrTime() {
+		CurrTime.checkSet(_currTime);
 		return _currTime;
 	}
 	
 	@Override
 	public TItem<T> getCurrItem() {
+		CurrTime.checkSet(_currTime);
 		return _currFilteredItem;
 	}
 	
@@ -87,23 +89,15 @@ implements Synchronizable<T>, SeqCursor<T> {
 	}
 
 	@Override
-	public void moveToTime(T time) {
+	public void moveToTime(final T time) {
 		
 		if (_filters.size() == 0) {
 			throw new IllegalStateException(
 					"SeqFilter on field \"" + getFieldName() + 
 					"\" does not have any 1D filters assigned");
 		}
-
-		if (_currTime != null) {
-			final int cmp = _currTime.compareTo(time);
-			if (cmp > 0)
-				throw new IllegalStateException(
-						"Trying to move backwards in time from " + 
-						_currTime + " to " + time);
-			if (cmp == 0)
-				return;
-		}
+		
+		CurrTime.checkNew(_currTime, time);
 		
 		_seqIter.moveToTime(time);
 		

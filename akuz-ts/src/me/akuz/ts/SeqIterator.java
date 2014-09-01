@@ -33,15 +33,18 @@ implements Synchronizable<T>, SeqCursor<T>, Cloneable {
 	
 	@Override
 	public T getCurrTime() {
+		CurrTime.checkSet(_currTime);
 		return _currTime;
 	}
 	
 	@Override
 	public TItem<T> getCurrItem() {
+		CurrTime.checkSet(_currTime);
 		return _currItem;
 	}
 	
 	public List<TItem<T>> getMovedItems() {
+		CurrTime.checkSet(_currTime);
 		return _movedItems;
 	}
 	
@@ -63,17 +66,9 @@ implements Synchronizable<T>, SeqCursor<T>, Cloneable {
 	}
 
 	@Override
-	public void moveToTime(T time) {
+	public void moveToTime(final T time) {
 
-		if (_currTime != null) {
-			final int cmp = _currTime.compareTo(time);
-			if (cmp > 0)
-				throw new IllegalStateException(
-						"Trying to move backwards in time from " + 
-						_currTime + " to " + time);
-			if (cmp == 0)
-				return;
-		}
+		CurrTime.checkNew(_currTime, time);
 		
 		_currItem = null;
 		_movedItems.clear();

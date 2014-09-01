@@ -30,8 +30,19 @@ public class FrameIterTest {
 		
 		FrameIterator<String, Integer> iter = new FrameIterator<>(frame);
 		
-		Assert.assertNull(iter.getCurrTime());
-		Assert.assertEquals(0, iter.getCurrItems().size());
+		try {
+			Assert.assertNull(iter.getCurrTime());
+			Assert.fail();
+		} catch (Exception ex) {
+			// expected
+		}
+		
+		try {
+			Assert.assertEquals(0, iter.getCurrItems().size());
+			Assert.fail();
+		} catch (Exception ex) {
+			// expected
+		}
 
 		iter.moveToTime(0);
 		

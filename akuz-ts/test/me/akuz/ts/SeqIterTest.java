@@ -22,8 +22,19 @@ public class SeqIterTest {
 		
 		SeqIterator<Integer> iter = new SeqIterator<>(seq);
 		
-		Assert.assertNull(iter.getCurrItem());
-		Assert.assertEquals(0, iter.getMovedItems().size());
+		try {
+			Assert.assertNull(iter.getCurrItem());
+			Assert.fail();
+		} catch (Exception ex) {
+			// expected
+		}
+		
+		try {
+			Assert.assertEquals(0, iter.getMovedItems().size());
+			Assert.fail();
+		} catch (Exception ex) {
+			// expected
+		}
 		
 		iter.moveToTime(0);
 		

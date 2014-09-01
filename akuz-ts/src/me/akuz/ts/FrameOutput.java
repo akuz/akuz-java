@@ -13,8 +13,7 @@ implements Synchronizable<T> {
 	private T _currTime;
 	private final Frame<K, T> _outputFrame;
 	
-	public FrameOutput(
-			final FrameCursor<K, T> frameCursor) {
+	public FrameOutput(final FrameCursor<K, T> frameCursor) {
 		
 		this(frameCursor, new Frame<K, T>());
 	}
@@ -34,6 +33,7 @@ implements Synchronizable<T> {
 	
 	@Override
 	public T getCurrTime() {
+		CurrTime.checkSet(_currTime);
 		return _currTime;
 	}
 	
@@ -43,17 +43,9 @@ implements Synchronizable<T> {
 	}
 
 	@Override
-	public void moveToTime(T time) {
+	public void moveToTime(final T time) {
 
-		if (_currTime != null) {
-			final int cmp = _currTime.compareTo(time);
-			if (cmp > 0)
-				throw new IllegalStateException(
-						"Trying to move backwards in time from " + 
-						_currTime + " to " + time);
-			if (cmp == 0)
-				return;
-		}
+		CurrTime.checkNew(_currTime, time);
 		
 		_frameCursor.moveToTime(time);
 		

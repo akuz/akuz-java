@@ -87,21 +87,24 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 	
 	@Override
 	public T getCurrTime() {
+		CurrTime.checkSet(_currTime);
 		return _currTime;
 	}
 	
 	@Override
 	public Map<K, TItem<T>> getCurrItems() {
+		CurrTime.checkSet(_currTime);
 		return _currItems;
 	}
 	
 	@Override
 	public TItem<T> getCurrItem(final K key) {
+		CurrTime.checkSet(_currTime);
 		return _currItems.get(key);
 	}
 	
 	@Override
-	public boolean getNextTime(Out<T> nextTime) {
+	public boolean getNextTime(final Out<T> nextTime) {
 		
 		nextTime.setValue(null);
 		
@@ -127,22 +130,14 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 	}
 	
 	@Override
-	public void moveToTime(T time) {
+	public void moveToTime(final T time) {
 		
 		if (_filterKeys.size() == 0) {
 			throw new IllegalStateException(
 					"FrameFilter does not have any 1D filters assigned");
 		}
 		
-		if (_currTime != null) {
-			final int cmp = _currTime.compareTo(time);
-			if (cmp > 0)
-				throw new IllegalStateException(
-						"Trying to move backwards in time from " + 
-						_currTime + " to " + time);
-			if (cmp == 0)
-				return;
-		}
+		CurrTime.checkNew(_currTime, time);
 		
 		_currItems.clear();
 		for (int i=0; i<_filterKeys.size(); i++) {
