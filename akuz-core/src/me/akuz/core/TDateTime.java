@@ -22,6 +22,34 @@ public final class TDateTime implements Comparable<TDateTime> {
 		return new TDateTime(dateTime);
 	}
 	
+	public TDateTime(
+			final int year,
+			final int monthOfYear,
+			final int dayOfMonth) {
+		
+		_dateTime = new DateTime(
+				year,
+				monthOfYear,
+				dayOfMonth,
+				0,
+				0);
+	}
+	
+	public TDateTime(
+			final int year,
+			final int monthOfYear,
+			final int dayOfMonth,
+			final int hourOfDay,
+			int minuteOfHour) {
+		
+		_dateTime = new DateTime(
+				year,
+				monthOfYear,
+				dayOfMonth,
+				hourOfDay,
+				minuteOfHour);
+	}
+	
 	public TDateTime(final DateTime dateTime) {
 		_dateTime = dateTime;
 	}
