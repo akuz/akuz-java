@@ -9,20 +9,20 @@ import me.akuz.ts.CurrTime;
 /**
  * Time synchronizer that propagates the same time to 
  * multiple {@link Synchronizable}s in the same order, 
- * in which they were added to the {@link SynchronizeAuto}.
+ * in which they were added to the {@link Synchronizer}.
  * 
  * If a new {@link Synchronizable} is added after some
  * times have already been propagated, it's automatically
- * fast-forwarded to the current {@link SynchronizeAuto} time.
+ * fast-forwarded to the current {@link Synchronizer} time.
  *
  */
-public final class SynchronizeAuto<T extends Comparable<T>>
+public final class Synchronizer<T extends Comparable<T>>
 implements Synchronizable<T> {
 	
 	private final List<Synchronizable<T>> _synchronizables;
 	private T _currTime;
 	
-	public SynchronizeAuto() {
+	public Synchronizer() {
 		_synchronizables = new ArrayList<>();
 	}
 	
