@@ -6,7 +6,7 @@ import java.util.List;
 import me.akuz.core.TDuration;
 import me.akuz.ts.CurrTime;
 import me.akuz.ts.Filter;
-import me.akuz.ts.SeqIterator;
+import me.akuz.ts.SeqCursor;
 import me.akuz.ts.TItem;
 import me.akuz.ts.log.TLog;
 import me.akuz.ts.log.TLogLevel;
@@ -58,7 +58,7 @@ public class CheckDateGaps extends Filter<Date> {
 	public void next(
 			final TLog<Date> log,
 			final Date time, 
-			final SeqIterator<Date> iter) {
+			final SeqCursor<Date> iter) {
 
 		CurrTime.checkNew(_currTime, time);
 		

@@ -66,7 +66,7 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 	public void addFilter(final K key, Filter<T> filter) {
 		SeqFilter<T> seqFilter = _seqFilters.get(key);
 		if (seqFilter == null) {
-			seqFilter = new SeqFilter<>(_frame.getSeq(key));
+			seqFilter = new SeqFilter<>(_frame.getSeq(key).iterator());
 			seqFilter.setFieldName(key.toString());
 			seqFilter.setLog(_log);
 			_seqFilters.put(key, seqFilter);

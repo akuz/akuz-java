@@ -28,7 +28,7 @@ public abstract class Filter<T extends Comparable<T>> implements Cloneable {
 	public abstract void next(
 			final TLog<T> log,
 			final T time, 
-			final SeqIterator<T> iter);
+			final SeqCursor<T> iter);
 	
 	/**
 	 * Get TItem<T> that represents the

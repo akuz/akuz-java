@@ -5,7 +5,7 @@ import java.util.List;
 
 import me.akuz.ts.CurrTime;
 import me.akuz.ts.Filter;
-import me.akuz.ts.SeqIterator;
+import me.akuz.ts.SeqCursor;
 import me.akuz.ts.TItem;
 import me.akuz.ts.log.TLog;
 
@@ -29,7 +29,7 @@ public final class RepeatWithoutExpiry<T extends Comparable<T>> extends Filter<T
 	public void next(
 			final TLog<T> log,
 			final T time,
-			final SeqIterator<T> iter) {
+			final SeqCursor<T> iter) {
 		
 		CurrTime.checkNew(_currTime, time);
 		

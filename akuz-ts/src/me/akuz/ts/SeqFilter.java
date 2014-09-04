@@ -21,28 +21,28 @@ public final class SeqFilter<T extends Comparable<T>>
 implements Synchronizable<T>, SeqCursor<T> {
 	
 	private String _fieldName;
-	private final SeqIterator<T> _seqIter;
+	private final SeqCursor<T> _seqCursor;
 	private final List<Filter<T>> _filters;
 	private List<TItem<T>> _movedItems;
 	private TItem<T> _currItem;
 	private T _currTime;
 	private TLog<T> _log;
 	
-	public SeqFilter(final Seq<T> seq) {
-		if (seq == null) {
+	public SeqFilter(final SeqCursor<T> seqCursor) {
+		if (seqCursor == null) {
 			throw new IllegalArgumentException("Cannot filter null sequence");
 		}
-		_seqIter = new SeqIterator<>(seq);
+		_seqCursor = seqCursor;
 		_filters = new ArrayList<>();
 	}
 	
-	public SeqFilter(final Seq<T> seq, final Filter<T> filter) {
-		this(seq);
+	public SeqFilter(final SeqCursor<T> seqCursor, final Filter<T> filter) {
+		this(seqCursor);
 		addFilter(filter);
 	}
 	
-	public SeqFilter(final Seq<T> seq, final Collection<Filter<T>> filters) {
-		this(seq);
+	public SeqFilter(final SeqCursor<T> seqCursor, final Collection<Filter<T>> filters) {
+		this(seqCursor);
 		addFilters(filters);
 	}
 	
@@ -73,6 +73,16 @@ implements Synchronizable<T>, SeqCursor<T> {
 	}
 	
 	@Override
+	public Seq<T> getSeq() {
+		return _seqCursor.getSeq();
+	}
+	
+	@Override
+	public int getNextCursor() {
+		return _seqCursor.getNextCursor();
+	}
+	
+	@Override
 	public T getCurrTime() {
 		CurrTime.checkSet(_currTime);
 		return _currTime;
@@ -92,7 +102,7 @@ implements Synchronizable<T>, SeqCursor<T> {
 	
 	@Override
 	public boolean getNextTime(final Out<T> nextTime) {
-		return _seqIter.getNextTime(nextTime);
+		return _seqCursor.getNextTime(nextTime);
 	}
 
 	@Override
@@ -106,7 +116,7 @@ implements Synchronizable<T>, SeqCursor<T> {
 		
 		CurrTime.checkNew(_currTime, time);
 		
-		_seqIter.moveToTime(time);
+		_seqCursor.moveToTime(time);
 		
 		_currItem = null;
 		_movedItems = null;
@@ -117,7 +127,7 @@ implements Synchronizable<T>, SeqCursor<T> {
 			filter.next(
 					_log,
 					time,
-					_seqIter);
+					_seqCursor);
 			
 			final TItem<T> proposedCurrItem = filter.getCurrItem();
 			

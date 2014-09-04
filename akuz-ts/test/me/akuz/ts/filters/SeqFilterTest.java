@@ -22,7 +22,7 @@ public class SeqFilterTest {
 		seq.add(2, rnd.nextInt(100));
 		seq.add(3, rnd.nextInt(100));
 		
-		SeqFilter<Integer> seqFilter = new SeqFilter<>(seq);
+		SeqFilter<Integer> seqFilter = new SeqFilter<>(seq.iterator());
 		seqFilter.addFilter(new RepeatWithoutExpiry<Integer>());
 		seqFilter.addFilter(new RepeatWithoutExpiry<Integer>());
 		
@@ -49,7 +49,7 @@ public class SeqFilterTest {
 		seq.add(1, rnd.nextInt(100));
 		seq.add(5, rnd.nextInt(100));
 		
-		SeqFilter<Integer> seqFilter = new SeqFilter<>(seq);
+		SeqFilter<Integer> seqFilter = new SeqFilter<>(seq.iterator());
 		seqFilter.addFilter(new RepeatWithNumExpiry<Integer>(1));
 		
 		seqFilter.moveToTime(0);

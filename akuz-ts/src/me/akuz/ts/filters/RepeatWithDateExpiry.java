@@ -6,7 +6,7 @@ import java.util.List;
 import me.akuz.core.TDate;
 import me.akuz.ts.CurrTime;
 import me.akuz.ts.Filter;
-import me.akuz.ts.SeqIterator;
+import me.akuz.ts.SeqCursor;
 import me.akuz.ts.TItem;
 import me.akuz.ts.log.TLog;
 
@@ -35,7 +35,7 @@ public final class RepeatWithDateExpiry extends Filter<TDate> {
 	public void next(
 			final TLog<TDate> log,
 			final TDate time,
-			final SeqIterator<TDate> iter) {
+			final SeqCursor<TDate> iter) {
 		
 		CurrTime.checkNew(_currTime, time);
 		
