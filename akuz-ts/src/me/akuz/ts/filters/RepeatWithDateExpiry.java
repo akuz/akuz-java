@@ -3,6 +3,7 @@ package me.akuz.ts.filters;
 import java.util.List;
 
 import me.akuz.core.TDate;
+import me.akuz.ts.CurrTime;
 import me.akuz.ts.Filter;
 import me.akuz.ts.SeqIterator;
 import me.akuz.ts.TItem;
@@ -15,7 +16,8 @@ public final class RepeatWithDateExpiry extends Filter<TDate> {
 	private final Days _aliveDays;
 	private final Object _defaultValue;
 	private TItem<TDate> _lastAvailableItem;
-	private TItem<TDate> _currFilterItem;
+	private TItem<TDate> _currItem;
+	private TDate _currTime;
 	
 	public RepeatWithDateExpiry(final Days aliveDays) {
 		this(aliveDays, null);
@@ -29,8 +31,10 @@ public final class RepeatWithDateExpiry extends Filter<TDate> {
 	@Override
 	public void next(
 			final TLog<TDate> log,
-			final TDate currTime,
+			final TDate time,
 			final SeqIterator<TDate> iter) {
+		
+		CurrTime.checkNew(_currTime, time);
 		
 		// update last item
 		final List<TItem<TDate>> movedItems = iter.getMovedItems();
@@ -41,28 +45,37 @@ public final class RepeatWithDateExpiry extends Filter<TDate> {
 		// check if expired
 		if (_lastAvailableItem != null) {
 			
-			final Days diff = Days.daysBetween(_lastAvailableItem.getTime().get(), currTime.get());
+			final Days diff = Days.daysBetween(_lastAvailableItem.getTime().get(), time.get());
 			
 			if (diff.getDays() < 0) {
 				throw new IllegalStateException(
 						"Times are not in chronological order in \"" + getFieldName() + 
-						"\"; last known time: " + _lastAvailableItem.getTime() + "; new time: " + currTime);
+						"\"; last known time: " + _lastAvailableItem.getTime() + "; new time: " + time);
 			}
 			
 			// set last item
 			if (diff.compareTo(_aliveDays) <= 0) {
-				_currFilterItem = new TItem<TDate>(currTime, _lastAvailableItem.getObject());
+				_currItem = new TItem<TDate>(time, _lastAvailableItem.getObject());
 			} else if (_defaultValue != null) {
-				_currFilterItem = new TItem<TDate>(currTime, _defaultValue);
+				_currItem = new TItem<TDate>(time, _defaultValue);
 			} else {
-				_currFilterItem = null;
+				_currItem = null;
 			}
 		}
+		
+		_currTime = time;
 	}
 
 	@Override
 	public TItem<TDate> getCurrItem() {
-		return _currFilterItem;
+		CurrTime.checkSet(_currTime);
+		return _currItem;
+	}
+
+	@Override
+	public List<TItem<TDate>> getMovedItems() {
+		CurrTime.checkSet(_currTime);
+		return null;
 	}
 
 }

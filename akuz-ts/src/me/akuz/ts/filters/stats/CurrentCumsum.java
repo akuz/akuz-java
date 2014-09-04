@@ -2,6 +2,7 @@ package me.akuz.ts.filters.stats;
 
 import java.util.List;
 
+import me.akuz.ts.CurrTime;
 import me.akuz.ts.Filter;
 import me.akuz.ts.SeqIterator;
 import me.akuz.ts.TItem;
@@ -11,29 +12,32 @@ import me.akuz.ts.log.TLog;
  * Cumsum filter (1D).
  *
  */
-public class Cumsum<T extends Comparable<T>> extends Filter<T> {
+public class CurrentCumsum<T extends Comparable<T>> extends Filter<T> {
 	
 	private final double _startValue;
-	private TItem<T> _currFilteredItem;
+	private TItem<T> _currItem;
+	private T _currTime;
 	
-	public Cumsum() {
+	public CurrentCumsum() {
 		this(0.0);
 	}
 	
-	public Cumsum(final double startValue) {
+	public CurrentCumsum(final double startValue) {
 		_startValue = startValue;
 	}
 
 	@Override
 	public void next(
 			final TLog<T> log,
-			final T currTime,
+			final T time,
 			final SeqIterator<T> iter) {
+		
+		CurrTime.checkNew(_currTime, time);
 		
 		// get current value
 		double currValue = _startValue;
-		if (_currFilteredItem != null) {
-			currValue = _currFilteredItem.getDouble();
+		if (_currItem != null) {
+			currValue = _currItem.getDouble();
 		}
 		
 		// add all moved items
@@ -43,12 +47,21 @@ public class Cumsum<T extends Comparable<T>> extends Filter<T> {
 		}
 		
 		// set new current item
-		_currFilteredItem = new TItem<T>(currTime, currValue);
+		_currItem = new TItem<T>(time, currValue);
+		
+		_currTime = time;
 	}
 
 	@Override
 	public TItem<T> getCurrItem() {
-		return _currFilteredItem;
+		CurrTime.checkSet(_currTime);
+		return _currItem;
+	}
+
+	@Override
+	public List<TItem<T>> getMovedItems() {
+		CurrTime.checkSet(_currTime);
+		return null;
 	}
 
 }

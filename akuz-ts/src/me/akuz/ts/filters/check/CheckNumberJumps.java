@@ -2,6 +2,7 @@ package me.akuz.ts.filters.check;
 
 import java.util.List;
 
+import me.akuz.ts.CurrTime;
 import me.akuz.ts.Filter;
 import me.akuz.ts.SeqIterator;
 import me.akuz.ts.TItem;
@@ -16,6 +17,7 @@ public class CheckNumberJumps<T extends Comparable<T>> extends Filter<T> {
 	private final double _errorJump;
 	private final boolean _ignore0;
 	private TItem<T> _lastItem;
+	private T _currTime;
 	
 	public CheckNumberJumps(
 			final String tag,
@@ -44,6 +46,20 @@ public class CheckNumberJumps<T extends Comparable<T>> extends Filter<T> {
 	
 	@Override
 	public TItem<T> getCurrItem() {
+		
+		CurrTime.checkSet(_currTime);
+
+		// we are only checking for
+		// jumps, but we don't
+		// derive any state
+		return null;
+	}
+	
+	@Override
+	public List<TItem<T>> getMovedItems() {
+
+		CurrTime.checkSet(_currTime);
+		
 		// we are only checking for
 		// jumps, but we don't
 		// derive any state
@@ -53,8 +69,10 @@ public class CheckNumberJumps<T extends Comparable<T>> extends Filter<T> {
 	@Override
 	public void next(
 			final TLog<T> log,
-			final T currTime, 
+			final T time, 
 			final SeqIterator<T> iter) {
+
+		CurrTime.checkNew(_currTime, time);
 
 		if (log == null) {
 			throw new IllegalArgumentException(this.getClass().getSimpleName() + " filter requires a log");
@@ -70,6 +88,8 @@ public class CheckNumberJumps<T extends Comparable<T>> extends Filter<T> {
 				checkNumberJump(log, prevItem, _lastItem);
 			}
 		}
+		
+		_currTime = time;
 	}
 	
 	private final void checkNumberJump(

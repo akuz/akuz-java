@@ -1,5 +1,7 @@
 package me.akuz.ts;
 
+import java.util.List;
+
 import me.akuz.ts.log.TLog;
 
 /**
@@ -8,7 +10,7 @@ import me.akuz.ts.log.TLog;
  * Filters determine the current rolling state based on 
  * the supplied blocks of items "moved" through time.
  * 
- * Examples: Last value, EWMA, Kalman Filter.
+ * Examples: Last value, EWMA, 1D Kalman Filter.
  *
  */
 public abstract class Filter<T extends Comparable<T>> implements Cloneable {
@@ -25,15 +27,25 @@ public abstract class Filter<T extends Comparable<T>> implements Cloneable {
 	 */
 	public abstract void next(
 			final TLog<T> log,
-			final T currTime, 
+			final T time, 
 			final SeqIterator<T> iter);
 	
 	/**
-	 * Get time series item that represents 
-	 * the output state of this 1D filter
-	 * at the current time.
+	 * Get TItem<T> that represents the
+	 * output state, if any, of this 
+	 * filter at the *current* time.
 	 */
 	public abstract TItem<T> getCurrItem();
+	
+	/**
+	 * Get a list of TItem<T>s containing
+	 * all intermediate states, if any, 
+	 * which this filter went through 
+	 * during the last call of next();
+	 * this list also includes the
+	 * *current* TItem<T>, if any.
+	 */
+	public abstract List<TItem<T>> getMovedItems();
 	
 	/**
 	 * Set filter field name (for logging).

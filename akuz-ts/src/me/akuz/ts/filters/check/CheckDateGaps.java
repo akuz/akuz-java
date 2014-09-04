@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import me.akuz.core.TDuration;
+import me.akuz.ts.CurrTime;
 import me.akuz.ts.Filter;
 import me.akuz.ts.SeqIterator;
 import me.akuz.ts.TItem;
@@ -17,6 +18,7 @@ public class CheckDateGaps extends Filter<Date> {
 	private final TDuration _errorAfterPeriod;
 	private TLogLevel _lastLevel;
 	private Date _lastDate;
+	private Date _currTime;
 	
 	public CheckDateGaps(
 			final TDuration infoAfterPeriod,
@@ -32,6 +34,20 @@ public class CheckDateGaps extends Filter<Date> {
 	
 	@Override
 	public TItem<Date> getCurrItem() {
+
+		CurrTime.checkSet(_currTime);
+
+		// we are only checking for
+		// jumps, but we don't
+		// derive any state
+		return null;
+	}
+	
+	@Override
+	public List<TItem<Date>> getMovedItems() {
+		
+		CurrTime.checkSet(_currTime);
+		
 		// we are only checking for
 		// jumps, but we don't
 		// derive any state
@@ -41,8 +57,10 @@ public class CheckDateGaps extends Filter<Date> {
 	@Override
 	public void next(
 			final TLog<Date> log,
-			final Date currTime, 
+			final Date time, 
 			final SeqIterator<Date> iter) {
+
+		CurrTime.checkNew(_currTime, time);
 		
 		if (log == null) {
 			throw new IllegalArgumentException(this.getClass().getSimpleName() + " filter requires a log");
@@ -69,7 +87,7 @@ public class CheckDateGaps extends Filter<Date> {
 		 */
 		final TItem<Date> currItem = iter.getCurrItem();
 		if (currItem == null && _lastDate != null) {
-			checkDateJump(log, _lastDate, currTime, false);
+			checkDateJump(log, _lastDate, time, false);
 		}
 		
 		/**
@@ -78,8 +96,10 @@ public class CheckDateGaps extends Filter<Date> {
 		 * first call date.
 		 */
 		if (_lastDate == null) {
-			_lastDate = currTime;
+			_lastDate = time;
 		}
+		
+		_currTime = time;
 	}
 	
 	private final void checkDateJump(
