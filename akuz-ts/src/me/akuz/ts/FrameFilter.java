@@ -28,6 +28,7 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 	private final Map<K, SeqFilter<T>> _seqFilters;
 	private final List<K> _filterKeys;
 	private TLog<T> _log;
+	// TODO: add moved items
 	private final Map<K, TItem<T>> _currItems;
 	private T _currTime;
 	

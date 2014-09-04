@@ -1,5 +1,6 @@
 package me.akuz.ts.filters;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import me.akuz.core.TDate;
@@ -16,6 +17,7 @@ public final class RepeatWithDateExpiry extends Filter<TDate> {
 	private final Days _aliveDays;
 	private final Object _defaultValue;
 	private TItem<TDate> _lastAvailableItem;
+	private final List<TItem<TDate>> _movedItems;
 	private TItem<TDate> _currItem;
 	private TDate _currTime;
 	
@@ -26,6 +28,7 @@ public final class RepeatWithDateExpiry extends Filter<TDate> {
 	public RepeatWithDateExpiry(final Days aliveDays, Object defaultValue) {
 		_aliveDays = aliveDays;
 		_defaultValue = defaultValue;
+		_movedItems = new ArrayList<>(1);
 	}
 
 	@Override
@@ -63,6 +66,11 @@ public final class RepeatWithDateExpiry extends Filter<TDate> {
 			}
 		}
 		
+		_movedItems.clear();
+		if (_currItem != null) {
+			_movedItems.add(_currItem);
+		}
+		
 		_currTime = time;
 	}
 
@@ -75,7 +83,7 @@ public final class RepeatWithDateExpiry extends Filter<TDate> {
 	@Override
 	public List<TItem<TDate>> getMovedItems() {
 		CurrTime.checkSet(_currTime);
-		return null;
+		return _movedItems;
 	}
 
 }

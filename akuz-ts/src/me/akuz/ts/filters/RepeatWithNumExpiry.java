@@ -1,5 +1,6 @@
 package me.akuz.ts.filters;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import me.akuz.ts.CurrTime;
@@ -13,6 +14,7 @@ public final class RepeatWithNumExpiry<T extends Comparable<T>> extends Filter<T
 	private final Number _alivePeriod;
 	private final Object _defaultValue;
 	private TItem<T> _lastAvailableItem;
+	private final List<TItem<T>> _movedItems;
 	private TItem<T> _currItem;
 	private T _currTime;
 	
@@ -23,6 +25,7 @@ public final class RepeatWithNumExpiry<T extends Comparable<T>> extends Filter<T
 	public RepeatWithNumExpiry(final Number alivePeriod, Object defaultValue) {
 		_alivePeriod = alivePeriod;
 		_defaultValue = defaultValue;
+		_movedItems = new ArrayList<>();
 	}
 
 	@Override
@@ -62,6 +65,11 @@ public final class RepeatWithNumExpiry<T extends Comparable<T>> extends Filter<T
 			}
 		}
 		
+		_movedItems.clear();
+		if (_currItem != null) {
+			_movedItems.add(_currItem);
+		}
+		
 		_currTime = time;
 	}
 
@@ -74,7 +82,7 @@ public final class RepeatWithNumExpiry<T extends Comparable<T>> extends Filter<T
 	@Override
 	public List<TItem<T>> getMovedItems() {
 		CurrTime.checkSet(_currTime);
-		return null;
+		return _movedItems;
 	}
 
 }

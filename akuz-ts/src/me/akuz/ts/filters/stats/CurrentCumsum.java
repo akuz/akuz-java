@@ -1,5 +1,6 @@
 package me.akuz.ts.filters.stats;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import me.akuz.ts.CurrTime;
@@ -15,6 +16,7 @@ import me.akuz.ts.log.TLog;
 public class CurrentCumsum<T extends Comparable<T>> extends Filter<T> {
 	
 	private final double _startValue;
+	private final List<TItem<T>> _movedItems;
 	private TItem<T> _currItem;
 	private T _currTime;
 	
@@ -24,6 +26,7 @@ public class CurrentCumsum<T extends Comparable<T>> extends Filter<T> {
 	
 	public CurrentCumsum(final double startValue) {
 		_startValue = startValue;
+		_movedItems = new ArrayList<>(1);
 	}
 
 	@Override
@@ -46,8 +49,12 @@ public class CurrentCumsum<T extends Comparable<T>> extends Filter<T> {
 			currValue += movedItems.get(i).getNumber().doubleValue();
 		}
 		
-		// set new current item
+		// set current item
 		_currItem = new TItem<T>(time, currValue);
+
+		// set moved items
+		_movedItems.clear();
+		_movedItems.add(_currItem);
 		
 		_currTime = time;
 	}
@@ -61,7 +68,7 @@ public class CurrentCumsum<T extends Comparable<T>> extends Filter<T> {
 	@Override
 	public List<TItem<T>> getMovedItems() {
 		CurrTime.checkSet(_currTime);
-		return null;
+		return _movedItems;
 	}
 
 }
