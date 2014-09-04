@@ -23,7 +23,8 @@ implements Synchronizable<T>, SeqCursor<T> {
 	private String _fieldName;
 	private final SeqIterator<T> _seqIter;
 	private final List<Filter<T>> _filters;
-	private TItem<T> _currFilteredItem;
+	private final List<TItem<T>> _movedItems;
+	private TItem<T> _currItem;
 	private T _currTime;
 	private TLog<T> _log;
 	
@@ -33,6 +34,7 @@ implements Synchronizable<T>, SeqCursor<T> {
 		}
 		_seqIter = new SeqIterator<>(seq);
 		_filters = new ArrayList<>();
+		_movedItems = new ArrayList<>();
 	}
 	
 	public SeqFilter(final Seq<T> seq, final Filter<T> filter) {
@@ -57,7 +59,7 @@ implements Synchronizable<T>, SeqCursor<T> {
 		_log = log;
 	}
 	
-	public void addFilter(Filter<T> filter) {
+	public void addFilter(final Filter<T> filter) {
 		final Filter<T> filterCopy = filter.clone();
 		if (_fieldName != null) {
 			filterCopy.setFieldName(_fieldName);
@@ -65,7 +67,7 @@ implements Synchronizable<T>, SeqCursor<T> {
 		_filters.add(filterCopy);
 	}
 	
-	public void addFilters(Collection<Filter<T>> filters) {
+	public void addFilters(final Collection<Filter<T>> filters) {
 		for (final Filter<T> filter : filters) {
 			addFilter(filter);
 		}
@@ -80,7 +82,13 @@ implements Synchronizable<T>, SeqCursor<T> {
 	@Override
 	public TItem<T> getCurrItem() {
 		CurrTime.checkSet(_currTime);
-		return _currFilteredItem;
+		return _currItem;
+	}
+	
+	@Override
+	public List<TItem<T>> getMovedItems() {
+		CurrTime.checkSet(_currTime);
+		return _movedItems;
 	}
 	
 	@Override
@@ -101,8 +109,8 @@ implements Synchronizable<T>, SeqCursor<T> {
 		
 		_seqIter.moveToTime(time);
 		
-		TItem<T> newCurrFilteredItem = null;
-		
+		_currItem = null;
+		_movedItems.clear();
 		for (int i=0; i<_filters.size(); i++) {
 			
 			final Filter<T> filter = _filters.get(i);
@@ -112,19 +120,30 @@ implements Synchronizable<T>, SeqCursor<T> {
 					time,
 					_seqIter);
 			
-			final TItem<T> proposedItem = filter.getCurrItem();
+			final TItem<T> proposedCurrItem = filter.getCurrItem();
 			
-			if (proposedItem != null) {
-				if (newCurrFilteredItem != null) {
+			if (proposedCurrItem != null) {
+				if (_currItem != null) {
 					throw new IllegalStateException(
 							"Two 1D filters have proposed current item " +
 							"for SeqFilter on field \"" + getFieldName() +
 							"\", cannot choose between them");
 				}
-				newCurrFilteredItem = proposedItem;
+				_currItem = proposedCurrItem;
+			}
+			
+			final List<TItem<T>> proposedMovedItems = filter.getMovedItems();
+			if (proposedMovedItems != null && proposedMovedItems.size() > 0) {
+				
+				if (_movedItems.size() > 0) {
+					throw new IllegalStateException(
+							"Two 1D filters have proposed moved items " +
+							"for SeqFilter on field \"" + getFieldName() +
+							"\", cannot choose between them");
+				}
+				_movedItems.addAll(proposedMovedItems);
 			}
 		}
-		_currFilteredItem = newCurrFilteredItem;
 		_currTime = time;
 	}
 

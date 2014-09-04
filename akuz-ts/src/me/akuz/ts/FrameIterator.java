@@ -65,27 +65,17 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 		return _frame;
 	}
 	
-	/**
-	 * Get keys that are being aligned.
-	 */
 	@Override
 	public List<K> getKeys() {
 		return _keys;
 	}
 	
-	/**
-	 * Get current iterator time.
-	 */
 	@Override
 	public T getCurrTime() {
 		CurrTime.checkSet(_currTime);
 		return _currTime;
 	}
 	
-	/**
-	 * Get items occurred *exactly* 
-	 * at the current iterator time.
-	 */
 	@Override
 	public Map<K, TItem<T>> getCurrItems() {
 		CurrTime.checkSet(_currTime);
@@ -93,21 +83,19 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 	}
 	
 	
-	/**
-	 * Get item occurred *exactly* 
-	 * at the current iterator time.
-	 */
 	@Override
 	public TItem<T> getCurrItem(K key) {
 		CurrTime.checkSet(_currTime);
 		return _currItems.get(key);
 	}
 	
-	/**
-	 * Get items that occurred after the last
-	 * iterator time up to and including the
-	 * current iterator time.
-	 */
+	@Override
+	public List<TItem<T>> getMovedItems(final K key) {
+		CurrTime.checkSet(_currTime);
+		return _movedItems.get(key);
+	}
+
+	@Override
 	public Map<K, List<TItem<T>>> getMovedItems() {
 		CurrTime.checkSet(_currTime);
 		return _movedItems;
@@ -139,9 +127,6 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 		return nextTime.getValue() != null;
 	}
 	
-	/**
-	 * Move to a new time.
-	 */
 	@Override
 	public void moveToTime(final T time) {
 

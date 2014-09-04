@@ -22,10 +22,23 @@ extends Synchronizable<T> {
 	/**
 	 * Get current item by key.
 	 */
-	TItem<T> getCurrItem(K key);
-
+	TItem<T> getCurrItem(final K key);
+	
 	/**
 	 * Get map of keys to current items.
 	 */
 	Map<K, TItem<T>> getCurrItems();
+	
+	/**
+	 * Get list of items moved during last time 
+	 * move, including the current items, if any.
+	 */
+	List<TItem<T>> getMovedItems(final K key);
+
+	/**
+	 * Get map by key of items moved during last time 
+	 * move, including the current items, if any.
+	 */
+	Map<K, List<TItem<T>>> getMovedItems();
+
 }

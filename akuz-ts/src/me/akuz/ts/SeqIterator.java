@@ -31,6 +31,10 @@ implements Synchronizable<T>, SeqCursor<T>, Cloneable {
 		return _seq;
 	}
 	
+	public int getNextCursor() {
+		return _nextCursor;
+	}
+	
 	@Override
 	public T getCurrTime() {
 		CurrTime.checkSet(_currTime);
@@ -43,13 +47,10 @@ implements Synchronizable<T>, SeqCursor<T>, Cloneable {
 		return _currItem;
 	}
 	
+	@Override
 	public List<TItem<T>> getMovedItems() {
 		CurrTime.checkSet(_currTime);
 		return _movedItems;
-	}
-	
-	public int getNextCursor() {
-		return _nextCursor;
 	}
 	
 	@Override

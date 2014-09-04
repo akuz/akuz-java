@@ -28,8 +28,8 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 	private final Map<K, SeqFilter<T>> _seqFilters;
 	private final List<K> _filterKeys;
 	private TLog<T> _log;
-	// TODO: add moved items
 	private final Map<K, TItem<T>> _currItems;
+	private final Map<K, List<TItem<T>>> _movedItems;
 	private T _currTime;
 	
 	public FrameFilter(final Frame<K, T> frame) {
@@ -40,6 +40,7 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 		_seqFilters = new HashMap<>();
 		_filterKeys = new ArrayList<>();
 		_currItems = new HashMap<>();
+		_movedItems = new HashMap<>();
 	}
 	
 	public void addFilters(final K key, Collection<Filter<T>> filters) {
@@ -93,15 +94,27 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 	}
 	
 	@Override
+	public TItem<T> getCurrItem(final K key) {
+		CurrTime.checkSet(_currTime);
+		return _currItems.get(key);
+	}
+	
+	@Override
 	public Map<K, TItem<T>> getCurrItems() {
 		CurrTime.checkSet(_currTime);
 		return _currItems;
 	}
 	
 	@Override
-	public TItem<T> getCurrItem(final K key) {
+	public List<TItem<T>> getMovedItems(final K key) {
 		CurrTime.checkSet(_currTime);
-		return _currItems.get(key);
+		return _movedItems.get(key);
+	}
+	
+	@Override
+	public Map<K, List<TItem<T>>> getMovedItems() {
+		CurrTime.checkSet(_currTime);
+		return _movedItems;
 	}
 	
 	@Override
@@ -141,12 +154,18 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 		CurrTime.checkNew(_currTime, time);
 		
 		_currItems.clear();
+		_movedItems.clear();
 		for (int i=0; i<_filterKeys.size(); i++) {
 			
 			final K key = _filterKeys.get(i);
 			final SeqFilter<T> seqFilter = _seqFilters.get(key);
 			seqFilter.moveToTime(time);
-			_currItems.put(key, seqFilter.getCurrItem());
+			if (seqFilter.getCurrItem() != null) {
+				_currItems.put(key, seqFilter.getCurrItem());
+			}
+			if (seqFilter.getMovedItems().size() > 0) {
+				_movedItems.put(key, seqFilter.getMovedItems());
+			}
 		}
 		_currTime = time;
 	}
