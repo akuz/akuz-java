@@ -23,7 +23,7 @@ implements Synchronizable<T>, SeqCursor<T> {
 	private String _fieldName;
 	private final SeqIterator<T> _seqIter;
 	private final List<Filter<T>> _filters;
-	private final List<TItem<T>> _movedItems;
+	private List<TItem<T>> _movedItems;
 	private TItem<T> _currItem;
 	private T _currTime;
 	private TLog<T> _log;
@@ -34,7 +34,6 @@ implements Synchronizable<T>, SeqCursor<T> {
 		}
 		_seqIter = new SeqIterator<>(seq);
 		_filters = new ArrayList<>();
-		_movedItems = new ArrayList<>();
 	}
 	
 	public SeqFilter(final Seq<T> seq, final Filter<T> filter) {
@@ -110,7 +109,7 @@ implements Synchronizable<T>, SeqCursor<T> {
 		_seqIter.moveToTime(time);
 		
 		_currItem = null;
-		_movedItems.clear();
+		_movedItems = null;
 		for (int i=0; i<_filters.size(); i++) {
 			
 			final Filter<T> filter = _filters.get(i);
@@ -135,13 +134,13 @@ implements Synchronizable<T>, SeqCursor<T> {
 			final List<TItem<T>> proposedMovedItems = filter.getMovedItems();
 			if (proposedMovedItems != null && proposedMovedItems.size() > 0) {
 				
-				if (_movedItems.size() > 0) {
+				if (_movedItems != null) {
 					throw new IllegalStateException(
 							"Two 1D filters have proposed moved items " +
 							"for SeqFilter on field \"" + getFieldName() +
 							"\", cannot choose between them");
 				}
-				_movedItems.addAll(proposedMovedItems);
+				_movedItems = proposedMovedItems;
 			}
 		}
 		_currTime = time;

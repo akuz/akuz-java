@@ -163,7 +163,8 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 			if (seqFilter.getCurrItem() != null) {
 				_currItems.put(key, seqFilter.getCurrItem());
 			}
-			if (seqFilter.getMovedItems().size() > 0) {
+			if (seqFilter.getMovedItems() != null &&
+				seqFilter.getMovedItems().size() > 0) {
 				_movedItems.put(key, seqFilter.getMovedItems());
 			}
 		}
