@@ -41,7 +41,7 @@ public class CheckDateJumpsTest {
 				warningAfterPeriod,
 				errorAfterPeriod);
 		
-		final FrameFilter<String, Date> frameFilter = new FrameFilter<>(frame);
+		final FrameFilter<String, Date> frameFilter = new FrameFilter<>(frame.iterator());
 		frameFilter.addFilter(frame.getKeys(), checkDateJumps);
 		frameFilter.setLog(log);
 		
@@ -103,7 +103,7 @@ public class CheckDateJumpsTest {
 		final TLog<Date> log = new TLog<>();
 		final CheckDateGaps checkDateJumps = new CheckDateGaps(infoAfterPeriod, warningAfterPeriod, errorAfterPeriod);
 		
-		final FrameFilter<String, Date> frameFilter = new FrameFilter<>(frame);
+		final FrameFilter<String, Date> frameFilter = new FrameFilter<>(frame.iterator());
 		frameFilter.addFilter(frame.getKeys(), checkDateJumps);
 		frameFilter.setLog(log);
 		

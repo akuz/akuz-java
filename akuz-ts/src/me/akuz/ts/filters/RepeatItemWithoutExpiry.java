@@ -29,7 +29,7 @@ public final class RepeatItemWithoutExpiry<T extends Comparable<T>> extends Filt
 		
 		// update last item
 		final List<TItem<T>> movedItems = cur.getMovedItems();
-		if (movedItems.size() > 0) {
+		if (movedItems != null && movedItems.size() > 0) {
 			final TItem<T> lastMovedItem = movedItems.get(movedItems.size()-1);
 			_currItem = new TItem<T>(time, lastMovedItem);
 		}

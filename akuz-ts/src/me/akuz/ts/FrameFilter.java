@@ -1,11 +1,12 @@
 package me.akuz.ts;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import me.akuz.core.HashIndex;
+import me.akuz.core.Index;
 import me.akuz.core.Out;
 import me.akuz.ts.log.TLog;
 import me.akuz.ts.sync.Synchronizable;
@@ -24,67 +25,86 @@ import me.akuz.ts.sync.Synchronizable;
 public final class FrameFilter<K, T extends Comparable<T>> 
 implements Synchronizable<T>, FrameCursor<K, T> {
 	
-	private final Frame<K, T> _frame;
+	private final FrameCursor<K, T> _frameCursor;
 	private final Map<K, SeqFilter<T>> _seqFilters;
-	private final List<K> _filterKeys;
+	private final Index<K> _keysIndex;
 	private TLog<T> _log;
 	private final Map<K, TItem<T>> _currItems;
 	private final Map<K, List<TItem<T>>> _movedItems;
 	private T _currTime;
 	
-	public FrameFilter(final Frame<K, T> frame) {
-		if (frame == null) {
-			throw new IllegalArgumentException("Cannot filter null frame");
+	public FrameFilter(final FrameCursor<K, T> frameCursor) {
+		if (frameCursor == null) {
+			throw new IllegalArgumentException("Cannot filter null frame cursor");
 		}
-		_frame = frame;
+		_frameCursor = frameCursor;
 		_seqFilters = new HashMap<>();
-		_filterKeys = new ArrayList<>();
+		_keysIndex = new HashIndex<>();
 		_currItems = new HashMap<>();
 		_movedItems = new HashMap<>();
 	}
 	
-	public void addFilters(final K key, Collection<Filter<T>> filters) {
+	public FrameFilter<K, T> addFilters(final K key, final Collection<Filter<T>> filters) {
 		for (final Filter<T> filter : filters) {
 			addFilter(key, filter);
 		}
+		return this;
 	}
 	
-	public void addFilters(final Collection<K> keys, Collection<Filter<T>> filters) {
+	public FrameFilter<K, T> addFilters(final Collection<K> keys, final Collection<Filter<T>> filters) {
 		for (final K key : keys) {
 			for (final Filter<T> filter : filters) {
 				addFilter(key, filter);
 			}
 		}
+		return this;
 	}
 	
-	public void addFilter(final Collection<K> keys, Filter<T> filter) {
+	public FrameFilter<K, T> addFilter(final Collection<K> keys, final Filter<T> filter) {
 		for (final K key : keys) {
 			addFilter(key, filter);
 		}
+		return this;
 	}
 	
-	public void addFilter(final K key, Filter<T> filter) {
+	public FrameFilter<K, T> addFilter(final K key, final Filter<T> filter) {
 		SeqFilter<T> seqFilter = _seqFilters.get(key);
 		if (seqFilter == null) {
-			seqFilter = new SeqFilter<>(_frame.getSeq(key).iterator());
+			seqFilter = new SeqFilter<>(_frameCursor.getSeqCursor(key));
 			seqFilter.setFieldName(key.toString());
 			seqFilter.setLog(_log);
 			_seqFilters.put(key, seqFilter);
-			_filterKeys.add(key);
+			_keysIndex.ensure(key);
 		}
 		seqFilter.addFilter(filter);
+		return this;
 	}
 	
-	public void setLog(final TLog<T> log) {
+	public FrameFilter<K, T> setLog(final TLog<T> log) {
 		_log = log;
 		for (final SeqFilter<T> seqFilter : _seqFilters.values()) {
 			seqFilter.setLog(log);
 		}
+		return this;
+	}
+	
+	@Override
+	public Frame<K, T> getFrame() {
+		return _frameCursor.getFrame();
+	}
+	
+	@Override
+	public SeqCursor<T> getSeqCursor(final K key) {
+		Integer index = _keysIndex.getIndex(key);
+		if (index == null) {
+			throw new IllegalArgumentException("Sequence for key '" + key + "' does not exist");
+		}
+		return _seqFilters.get(key);
 	}
 	
 	@Override
 	public List<K> getKeys() {
-		return _filterKeys;
+		return _keysIndex.getList();
 	}
 	
 	@Override
@@ -124,9 +144,9 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 		
 		final Out<T> seqNextTime = new Out<>();
 		
-		for (int i=0; i<_filterKeys.size(); i++) {
+		for (int i=0; i<_keysIndex.size(); i++) {
 			
-			final K key = _filterKeys.get(i);
+			final K key = _keysIndex.getValue(i);
 			
 			final SeqFilter<T> seqFilter = _seqFilters.get(key);
 			
@@ -146,7 +166,7 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 	@Override
 	public void moveToTime(final T time) {
 		
-		if (_filterKeys.size() == 0) {
+		if (_keysIndex.size() == 0) {
 			throw new IllegalStateException(
 					"FrameFilter does not have any 1D filters assigned");
 		}
@@ -155,9 +175,9 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 		
 		_currItems.clear();
 		_movedItems.clear();
-		for (int i=0; i<_filterKeys.size(); i++) {
+		for (int i=0; i<_keysIndex.size(); i++) {
 			
-			final K key = _filterKeys.get(i);
+			final K key = _keysIndex.getValue(i);
 			final SeqFilter<T> seqFilter = _seqFilters.get(key);
 			seqFilter.moveToTime(time);
 			if (seqFilter.getCurrItem() != null) {

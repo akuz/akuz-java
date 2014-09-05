@@ -179,7 +179,7 @@ public final class Frame<K, T extends Comparable<T>> {
 	 */
 	public Frame<K, T> cumsum() {
 		
-		FrameFilter<K, T> filter = new FrameFilter<>(this);
+		FrameFilter<K, T> filter = new FrameFilter<>(this.iterator());
 		filter.addFilter(getKeys(), new CurrentCumsum<T>());
 		
 		FrameOutput<K, T> transform = new FrameOutput<>(filter);

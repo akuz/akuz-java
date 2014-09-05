@@ -55,7 +55,7 @@ public final class JAMA_IO {
 		final FrameCursor<K, T> frameCursor;
 		if (filters != null) {
 			
-			final FrameFilter<K, T> frameFilter = new FrameFilter<>(frame);
+			final FrameFilter<K, T> frameFilter = new FrameFilter<>(frame.iterator());
 			frameFilter.addFilters(keysIndex.getMap().keySet(), filters);
 			frameFilter.setLog(log);
 			frameCursor = frameFilter;

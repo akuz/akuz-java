@@ -15,6 +15,16 @@ public interface FrameCursor<K, T extends Comparable<T>>
 extends Synchronizable<T> {
 	
 	/**
+	 * Get underlying frame.
+	 */
+	Frame<K, T> getFrame();
+	
+	/**
+	 * Get underlying seq cursor.
+	 */
+	SeqCursor<T> getSeqCursor(final K key);
+	
+	/**
 	 * Get keys within cursor.
 	 */
 	List<K> getKeys();

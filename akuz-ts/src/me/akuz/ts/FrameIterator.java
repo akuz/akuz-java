@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import me.akuz.core.HashIndex;
+import me.akuz.core.Index;
 import me.akuz.core.Out;
 import me.akuz.ts.sync.Synchronizable;
 
@@ -18,7 +20,7 @@ public final class FrameIterator<K, T extends Comparable<T>>
 implements Synchronizable<T>, FrameCursor<K, T> {
 
 	private final Frame<K, T> _frame;
-	private final List<K> _keys;
+	private final Index<K> _keysIndex;
 	private final List<SeqIterator<T>> _seqIters;
 	private T _currTime;
 	private final Map<K, TItem<T>> _currItems;
@@ -47,27 +49,34 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 		}
 		
 		_frame = frame;
-		_keys = new ArrayList<>(keys);
+		_keysIndex = new HashIndex<>(keys);
 		_seqIters = new ArrayList<>();
 		_currItems = new HashMap<>();
 		_movedItems = new HashMap<>();
-		for (int i=0; i<_keys.size(); i++) {
-			final K key = _keys.get(i);
+		for (int i=0; i<_keysIndex.size(); i++) {
+			final K key = _keysIndex.getValue(i);
 			final SeqIterator<T> seqIter = new SeqIterator<>(frame.getSeq(key));
 			_seqIters.add(seqIter);
 		}
 	}
 	
-	/**
-	 * Get underlying frame.
-	 */
+	@Override
 	public Frame<K, T> getFrame() {
 		return _frame;
 	}
 	
 	@Override
+	public SeqCursor<T> getSeqCursor(final K key) {
+		Integer index = _keysIndex.getIndex(key);
+		if (index == null) {
+			throw new IllegalArgumentException("Sequence for key '" + key + "' does not exist");
+		}
+		return _seqIters.get(index);
+	}
+	
+	@Override
 	public List<K> getKeys() {
-		return _keys;
+		return _keysIndex.getList();
 	}
 	
 	@Override
@@ -81,7 +90,6 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 		CurrTime.checkSet(_currTime);
 		return _currItems;
 	}
-	
 	
 	@Override
 	public TItem<T> getCurrItem(K key) {
@@ -133,9 +141,9 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 		CurrTime.checkNew(_currTime, time);
 		
 		_currItems.clear();
-		for (int i=0; i<_keys.size(); i++) {
+		for (int i=0; i<_keysIndex.size(); i++) {
 			
-			final K key = _keys.get(i);
+			final K key = _keysIndex.getValue(i);
 			final SeqIterator<T> seqIter = _seqIters.get(i);
 			
 			seqIter.moveToTime(time);

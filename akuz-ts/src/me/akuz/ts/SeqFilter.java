@@ -30,7 +30,7 @@ implements Synchronizable<T>, SeqCursor<T> {
 	
 	public SeqFilter(final SeqCursor<T> seqCursor) {
 		if (seqCursor == null) {
-			throw new IllegalArgumentException("Cannot filter null sequence");
+			throw new IllegalArgumentException("Cannot filter null sequence cursor");
 		}
 		_seqCursor = seqCursor;
 		_filters = new ArrayList<>();

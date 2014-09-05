@@ -15,7 +15,7 @@ public class FrameFilterTest {
 	public void testNoFilters() {
 
 		Frame<String, Integer> frame = new Frame<>();
-		FrameFilter<String, Integer> filter = new FrameFilter<>(frame);
+		FrameFilter<String, Integer> filter = new FrameFilter<>(frame.iterator());
 		
 		try {
 			filter.moveToTime(0);
@@ -46,7 +46,7 @@ public class FrameFilterTest {
 		
 		frame.add("f1", 2, rnd.nextInt(100));
 		
-		FrameFilter<String, Integer> filter = new FrameFilter<>(frame);
+		FrameFilter<String, Integer> filter = new FrameFilter<>(frame.iterator());
 		filter.addFilter("f1", new RepeatValueWithNumExpiry<Integer>(1));
 		filter.addFilter("f3", new RepeatValueWithNumExpiry<Integer>(1));
 		
