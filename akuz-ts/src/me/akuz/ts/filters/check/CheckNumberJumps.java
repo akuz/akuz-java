@@ -68,9 +68,9 @@ public class CheckNumberJumps<T extends Comparable<T>> extends Filter<T> {
 
 	@Override
 	public void next(
-			final TLog<T> log,
-			final T time, 
-			final SeqCursor<T> iter) {
+			final T time,
+			final SeqCursor<T> cursor, 
+			final TLog<T> log) {
 
 		CurrTime.checkNew(_currTime, time);
 
@@ -78,7 +78,7 @@ public class CheckNumberJumps<T extends Comparable<T>> extends Filter<T> {
 			throw new IllegalArgumentException(this.getClass().getSimpleName() + " filter requires a log");
 		}
 		
-		final List<TItem<T>> movedItems = iter.getMovedItems();
+		final List<TItem<T>> movedItems = cursor.getMovedItems();
 		for (int i=0; i<movedItems.size(); i++) {
 			
 			final TItem<T> prevItem = _lastItem;

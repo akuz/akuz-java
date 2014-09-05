@@ -47,8 +47,8 @@ public class FrameFilterTest {
 		frame.add("f1", 2, rnd.nextInt(100));
 		
 		FrameFilter<String, Integer> filter = new FrameFilter<>(frame);
-		filter.addFilter("f1", new RepeatWithNumExpiry<Integer>(1));
-		filter.addFilter("f3", new RepeatWithNumExpiry<Integer>(1));
+		filter.addFilter("f1", new RepeatValueWithNumExpiry<Integer>(1));
+		filter.addFilter("f3", new RepeatValueWithNumExpiry<Integer>(1));
 		
 		filter.moveToTime(0);
 		

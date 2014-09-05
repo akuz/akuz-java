@@ -31,9 +31,9 @@ public class CurrentCumsum<T extends Comparable<T>> extends Filter<T> {
 
 	@Override
 	public void next(
-			final TLog<T> log,
 			final T time,
-			final SeqCursor<T> iter) {
+			final SeqCursor<T> cursor,
+			final TLog<T> log) {
 		
 		CurrTime.checkNew(_currTime, time);
 		
@@ -44,7 +44,7 @@ public class CurrentCumsum<T extends Comparable<T>> extends Filter<T> {
 		}
 		
 		// add all moved items
-		final List<TItem<T>> movedItems = iter.getMovedItems();
+		final List<TItem<T>> movedItems = cursor.getMovedItems();
 		for (int i=0; i<movedItems.size(); i++) {
 			currValue += movedItems.get(i).getNumber().doubleValue();
 		}

@@ -125,9 +125,9 @@ implements Synchronizable<T>, SeqCursor<T> {
 			final Filter<T> filter = _filters.get(i);
 			
 			filter.next(
-					_log,
 					time,
-					_seqCursor);
+					_seqCursor,
+					_log);
 			
 			final TItem<T> proposedCurrItem = filter.getCurrItem();
 			

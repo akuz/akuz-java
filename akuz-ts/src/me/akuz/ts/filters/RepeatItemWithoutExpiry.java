@@ -21,14 +21,14 @@ public final class RepeatItemWithoutExpiry<T extends Comparable<T>> extends Filt
 	
 	@Override
 	public void next(
-			final TLog<T> log,
 			final T time,
-			final SeqCursor<T> iter) {
+			final SeqCursor<T> cur,
+			final TLog<T> log) {
 		
 		CurrTime.checkNew(_currTime, time);
 		
 		// update last item
-		final List<TItem<T>> movedItems = iter.getMovedItems();
+		final List<TItem<T>> movedItems = cur.getMovedItems();
 		if (movedItems.size() > 0) {
 			final TItem<T> lastMovedItem = movedItems.get(movedItems.size()-1);
 			_currItem = new TItem<T>(time, lastMovedItem);

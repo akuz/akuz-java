@@ -12,7 +12,7 @@ import me.akuz.ts.log.TLog;
 
 import org.joda.time.Days;
 
-public final class RepeatWithDateExpiry extends Filter<TDate> {
+public final class RepeatValueWithDateExpiry extends Filter<TDate> {
 	
 	private final Days _aliveDays;
 	private final Object _defaultValue;
@@ -21,11 +21,11 @@ public final class RepeatWithDateExpiry extends Filter<TDate> {
 	private TItem<TDate> _currItem;
 	private TDate _currTime;
 	
-	public RepeatWithDateExpiry(final Days aliveDays) {
+	public RepeatValueWithDateExpiry(final Days aliveDays) {
 		this(aliveDays, null);
 	}
 	
-	public RepeatWithDateExpiry(final Days aliveDays, Object defaultValue) {
+	public RepeatValueWithDateExpiry(final Days aliveDays, Object defaultValue) {
 		_aliveDays = aliveDays;
 		_defaultValue = defaultValue;
 		_movedItems = new ArrayList<>(1);
@@ -33,14 +33,14 @@ public final class RepeatWithDateExpiry extends Filter<TDate> {
 
 	@Override
 	public void next(
-			final TLog<TDate> log,
 			final TDate time,
-			final SeqCursor<TDate> iter) {
+			final SeqCursor<TDate> cur,
+			final TLog<TDate> log) {
 		
 		CurrTime.checkNew(_currTime, time);
 		
 		// update last item
-		final List<TItem<TDate>> movedItems = iter.getMovedItems();
+		final List<TItem<TDate>> movedItems = cur.getMovedItems();
 		if (movedItems.size() > 0) {
 			_lastAvailableItem = movedItems.get(movedItems.size()-1);
 		}

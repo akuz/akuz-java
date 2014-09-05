@@ -23,8 +23,8 @@ public class SeqFilterTest {
 		seq.add(3, rnd.nextInt(100));
 		
 		SeqFilter<Integer> seqFilter = new SeqFilter<>(seq.iterator());
-		seqFilter.addFilter(new RepeatWithoutExpiry<Integer>());
-		seqFilter.addFilter(new RepeatWithoutExpiry<Integer>());
+		seqFilter.addFilter(new RepeatValueWithoutExpiry<Integer>());
+		seqFilter.addFilter(new RepeatValueWithoutExpiry<Integer>());
 		
 		try {
 			seqFilter.moveToTime(0);
@@ -50,7 +50,7 @@ public class SeqFilterTest {
 		seq.add(5, rnd.nextInt(100));
 		
 		SeqFilter<Integer> seqFilter = new SeqFilter<>(seq.iterator());
-		seqFilter.addFilter(new RepeatWithNumExpiry<Integer>(1));
+		seqFilter.addFilter(new RepeatValueWithNumExpiry<Integer>(1));
 		
 		seqFilter.moveToTime(0);
 		

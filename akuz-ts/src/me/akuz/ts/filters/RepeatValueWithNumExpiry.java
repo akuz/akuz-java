@@ -9,7 +9,7 @@ import me.akuz.ts.SeqCursor;
 import me.akuz.ts.TItem;
 import me.akuz.ts.log.TLog;
 
-public final class RepeatWithNumExpiry<T extends Comparable<T>> extends Filter<T> {
+public final class RepeatValueWithNumExpiry<T extends Comparable<T>> extends Filter<T> {
 	
 	private final Number _alivePeriod;
 	private final Object _defaultValue;
@@ -18,11 +18,11 @@ public final class RepeatWithNumExpiry<T extends Comparable<T>> extends Filter<T
 	private TItem<T> _currItem;
 	private T _currTime;
 	
-	public RepeatWithNumExpiry(final int aliveCount) {
+	public RepeatValueWithNumExpiry(final int aliveCount) {
 		this(aliveCount, null);
 	}
 	
-	public RepeatWithNumExpiry(final Number alivePeriod, Object defaultValue) {
+	public RepeatValueWithNumExpiry(final Number alivePeriod, Object defaultValue) {
 		_alivePeriod = alivePeriod;
 		_defaultValue = defaultValue;
 		_movedItems = new ArrayList<>();
@@ -30,14 +30,14 @@ public final class RepeatWithNumExpiry<T extends Comparable<T>> extends Filter<T
 
 	@Override
 	public void next(
-			final TLog<T> log,
 			final T time,
-			final SeqCursor<T> iter) {
+			final SeqCursor<T> cur,
+			final TLog<T> log) {
 		
 		CurrTime.checkNew(_currTime, time);
 
 		// update last item
-		final List<TItem<T>> movedItems = iter.getMovedItems();
+		final List<TItem<T>> movedItems = cur.getMovedItems();
 		if (movedItems.size() > 0) {
 			_lastAvailableItem = movedItems.get(movedItems.size()-1);
 		}

@@ -56,9 +56,9 @@ public class CheckDateGaps extends Filter<Date> {
 
 	@Override
 	public void next(
-			final TLog<Date> log,
 			final Date time, 
-			final SeqCursor<Date> iter) {
+			final SeqCursor<Date> cur,
+			final TLog<Date> log) {
 
 		CurrTime.checkNew(_currTime, time);
 		
@@ -69,7 +69,7 @@ public class CheckDateGaps extends Filter<Date> {
 		/**
 		 * Process items moved through time.
 		 */
-		final List<TItem<Date>> movedItems = iter.getMovedItems();
+		final List<TItem<Date>> movedItems = cur.getMovedItems();
 		for (int i=0; i<movedItems.size(); i++) {
 			
 			final Date prevDate = _lastDate;
@@ -85,7 +85,7 @@ public class CheckDateGaps extends Filter<Date> {
 		 * already saw some previous items, then
 		 * check the date jump from last item to now.
 		 */
-		final TItem<Date> currItem = iter.getCurrItem();
+		final TItem<Date> currItem = cur.getCurrItem();
 		if (currItem == null && _lastDate != null) {
 			checkDateJump(log, _lastDate, time, false);
 		}
