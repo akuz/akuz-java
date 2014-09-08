@@ -1,29 +1,29 @@
 package me.akuz.ts.filters.stats.accs;
 
 import me.akuz.core.CircularBuffer;
-import me.akuz.core.TDateTime;
-import me.akuz.core.TDuration;
+import me.akuz.core.TDate;
+import me.akuz.core.TWeekdays;
 import me.akuz.ts.CurrTime;
 
-public final class MovAvgTDateTimeAccumulator extends Accumulator<TDateTime> {
+public final class MovAvgTWeekdaysAccumulator extends Accumulator<TDate> {
 
 	private final CircularBuffer<Double> _buff;
-	private final TDuration _gapOkDur;
-	private TDateTime _lastTime;
+	private final int _gapOkWeekdays;
+	private TDate _lastTime;
 	private double _curr;
 	
-	public MovAvgTDateTimeAccumulator(
+	public MovAvgTWeekdaysAccumulator(
 			final int sampleCount,
-			final TDuration gapOkDur) {
+			final int gapOkWeekdays) {
 		
 		if (sampleCount < 2) {
 			throw new IllegalArgumentException("Sample count must be >= 2");
 		}
-		if (gapOkDur.getMs() <= 0) {
-			throw new IllegalArgumentException("GapOK duration must be positive");
+		if (gapOkWeekdays <= 0) {
+			throw new IllegalArgumentException("GapOK weekdays must be positive");
 		}
 		_buff = new CircularBuffer<>(sampleCount);
-		_gapOkDur = gapOkDur;
+		_gapOkWeekdays = gapOkWeekdays;
 		_curr = 0.0;
 	}
 	
@@ -34,7 +34,7 @@ public final class MovAvgTDateTimeAccumulator extends Accumulator<TDateTime> {
 	}
 
 	@Override
-	public void add(final TDateTime time, final Object value) {
+	public void add(final TDate time, final Object value) {
 		
 		if (value != null) {
 			if (!(value instanceof Number)) {
@@ -48,8 +48,8 @@ public final class MovAvgTDateTimeAccumulator extends Accumulator<TDateTime> {
 		
 		// reset if needed
 		if (_lastTime != null) {
-			final TDuration dur = new TDuration(_lastTime, time);
-			if (dur.compareTo(_gapOkDur) > 0) {
+			final int distance = TWeekdays.distance(_lastTime, time);
+			if (distance > _gapOkWeekdays) {
 				reset();
 			}
 		}
