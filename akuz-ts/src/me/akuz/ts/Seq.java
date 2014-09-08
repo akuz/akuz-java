@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import me.akuz.ts.filters.stats.CurrentCumsum;
+import me.akuz.ts.filters.stats.CumsumFilter;
 
 /**
  * Time series sequence of values.
@@ -103,7 +103,7 @@ public final class Seq<T extends Comparable<T>> {
 	 */
 	public Seq<T> cumsum() {
 		
-		SeqFilter<T> filter = new SeqFilter<T>(iterator(), new CurrentCumsum<T>());
+		SeqFilter<T> filter = new SeqFilter<T>(iterator(), new CumsumFilter<T>());
 		
 		SeqOutput<T> output = new SeqOutput<>(filter);
 		output.runToEnd();

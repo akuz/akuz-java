@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import me.akuz.ts.filters.stats.CurrentCumsum;
+import me.akuz.ts.filters.stats.CumsumFilter;
 
 /**
  * Time series frame containing multiple sequences.
@@ -180,7 +180,7 @@ public final class Frame<K, T extends Comparable<T>> {
 	public Frame<K, T> cumsum() {
 		
 		FrameFilter<K, T> filter = new FrameFilter<>(this.iterator());
-		filter.addFilter(getKeys(), new CurrentCumsum<T>());
+		filter.addFilter(getKeys(), new CumsumFilter<T>());
 		
 		FrameOutput<K, T> transform = new FrameOutput<>(filter);
 		transform.runToEnd();

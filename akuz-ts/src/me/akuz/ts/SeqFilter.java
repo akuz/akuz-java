@@ -50,26 +50,30 @@ implements Synchronizable<T>, SeqCursor<T> {
 		return _fieldName != null ? _fieldName : "unspecified";
 	}
 	
-	public void setFieldName(final String fieldName) {
+	public SeqFilter<T> setFieldName(final String fieldName) {
 		_fieldName = fieldName;
+		return this;
 	}
 	
-	public void setLog(final TLog<T> log) {
+	public SeqFilter<T> setLog(final TLog<T> log) {
 		_log = log;
+		return this;
 	}
 	
-	public void addFilter(final Filter<T> filter) {
+	public SeqFilter<T> addFilter(final Filter<T> filter) {
 		final Filter<T> filterCopy = filter.clone();
 		if (_fieldName != null) {
 			filterCopy.setFieldName(_fieldName);
 		}
 		_filters.add(filterCopy);
+		return this;
 	}
 	
-	public void addFilters(final Collection<Filter<T>> filters) {
+	public SeqFilter<T> addFilters(final Collection<Filter<T>> filters) {
 		for (final Filter<T> filter : filters) {
 			addFilter(filter);
 		}
+		return this;
 	}
 	
 	@Override

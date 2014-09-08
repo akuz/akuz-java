@@ -13,18 +13,18 @@ import me.akuz.ts.log.TLog;
  * Cumsum filter (1D).
  *
  */
-public class CurrentCumsum<T extends Comparable<T>> extends Filter<T> {
+public class CumsumFilter<T extends Comparable<T>> extends Filter<T> {
 	
 	private final double _startValue;
 	private final List<TItem<T>> _movedItems;
 	private TItem<T> _currItem;
 	private T _currTime;
 	
-	public CurrentCumsum() {
+	public CumsumFilter() {
 		this(0.0);
 	}
 	
-	public CurrentCumsum(final double startValue) {
+	public CumsumFilter(final double startValue) {
 		_startValue = startValue;
 		_movedItems = new ArrayList<>(1);
 	}
@@ -38,9 +38,11 @@ public class CurrentCumsum<T extends Comparable<T>> extends Filter<T> {
 		CurrTime.checkNew(_currTime, time);
 		
 		// get current value
-		double currValue = _startValue;
+		double currValue;
 		if (_currItem != null) {
 			currValue = _currItem.getDouble();
+		} else {
+			currValue = _startValue;
 		}
 		
 		// add all moved items
