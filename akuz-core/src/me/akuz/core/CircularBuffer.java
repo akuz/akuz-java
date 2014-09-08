@@ -64,6 +64,13 @@ public final class CircularBuffer<T> {
 	public int getCurrSize() {
 		return _currSize;
 	}
+
+	/**
+	 * Check if buffer is full.
+	 */
+	public boolean isFull() {
+		return _currSize == _data.length;
+	}
 	
 	/**
 	 * Clear the buffer; also resets all

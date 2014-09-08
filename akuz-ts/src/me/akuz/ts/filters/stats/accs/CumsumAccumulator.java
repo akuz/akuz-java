@@ -1,6 +1,5 @@
 package me.akuz.ts.filters.stats.accs;
 
-
 public final class CumsumAccumulator<T extends Comparable<T>> extends Accumulator<T> {
 
 	private final double _startValue;
@@ -22,14 +21,13 @@ public final class CumsumAccumulator<T extends Comparable<T>> extends Accumulato
 	}
 
 	@Override
-	public void add(T time, Object value) {
-		if (value == null) {
-			throw new IllegalArgumentException("Cannot cumsum null value");
+	public void add(final T time, final Object value) {
+		if (value != null) {
+			if (!(value instanceof Number)) {
+				throw new IllegalArgumentException("Cannot cumsum non-numeric value (" + value.getClass().getSimpleName() + ")");
+			}
+			_currValue += ((Number)value).doubleValue();
 		}
-		if (!(value instanceof Number)) {
-			throw new IllegalArgumentException("Cannot cumsum non-numeric value (" + value.getClass().getSimpleName() + ")");
-		}
-		_currValue += ((Number)value).doubleValue();
 	}
 	
 	public Object get() {
