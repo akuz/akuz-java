@@ -27,11 +27,19 @@ import me.akuz.ts.TItem;
 
 import org.joda.time.DateTimeZone;
 
+/**
+ * Functions to load Yahoo financial data.
+ *
+ */
 public final class YahooDataLoad {
 	
 	private static final Pattern _csvExtensionPattern = Pattern.compile("\\.csv$", Pattern.CASE_INSENSITIVE);
 	
-	public final static Seq<TDateTime> loadAdjQuoteSeq(
+	/**
+	 * Load "intraday" quotes for one stock.
+	 * 
+	 */
+	public final static Seq<TDateTime> loadIntradayStockQuotes(
 			final String fileName, 
 			final TDate minDate,
 			final TDate maxDate,
@@ -49,7 +57,7 @@ public final class YahooDataLoad {
 			throw new IllegalArgumentException("Open hour hour must < close hour");
 		}
 		
-		final Frame<QuoteField, TDate> frame = loadQuoteFieldFrame(
+		final Frame<QuoteField, TDate> frame = loadDailyStockQuoteFields(
 				fileName, 
 				minDate, 
 				maxDate, 
@@ -115,7 +123,11 @@ public final class YahooDataLoad {
 		return seq;
 	}
 	
-	public static final Frame<String, TDateTime> loadTickerAdjQuoteFrame(
+	/**
+	 * Load "intraday" quotes for a portfolio.
+	 * 
+	 */
+	public static final Frame<String, TDateTime> loadIntradayPortfolioQuotes(
 			final String dirPath, 
 			final TDate minDate,
 			final TDate maxDate,
@@ -132,7 +144,7 @@ public final class YahooDataLoad {
 			final String ticker = pair.v1();
 			final File file = pair.v2();
 			
-			final Seq<TDateTime> seq = loadAdjQuoteSeq(
+			final Seq<TDateTime> seq = loadIntradayStockQuotes(
 					file.getAbsolutePath(),
 					minDate,
 					maxDate,
@@ -145,7 +157,141 @@ public final class YahooDataLoad {
 		return frame;
 	}
 	
-	public final static Frame<QuoteField, TDate> loadQuoteFieldFrame(
+	/**
+	 * Load daily quotes for one stock.
+	 * 
+	 */
+	public final static Seq<TDate> loadDailyStockQuotes(
+			final String fileName, 
+			final TDate minDate,
+			final TDate maxDate,
+			final EnumSet<QuoteField> quoteFields,
+			final Set<TDate> fillDateSet) throws IOException, ParseException {
+
+		Seq<TDate> seq = new Seq<>();
+	
+		Scanner scanner = FileUtils.openScanner(fileName, "UTF-8");
+		try {
+			int lineNumber = 0;
+			while (scanner.hasNextLine()) {
+
+				lineNumber += 1;
+				final String line = scanner.nextLine().trim();
+
+				// first line is header
+				if (lineNumber == 1) {
+					continue;
+				}
+				
+				if (line.length() > 0) {
+					//2012-06-08,571.60,580.58,569.00,580.32,12395100,580.32
+					String[] parts = line.split(",");
+					if (parts.length != 7) {
+						throw new IOException("Incorrect format in line #" + (lineNumber) + " of file " + fileName);
+					}
+					final TDate date        = new TDate(parts[0]);
+					if (date.compareTo(minDate) < 0) {
+						continue;
+					}
+					if (date.compareTo(maxDate) > 0) {
+						continue;
+					}
+					if (fillDateSet != null) {
+						fillDateSet.add(date);
+					}
+					
+					final Quote.Builder build = Quote.build();
+					
+					final Double open      = Double.parseDouble(parts[1]);
+					if (quoteFields.contains(QuoteField.Open)) {
+						build.set(QuoteField.Open, open);
+					}
+					final Double high      = Double.parseDouble(parts[2]);
+					if (quoteFields.contains(QuoteField.High)) {
+						build.set(QuoteField.High, high);
+					}
+					final Double low       = Double.parseDouble(parts[3]);
+					if (quoteFields.contains(QuoteField.Low)) {
+						build.set(QuoteField.Low, low);
+					}
+					final Double close     = Double.parseDouble(parts[4]);
+					if (quoteFields.contains(QuoteField.Close)) {
+						build.set(QuoteField.Close, close);
+					}
+					final Double volume    = Double.parseDouble(parts[5]);
+					if (quoteFields.contains(QuoteField.Volume)) {
+						build.set(QuoteField.Volume, volume);
+					}
+					final Double adjClose  = Double.parseDouble(parts[6]);
+					if (quoteFields.contains(QuoteField.AdjClose)) {
+						build.set(QuoteField.AdjClose, adjClose);
+					}
+					final Double adjFactor = adjClose / close;
+					final Double adjOpen   = Rounding.round(open * adjFactor, 4);
+					if (quoteFields.contains(QuoteField.AdjOpen)) {
+						build.set(QuoteField.AdjOpen, adjOpen);
+					}
+					final Double adjHigh   = Rounding.round(high * adjFactor, 4);
+					if (quoteFields.contains(QuoteField.AdjHigh)) {
+						build.set(QuoteField.AdjHigh, adjHigh);
+					}
+					final Double adjLow    = Rounding.round(low * adjFactor, 4);
+					if (quoteFields.contains(QuoteField.AdjLow)) {
+						build.set(QuoteField.AdjLow, adjLow);
+					}
+					final Double adjVolume = Rounding.round(volume / adjFactor, 4);
+					if (quoteFields.contains(QuoteField.AdjVolume)) {
+						build.set(QuoteField.AdjVolume, adjVolume);
+					}
+					
+					seq.stage(date, build.create());
+				}
+			}
+		} finally {
+			scanner.close();
+		}
+
+		seq.acceptStaged();
+		return seq;
+	}
+
+	/**
+	 * Load daily quotes for a portfolio.
+	 * 
+	 */
+	public static final Frame<String, TDate> loadDailyPortfolioQuotes(
+			final String dirPath, 
+			final TDate minDate,
+			final TDate maxDate,
+			final Set<String> ignoreTickers, 
+			final EnumSet<QuoteField> quoteFields,
+			final Set<TDate> fillDateSet) throws IOException, ParseException {
+		
+		final Frame<String, TDate> frame = new Frame<>();
+		final List<Pair<String, File>> tickerFiles = loadDirTickerFiles(dirPath, ignoreTickers);
+		for (int i=0; i<tickerFiles.size(); i++) {
+			
+			final Pair<String, File> pair = tickerFiles.get(i);
+			final String ticker = pair.v1();
+			final File file = pair.v2();
+			
+			final Seq<TDate> seq = loadDailyStockQuotes(
+					file.getAbsolutePath(),
+					minDate,
+					maxDate,
+					quoteFields,
+					fillDateSet);
+			
+			frame.addSeq(ticker, seq);
+		}
+		return frame;
+	}
+	
+	/**
+	 * Load daily quote fields for one stock.
+	 * 
+	 */
+	public final static Frame<QuoteField, TDate> loadDailyStockQuoteFields(
 			final String fileName, 
 			final TDate minDate,
 			final TDate maxDate,
@@ -235,7 +381,11 @@ public final class YahooDataLoad {
 		return frame;
 	}
 	
-	public static final Cube<String, QuoteField, TDate> loadTickerQuoteFieldCube(
+	/**
+	 * Load daily quote fields for a portfolio.
+	 * 
+	 */
+	public static final Cube<String, QuoteField, TDate> loadDailyPortfolioQuoteFields(
 			final String dirPath, 
 			final TDate minDate,
 			final TDate maxDate,
@@ -251,7 +401,7 @@ public final class YahooDataLoad {
 			final String ticker = pair.v1();
 			final File file = pair.v2();
 			
-			final Frame<QuoteField, TDate> frame = loadQuoteFieldFrame(
+			final Frame<QuoteField, TDate> frame = loadDailyStockQuoteFields(
 					file.getAbsolutePath(),
 					minDate,
 					maxDate,
@@ -263,6 +413,10 @@ public final class YahooDataLoad {
 		return cube;
 	}
 	
+	/**
+	 * Helper function to load ticker files from a dir.
+	 * 
+	 */
 	public static final List<Pair<String, File>> loadDirTickerFiles(
 			final String dirPath, 
 			final Set<String> ignoreTickers) throws IOException, ParseException {
@@ -271,13 +425,15 @@ public final class YahooDataLoad {
 		final List<File> files = FileUtils.getFiles(dirPath);
 		for (int i=0; i<files.size(); i++) {
 			final File file = files.get(i);
-			final Matcher csvMatcher = _csvExtensionPattern.matcher(file.getName());
-			if (csvMatcher.find()) {
-				String ticker = csvMatcher.reset().replaceAll("");
-				if (ignoreTickers != null && ignoreTickers.contains(ticker)) {
-					continue;
+			if (file.isFile()) {
+				final Matcher csvMatcher = _csvExtensionPattern.matcher(file.getName());
+				if (csvMatcher.find()) {
+					final String ticker = csvMatcher.reset().replaceAll("");
+					if (ignoreTickers != null && ignoreTickers.contains(ticker)) {
+						continue;
+					}
+					list.add(new Pair<>(ticker, file));
 				}
-				list.add(new Pair<>(ticker, file));
 			}
 		}
 		return list;
