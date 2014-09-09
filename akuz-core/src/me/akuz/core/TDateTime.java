@@ -57,6 +57,10 @@ public final class TDateTime implements Comparable<TDateTime> {
 	public DateTime get() {
 		return _dateTime;
 	}
+	
+	public TDate toLocalDate() {
+		return new TDate(_dateTime.toLocalDate());
+	}
 
 	@Override
 	public int compareTo(TDateTime o) {
