@@ -1,4 +1,4 @@
-package me.akuz.ts.io.custom;
+package me.akuz.ts.io.yahoo;
 
 import java.io.IOException;
 import java.text.ParseException;
