@@ -1,5 +1,6 @@
 package me.akuz.ts;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import me.akuz.ts.log.TLog;
@@ -16,6 +17,13 @@ import me.akuz.ts.log.TLog;
 public abstract class Filter<T extends Comparable<T>> implements Cloneable {
 	
 	private String _fieldName;
+	protected TItem<T> _currItem;
+	protected List<TItem<T>> _movedItems;
+	protected T _currTime;
+	
+	public Filter() {
+		_movedItems = new ArrayList<>(1);
+	}
 
 	/**
 	 * Notify filters about the next items moved through time;
@@ -31,11 +39,22 @@ public abstract class Filter<T extends Comparable<T>> implements Cloneable {
 			final TLog<T> log);
 	
 	/**
+	 * Get current time of the filter.
+	 */
+	public T getCurrTime() {
+		CurrTime.checkSet(_currTime);
+		return _currTime;
+	}
+	
+	/**
 	 * Get TItem<T> that represents the
 	 * output state, if any, of this 
 	 * filter at the *current* time.
 	 */
-	public abstract TItem<T> getCurrItem();
+	public final TItem<T> getCurrItem() {
+		CurrTime.checkSet(_currTime);
+		return _currItem;
+	}
 	
 	/**
 	 * Get a list of TItem<T>s containing
@@ -45,7 +64,10 @@ public abstract class Filter<T extends Comparable<T>> implements Cloneable {
 	 * this list also includes the
 	 * *current* TItem<T>, if any.
 	 */
-	public abstract List<TItem<T>> getMovedItems();
+	public final List<TItem<T>> getMovedItems() {
+		CurrTime.checkSet(_currTime);
+		return _movedItems;
+	}
 	
 	/**
 	 * Set filter field name (for logging).
@@ -72,9 +94,12 @@ public abstract class Filter<T extends Comparable<T>> implements Cloneable {
 	@SuppressWarnings("unchecked")
 	public Filter<T> clone() {
 		try {
-			return (Filter<T>)super.clone();
+			final Filter<T> copy = (Filter<T>)super.clone();
+			copy._movedItems = new ArrayList<>(_movedItems.size());
+			copy._movedItems.addAll(_movedItems);
+			return copy;
 		} catch (CloneNotSupportedException e) {
-			throw new InternalError("Clone error");
+			throw new IllegalStateException("Cloning error", e);
 		}
 	}
 }

@@ -7,7 +7,7 @@ import me.akuz.ts.CurrTime;
 
 public final class MovAvgTWeekdaysAccumulator extends Accumulator<TDate> {
 
-	private final CircularBuffer<Double> _buff;
+	private CircularBuffer<Double> _buff;
 	private final int _gapOkWeekdays;
 	private TDate _lastTime;
 	private double _curr;
@@ -85,5 +85,12 @@ public final class MovAvgTWeekdaysAccumulator extends Accumulator<TDate> {
 	@Override
 	public Object get() {
 		return _buff.isFull() ? _curr : Double.NaN;
+	}
+	
+	@Override
+	public Accumulator<TDate> clone() {
+		MovAvgTWeekdaysAccumulator copy = (MovAvgTWeekdaysAccumulator)super.clone();
+		copy._buff = _buff.clone();
+		return copy;
 	}
 }

@@ -1,6 +1,5 @@
 package me.akuz.ts.filters;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import me.akuz.ts.CurrTime;
@@ -11,12 +10,8 @@ import me.akuz.ts.log.TLog;
 
 public final class RepeatItemWithoutExpiry<T extends Comparable<T>> extends Filter<T> {
 	
-	private final List<TItem<T>> _movedItems;
-	private TItem<T> _currItem;
-	private T _currTime;
-	
 	public RepeatItemWithoutExpiry() {
-		_movedItems = new ArrayList<>(1);
+		// nothing
 	}
 	
 	@Override
@@ -40,18 +35,6 @@ public final class RepeatItemWithoutExpiry<T extends Comparable<T>> extends Filt
 		}
 		
 		_currTime = time;
-	}
-
-	@Override
-	public TItem<T> getCurrItem() {
-		CurrTime.checkSet(_currTime);
-		return _currItem;
-	}
-
-	@Override
-	public List<TItem<T>> getMovedItems() {
-		CurrTime.checkSet(_currTime);
-		return _movedItems;
 	}
 
 }

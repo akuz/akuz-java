@@ -6,9 +6,9 @@ import java.util.Arrays;
  * Generic circular buffer implementation.
  *
  */
-public final class CircularBuffer<T> {
+public final class CircularBuffer<T> implements Cloneable {
 
-	private final Object[] _data;
+	private Object[] _data;
 	private int _currSize;
 	private int _cursor;
 	
@@ -81,5 +81,17 @@ public final class CircularBuffer<T> {
 		Arrays.fill(_data, null);
 		_currSize = 0;
 		_cursor = -1;
+	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public CircularBuffer<T> clone() {
+		try {
+			CircularBuffer<T> copy = (CircularBuffer<T>)super.clone();
+			copy._data = _data.clone();
+			return copy;
+		} catch (CloneNotSupportedException e) {
+			throw new IllegalStateException("Cloning error", e);
+		}
 	}
 }

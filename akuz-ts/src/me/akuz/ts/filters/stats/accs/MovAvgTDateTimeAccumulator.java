@@ -7,7 +7,7 @@ import me.akuz.ts.CurrTime;
 
 public final class MovAvgTDateTimeAccumulator extends Accumulator<TDateTime> {
 
-	private final CircularBuffer<Double> _buff;
+	private CircularBuffer<Double> _buff;
 	private final TDuration _gapOkDur;
 	private TDateTime _lastTime;
 	private double _curr;
@@ -85,5 +85,12 @@ public final class MovAvgTDateTimeAccumulator extends Accumulator<TDateTime> {
 	@Override
 	public Object get() {
 		return _buff.isFull() ? _curr : Double.NaN;
+	}
+	
+	@Override
+	public Accumulator<TDateTime> clone() {
+		MovAvgTDateTimeAccumulator copy = (MovAvgTDateTimeAccumulator)super.clone();
+		copy._buff = _buff.clone();
+		return copy;
 	}
 }

@@ -18,7 +18,6 @@ public class CheckDateGaps extends Filter<Date> {
 	private final TDuration _errorAfterPeriod;
 	private TLogLevel _lastLevel;
 	private Date _lastDate;
-	private Date _currTime;
 	
 	public CheckDateGaps(
 			final TDuration infoAfterPeriod,
@@ -30,28 +29,6 @@ public class CheckDateGaps extends Filter<Date> {
 		_errorAfterPeriod = errorAfterPeriod;
 		_lastLevel = TLogLevel.None;
 		_lastDate = null;
-	}
-	
-	@Override
-	public TItem<Date> getCurrItem() {
-
-		CurrTime.checkSet(_currTime);
-
-		// we are only checking for
-		// jumps, but we don't
-		// derive any state
-		return null;
-	}
-	
-	@Override
-	public List<TItem<Date>> getMovedItems() {
-		
-		CurrTime.checkSet(_currTime);
-		
-		// we are only checking for
-		// jumps, but we don't
-		// derive any state
-		return null;
 	}
 
 	@Override

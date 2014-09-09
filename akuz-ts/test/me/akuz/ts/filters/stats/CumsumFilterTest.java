@@ -9,6 +9,8 @@ import org.junit.Test;
 
 public class CumsumFilterTest {
 
+	// FIXME multidimensional test
+
 	@Test
 	public void testSimple() {
 		

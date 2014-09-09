@@ -3,6 +3,7 @@ package me.akuz.ts.filters;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.akuz.ts.CurrTime;
 import me.akuz.ts.Filter;
 import me.akuz.ts.Quote;
 import me.akuz.ts.QuoteField;
@@ -13,8 +14,6 @@ import me.akuz.ts.log.TLog;
 public final class ExtractQuoteField<T extends Comparable<T>> extends Filter<T> {
 	
 	private final List<QuoteField> _quoteFields;
-	private TItem<T> _currItem;
-	private final List<TItem<T>> _movedItems;
 	
 	/**
 	 * Extract a specific quote field.
@@ -26,7 +25,6 @@ public final class ExtractQuoteField<T extends Comparable<T>> extends Filter<T> 
 		}
 		_quoteFields = new ArrayList<>(1);
 		_quoteFields.add(quoteField);
-		_movedItems = new ArrayList<>(1);
 	}
 	
 	/**
@@ -41,7 +39,6 @@ public final class ExtractQuoteField<T extends Comparable<T>> extends Filter<T> 
 			throw new IllegalArgumentException("Quote fields cannot be empty");
 		}
 		_quoteFields = quoteFields;
-		_movedItems = new ArrayList<>(1);
 	}
 
 	@Override
@@ -49,6 +46,8 @@ public final class ExtractQuoteField<T extends Comparable<T>> extends Filter<T> 
 			final T time, 
 			final SeqCursor<T> cursor, 
 			final TLog<T> log) {
+		
+		CurrTime.checkNew(_currTime, time);
 		
 		_currItem = null;
 		_movedItems.clear();
@@ -74,16 +73,8 @@ public final class ExtractQuoteField<T extends Comparable<T>> extends Filter<T> 
 				}
 			}
 		}
-	}
-
-	@Override
-	public TItem<T> getCurrItem() {
-		return _currItem;
-	}
-
-	@Override
-	public List<TItem<T>> getMovedItems() {
-		return _movedItems;
+		
+		_currTime = time;
 	}
 
 }

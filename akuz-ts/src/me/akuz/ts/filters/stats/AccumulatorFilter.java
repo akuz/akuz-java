@@ -1,6 +1,5 @@
 package me.akuz.ts.filters.stats;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import me.akuz.ts.CurrTime;
@@ -11,22 +10,18 @@ import me.akuz.ts.filters.stats.accs.Accumulator;
 import me.akuz.ts.log.TLog;
 
 /**
- * Accumulation filter (1D).
+ * Accumulator filter (1D).
  *
  */
 public class AccumulatorFilter<T extends Comparable<T>> extends Filter<T> {
 	
-	private final Accumulator<T> _accumulator;
-	private final List<TItem<T>> _movedItems;
-	private TItem<T> _currItem;
-	private T _currTime;
+	private Accumulator<T> _accumulator;
 	
 	public AccumulatorFilter(final Accumulator<T> accumulator) {
 		if (accumulator == null) {
 			throw new IllegalArgumentException("Accumulator cannot be null");
 		}
 		_accumulator = accumulator;
-		_movedItems = new ArrayList<>();
 	}
 
 	@Override
@@ -57,17 +52,12 @@ public class AccumulatorFilter<T extends Comparable<T>> extends Filter<T> {
 		
 		_currTime = time;
 	}
-
+	
 	@Override
-	public TItem<T> getCurrItem() {
-		CurrTime.checkSet(_currTime);
-		return _currItem;
-	}
-
-	@Override
-	public List<TItem<T>> getMovedItems() {
-		CurrTime.checkSet(_currTime);
-		return _movedItems;
+	public Filter<T> clone() {
+		AccumulatorFilter<T> copy = (AccumulatorFilter<T>)super.clone();
+		copy._accumulator = _accumulator.clone();
+		return copy;
 	}
 
 }
