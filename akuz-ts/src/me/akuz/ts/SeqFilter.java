@@ -22,6 +22,7 @@ implements Synchronizable<T>, SeqCursor<T> {
 	
 	private String _fieldName;
 	private final SeqCursor<T> _seqCursor;
+	private final boolean _moveCursor;
 	private final List<Filter<T>> _filters;
 	private List<TItem<T>> _movedItems;
 	private TItem<T> _currItem;
@@ -29,21 +30,16 @@ implements Synchronizable<T>, SeqCursor<T> {
 	private TLog<T> _log;
 	
 	public SeqFilter(final SeqCursor<T> seqCursor) {
+		this(seqCursor, true);
+	}
+	
+	public SeqFilter(final SeqCursor<T> seqCursor, final boolean moveCursor) {
 		if (seqCursor == null) {
 			throw new IllegalArgumentException("Cannot filter null sequence cursor");
 		}
 		_seqCursor = seqCursor;
+		_moveCursor = moveCursor;
 		_filters = new ArrayList<>();
-	}
-	
-	public SeqFilter(final SeqCursor<T> seqCursor, final Filter<T> filter) {
-		this(seqCursor);
-		addFilter(filter);
-	}
-	
-	public SeqFilter(final SeqCursor<T> seqCursor, final Collection<Filter<T>> filters) {
-		this(seqCursor);
-		addFilters(filters);
 	}
 	
 	public String getFieldName() {
@@ -120,7 +116,9 @@ implements Synchronizable<T>, SeqCursor<T> {
 		
 		CurrTime.checkNew(_currTime, time);
 		
-		_seqCursor.moveToTime(time);
+		if (_moveCursor) {
+			_seqCursor.moveToTime(time);
+		}
 		
 		_currItem = null;
 		_movedItems = null;

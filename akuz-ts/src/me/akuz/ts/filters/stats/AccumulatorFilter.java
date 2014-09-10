@@ -33,9 +33,11 @@ public class AccumulatorFilter<T extends Comparable<T>> extends Filter<T> {
 		CurrTime.checkNew(_currTime, time);
 		
 		final List<TItem<T>> movedItems = cursor.getMovedItems();
-		for (int i=0; i<movedItems.size(); i++) {
-			final TItem<T> item = movedItems.get(i);
-			_accumulator.add(item.getTime(), item.getObject());
+		if (movedItems != null) {
+			for (int i=0; i<movedItems.size(); i++) {
+				final TItem<T> item = movedItems.get(i);
+				_accumulator.add(item.getTime(), item.getObject());
+			}
 		}
 		if (cursor.getCurrItem() == null) {
 			_accumulator.add(time, null);

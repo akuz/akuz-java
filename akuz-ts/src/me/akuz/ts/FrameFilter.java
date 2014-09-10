@@ -26,18 +26,24 @@ public final class FrameFilter<K, T extends Comparable<T>>
 implements Synchronizable<T>, FrameCursor<K, T> {
 	
 	private final FrameCursor<K, T> _frameCursor;
+	private final boolean _moveCursor;
 	private final Map<K, SeqFilter<T>> _seqFilters;
 	private final Index<K> _keysIndex;
 	private TLog<T> _log;
 	private final Map<K, TItem<T>> _currItems;
 	private final Map<K, List<TItem<T>>> _movedItems;
 	private T _currTime;
-	
+
 	public FrameFilter(final FrameCursor<K, T> frameCursor) {
+		this(frameCursor, true);
+	}
+	
+	public FrameFilter(final FrameCursor<K, T> frameCursor, final boolean moveCursor) {
 		if (frameCursor == null) {
 			throw new IllegalArgumentException("Cannot filter null frame cursor");
 		}
 		_frameCursor = frameCursor;
+		_moveCursor = moveCursor;
 		_seqFilters = new HashMap<>();
 		_keysIndex = new HashIndex<>();
 		_currItems = new HashMap<>();
@@ -70,7 +76,7 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 	public FrameFilter<K, T> addFilter(final K key, final Filter<T> filter) {
 		SeqFilter<T> seqFilter = _seqFilters.get(key);
 		if (seqFilter == null) {
-			seqFilter = new SeqFilter<>(_frameCursor.getSeqCursor(key));
+			seqFilter = new SeqFilter<>(_frameCursor.getSeqCursor(key), false);
 			seqFilter.setFieldName(key.toString());
 			seqFilter.setLog(_log);
 			_seqFilters.put(key, seqFilter);
@@ -172,6 +178,10 @@ implements Synchronizable<T>, FrameCursor<K, T> {
 		}
 		
 		CurrTime.checkNew(_currTime, time);
+		
+		if (_moveCursor) {
+			_frameCursor.moveToTime(time);
+		}
 		
 		_currItems.clear();
 		_movedItems.clear();
