@@ -95,6 +95,7 @@ public abstract class Filter<T extends Comparable<T>> implements Cloneable {
 	public Filter<T> clone() {
 		try {
 			final Filter<T> copy = (Filter<T>)super.clone();
+			copy._fieldName = null;
 			copy._movedItems = new ArrayList<>(_movedItems.size());
 			copy._movedItems.addAll(_movedItems);
 			return copy;
