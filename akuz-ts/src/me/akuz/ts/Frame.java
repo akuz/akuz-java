@@ -182,10 +182,10 @@ public final class Frame<K, T extends Comparable<T>> {
 		FrameFilter<K, T> filter = new FrameFilter<>(this.iterator());
 		filter.addFilter(getKeys(), new CumsumFilter<T>());
 		
-		FrameOutput<K, T> transform = new FrameOutput<>(filter);
+		FrameSampler<K, T> transform = new FrameSampler<>(filter);
 		transform.runToEnd();
 		
-		Frame<K, T> result = transform.getFrame();
+		Frame<K, T> result = transform.getResult();
 		return result;
 	}
 }

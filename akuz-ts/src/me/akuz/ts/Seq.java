@@ -107,10 +107,10 @@ public final class Seq<T extends Comparable<T>> {
 				new SeqFilter<T>(iterator())
 					.addFilter(new CumsumFilter<T>());
 		
-		final SeqOutput<T> output = new SeqOutput<>(filter);
+		final SeqSampler<T> output = new SeqSampler<>(filter);
 		
 		output.runToEnd();
 		
-		return output.getSeq();
+		return output.getResult();
 	}
 }
