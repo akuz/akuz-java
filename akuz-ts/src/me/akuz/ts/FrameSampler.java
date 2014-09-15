@@ -46,7 +46,7 @@ implements Synchronizable<T> {
 	 * in the underlying cursor and collect
 	 * all samples from the cursor.
 	 */
-	public void runToEnd() {
+	public Frame<K, T> runToEnd() {
 		if (!_moveCursor) {
 			throw new IllegalStateException(
 					"Sampler is set not to move the underlying " +
@@ -56,6 +56,7 @@ implements Synchronizable<T> {
 		while (getNextTime(nextTime)) {
 			moveToTime(nextTime.getValue());
 		}
+		return _result;
 	}
 	
 	@Override
