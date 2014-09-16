@@ -35,7 +35,7 @@ public abstract class Filter<T extends Comparable<T>> implements Cloneable {
 	 */
 	public abstract void next(
 			final T time,
-			final SeqCursor<T> cur, 
+			final SeqCursor<T> cursor, 
 			final TLog<T> log);
 	
 	/**

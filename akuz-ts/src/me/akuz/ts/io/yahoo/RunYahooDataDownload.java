@@ -41,14 +41,14 @@ public final class RunYahooDataDownload {
 //		final String portfSpecFile = "/Users/andrey/SkyDrive/Documents/Data/yahoo/SP100.txt";
 //		final String outputDirName = "/Users/andrey/SkyDrive/Documents/Data/yahoo/SP100_20140324";
 
-//		final String portfSpecFile = "/Users/andrey/SkyDrive/Documents/Data/yahoo/CAC40.txt";
-//		final String outputDirName = "/Users/andrey/SkyDrive/Documents/Data/yahoo/CAC40_20140324";
+		final String portfSpecFile = "/Users/andrey/SkyDrive/Documents/Data/yahoo/CAC40.TMP.txt";
+		final String outputDirName = "/Users/andrey/SkyDrive/Documents/Data/yahoo/CAC40_20140915";
 
 //		final String portfSpecFile = "/Users/andrey/SkyDrive/Documents/Data/yahoo/DAX30.txt";
 //		final String outputDirName = "/Users/andrey/SkyDrive/Documents/Data/yahoo/DAX30_20140324";
 		
-		final String portfSpecFile = "/Users/andrey/SkyDrive/Documents/Data/yahoo/IBEX35.txt";
-		final String outputDirName = "/Users/andrey/SkyDrive/Documents/Data/yahoo/IBEX35_20140324";
+//		final String portfSpecFile = "/Users/andrey/SkyDrive/Documents/Data/yahoo/IBEX35.txt";
+//		final String outputDirName = "/Users/andrey/SkyDrive/Documents/Data/yahoo/IBEX35_20140915";
 		
 		FileUtils.isDirExistsOrCreate(outputDirName);
 		
