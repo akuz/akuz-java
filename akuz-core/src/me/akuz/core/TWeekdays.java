@@ -140,4 +140,15 @@ public final class TWeekdays {
 		}
 		return weekdaysAfterWeeks + weekdaysRemaining;
 	}
+	
+	/**
+	 * Calculate *forward* distance in weekdays from one date 
+	 * to another, where both dates must be weekdays, returning
+	 * zero if the distance is in fact negative.
+	 * 
+	 */
+	public static int forwardDistance(final TDate date1, final TDate date2) {
+		final int distance = distance(date1, date2);
+		return distance > 0 ? distance : 0;
+	}
 }
