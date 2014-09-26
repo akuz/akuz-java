@@ -1,11 +1,21 @@
 package me.akuz.ts.io;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import me.akuz.core.FileUtils;
 import me.akuz.core.Out;
 import me.akuz.ts.Frame;
 import me.akuz.ts.FrameIterator;
@@ -36,6 +46,23 @@ public final class CSV_IO {
 		return str.split(SEP_REGEX_UNESCAPED);
 	}
 
+	public static final <K, T extends Comparable<T>> void toCSV(
+			final File file,
+			final Frame<K, T> frame, 
+			final String timeField,
+			final IOType timeType,
+			final IOType dataType) throws IOException {
+		
+		toCSV(
+			file,
+			frame,
+			new IOMap<>(
+					timeField, 
+					timeType,
+					frame,
+					dataType));
+	}
+
 	public static final <K, T extends Comparable<T>> String toCSV(
 			final Frame<K, T> frame, 
 			final String timeField,
@@ -51,21 +78,47 @@ public final class CSV_IO {
 						dataType));
 	}
 
+	public static final <K, T extends Comparable<T>> void toCSV(
+			final File file,
+			final Frame<K, T> frame,
+			final IOMap<K> ioMap) throws IOException {
+		
+		final FileOutputStream output = new FileOutputStream(file, false);
+		final OutputStreamWriter outputWriter = new OutputStreamWriter(output, FileUtils.UTF8);
+		try (final BufferedWriter bufferedWriter = new BufferedWriter(outputWriter)) {
+			toCSV(bufferedWriter, frame, ioMap);
+		}
+	}
+
 	public static final <K, T extends Comparable<T>> String toCSV(
 			final Frame<K, T> frame,
 			final IOMap<K> ioMap) {
 		
-		final StringBuilder sb = new StringBuilder();
-		sb.append(escape(ioMap.getTimeFieldName()));
+		try {
+			try (final StringWriter writer = new StringWriter()) {
+				toCSV(writer, frame, ioMap);
+				return writer.getBuffer().toString();
+			}
+		} catch (IOException e) {
+			throw new IllegalStateException("Could not write to a string", e);
+		}
+	}
+
+	public static final <K, T extends Comparable<T>> void toCSV(
+			final Writer writer,
+			final Frame<K, T> frame,
+			final IOMap<K> ioMap) throws IOException {
+
+		writer.append(escape(ioMap.getTimeFieldName()));
 
 		List<K> keys = ioMap.getKeys();
 		for (int j=0; j<keys.size(); j++) {
 			
-			sb.append(SEP);
+			writer.append(SEP);
 			K key = keys.get(j);
-			sb.append(escape(ioMap.getFieldName(key)));
+			writer.append(escape(ioMap.getFieldName(key)));
 		}
-		sb.append(NEW_LINE);
+		writer.append(NEW_LINE);
 		
 		final FrameIterator<K, T> frameIter = new FrameIterator<>(frame, keys);
 		final Out<T> nextTime = new Out<>();
@@ -75,37 +128,58 @@ public final class CSV_IO {
 			
 			final Map<K, TItem<T>> currKeyItems = frameIter.getCurrItems();
 			
-			sb.append(escape(ioMap.getTimeDataType().toString(frameIter.getCurrTime())));
+			writer.append(escape(ioMap.getTimeDataType().toString(frameIter.getCurrTime())));
 			for (int j=0; j<keys.size(); j++) {
 				
-				sb.append(SEP);
+				writer.append(SEP);
 				K key = keys.get(j);
 				TItem<T> item = currKeyItems.get(key);
 				if (item != null) {
-					sb.append(escape(ioMap.getDataType(key).toString(item.getObject())));
+					writer.append(escape(ioMap.getDataType(key).toString(item.getObject())));
 				}
 			}
-			sb.append(NEW_LINE);
+			writer.append(NEW_LINE);
 		}
-		return sb.toString();
 	}
 
 	public static final <K, T extends Comparable<T>> Frame<K,T> fromCSV(
 			final String data,
+			final IOMap<K> ioMap) {
+		
+		try {
+			return fromCSV(new StringReader(data), ioMap);
+		} catch (IOException e) {
+			throw new IllegalStateException("Could not read from a string", e);
+		}
+	}
+
+	public static final <K, T extends Comparable<T>> Frame<K,T> fromCSV(
+			final File file,
+			final IOMap<K> ioMap) throws IOException {
+		
+		final FileInputStream input = new FileInputStream(file);
+		try (final InputStreamReader reader = new InputStreamReader(input, FileUtils.UTF8))
+		{
+			return fromCSV(reader, ioMap);
+		}
+	}
+
+	public static final <K, T extends Comparable<T>> Frame<K,T> fromCSV(
+			final Readable input,
 			final IOMap<K> ioMap) throws IOException {
 		
 		Frame<K, T> frame = new Frame<>();
 
 		int lineIndex = 0;
-		try (Scanner sc = new Scanner(data)) {
+		try (final Scanner scanner = new Scanner(input)) {
 			
 			int timeFieldIdx = -1;
 			Map<Integer, K> fieldIdxToKey = null;
 			int fieldCount = -1;
 			
-			while (sc.hasNextLine()) {
+			while (scanner.hasNextLine()) {
 				
-				String line = sc.nextLine();
+				String line = scanner.nextLine();
 				
 				if (lineIndex == 0) {
 					

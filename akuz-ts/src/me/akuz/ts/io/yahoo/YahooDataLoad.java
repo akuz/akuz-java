@@ -170,8 +170,7 @@ public final class YahooDataLoad {
 
 		Seq<TDate> seq = new Seq<>();
 	
-		Scanner scanner = FileUtils.openScanner(fileName, "UTF-8");
-		try {
+		try (final Scanner scanner = FileUtils.openScanner(fileName)) {
 			int lineNumber = 0;
 			while (scanner.hasNextLine()) {
 
@@ -247,8 +246,6 @@ public final class YahooDataLoad {
 					seq.stage(date, build.create());
 				}
 			}
-		} finally {
-			scanner.close();
 		}
 
 		seq.acceptStaged();
@@ -300,8 +297,7 @@ public final class YahooDataLoad {
 
 		Frame<QuoteField, TDate> frame = new Frame<>();
 	
-		Scanner scanner = FileUtils.openScanner(fileName, "UTF-8");
-		try {
+		try (final Scanner scanner = FileUtils.openScanner(fileName)) {
 			int lineNumber = 0;
 			while (scanner.hasNextLine()) {
 
@@ -373,8 +369,6 @@ public final class YahooDataLoad {
 					}
 				}
 			}
-		} finally {
-			scanner.close();
 		}
 
 		frame.acceptStaged();

@@ -17,7 +17,7 @@ import java.util.Scanner;
  */
 public final class FileUtils {
 	
-	private final static String DEFAULT_ENCODING = "UTF-8";
+	public final static String UTF8 =  "UTF-8";
 	
 	/**
 	 * Returns a single file object if the argument is a path to a specific file,
@@ -55,7 +55,7 @@ public final class FileUtils {
 	}
 	public static final Scanner openScanner(File file, String encoding) throws IOException {
 		if (encoding == null) {
-			encoding = DEFAULT_ENCODING;
+			encoding = UTF8;
 		}
 		FileInputStream fis = new FileInputStream(file);
 		return new Scanner(fis, encoding);
@@ -130,7 +130,7 @@ public final class FileUtils {
 	}
 	public static final void writeEntireFile(File file, String contents, String encoding) throws IOException {
 		if (encoding == null) {
-			encoding = DEFAULT_ENCODING;
+			encoding = UTF8;
 		}
 		try (	FileOutputStream fos = new FileOutputStream(file, false);
 				Writer writer = new OutputStreamWriter(fos, encoding)) {
@@ -144,7 +144,7 @@ public final class FileUtils {
 	}
 	public static final void writeList(String fileName, List<?> list, String encoding) throws IOException {
 		if (encoding == null) {
-			encoding = DEFAULT_ENCODING;
+			encoding = UTF8;
 		}
 		try (	FileOutputStream fos = new FileOutputStream(fileName);
 				Writer writer = new OutputStreamWriter(fos, encoding)) {
