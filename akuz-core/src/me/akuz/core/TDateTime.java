@@ -61,6 +61,10 @@ public final class TDateTime implements Comparable<TDateTime> {
 	public TDate toLocalDate() {
 		return new TDate(_dateTime.toLocalDate());
 	}
+	
+	public TDateTime plusMinutes(final int minutes) {
+		return new TDateTime(_dateTime.plusMinutes(minutes));
+	}
 
 	@Override
 	public int compareTo(TDateTime o) {
