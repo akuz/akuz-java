@@ -28,7 +28,10 @@ public final class CurrTime {
 		}
 		if (currTime != null && 
 			currTime.compareTo(newCurrTime) >= 0) {
-			throw new IllegalStateException("Current time must be < new current time");
+			throw new IllegalStateException(
+					"Current time (" + currTime + 
+					") must be < new current time (" + 
+					newCurrTime + ")");
 		}
 	}
 	
