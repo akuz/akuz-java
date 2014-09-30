@@ -11,12 +11,10 @@ import me.akuz.core.Out;
  *
  * @param <T>
  */
-public interface Synchronizable<T extends Comparable<T>> {
+public interface Synchronizable<T extends Comparable<T>> extends TimeMovable<T> {
 	
 	T getCurrTime();
 	
-	boolean getNextTime(final Out<T> nextTime);
-	
-	void moveToTime(final T time);
+	boolean getNextTime(Out<T> nextTime);
 
 }
