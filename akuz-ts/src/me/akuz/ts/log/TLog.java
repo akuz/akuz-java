@@ -29,20 +29,20 @@ public final class TLog<T extends Comparable<T>> {
 	/**
 	 * Add an alert with provided level and message.
 	 */
-	public void add(final T time, final TLogLevel level, final String message) {
-		add(time, new TLogAlert(level, message));
+	public void add(final T time, final TLevel level, final String message) {
+		add(time, new TAlert(level, message));
 	}
 	
 	/**
 	 * Add a pre-created alert.
 	 */
-	public void add(final T time, final TLogAlert alert) {
+	public void add(final T time, final TAlert alert) {
 		
-		if (alert.getLevel().equals(TLogLevel.Info)) {
+		if (alert.getLevel().equals(TLevel.Info)) {
 			addTo(_infos, time, alert);
-		} else if (alert.getLevel().equals(TLogLevel.Warning)) {
+		} else if (alert.getLevel().equals(TLevel.Warning)) {
 			addTo(_warnings, time, alert);
-		} else if (alert.getLevel().equals(TLogLevel.Error)) {
+		} else if (alert.getLevel().equals(TLevel.Error)) {
 			addTo(_errors, time, alert);
 		} else {
 			throw new IllegalArgumentException("Unsupported alert level: " + alert.getLevel());
@@ -50,18 +50,21 @@ public final class TLog<T extends Comparable<T>> {
 		addTo(_all, time, alert);
 	}
 	
-	private static final <T extends Comparable<T>> void addTo(final Seq<T> seq, final T time, final TLogAlert alert) {
+	/**
+	 * Collapses alerts at the same time into a list.
+	 * 
+	 */
+	private static final <T extends Comparable<T>> void addTo(final Seq<T> seq, final T time, final TAlert alert) {
 		
 		final TItem<T> lastItem = seq.getLast();
 		if (lastItem != null &&
 			lastItem.getTime().equals(time)) {
-			List<TLogAlert> list = lastItem.get();
+			final List<TAlert> list = lastItem.get();
 			list.add(alert);
 		} else {
-			final List<TLogAlert> list = new ArrayList<>(1);
+			final List<TAlert> list = new ArrayList<>(1);
 			list.add(alert);
-			final TItem<T> newItem = new TItem<>(time, list);
-			seq.add(newItem);
+			seq.add(time, list);
 		}
 	}
 	

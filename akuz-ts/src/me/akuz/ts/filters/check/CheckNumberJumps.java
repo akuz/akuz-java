@@ -7,7 +7,7 @@ import me.akuz.ts.Filter;
 import me.akuz.ts.SeqCursor;
 import me.akuz.ts.TItem;
 import me.akuz.ts.log.TLog;
-import me.akuz.ts.log.TLogLevel;
+import me.akuz.ts.log.TLevel;
 
 public class CheckNumberJumps<T extends Comparable<T>> extends Filter<T> {
 	
@@ -96,19 +96,19 @@ public class CheckNumberJumps<T extends Comparable<T>> extends Filter<T> {
 			if (!Double.isNaN(_errorJump) && jump > _errorJump) {
 				
 				log.add(currItem.getTime(),
-						TLogLevel.Error, "[" + _tag + "] Jump in \"" + getFieldName() 
+						TLevel.Error, "[" + _tag + "] Jump in \"" + getFieldName() 
 						+ "\" field value: " + prevItem + " >> " + _lastItem);
 				
 			} else if (!Double.isNaN(_warningJump) && jump > _warningJump) {
 				
 				log.add(currItem.getTime(),
-						TLogLevel.Warning, "[" + _tag + "] Jump in \"" + getFieldName() + 
+						TLevel.Warning, "[" + _tag + "] Jump in \"" + getFieldName() + 
 						"\" field value: " + prevItem + " >> " + _lastItem);
 				
 			} else if (!Double.isNaN(_infoJump) && jump > _infoJump) {
 				
 				log.add(currItem.getTime(),
-						TLogLevel.Info, "[" + _tag + "] Jump in \"" + getFieldName() + 
+						TLevel.Info, "[" + _tag + "] Jump in \"" + getFieldName() + 
 						"\" field value: " + prevItem + " >> " + _lastItem);
 			}
 		}

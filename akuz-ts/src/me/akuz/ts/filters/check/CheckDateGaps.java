@@ -9,14 +9,14 @@ import me.akuz.ts.Filter;
 import me.akuz.ts.SeqCursor;
 import me.akuz.ts.TItem;
 import me.akuz.ts.log.TLog;
-import me.akuz.ts.log.TLogLevel;
+import me.akuz.ts.log.TLevel;
 
 public class CheckDateGaps extends Filter<Date> {
 	
 	private final TDuration _infoAfterPeriod;
 	private final TDuration _warningAfterPeriod;
 	private final TDuration _errorAfterPeriod;
-	private TLogLevel _lastLevel;
+	private TLevel _lastLevel;
 	private Date _lastDate;
 	
 	public CheckDateGaps(
@@ -27,7 +27,7 @@ public class CheckDateGaps extends Filter<Date> {
 		_infoAfterPeriod = infoAfterPeriod;
 		_warningAfterPeriod = warningAfterPeriod;
 		_errorAfterPeriod = errorAfterPeriod;
-		_lastLevel = TLogLevel.None;
+		_lastLevel = TLevel.None;
 		_lastDate = null;
 	}
 
@@ -95,18 +95,18 @@ public class CheckDateGaps extends Filter<Date> {
 		boolean increasedLevel = false;
 		
 		if (jump > _errorAfterPeriod.getMs()) {
-			if (_lastLevel.compareTo(TLogLevel.Error) < 0) {
-				_lastLevel = TLogLevel.Error;
+			if (_lastLevel.compareTo(TLevel.Error) < 0) {
+				_lastLevel = TLevel.Error;
 				increasedLevel = true;
 			}
 		} else if (jump > _warningAfterPeriod.getMs()) {
-			if (_lastLevel.compareTo(TLogLevel.Warning) < 0) {
-				_lastLevel = TLogLevel.Warning;
+			if (_lastLevel.compareTo(TLevel.Warning) < 0) {
+				_lastLevel = TLevel.Warning;
 				increasedLevel = true;
 			}
 		} else if (jump > _infoAfterPeriod.getMs()) {
-			if (_lastLevel.compareTo(TLogLevel.Info) < 0) {
-				_lastLevel = TLogLevel.Info;
+			if (_lastLevel.compareTo(TLevel.Info) < 0) {
+				_lastLevel = TLevel.Info;
 				increasedLevel = true;
 			}
 		}
@@ -116,7 +116,7 @@ public class CheckDateGaps extends Filter<Date> {
 		}
 		
 		if (resetLevel) {
-			_lastLevel = TLogLevel.None;
+			_lastLevel = TLevel.None;
 		}
 	}
 	
