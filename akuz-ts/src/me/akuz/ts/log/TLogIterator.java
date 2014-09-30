@@ -12,7 +12,6 @@ import me.akuz.ts.sync.Synchronizable;
 public final class TLogIterator<T extends Comparable<T>>
 implements Synchronizable<T> {
 	
-	private final SeqCursor<T> _all;
 	private final SeqCursor<T> _infos;
 	private final SeqCursor<T> _warnings;
 	private final SeqCursor<T> _errors;
@@ -20,14 +19,9 @@ implements Synchronizable<T> {
 	
 	public TLogIterator(final TLog<T> log) {
 		
-		_all = log.getAll().iterator();
 		_infos = log.getInfos().iterator();
 		_warnings = log.getWarnings().iterator();
 		_errors = log.getErrors().iterator();
-	}
-	
-	public SeqCursor<T> getAll() {
-		return _all;
 	}
 	
 	public SeqCursor<T> getInfos() {
@@ -58,7 +52,6 @@ implements Synchronizable<T> {
 	public void moveToTime(final T time) {
 		CurrTime.checkNew(_currTime, time);
 		
-		_all.moveToTime(time);
 		_infos.moveToTime(time);
 		_warnings.moveToTime(time);
 		_errors.moveToTime(time);

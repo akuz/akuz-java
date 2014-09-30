@@ -15,13 +15,11 @@ import me.akuz.ts.TItem;
  */
 public final class TLog<T extends Comparable<T>> {
 	
-	private final Seq<T> _all;
 	private final Seq<T> _infos;
 	private final Seq<T> _warnings;
 	private final Seq<T> _errors;
 	
 	public TLog() {
-		_all = new Seq<>();
 		_infos = new Seq<>();
 		_warnings = new Seq<>();
 		_errors = new Seq<>();
@@ -38,16 +36,15 @@ public final class TLog<T extends Comparable<T>> {
 	 */
 	public void add(final T time, final TAlert alert) {
 		
-		if (alert.getLevel().equals(TLevel.Info)) {
+		if (alert.getLevel().compareTo(TLevel.Info) >= 0) {
 			addTo(_infos, time, alert);
-		} else if (alert.getLevel().equals(TLevel.Warning)) {
-			addTo(_warnings, time, alert);
-		} else if (alert.getLevel().equals(TLevel.Error)) {
-			addTo(_errors, time, alert);
-		} else {
-			throw new IllegalArgumentException("Unsupported alert level: " + alert.getLevel());
 		}
-		addTo(_all, time, alert);
+		if (alert.getLevel().compareTo(TLevel.Warning) >= 0) {
+			addTo(_warnings, time, alert);
+		}
+		if (alert.getLevel().compareTo(TLevel.Error) >= 0) {
+			addTo(_errors, time, alert);
+		}
 	}
 	
 	/**
@@ -69,15 +66,11 @@ public final class TLog<T extends Comparable<T>> {
 	}
 	
 	public int size() {
-		return _all.getItems().size();
+		return _infos.getItems().size();
 	}
 	
 	public boolean hasAny() {
-		return _all.getItems().size() > 0;
-	}
-	
-	public Seq<T> getAll() {
-		return _all;
+		return size() > 0;
 	}
 	
 	public boolean hasInfos() {
