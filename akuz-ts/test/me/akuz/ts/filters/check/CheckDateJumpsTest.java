@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 import me.akuz.core.DateFmt;
-import me.akuz.core.TDuration;
+import me.akuz.core.TPeriod;
 import me.akuz.ts.Frame;
 import me.akuz.ts.FrameFilter;
 import me.akuz.ts.Seq;
@@ -31,9 +31,9 @@ public class CheckDateJumpsTest {
 		times.add(DateFmt.parse("20130104", DateFmt.YYYYMMDD));
 		times.add(DateFmt.parse("20130105", DateFmt.YYYYMMDD));
 		
-		TDuration infoAfterPeriod    = TDuration.fromDays(1.5);
-		TDuration warningAfterPeriod = TDuration.fromDays(2.0);
-		TDuration errorAfterPeriod   = TDuration.fromDays(3.5);
+		TPeriod infoAfterPeriod    = TPeriod.fromDays(1.5);
+		TPeriod warningAfterPeriod = TPeriod.fromDays(2.0);
+		TPeriod errorAfterPeriod   = TPeriod.fromDays(3.5);
 		
 		final TLog<Date> log = new TLog<>();
 		final CheckDateGaps checkDateJumps = new CheckDateGaps(
@@ -96,9 +96,9 @@ public class CheckDateJumpsTest {
 		times.add(DateFmt.parse("20130108", DateFmt.YYYYMMDD));
 		times.add(DateFmt.parse("20130109", DateFmt.YYYYMMDD));
 		
-		TDuration infoAfterPeriod    = TDuration.fromDays(0.99);
-		TDuration warningAfterPeriod = TDuration.fromDays(1.99);
-		TDuration errorAfterPeriod   = TDuration.fromDays(2.99);
+		TPeriod infoAfterPeriod    = TPeriod.fromDays(0.99);
+		TPeriod warningAfterPeriod = TPeriod.fromDays(1.99);
+		TPeriod errorAfterPeriod   = TPeriod.fromDays(2.99);
 		
 		final TLog<Date> log = new TLog<>();
 		final CheckDateGaps checkDateJumps = new CheckDateGaps(infoAfterPeriod, warningAfterPeriod, errorAfterPeriod);

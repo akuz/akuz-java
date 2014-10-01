@@ -6,10 +6,10 @@ package me.akuz.ts.log;
  */
 public final class TLevel implements Comparable<TLevel> {
 
-	public static final TLevel None    = new TLevel(0, "None");
-	public static final TLevel Info    = new TLevel(1, "Info");
-	public static final TLevel Warning = new TLevel(2, "Warning");
-	public static final TLevel Error   = new TLevel(3, "Error");
+	public static final TLevel None     = new TLevel(0, "None");
+	public static final TLevel Info     = new TLevel(1, "Info");
+	public static final TLevel Warning  = new TLevel(2, "Warning");
+	public static final TLevel Danger   = new TLevel(3, "Danger");
 	
 	private final int _code;
 	private final String _name;

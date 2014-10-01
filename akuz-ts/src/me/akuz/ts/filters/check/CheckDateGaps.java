@@ -3,7 +3,7 @@ package me.akuz.ts.filters.check;
 import java.util.Date;
 import java.util.List;
 
-import me.akuz.core.TDuration;
+import me.akuz.core.TPeriod;
 import me.akuz.ts.CurrTime;
 import me.akuz.ts.Filter;
 import me.akuz.ts.SeqCursor;
@@ -13,16 +13,16 @@ import me.akuz.ts.log.TLevel;
 
 public class CheckDateGaps extends Filter<Date> {
 	
-	private final TDuration _infoAfterPeriod;
-	private final TDuration _warningAfterPeriod;
-	private final TDuration _errorAfterPeriod;
+	private final TPeriod _infoAfterPeriod;
+	private final TPeriod _warningAfterPeriod;
+	private final TPeriod _errorAfterPeriod;
 	private TLevel _lastLevel;
 	private Date _lastDate;
 	
 	public CheckDateGaps(
-			final TDuration infoAfterPeriod,
-			final TDuration warningAfterPeriod,
-			final TDuration errorAfterPeriod) {
+			final TPeriod infoAfterPeriod,
+			final TPeriod warningAfterPeriod,
+			final TPeriod errorAfterPeriod) {
 		
 		_infoAfterPeriod = infoAfterPeriod;
 		_warningAfterPeriod = warningAfterPeriod;
@@ -95,8 +95,8 @@ public class CheckDateGaps extends Filter<Date> {
 		boolean increasedLevel = false;
 		
 		if (jump > _errorAfterPeriod.getMs()) {
-			if (_lastLevel.compareTo(TLevel.Error) < 0) {
-				_lastLevel = TLevel.Error;
+			if (_lastLevel.compareTo(TLevel.Danger) < 0) {
+				_lastLevel = TLevel.Danger;
 				increasedLevel = true;
 			}
 		} else if (jump > _warningAfterPeriod.getMs()) {

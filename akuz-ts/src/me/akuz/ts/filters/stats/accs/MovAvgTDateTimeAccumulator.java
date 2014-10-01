@@ -2,19 +2,19 @@ package me.akuz.ts.filters.stats.accs;
 
 import me.akuz.core.CircularBuffer;
 import me.akuz.core.TDateTime;
-import me.akuz.core.TDuration;
+import me.akuz.core.TPeriod;
 import me.akuz.ts.CurrTime;
 
 public final class MovAvgTDateTimeAccumulator extends Accumulator<TDateTime> {
 
 	private CircularBuffer<Double> _buff;
-	private final TDuration _gapOkDur;
+	private final TPeriod _gapOkDur;
 	private TDateTime _lastTime;
 	private double _curr;
 	
 	public MovAvgTDateTimeAccumulator(
 			final int sampleCount,
-			final TDuration gapOkDur) {
+			final TPeriod gapOkDur) {
 		
 		if (sampleCount < 2) {
 			throw new IllegalArgumentException("Sample count must be >= 2");
@@ -48,7 +48,7 @@ public final class MovAvgTDateTimeAccumulator extends Accumulator<TDateTime> {
 		
 		// reset if needed
 		if (_lastTime != null) {
-			final TDuration dur = new TDuration(_lastTime, time);
+			final TPeriod dur = new TPeriod(_lastTime, time);
 			if (dur.compareTo(_gapOkDur) > 0) {
 				reset();
 			}

@@ -27,6 +27,6 @@ public final class Pair<T1,T2> {
 	}
 
 	public String toString() {
-		return "[" + _v1 + "," + _v2 + "]";
+		return "{" + _v1 + ", " + _v2 + "}";
 	}
 }

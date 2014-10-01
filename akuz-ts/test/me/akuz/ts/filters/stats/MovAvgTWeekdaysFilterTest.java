@@ -1,7 +1,7 @@
 package me.akuz.ts.filters.stats;
 
 import me.akuz.core.TDateTime;
-import me.akuz.core.TDuration;
+import me.akuz.core.TPeriod;
 import me.akuz.ts.Seq;
 import me.akuz.ts.SeqFilter;
 
@@ -23,7 +23,7 @@ public class MovAvgTWeekdaysFilterTest {
 		
 		SeqFilter<TDateTime> filter
 			= new SeqFilter<>(seq.iterator())
-				.addFilter(new MovAvgTDateTimeFilter(2, TDuration.fromDays(2.01)));
+				.addFilter(new MovAvgTDateTimeFilter(2, TPeriod.fromDays(2.01)));
 		
 		filter.moveToTime(new TDateTime(2013, 1, 1));
 		Assert.assertTrue(Double.isNaN(filter.getCurrItem().getDouble()));
@@ -81,7 +81,7 @@ public class MovAvgTWeekdaysFilterTest {
 		
 		SeqFilter<TDateTime> filter
 			= new SeqFilter<>(seq.iterator())
-				.addFilter(new MovAvgTDateTimeFilter(3, TDuration.fromDays(2.01)));
+				.addFilter(new MovAvgTDateTimeFilter(3, TPeriod.fromDays(2.01)));
 		
 		filter.moveToTime(new TDateTime(2013, 1, 1));
 		Assert.assertTrue(Double.isNaN(filter.getCurrItem().getDouble()));
