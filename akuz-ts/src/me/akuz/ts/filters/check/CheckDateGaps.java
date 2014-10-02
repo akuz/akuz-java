@@ -95,8 +95,8 @@ public class CheckDateGaps extends Filter<Date> {
 		boolean increasedLevel = false;
 		
 		if (jump > _errorAfterPeriod.getMs()) {
-			if (_lastLevel.compareTo(TLevel.Danger) < 0) {
-				_lastLevel = TLevel.Danger;
+			if (_lastLevel.compareTo(TLevel.DANGER) < 0) {
+				_lastLevel = TLevel.DANGER;
 				increasedLevel = true;
 			}
 		} else if (jump > _warningAfterPeriod.getMs()) {

@@ -42,7 +42,7 @@ public final class TLog<T extends Comparable<T>> {
 		if (alert.getLevel().compareTo(TLevel.Warning) >= 0) {
 			addTo(_warnings, time, alert);
 		}
-		if (alert.getLevel().compareTo(TLevel.Danger) >= 0) {
+		if (alert.getLevel().compareTo(TLevel.DANGER) >= 0) {
 			addTo(_errors, time, alert);
 		}
 	}

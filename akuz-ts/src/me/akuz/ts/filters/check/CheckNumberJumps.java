@@ -96,7 +96,7 @@ public class CheckNumberJumps<T extends Comparable<T>> extends Filter<T> {
 			if (!Double.isNaN(_errorJump) && jump > _errorJump) {
 				
 				log.add(currItem.getTime(),
-						TLevel.Danger, "[" + _tag + "] Jump in \"" + getFieldName() 
+						TLevel.DANGER, "[" + _tag + "] Jump in \"" + getFieldName() 
 						+ "\" field value: " + prevItem + " >> " + _lastItem);
 				
 			} else if (!Double.isNaN(_warningJump) && jump > _warningJump) {
