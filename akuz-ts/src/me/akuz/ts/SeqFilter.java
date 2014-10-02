@@ -6,7 +6,6 @@ import java.util.List;
 
 import me.akuz.core.Out;
 import me.akuz.ts.log.TLog;
-import me.akuz.ts.sync.Synchronizable;
 
 /**
  * {@link Seq} filter, which applies one or more 
@@ -18,7 +17,7 @@ import me.akuz.ts.sync.Synchronizable;
  *
  */
 public final class SeqFilter<T extends Comparable<T>> 
-implements Synchronizable<T>, SeqCursor<T> {
+implements SeqCursor<T> {
 	
 	private String _fieldName;
 	private final SeqCursor<T> _seqCursor;

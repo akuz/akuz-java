@@ -3,14 +3,14 @@ package me.akuz.ts.log;
 import me.akuz.core.Out;
 import me.akuz.ts.CurrTime;
 import me.akuz.ts.SeqCursor;
-import me.akuz.ts.sync.Synchronizable;
+import me.akuz.ts.sync.TimeSchedule;
 
 /**
  * Iterator for log entries of different levels.
  * 
  */
 public final class TLogIterator<T extends Comparable<T>>
-implements Synchronizable<T> {
+implements TimeSchedule<T> {
 	
 	private final SeqCursor<T> _infos;
 	private final SeqCursor<T> _warnings;
@@ -19,9 +19,9 @@ implements Synchronizable<T> {
 	
 	public TLogIterator(final TLog<T> log) {
 		
-		_infos = log.getInfos().iterator();
-		_warnings = log.getWarnings().iterator();
-		_errors = log.getErrors().iterator();
+		_infos = log.getInfosOrHigher().iterator();
+		_warnings = log.getWarningsOrHigher().iterator();
+		_errors = log.getDangerOrHigher().iterator();
 	}
 	
 	public SeqCursor<T> getInfos() {

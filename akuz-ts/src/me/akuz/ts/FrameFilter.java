@@ -9,7 +9,6 @@ import me.akuz.core.HashIndex;
 import me.akuz.core.Index;
 import me.akuz.core.Out;
 import me.akuz.ts.log.TLog;
-import me.akuz.ts.sync.Synchronizable;
 
 /**
  * {@link Frame} filter, which applies one or more 
@@ -23,7 +22,7 @@ import me.akuz.ts.sync.Synchronizable;
  *
  */
 public final class FrameFilter<K, T extends Comparable<T>> 
-implements Synchronizable<T>, FrameCursor<K, T> {
+implements FrameCursor<K, T> {
 	
 	private final FrameCursor<K, T> _frameCursor;
 	private final boolean _moveCursor;

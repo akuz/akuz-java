@@ -9,7 +9,6 @@ import java.util.Map;
 import me.akuz.core.HashIndex;
 import me.akuz.core.Index;
 import me.akuz.core.Out;
-import me.akuz.ts.sync.Synchronizable;
 
 /**
  * Iterator over frame, performing alignment 
@@ -17,7 +16,7 @@ import me.akuz.ts.sync.Synchronizable;
  * 
  */
 public final class FrameIterator<K, T extends Comparable<T>> 
-implements Synchronizable<T>, FrameCursor<K, T> {
+implements FrameCursor<K, T> {
 
 	private final Frame<K, T> _frame;
 	private final Index<K> _keysIndex;

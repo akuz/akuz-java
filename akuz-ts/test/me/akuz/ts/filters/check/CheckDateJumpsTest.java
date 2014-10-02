@@ -49,33 +49,33 @@ public class CheckDateJumpsTest {
 		
 		frameFilter.moveToTime(times.get(i));
 		Assert.assertEquals(frameFilter.getCurrTime(), times.get(i++));
-		Assert.assertEquals(0, log.getInfosCount());
-		Assert.assertEquals(0, log.getWarningsCount());
-		Assert.assertEquals(0, log.getErrorsCount());
+		Assert.assertEquals(0, log.getInfosOrHigherCount());
+		Assert.assertEquals(0, log.getWarningsOrHigherCount());
+		Assert.assertEquals(0, log.getDangerOrHigherCount());
 		
 		frameFilter.moveToTime(times.get(i));
 		Assert.assertEquals(frameFilter.getCurrTime(), times.get(i++));
-		Assert.assertEquals(0, log.getInfosCount());
-		Assert.assertEquals(0, log.getWarningsCount());
-		Assert.assertEquals(0, log.getErrorsCount());
+		Assert.assertEquals(0, log.getInfosOrHigherCount());
+		Assert.assertEquals(0, log.getWarningsOrHigherCount());
+		Assert.assertEquals(0, log.getDangerOrHigherCount());
 		
 		frameFilter.moveToTime(times.get(i));
 		Assert.assertEquals(frameFilter.getCurrTime(), times.get(i++));
-		Assert.assertEquals(1, log.getInfosCount());
-		Assert.assertEquals(0, log.getWarningsCount());
-		Assert.assertEquals(0, log.getErrorsCount());
+		Assert.assertEquals(1, log.getInfosOrHigherCount());
+		Assert.assertEquals(0, log.getWarningsOrHigherCount());
+		Assert.assertEquals(0, log.getDangerOrHigherCount());
 		
 		frameFilter.moveToTime(times.get(i));
 		Assert.assertEquals(frameFilter.getCurrTime(), times.get(i++));
-		Assert.assertEquals(1, log.getInfosCount());
-		Assert.assertEquals(1, log.getWarningsCount());
-		Assert.assertEquals(0, log.getErrorsCount());
+		Assert.assertEquals(2, log.getInfosOrHigherCount());
+		Assert.assertEquals(1, log.getWarningsOrHigherCount());
+		Assert.assertEquals(0, log.getDangerOrHigherCount());
 		
 		frameFilter.moveToTime(times.get(i));
 		Assert.assertEquals(frameFilter.getCurrTime(), times.get(i++));
-		Assert.assertEquals(1, log.getInfosCount());
-		Assert.assertEquals(1, log.getWarningsCount());
-		Assert.assertEquals(1, log.getErrorsCount());
+		Assert.assertEquals(3, log.getInfosOrHigherCount());
+		Assert.assertEquals(2, log.getWarningsOrHigherCount());
+		Assert.assertEquals(1, log.getDangerOrHigherCount());
 	}
 	
 	@Test
@@ -111,57 +111,57 @@ public class CheckDateJumpsTest {
 		
 		frameFilter.moveToTime(times.get(i));
 		Assert.assertEquals(frameFilter.getCurrTime(), times.get(i++));
-		Assert.assertEquals(0, log.getInfosCount());
-		Assert.assertEquals(0, log.getWarningsCount());
-		Assert.assertEquals(0, log.getErrorsCount());
+		Assert.assertEquals(0, log.getInfosOrHigherCount());
+		Assert.assertEquals(0, log.getWarningsOrHigherCount());
+		Assert.assertEquals(0, log.getDangerOrHigherCount());
 		
 		frameFilter.moveToTime(times.get(i));
 		Assert.assertEquals(frameFilter.getCurrTime(), times.get(i++));
-		Assert.assertEquals(1, log.getInfosCount());
-		Assert.assertEquals(0, log.getWarningsCount());
-		Assert.assertEquals(0, log.getErrorsCount());
+		Assert.assertEquals(1, log.getInfosOrHigherCount());
+		Assert.assertEquals(0, log.getWarningsOrHigherCount());
+		Assert.assertEquals(0, log.getDangerOrHigherCount());
 		
 		frameFilter.moveToTime(times.get(i));
 		Assert.assertEquals(frameFilter.getCurrTime(), times.get(i++));
-		Assert.assertEquals(1, log.getInfosCount());
-		Assert.assertEquals(1, log.getWarningsCount());
-		Assert.assertEquals(0, log.getErrorsCount());
+		Assert.assertEquals(2, log.getInfosOrHigherCount());
+		Assert.assertEquals(1, log.getWarningsOrHigherCount());
+		Assert.assertEquals(0, log.getDangerOrHigherCount());
 		
 		frameFilter.moveToTime(times.get(i));
 		Assert.assertEquals(frameFilter.getCurrTime(), times.get(i++));
-		Assert.assertEquals(1, log.getInfosCount());
-		Assert.assertEquals(1, log.getWarningsCount());
-		Assert.assertEquals(1, log.getErrorsCount());
+		Assert.assertEquals(3, log.getInfosOrHigherCount());
+		Assert.assertEquals(2, log.getWarningsOrHigherCount());
+		Assert.assertEquals(1, log.getDangerOrHigherCount());
 		
 		frameFilter.moveToTime(times.get(i));
 		Assert.assertEquals(frameFilter.getCurrTime(), times.get(i++));
-		Assert.assertEquals(1, log.getInfosCount());
-		Assert.assertEquals(1, log.getWarningsCount());
-		Assert.assertEquals(1, log.getErrorsCount());
+		Assert.assertEquals(3, log.getInfosOrHigherCount());
+		Assert.assertEquals(2, log.getWarningsOrHigherCount());
+		Assert.assertEquals(1, log.getDangerOrHigherCount());
 		
 		frameFilter.moveToTime(times.get(i));
 		Assert.assertEquals(frameFilter.getCurrTime(), times.get(i++));
-		Assert.assertEquals(2, log.getInfosCount());
-		Assert.assertEquals(1, log.getWarningsCount());
-		Assert.assertEquals(1, log.getErrorsCount());
+		Assert.assertEquals(4, log.getInfosOrHigherCount());
+		Assert.assertEquals(2, log.getWarningsOrHigherCount());
+		Assert.assertEquals(1, log.getDangerOrHigherCount());
 		
 		frameFilter.moveToTime(times.get(i));
 		Assert.assertEquals(frameFilter.getCurrTime(), times.get(i++));
-		Assert.assertEquals(2, log.getInfosCount());
-		Assert.assertEquals(2, log.getWarningsCount());
-		Assert.assertEquals(1, log.getErrorsCount());
+		Assert.assertEquals(5, log.getInfosOrHigherCount());
+		Assert.assertEquals(3, log.getWarningsOrHigherCount());
+		Assert.assertEquals(1, log.getDangerOrHigherCount());
 		
 		frameFilter.moveToTime(times.get(i));
 		Assert.assertEquals(frameFilter.getCurrTime(), times.get(i++));
-		Assert.assertEquals(2, log.getInfosCount());
-		Assert.assertEquals(2, log.getWarningsCount());
-		Assert.assertEquals(2, log.getErrorsCount());
+		Assert.assertEquals(6, log.getInfosOrHigherCount());
+		Assert.assertEquals(4, log.getWarningsOrHigherCount());
+		Assert.assertEquals(2, log.getDangerOrHigherCount());
 		
 		frameFilter.moveToTime(times.get(i));
 		Assert.assertEquals(frameFilter.getCurrTime(), times.get(i++));
-		Assert.assertEquals(2, log.getInfosCount());
-		Assert.assertEquals(2, log.getWarningsCount());
-		Assert.assertEquals(2, log.getErrorsCount());
+		Assert.assertEquals(6, log.getInfosOrHigherCount());
+		Assert.assertEquals(4, log.getWarningsOrHigherCount());
+		Assert.assertEquals(2, log.getDangerOrHigherCount());
 	}
 
 }

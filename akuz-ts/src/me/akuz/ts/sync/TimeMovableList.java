@@ -5,23 +5,30 @@ import java.util.List;
 
 import me.akuz.ts.CurrTime;
 
-public final class TimeMover<T extends Comparable<T>>
+/**
+ * Allows moving multiple TimeMovable
+ * objects to the same time (in the
+ * order in which they were added).
+ *
+ */
+public final class TimeMovableList<T extends Comparable<T>>
 implements TimeMovable<T> {
 	
 	private final List<TimeMovable<T>> _timeMovables;
 	private T _currTime;
 	
-	public TimeMover() {
+	public TimeMovableList() {
 		_timeMovables = new ArrayList<>();
 	}
 	
-	public void add(TimeMovable<T> timeMovable) {
+	public void add(final TimeMovable<T> timeMovable) {
 		_timeMovables.add(timeMovable);
 		if (_currTime != null) {
 			timeMovable.moveToTime(_currTime);
 		}
 	}
 	
+	@Override
 	public T getCurrTime() {
 		CurrTime.checkSet(_currTime);
 		return _currTime;

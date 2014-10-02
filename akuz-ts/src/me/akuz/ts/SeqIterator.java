@@ -4,14 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.akuz.core.Out;
-import me.akuz.ts.sync.Synchronizable;
 
 /**
  * {@link Seq} iterator.
  *
  */
 public final class SeqIterator<T extends Comparable<T>> 
-implements Synchronizable<T>, SeqCursor<T>, Cloneable {
+implements SeqCursor<T>, Cloneable {
 	
 	private final Seq<T> _seq;
 	private int _nextCursor;

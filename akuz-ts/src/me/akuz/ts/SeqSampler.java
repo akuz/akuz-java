@@ -1,7 +1,7 @@
 package me.akuz.ts;
 
 import me.akuz.core.Out;
-import me.akuz.ts.sync.Synchronizable;
+import me.akuz.ts.sync.TimeSchedule;
 
 /**
  * Allows sampling underlying sequence cursor 
@@ -12,7 +12,7 @@ import me.akuz.ts.sync.Synchronizable;
  * 
  */
 public final class SeqSampler<T extends Comparable<T>>
-implements Synchronizable<T> {
+implements TimeSchedule<T> {
 
 	private final SeqCursor<T> _seqCursor;
 	private final boolean _moveCursor;

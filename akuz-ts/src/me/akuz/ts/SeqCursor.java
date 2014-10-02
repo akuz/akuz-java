@@ -2,7 +2,7 @@ package me.akuz.ts;
 
 import java.util.List;
 
-import me.akuz.ts.sync.Synchronizable;
+import me.akuz.ts.sync.TimeSchedule;
 
 /**
  * Provides information about the current item, 
@@ -12,7 +12,7 @@ import me.akuz.ts.sync.Synchronizable;
  * 
  */
 public interface SeqCursor<T extends Comparable<T>>
-extends Synchronizable<T> {
+extends TimeSchedule<T> {
 	
 	/**
 	 * Get underlying sequence.

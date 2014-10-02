@@ -3,7 +3,7 @@ package me.akuz.ts;
 import java.util.List;
 import java.util.Map;
 
-import me.akuz.ts.sync.Synchronizable;
+import me.akuz.ts.sync.TimeSchedule;
 
 /**
  * {@link Frame} cursor provides information
@@ -12,7 +12,7 @@ import me.akuz.ts.sync.Synchronizable;
  * 
  */
 public interface FrameCursor<K, T extends Comparable<T>>
-extends Synchronizable<T> {
+extends TimeSchedule<T> {
 	
 	/**
 	 * Get underlying frame.

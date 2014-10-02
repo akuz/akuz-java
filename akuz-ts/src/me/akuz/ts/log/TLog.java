@@ -15,14 +15,14 @@ import me.akuz.ts.TItem;
  */
 public final class TLog<T extends Comparable<T>> {
 	
-	private final Seq<T> _infos;
-	private final Seq<T> _warnings;
-	private final Seq<T> _errors;
+	private final Seq<T> _infosOrHigher;
+	private final Seq<T> _warningsOrHigher;
+	private final Seq<T> _dangerOrHigher;
 	
 	public TLog() {
-		_infos = new Seq<>();
-		_warnings = new Seq<>();
-		_errors = new Seq<>();
+		_infosOrHigher = new Seq<>();
+		_warningsOrHigher = new Seq<>();
+		_dangerOrHigher = new Seq<>();
 	}
 	/**
 	 * Add an alert with provided level and message.
@@ -37,13 +37,13 @@ public final class TLog<T extends Comparable<T>> {
 	public void add(final T time, final TAlert alert) {
 		
 		if (alert.getLevel().compareTo(TLevel.Info) >= 0) {
-			addTo(_infos, time, alert);
+			addTo(_infosOrHigher, time, alert);
 		}
 		if (alert.getLevel().compareTo(TLevel.Warning) >= 0) {
-			addTo(_warnings, time, alert);
+			addTo(_warningsOrHigher, time, alert);
 		}
-		if (alert.getLevel().compareTo(TLevel.DANGER) >= 0) {
-			addTo(_errors, time, alert);
+		if (alert.getLevel().compareTo(TLevel.Danger) >= 0) {
+			addTo(_dangerOrHigher, time, alert);
 		}
 	}
 	
@@ -65,48 +65,52 @@ public final class TLog<T extends Comparable<T>> {
 		}
 	}
 	
-	public int size() {
-		return _infos.getItems().size();
+	public boolean isEmpty() {
+		return getCount() == 0;
 	}
 	
 	public boolean hasAny() {
-		return size() > 0;
+		return getCount() > 0;
 	}
 	
-	public boolean hasInfos() {
-		return _infos.getItems().size() > 0;
+	public int getCount() {
+		return _infosOrHigher.getItems().size();
+	}
+	
+	public boolean hasInfosOrHigher() {
+		return _infosOrHigher.getItems().size() > 0;
 	}
 
-	public int getInfosCount() {
-		return _infos.getItems().size();
+	public int getInfosOrHigherCount() {
+		return _infosOrHigher.getItems().size();
 	}
 
-	public Seq<T> getInfos() {
-		return _infos;
+	public Seq<T> getInfosOrHigher() {
+		return _infosOrHigher;
 	}
 	
-	public boolean hasWarnings() {
-		return _warnings.getItems().size() > 0;
+	public boolean hasWarningsOrHigher() {
+		return _warningsOrHigher.getItems().size() > 0;
 	}
 	
-	public int getWarningsCount() {
-		return _warnings.getItems().size();
+	public int getWarningsOrHigherCount() {
+		return _warningsOrHigher.getItems().size();
 	}
 	
-	public Seq<T> getWarnings() {
-		return _warnings;
+	public Seq<T> getWarningsOrHigher() {
+		return _warningsOrHigher;
 	}
 	
-	public boolean hasErrors() {
-		return _errors.getItems().size() > 0;
+	public boolean hasDangerOrHigher() {
+		return _dangerOrHigher.getItems().size() > 0;
 	}
 	
-	public int getErrorsCount() {
-		return _errors.getItems().size();
+	public int getDangerOrHigherCount() {
+		return _dangerOrHigher.getItems().size();
 	}
 	
-	public Seq<T> getErrors() {
-		return _errors;
+	public Seq<T> getDangerOrHigher() {
+		return _dangerOrHigher;
 	}
 
 }

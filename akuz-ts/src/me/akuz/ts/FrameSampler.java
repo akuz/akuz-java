@@ -3,7 +3,7 @@ package me.akuz.ts;
 import java.util.List;
 
 import me.akuz.core.Out;
-import me.akuz.ts.sync.Synchronizable;
+import me.akuz.ts.sync.TimeSchedule;
 
 /**
  * Allows sampling underlying frame cursor 
@@ -14,7 +14,7 @@ import me.akuz.ts.sync.Synchronizable;
  * 
  */
 public final class FrameSampler<K, T extends Comparable<T>> 
-implements Synchronizable<T> {
+implements TimeSchedule<T> {
 	
 	private final FrameCursor<K, T> _frameCursor;
 	private final boolean _moveCursor;
