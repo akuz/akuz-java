@@ -37,6 +37,6 @@ public final class Triple<T1,T2,T3> {
 	}
 
 	public String toString() {
-		return "[" + _v1 + "," + _v2 + "," + _v3 + "]";
+		return "{" + _v1 + ", " + _v2 + ", " + _v3 + "}";
 	}
 }
