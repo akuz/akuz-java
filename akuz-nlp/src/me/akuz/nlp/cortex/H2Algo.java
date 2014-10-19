@@ -25,7 +25,7 @@ public class H2Algo {
 		
 		for (int passIndex=0; passIndex<passCount; passIndex++) {
 			
-			for (int layerIndex=0; layerIndex<featureDims.length; layerIndex++) {
+			for (int layerIndex=(passIndex > 0 ? 1 : 0); layerIndex<featureDims.length; layerIndex++) {
 				
 				final H2Layer layer;
 				
@@ -55,8 +55,16 @@ public class H2Algo {
 					if (layerIndex > 0) {
 						_layers.get(layerIndex - 1).setParent(layer);
 					}
+					
+					_layers.add(layer);
 				}
 				
+				layer.execute(monitor, maxIterationCount, logLikeChangeThreshold);
+			}
+			
+			for (int layerIndex=featureDims.length-2; layerIndex>=0; layerIndex--) {
+				
+				final H2Layer layer = _layers.get(layerIndex);
 				layer.execute(monitor, maxIterationCount, logLikeChangeThreshold);
 			}
 		}

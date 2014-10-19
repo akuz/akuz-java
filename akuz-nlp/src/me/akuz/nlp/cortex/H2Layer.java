@@ -50,9 +50,9 @@ public final class H2Layer {
 			final PWord item = data.get(i);
 			final PWord itemFeatures;
 			if (item.size() > 1) {
-				itemFeatures = new PWord(item.size() - 1, _featureDim);
+				itemFeatures = new PWord(_featureDim, item.size() - 1);
 			} else {
-				itemFeatures = new PWord(0, _featureDim);
+				itemFeatures = new PWord(_featureDim, 0);
 			}
 			_dataFeatures.add(itemFeatures);
 		}
@@ -193,7 +193,7 @@ public final class H2Layer {
 						++parentCount;
 						iLeftParent = i - 1;
 					}
-					if (i < word.size() - 1) {
+					if (i < wordFeatures.size() - 1) {
 						++parentCount;
 						iRightParent = i;
 					}

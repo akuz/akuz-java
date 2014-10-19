@@ -99,7 +99,7 @@ public final class PChar {
 			throw new IllegalArgumentException(
 					"Some of the probabilities are NaN");
 		}
-		if (Math.abs(1.0 - sum) < 1e-10) {
+		if (Math.abs(1.0 - sum) > 1e-10) {
 			throw new IllegalArgumentException(
 					"Probabilities don't sum up to 1.0 (instead " + sum + ")");
 		}
