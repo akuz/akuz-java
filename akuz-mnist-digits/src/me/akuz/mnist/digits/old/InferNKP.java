@@ -188,7 +188,7 @@ public final class InferNKP {
 									for (int f2=0; f2<parentBlockFeatureProbs.length; f2++) {
 										
 										double parentProb = parentBlockFeatureProbs[f2];
-										double[] parentPosterior = _parentFeatureBlocks[f2][parentIdx].getPosterior();
+										double[] parentPosterior = _parentFeatureBlocks[f2][parentIdx].getPosteriorMean();
 										
 										for (int f=0; f<_featureDim; f++) {
 											logLikes[f] += parentProb * parentPosterior[f];
@@ -211,7 +211,7 @@ public final class InferNKP {
 									for (int f2=0; f2<parentBlockFeatureProbs.length; f2++) {
 										
 										double parentProb = parentBlockFeatureProbs[f2];
-										double[] parentPosterior = _parentFeatureBlocks[f2][parentIdx].getPosterior();
+										double[] parentPosterior = _parentFeatureBlocks[f2][parentIdx].getPosteriorMean();
 										
 										for (int f=0; f<_featureDim; f++) {
 											logLikes[f] += parentProb * parentPosterior[f];
@@ -234,7 +234,7 @@ public final class InferNKP {
 									for (int f2=0; f2<parentBlockFeatureProbs.length; f2++) {
 										
 										double parentProb = parentBlockFeatureProbs[f2];
-										double[] parentPosterior = _parentFeatureBlocks[f2][parentIdx].getPosterior();
+										double[] parentPosterior = _parentFeatureBlocks[f2][parentIdx].getPosteriorMean();
 										
 										for (int f=0; f<_featureDim; f++) {
 											logLikes[f] += parentProb * parentPosterior[f];
@@ -257,7 +257,7 @@ public final class InferNKP {
 									for (int f2=0; f2<parentBlockFeatureProbs.length; f2++) {
 										
 										double parentProb = parentBlockFeatureProbs[f2];
-										double[] parentPosterior = _parentFeatureBlocks[f2][parentIdx].getPosterior();
+										double[] parentPosterior = _parentFeatureBlocks[f2][parentIdx].getPosteriorMean();
 										
 										for (int f=0; f<_featureDim; f++) {
 											logLikes[f] += parentProb * parentPosterior[f];

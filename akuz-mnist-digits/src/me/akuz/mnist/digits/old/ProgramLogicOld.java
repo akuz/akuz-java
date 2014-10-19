@@ -170,7 +170,7 @@ public final class ProgramLogicOld {
 				}
 				
 				DirDist dist = block4x4[l4];
-				double[] block2x2Probs = dist.getPosterior();
+				double[] block2x2Probs = dist.getPosteriorMean();
 				
 				for (int k2=0; k2<block2x2Probs.length; k2++) {
 					
@@ -282,7 +282,7 @@ public final class ProgramLogicOld {
 				}
 				
 				DirDist dist = block4x4[l4];
-				double[] block2x2Probs = dist.getPosterior();
+				double[] block2x2Probs = dist.getPosteriorMean();
 				
 				for (int k2=0; k2<block2x2Probs.length; k2++) {
 					
@@ -361,7 +361,7 @@ public final class ProgramLogicOld {
 					throw new IllegalStateException();
 				}
 				
-				double[] block4x4Probs = block8x8[l8].getPosterior();
+				double[] block4x4Probs = block8x8[l8].getPosteriorMean();
 				
 				for (int k4=0; k4<blocks4x4.length; k4++) {
 
@@ -390,7 +390,7 @@ public final class ProgramLogicOld {
 							throw new IllegalStateException();
 						}
 						
-						double[] block2x2Probs = blocks4x4[k4][l4].getPosterior();
+						double[] block2x2Probs = blocks4x4[k4][l4].getPosteriorMean();
 						
 						for (int k2=0; k2<block2x2Probs.length; k2++) {
 							
@@ -471,7 +471,7 @@ public final class ProgramLogicOld {
 					throw new IllegalStateException();
 				}
 
-				double[] block8x8Probs = block16x16[l16].getPosterior();
+				double[] block8x8Probs = block16x16[l16].getPosteriorMean();
 				
 				for (int k8=0; k8<blocks8x8.length; k8++) {
 					
@@ -500,7 +500,7 @@ public final class ProgramLogicOld {
 							throw new IllegalStateException();
 						}
 						
-						double[] block4x4Probs = blocks8x8[k8][l8].getPosterior();
+						double[] block4x4Probs = blocks8x8[k8][l8].getPosteriorMean();
 						
 						for (int k4=0; k4<blocks4x4.length; k4++) {
 		
@@ -529,7 +529,7 @@ public final class ProgramLogicOld {
 									throw new IllegalStateException();
 								}
 								
-								double[] block2x2Probs = blocks4x4[k4][l4].getPosterior();
+								double[] block2x2Probs = blocks4x4[k4][l4].getPosteriorMean();
 								
 								for (int k2=0; k2<block2x2Probs.length; k2++) {
 									

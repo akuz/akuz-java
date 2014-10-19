@@ -16,8 +16,10 @@ public final class DirDist {
 		if (dim < 2) {
 			throw new IllegalArgumentException("Dimensionality must be >= 2");
 		}
-		if (alpha <= 0) {
-			throw new IllegalArgumentException("Alpha must be positive");
+		if (alpha < 0.0) {
+			// allowing zero alpha because sometimes we want
+			// to represent discrete distribution as 
+			throw new IllegalArgumentException("Alpha must be non-negative");
 		}
 		_data = new double[dim];
 		Arrays.fill(_data, alpha);
@@ -27,7 +29,7 @@ public final class DirDist {
 		return _data.length;
 	}
 	
-	public double[] getPosterior() {
+	public double[] getPosteriorMean() {
 		if (_isNormalized == false) {
 			throw new IllegalStateException("Cannot get posterior, call normalize() first");
 		}
@@ -37,6 +39,7 @@ public final class DirDist {
 	public void addObservation(int index, double value) {
 		addObservation(index, value, 1.0);
 	}
+	
 	public void addObservation(int index, double value, double weight) {
 		if (_isNormalized) {
 			throw new IllegalStateException("Cannot add new observations, already normalized");
@@ -46,9 +49,11 @@ public final class DirDist {
 		}
 		_data[index] += value * weight;
 	}
+	
 	public void addObservation(double[] values) {
 		addObservation(values, 1.0);
 	}
+	
 	public void addObservation(double[] values, double weight) {
 		if (_isNormalized) {
 			throw new IllegalStateException("Cannot add new observations, already normalized");

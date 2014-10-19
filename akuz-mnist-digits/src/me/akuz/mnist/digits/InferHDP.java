@@ -14,7 +14,7 @@ import me.akuz.core.math.StatsUtils;
 
 public final class InferHDP {
 	
-	private static final double HIER_DIR_ALPHA = 1.0;
+	private static final double HDP_ALPHA = 1.0;
 	private static final double PARENT_DIST_ALPHA = 0.1;
 	private static final double PARENT_DIST_ALPHA_INIT = 0.1;
 	private static final double LOG_INSURANCE = 0.000000000000000000000001;
@@ -195,7 +195,7 @@ public final class InferHDP {
 									for (int f2=0; f2<parentBlockFeatureProbs.length; f2++) {
 										
 										double parentProb = parentBlockFeatureProbs[f2];
-										double[] parentPosterior = _parentFeatureBlocks[f2][parentIdx].getPosterior();
+										double[] parentPosterior = _parentFeatureBlocks[f2][parentIdx].getPosteriorMean();
 										
 										for (int f=0; f<_featureDim; f++) {
 											logLikes[f] += parentProb * parentPosterior[f];
@@ -218,7 +218,7 @@ public final class InferHDP {
 									for (int f2=0; f2<parentBlockFeatureProbs.length; f2++) {
 										
 										double parentProb = parentBlockFeatureProbs[f2];
-										double[] parentPosterior = _parentFeatureBlocks[f2][parentIdx].getPosterior();
+										double[] parentPosterior = _parentFeatureBlocks[f2][parentIdx].getPosteriorMean();
 										
 										for (int f=0; f<_featureDim; f++) {
 											logLikes[f] += parentProb * parentPosterior[f];
@@ -241,7 +241,7 @@ public final class InferHDP {
 									for (int f2=0; f2<parentBlockFeatureProbs.length; f2++) {
 										
 										double parentProb = parentBlockFeatureProbs[f2];
-										double[] parentPosterior = _parentFeatureBlocks[f2][parentIdx].getPosterior();
+										double[] parentPosterior = _parentFeatureBlocks[f2][parentIdx].getPosteriorMean();
 										
 										for (int f=0; f<_featureDim; f++) {
 											logLikes[f] += parentProb * parentPosterior[f];
@@ -264,7 +264,7 @@ public final class InferHDP {
 									for (int f2=0; f2<parentBlockFeatureProbs.length; f2++) {
 										
 										double parentProb = parentBlockFeatureProbs[f2];
-										double[] parentPosterior = _parentFeatureBlocks[f2][parentIdx].getPosterior();
+										double[] parentPosterior = _parentFeatureBlocks[f2][parentIdx].getPosteriorMean();
 										
 										for (int f=0; f<_featureDim; f++) {
 											logLikes[f] += parentProb * parentPosterior[f];
@@ -289,31 +289,31 @@ public final class InferHDP {
 						// add data log likes
 						for (int k=0; k<_featureDim; k++) {
 							{
-								final double[] parentProbs = currBlocks[k][0].getPosterior();
+								final double[] parentProbs = currBlocks[k][0].getPosteriorMean();
 								final double[] probs = image.getFeatureProbs(row, col);
 								for (int d=0; d<probs.length; d++) {
-									logLikes[k] += (parentProbs[d]*HIER_DIR_ALPHA - 1) * Math.log(LOG_INSURANCE + probs[d]);
+									logLikes[k] += (parentProbs[d]*HDP_ALPHA - 1) * Math.log(LOG_INSURANCE + probs[d]);
 								}
 							}
 							{
-								final double[] parentProbs = currBlocks[k][1].getPosterior();
+								final double[] parentProbs = currBlocks[k][1].getPosteriorMean();
 								final double[] probs = image.getFeatureProbs(row, col+_featureShift);
 								for (int d=0; d<probs.length; d++) {
-									logLikes[k] += (parentProbs[d]*HIER_DIR_ALPHA - 1) * Math.log(LOG_INSURANCE + probs[d]);
+									logLikes[k] += (parentProbs[d]*HDP_ALPHA - 1) * Math.log(LOG_INSURANCE + probs[d]);
 								}
 							}
 							{
-								final double[] parentProbs = currBlocks[k][2].getPosterior();
+								final double[] parentProbs = currBlocks[k][2].getPosteriorMean();
 								final double[] probs = image.getFeatureProbs(row+_featureShift, col);
 								for (int d=0; d<probs.length; d++) {
-									logLikes[k] += (parentProbs[d]*HIER_DIR_ALPHA - 1) * Math.log(LOG_INSURANCE + probs[d]);
+									logLikes[k] += (parentProbs[d]*HDP_ALPHA - 1) * Math.log(LOG_INSURANCE + probs[d]);
 								}
 							}
 							{
-								final double[] parentProbs = currBlocks[k][3].getPosterior();
+								final double[] parentProbs = currBlocks[k][3].getPosteriorMean();
 								final double[] probs = image.getFeatureProbs(row+_featureShift, col+_featureShift);
 								for (int d=0; d<probs.length; d++) {
-									logLikes[k] += (parentProbs[d]*HIER_DIR_ALPHA - 1) * Math.log(LOG_INSURANCE + probs[d]);
+									logLikes[k] += (parentProbs[d]*HDP_ALPHA - 1) * Math.log(LOG_INSURANCE + probs[d]);
 								}
 							}
 						}
