@@ -24,6 +24,20 @@ public final class PChar {
 		_specificIndex = -1;
 	}
 	
+	public PChar(int dim, double[] probs) {
+		if (dim <= 1) {
+			throw new IllegalArgumentException(
+					"Dimensionality must be > 1");
+		}
+		if (dim != probs.length) {
+			throw new IllegalArgumentException(
+					"Dimensionality doesn't match probs vector");
+		}
+		_dim = dim;
+		_probs = probs;
+		_specificIndex = -1;
+	}
+	
 	/**
 	 * Create p-char with specific 
 	 * *fixed* symbol index having

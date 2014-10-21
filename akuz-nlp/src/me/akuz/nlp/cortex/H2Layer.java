@@ -395,5 +395,62 @@ public final class H2Layer {
 		_featureProbs = currFeatureProbs;
 		_features = currFeatures;
 	}
+	
+	public PWord fromFeaturesToData(final PWord featuresWord) {
+		
+		final List<PChar> dataChars = new ArrayList<>();
+		final int dataCharsCount = featuresWord.size() + 1;
+		
+		for (int d=0; d<dataCharsCount; d++) {
+			
+			int parentCount = 0;
+			int leftParentIndex = -1;
+			int rightParentIndex = -1;
+
+			if (d > 0) {
+				leftParentIndex = d - 1;
+				parentCount++;
+			}
+			
+			if (d < featuresWord.size()) {
+				rightParentIndex = d;
+				parentCount++;
+			}
+			
+			if (parentCount > 0) {
+				
+				double[] dataCharProbs = new double[_dataDim];
+				
+				if (leftParentIndex >= 0) {
+					PChar featuresChar = featuresWord.getChar(leftParentIndex);
+					for (int f=0; f<_featureDim; f++) {
+						final H2Feature feature = _features[f];
+						double[] dataProbs = feature.getRight().getPosteriorMean();
+						for (int l=0; l<dataProbs.length; l++) {
+							dataCharProbs[l] += featuresChar.getProb(f) / parentCount * dataProbs[l];
+						}
+					}
+				}
+				if (rightParentIndex >= 0) {
+					PChar featuresChar = featuresWord.getChar(rightParentIndex);
+					for (int f=0; f<_featureDim; f++) {
+						final H2Feature feature = _features[f];
+						double[] dataProbs = feature.getLeft().getPosteriorMean();
+						for (int l=0; l<dataProbs.length; l++) {
+							dataCharProbs[l] += featuresChar.getProb(f) / parentCount * dataProbs[l];
+						}
+					}
+				}
+				
+				dataChars.add(new PChar(_dataDim, dataCharProbs));
+			}
+		}
+		
+		final PChar[] dataCharsArr = new PChar[dataChars.size()];
+		dataChars.toArray(dataCharsArr);
+		
+		final PWord dataWord = new PWord(_dataDim, dataCharsArr);
+		return dataWord;
+	}
 		
 }

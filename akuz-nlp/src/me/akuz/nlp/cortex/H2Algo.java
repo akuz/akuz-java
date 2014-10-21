@@ -19,8 +19,6 @@ public class H2Algo {
 			final double logLikeChangeThreshold,
 			final int passCount) {
 		
-		final Monitor monitor = parentMonitor == null ? null : new LocalMonitor(getClass().getSimpleName(), parentMonitor);
-		
 		_layers = new ArrayList<>();
 		
 		for (int passIndex=0; passIndex<passCount; passIndex++) {
@@ -59,12 +57,19 @@ public class H2Algo {
 					_layers.add(layer);
 				}
 				
+				final Monitor monitor = parentMonitor == null ? null : 
+					new LocalMonitor(getClass().getSimpleName() + ":Pass:" + passIndex + ":UpLayer:" + layerIndex, parentMonitor);
+				
 				layer.execute(monitor, maxIterationCount, logLikeChangeThreshold);
 			}
 			
 			for (int layerIndex=featureDims.length-2; layerIndex>=0; layerIndex--) {
 				
 				final H2Layer layer = _layers.get(layerIndex);
+				
+				final Monitor monitor = parentMonitor == null ? null : 
+					new LocalMonitor(getClass().getSimpleName() + ":Pass:" + passIndex + ":DnLayer:" + layerIndex, parentMonitor);
+				
 				layer.execute(monitor, maxIterationCount, logLikeChangeThreshold);
 			}
 		}
