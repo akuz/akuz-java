@@ -12,8 +12,13 @@ public final class Leg {
 	private final double _size;
 	private final Gauss _addX;
 	private final Gauss _addY;
-	private final Gauss _legX;
-	private final Gauss _legY;
+	private final Gauss _X;
+	private final Gauss _Y;
+	
+	private Leg _leg1;
+	private Leg _leg2;
+	private Leg _leg3;
+	private Leg _leg4;
 	
 	public Leg(
 			final String name,
@@ -24,8 +29,8 @@ public final class Leg {
 		_size = size;
 		_addX = addX;
 		_addY = addY;
-		_legX = addX;
-		_legY = addY;
+		_X = addX;
+		_Y = addY;
 	}
 	
 	public Leg(
@@ -49,14 +54,14 @@ public final class Leg {
 				shiftY ? _size / 2.0 : -_size / 2.0,
 				1.0 / Math.pow(_size * LEG_JIGGLE, 2));
 		
-		_legX = new GaussOvertakeMean(
+		_X = new GaussOvertakeMean(
 				_name + "_legX", 
-				parent.getLegX(), 
+				parent.getX(), 
 				_addX);
 		
-		_legY = new GaussOvertakeMean(
+		_Y = new GaussOvertakeMean(
 				_name + "_legY", 
-				parent.getLegY(), 
+				parent.getY(), 
 				_addY);
 	}
 	
@@ -68,12 +73,12 @@ public final class Leg {
 		return _size;
 	}
 	
-	public Gauss getLegX() {
-		return _legX;
+	public Gauss getX() {
+		return _X;
 	}
 	
-	public Gauss getLegY() {
-		return _legY;
+	public Gauss getY() {
+		return _Y;
 	}
 
 }
