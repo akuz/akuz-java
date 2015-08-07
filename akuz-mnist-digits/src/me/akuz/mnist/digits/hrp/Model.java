@@ -5,7 +5,8 @@ import java.util.List;
 
 /**
  * Image analysis model, containing layers for 
- * analyzing the images at different depths.
+ * analyzing the images at different levels of 
+ * detalisation.
  */
 public final class Model {
 	

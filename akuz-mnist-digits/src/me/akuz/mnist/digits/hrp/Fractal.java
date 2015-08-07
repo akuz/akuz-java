@@ -13,9 +13,9 @@ public final class Fractal {
 	private Fractal _leg3;
 	private Fractal _leg4;
 	
-	public Fractal(final Layer level, final double size) {
+	public Fractal(final Layer layer, final double size) {
 		_size = size;
-		_patchProbs = new double[level.getDim()];
+		_patchProbs = new double[layer.getDim()];
 	}
 
 	public double getSize() {
