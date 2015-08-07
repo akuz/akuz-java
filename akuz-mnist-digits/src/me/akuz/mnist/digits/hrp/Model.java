@@ -4,23 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Trained image analysis model, containing
- * blocks for use at different fractal levels.
+ * Image analysis model, containing layers for 
+ * analyzing the images at different depths.
  */
 public final class Model {
 	
-	private final List<ModelLevel> _levels;
+	private final List<Layer> _layers;
 	
 	public Model() {
-		_levels = new ArrayList<>();
+		_layers = new ArrayList<>();
 	}
 	
-	public void createNextLevel(final int dim) {
-		final ModelLevel level = new ModelLevel(_levels.size(), dim);
-		if (_levels.size() > 0) {
-			_levels.get(_levels.size()-1).onNextLevelCreated(dim);
+	public void createNextLayer(final int dim) {
+		final Layer nextLayer = new Layer(_layers.size(), dim);
+		if (_layers.size() > 0) {
+			_layers.get(_layers.size()-1).onNextLayerCreated(nextLayer);
 		}
-		_levels.add(level);
+		_layers.add(nextLayer);
 	}
 	
 }

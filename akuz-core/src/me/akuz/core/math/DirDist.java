@@ -9,6 +9,7 @@ import java.util.Arrays;
  */
 public final class DirDist {
 	
+	private final double _alpha;
 	private final double[] _data;
 	private boolean _isNormalized;
 	
@@ -21,6 +22,7 @@ public final class DirDist {
 			// to represent discrete distribution as 
 			throw new IllegalArgumentException("Alpha must be non-negative");
 		}
+		_alpha = alpha;
 		_data = new double[dim];
 		Arrays.fill(_data, alpha);
 	}
@@ -33,6 +35,10 @@ public final class DirDist {
 		if (_isNormalized == false) {
 			throw new IllegalStateException("Cannot get posterior, call normalize() first");
 		}
+		return _data;
+	}
+	
+	public double[] getUnnormalisedPosteriorMean() {
 		return _data;
 	}
 	
@@ -74,6 +80,11 @@ public final class DirDist {
 		_isNormalized = true;
 	}
 	
+	public void reset() {
+		Arrays.fill(_data, _alpha);
+		_isNormalized = false;
+	}
+
 	@Override
 	public String toString() {
 		DecimalFormat fmt = new DecimalFormat("' '0.00000000;'-'0.00000000");

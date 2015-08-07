@@ -4,7 +4,7 @@ import java.security.InvalidParameterException;
 import java.text.DecimalFormat;
 
 /**
- * Normal Inverse Gamma distribution.
+ * Normal Inverse-Gamma distribution.
  *
  */
 public final class NIGDist implements Cloneable, Distribution {

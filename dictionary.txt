@@ -119,3 +119,4 @@ myus
 avg
 dev
 ent
+detalisation

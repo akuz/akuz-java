@@ -1,11 +1,9 @@
 package me.akuz.mnist.digits.hrp.prob;
 
-public interface Gauss {
-	
-	String getName();
+public interface GaussDist {
 	
 	double getMean();
 	
-	double getTau();
+	double getVariance();
 
 }
