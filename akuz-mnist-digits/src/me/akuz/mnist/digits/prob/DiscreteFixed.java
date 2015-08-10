@@ -1,4 +1,4 @@
-package me.akuz.mnist.digits.hrp.prob;
+package me.akuz.mnist.digits.prob;
 
 public final class DiscreteFixed implements DiscreteDist {
 	
