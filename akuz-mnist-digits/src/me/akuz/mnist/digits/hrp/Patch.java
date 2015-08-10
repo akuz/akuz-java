@@ -29,6 +29,27 @@ public final class Patch {
 				INTENSITY_PRIOR_VARIANCE_SAMPLES);
 	}
 	
+	public double getIntensityLogProb(double intensity) {		
+		// FIXME: calculate log prob within NIGDist!
+		return Math.log(_intensityDist.getProb(intensity));
+	}
+
+	public double getLeg1LogProb(double[] patchProbs) {
+		return _leg1PatchDist.getLogProb(patchProbs);
+	}
+
+	public double getLeg2LogProb(double[] patchProbs) {
+		return _leg2PatchDist.getLogProb(patchProbs);
+	}
+
+	public double getLeg3LogProb(double[] patchProbs) {
+		return _leg3PatchDist.getLogProb(patchProbs);
+	}
+
+	public double getLeg4LogProb(double[] patchProbs) {
+		return _leg4PatchDist.getLogProb(patchProbs);
+	}
+	
 	public void reset() {
 		_intensityDist.reset();
 		if (_leg1PatchDist != null) {

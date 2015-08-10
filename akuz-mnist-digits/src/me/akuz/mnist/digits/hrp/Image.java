@@ -17,5 +17,19 @@ public final class Image {
 		return _byteImage;
 	}
 	
+	public int getMinSize() {
+		return Math.min(
+				_byteImage.getRowCount(),
+				_byteImage.getColCount());
+	}
+	
+	public double getCenterX() {
+		return (double)_byteImage.getRowCount() / 2.0;
+	}
+	
+	public double getCenterY() {
+		return (double)_byteImage.getColCount() / 2.0;
+	}
+	
 	// TODO: helper methods
 }
