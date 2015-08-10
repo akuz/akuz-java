@@ -31,5 +31,11 @@ public final class Image {
 		return (double)_byteImage.getColCount() / 2.0;
 	}
 	
-	// TODO: helper methods
+	public double getIntensity(
+			final double centerX,
+			final double centerY,
+			final double size) {
+		
+		return 0.5; // TODO
+	}
 }

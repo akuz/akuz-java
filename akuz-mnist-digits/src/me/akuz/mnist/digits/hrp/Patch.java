@@ -1,5 +1,7 @@
 package me.akuz.mnist.digits.hrp;
 
+import java.util.Random;
+
 import me.akuz.core.math.DirDist;
 import me.akuz.core.math.NIGDist;
 
@@ -10,65 +12,62 @@ import me.akuz.core.math.NIGDist;
 public final class Patch {
 
 	public static final double INTENSITY_PRIOR_MEAN = 0.5;
+	public static final double INTENSITY_PRIOR_MEAN_NOISE = 0.1;
 	public static final double INTENSITY_PRIOR_MEAN_SAMPLES = 30.0;
 	public static final double INTENSITY_PRIOR_VARIANCE = Math.pow(0.5, 2);
 	public static final double INTENSITY_PRIOR_VARIANCE_SAMPLES = 30.0;
 	public static final double LEG_DIR_ALPHA_TOTAL = 10.0;
 
 	private final NIGDist _intensityDist;
-	private DirDist _leg1PatchDist;
-	private DirDist _leg2PatchDist;
-	private DirDist _leg3PatchDist;
-	private DirDist _leg4PatchDist;
+	private DirDist[] _legsPatchDist;
 
-	public Patch() {
+	public Patch(final Random rnd) {
 		_intensityDist = new NIGDist(
-				INTENSITY_PRIOR_MEAN, 
+				INTENSITY_PRIOR_MEAN + (rnd.nextDouble() - 0.5) * INTENSITY_PRIOR_MEAN_NOISE, 
 				INTENSITY_PRIOR_MEAN_SAMPLES,
 				INTENSITY_PRIOR_VARIANCE,
 				INTENSITY_PRIOR_VARIANCE_SAMPLES);
 	}
 	
-	public double getIntensityLogProb(double intensity) {		
-		// FIXME: calculate log prob within NIGDist!
-		return Math.log(_intensityDist.getProb(intensity));
+	public NIGDist getIntensityDist() {
+		return _intensityDist;
+	}
+	
+	public boolean hasLegs() {
+		return _legsPatchDist != null;
 	}
 
-	public double getLeg1LogProb(double[] patchProbs) {
-		return _leg1PatchDist.getLogProb(patchProbs);
+	public DirDist[] getLegsPatchDist() {
+		return _legsPatchDist;
 	}
 
-	public double getLeg2LogProb(double[] patchProbs) {
-		return _leg2PatchDist.getLogProb(patchProbs);
+	public void onNextLayerCreated(final Layer nextLayer) {
+		if (_legsPatchDist != null) {
+			throw new IllegalStateException("This patch already has next layer");
+		}
+		final int nextDim = nextLayer.getDim();
+		_legsPatchDist = new DirDist[4];
+		for (int i=0; i<_legsPatchDist.length; i++) {
+			_legsPatchDist[i] = new DirDist(nextDim, LEG_DIR_ALPHA_TOTAL / nextDim);
+		}
 	}
-
-	public double getLeg3LogProb(double[] patchProbs) {
-		return _leg3PatchDist.getLogProb(patchProbs);
-	}
-
-	public double getLeg4LogProb(double[] patchProbs) {
-		return _leg4PatchDist.getLogProb(patchProbs);
+	
+	public void normalize() {
+		// no need to normalize intensity
+		if (_legsPatchDist != null) {
+			for (int i=0; i<_legsPatchDist.length; i++) {
+				_legsPatchDist[i].normalize();
+			}
+		}
 	}
 	
 	public void reset() {
 		_intensityDist.reset();
-		if (_leg1PatchDist != null) {
-			_leg1PatchDist.reset();
-			_leg2PatchDist.reset();
-			_leg3PatchDist.reset();
-			_leg4PatchDist.reset();
+		if (_legsPatchDist != null) {
+			for (int i=0; i<_legsPatchDist.length; i++) {
+				_legsPatchDist[i].reset();
+			}
 		}
-	}
-	
-	public void onNextLayerCreated(final Layer nextLayer) {
-		if (_leg1PatchDist != null) {
-			throw new IllegalStateException("This patch already has a next layer");
-		}
-		final int nextDim = nextLayer.getDim();
-		_leg1PatchDist = new DirDist(nextDim, LEG_DIR_ALPHA_TOTAL / nextDim);
-		_leg2PatchDist = new DirDist(nextDim, LEG_DIR_ALPHA_TOTAL / nextDim);
-		_leg3PatchDist = new DirDist(nextDim, LEG_DIR_ALPHA_TOTAL / nextDim);
-		_leg4PatchDist = new DirDist(nextDim, LEG_DIR_ALPHA_TOTAL / nextDim);
 	}
 
 }

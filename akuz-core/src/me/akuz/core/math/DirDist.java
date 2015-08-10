@@ -12,6 +12,7 @@ public final class DirDist {
 	private final double _alpha;
 	private final double[] _data;
 	private boolean _isNormalized;
+	private double _sumLogGamma;
 	
 	public DirDist(final int dim, final double alpha) {
 		if (dim < 2) {
@@ -38,8 +39,47 @@ public final class DirDist {
 		return _data;
 	}
 	
+	public double getPosteriorLogProb(final double[] value) {
+		if (_isNormalized == false) {
+			throw new IllegalStateException("Cannot get posterior, call normalize() first");
+		}
+		return _sumLogGamma + getUnnormalisedPosteriorLogLike(value);
+	}
+
 	public double[] getUnnormalisedPosteriorMean() {
 		return _data;
+	}
+	
+	public double getUnnormalisedPosteriorLogLike(final double[] value) {
+		if (value == null) {
+			throw new NullPointerException("value");
+		}
+		if (value.length != _data.length) {
+			throw new IllegalArgumentException(
+					"Expected dimensionality " + _data.length + 
+					", but the value has dimensionality " + value.length);
+		}
+		
+		double logLike = 0.0;
+		for (int i=0; i<_data.length; i++) {
+			final double x = value[i];
+			if (!Double.isNaN(x)) {
+				logLike += (_data[i] - 1.0) * x;
+			}
+		}
+		
+		if (Double.isNaN(logLike)) {
+			throw new IllegalStateException("Log likelihood is NAN");
+		}
+
+		return logLike;
+	}
+
+	public double getPosteriorPredictiveProb(int index) {
+		if (_isNormalized == false) {
+			throw new IllegalStateException("Cannot get posterior, call normalize() first");
+		}
+		return _data[index];
 	}
 	
 	public void addObservation(int index, double value) {
@@ -77,6 +117,10 @@ public final class DirDist {
 
 	public void normalize() {
 		StatsUtils.normalize(_data);
+		_sumLogGamma = 0.0;
+		for (int i=0; i<_data.length; i++) {
+			_sumLogGamma += GammaFunction.lnGamma(_data[i]);
+		}
 		_isNormalized = true;
 	}
 	
