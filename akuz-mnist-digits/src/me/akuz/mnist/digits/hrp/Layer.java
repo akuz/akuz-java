@@ -24,6 +24,7 @@ public final class Layer {
 		for (int i=0; i<dim; i++) {
 			_patches[i] = new Patch(rnd);
 		}
+		normalize();
 	}
 	
 	public int getDepth() {
@@ -67,6 +68,15 @@ public final class Layer {
 		_patchDist.reset();
 		for (int i=0; i<_patches.length; i++) {
 			_patches[i].reset();
+		}
+	}
+
+	public void print() {
+		System.out.print("Patch Dist: ");
+		System.out.println(_patchDist);
+		for (int i=0; i<_patches.length; i++) {
+			System.out.println("Patch " + (i+1));
+			_patches[i].print();
 		}
 	}
 

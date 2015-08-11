@@ -86,4 +86,13 @@ public final class Model {
 		}
 	}
 	
+	public void print() {
+		for (int i=0; i<_layers.size(); i++) {
+			System.out.println("---------------------------");
+			System.out.println("----- layer " + (i + 1));
+			System.out.println("---------------------------");
+			_layers.get(i).print();
+		}
+	}
+	
 }

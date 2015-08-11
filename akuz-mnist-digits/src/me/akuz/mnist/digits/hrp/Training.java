@@ -15,7 +15,7 @@ public final class Training {
 	public Training(
 			final int[] dims,
 			final List<Image> images,
-			final int iterations_per_layer) {
+			final int iterationsPerLayer) {
 		
 		if (dims == null) {
 			throw new NullPointerException("dims");
@@ -26,7 +26,7 @@ public final class Training {
 		
 		_rnd = new Random(System.currentTimeMillis());
 		_images = images;
-		_iterations_per_layer = iterations_per_layer;
+		_iterations_per_layer = iterationsPerLayer;
 
 		_model = new Model(dims);
 		_model.ensureDepth(_rnd, 1);
@@ -38,6 +38,10 @@ public final class Training {
 			final Fractal fractal = new Fractal(firstLayer, image.getMinSize());
 			_fractals.add(fractal);
 		}
+	}
+	
+	public Model getModel() {
+		return _model;
 	}
 	
 	public void execute() {
@@ -68,16 +72,14 @@ public final class Training {
 							depth);
 				}
 
-				// M: reset model
-				System.out.print("Reset... ");
-				_model.reset();
-				
 				// M: maximization
 				System.out.print("Maximization... ");
+				_model.reset();
 				for (final Fractal fractal : _fractals) {
 
 					fractal.updatePatchProbs();
 				}
+				_model.normalize();
 				System.out.println("Done.");
 			}
 		}

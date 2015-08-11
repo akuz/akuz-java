@@ -202,7 +202,7 @@ public final class Fractal {
 			
 			if (this.hasLegs() || patch.hasLegs()) {
 				
-				if (!this.hasLegs() || patch.hasLegs()) {
+				if (!this.hasLegs() || !patch.hasLegs()) {
 					throw new IllegalStateException(
 							"Fractal has legs, but patch doesn't");
 				}

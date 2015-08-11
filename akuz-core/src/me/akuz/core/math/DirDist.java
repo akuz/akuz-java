@@ -83,7 +83,7 @@ public final class DirDist {
 	}
 	
 	public void addObservation(int index, double value) {
-		addObservation(index, value, 1.0);
+		addObservation(index, value, 1);
 	}
 	
 	public void addObservation(int index, double value, double weight) {
@@ -91,7 +91,7 @@ public final class DirDist {
 			throw new IllegalStateException("Cannot add new observations, already normalized");
 		}
 		if (weight < 0) {
-			throw new IllegalArgumentException("Weight cannot be negative");
+			throw new IllegalArgumentException("Observation weight cannot be negative");
 		}
 		_data[index] += value * weight;
 	}
@@ -144,6 +144,8 @@ public final class DirDist {
 			if (i > 0) {
 				sb.append(", ");
 			}
+			sb.append(i+1);
+			sb.append(":");
 			sb.append(fmt.format(_data[i]));
 		}
 		return sb.toString();

@@ -9,6 +9,8 @@ import java.text.DecimalFormat;
  */
 public final class NIGDist implements Cloneable, Distribution {
 	
+	private final double MIN_WEIGHT = 1e-8;
+	
 	private final double _lyamdaPrior;
 	private final double _vegaPrior;
 	private final double _alphaPrior;
@@ -81,8 +83,11 @@ public final class NIGDist implements Cloneable, Distribution {
 	
 	@Override
 	public void addObservation(double value, double weight) {
-		if (weight <= 0) {
-			throw new InvalidParameterException("Parameter weight should be positive");
+		if (weight < 0) {
+			throw new InvalidParameterException("Observation weight cannot be negative");
+		}
+		if (weight < MIN_WEIGHT) {
+			return;
 		}
 		_obsN += weight;
 		if (Double.isNaN(_obsN)) {
@@ -106,8 +111,11 @@ public final class NIGDist implements Cloneable, Distribution {
 	
 	@Override
 	public void removeObservation(double value, double weight) {
-		if (weight <= 0) {
-			throw new InvalidParameterException("Parameter weight should be positive");
+		if (weight < 0) {
+			throw new InvalidParameterException("Observation weight cannot be negative");
+		}
+		if (weight < MIN_WEIGHT) {
+			return;
 		}
 		double newObsN = _obsN - weight;
 		if (newObsN < -0.000001) { // take care of numerical rounding issues

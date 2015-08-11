@@ -49,6 +49,7 @@ public final class Patch {
 		_legsPatchDist = new DirDist[4];
 		for (int i=0; i<_legsPatchDist.length; i++) {
 			_legsPatchDist[i] = new DirDist(nextDim, LEG_DIR_ALPHA_TOTAL / nextDim);
+			_legsPatchDist[i].normalize();
 		}
 	}
 	
@@ -66,6 +67,17 @@ public final class Patch {
 		if (_legsPatchDist != null) {
 			for (int i=0; i<_legsPatchDist.length; i++) {
 				_legsPatchDist[i].reset();
+			}
+		}
+	}
+
+	public void print() {
+		System.out.print("  Intensity: ");
+		System.out.println(_intensityDist);
+		if (_legsPatchDist != null) {
+			for (int i=0; i<_legsPatchDist.length; i++) {
+				System.out.print("  Leg " + (i+1) + ": ");
+				System.out.println(_legsPatchDist[i]);
 			}
 		}
 	}
