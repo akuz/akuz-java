@@ -29,6 +29,9 @@ public final class Model {
 	}
 	
 	public void createNextLayer(final Random rnd, final int dim) {
+		
+		// FIXME: remove in favor of below function
+		
 		final Layer nextLayer = new Layer(rnd, _layers.size(), dim);
 		if (_layers.size() > 0) {
 			_layers.get(_layers.size()-1).onNextLayerCreated(nextLayer);
@@ -41,7 +44,7 @@ public final class Model {
 			final int[] dims,
 			final int depth) {
 		
-		
+		// TODO: implement to replace the above function
 		
 		final Layer nextLayer = new Layer(rnd, _layers.size(), dim);
 		if (_layers.size() > 0) {
