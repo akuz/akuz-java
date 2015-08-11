@@ -36,6 +36,20 @@ public final class Model {
 		_layers.add(nextLayer);
 	}
 	
+	public void ensureDepth(
+			final Random rnd, 
+			final int[] dims,
+			final int depth) {
+		
+		
+		
+		final Layer nextLayer = new Layer(rnd, _layers.size(), dim);
+		if (_layers.size() > 0) {
+			_layers.get(_layers.size()-1).onNextLayerCreated(nextLayer);
+		}
+		_layers.add(nextLayer);
+	}
+	
 	public void normalize() {
 		for (int i=0; i<_layers.size(); i++) {
 			_layers.get(i).normalize();
