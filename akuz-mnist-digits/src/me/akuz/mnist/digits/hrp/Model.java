@@ -11,10 +11,31 @@ import java.util.Random;
  */
 public final class Model {
 	
+	private final int[] _dims;
 	private final List<Layer> _layers;
 	
-	public Model() {
+	public Model(final int[] dims) {
+		if (dims == null) {
+			throw new NullPointerException("dims");
+		}
+		if (dims.length == 0) {
+			throw new IllegalArgumentException(
+					"Argument dims length must be > 0");
+		}
+		_dims = dims;
 		_layers = new ArrayList<>();
+	}
+	
+	public int[] getDims() {
+		return _dims;
+	}
+	
+	public int getDepthCurrent() {
+		return _layers.size();
+	}
+	
+	public int getDepthMaximum() {
+		return _dims.length;
 	}
 	
 	public List<Layer> getLayers() {
@@ -28,29 +49,29 @@ public final class Model {
 		return _layers.get(0);
 	}
 	
-	public void createNextLayer(final Random rnd, final int dim) {
-		
-		// FIXME: remove in favor of below function
-		
-		final Layer nextLayer = new Layer(rnd, _layers.size(), dim);
-		if (_layers.size() > 0) {
-			_layers.get(_layers.size()-1).onNextLayerCreated(nextLayer);
-		}
-		_layers.add(nextLayer);
-	}
-	
 	public void ensureDepth(
-			final Random rnd, 
-			final int[] dims,
+			final Random rnd,
 			final int depth) {
 		
-		// TODO: implement to replace the above function
-		
-		final Layer nextLayer = new Layer(rnd, _layers.size(), dim);
-		if (_layers.size() > 0) {
-			_layers.get(_layers.size()-1).onNextLayerCreated(nextLayer);
+		if (depth > _dims.length) {
+			throw new IllegalStateException(
+					"Requested model depth " + depth + 
+					", but the maximum depth is " + _dims.length);
 		}
-		_layers.add(nextLayer);
+		
+		while (_layers.size() < depth) {
+			
+			final Layer nextLayer = new Layer(
+					rnd, 
+					_layers.size() + 1, 
+					_dims[_layers.size()]);
+			
+			if (_layers.size() > 0) {
+				_layers.get(_layers.size()-1).onNextLayerCreated(nextLayer);
+			}
+			
+			_layers.add(nextLayer);
+		}
 	}
 	
 	public void normalize() {

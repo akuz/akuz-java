@@ -14,10 +14,14 @@ public final class Fractal {
 	private final Layer _layer;
 	private final double _size;
 	private final double[] _patchProbs;
+	private double _patchProbsIntensity;
 	private boolean _isPatchProbsCalculated;
 	private Fractal[] _legs;
 	
-	public Fractal(final Layer layer, final double size) {
+	public Fractal(
+			final Layer layer,
+			final double size) {
+
 		_layer = layer;
 		_size = size;
 		_patchProbs = new double[layer.getDim()];
@@ -48,7 +52,7 @@ public final class Fractal {
 		return _legs;
 	}
 
-	public void createLegs(final Layer layer) {
+	private void createLegs(final Layer layer) {
 		if (_legs != null) {
 			throw new IllegalStateException("This fractal already has legs");
 		}
@@ -61,54 +65,41 @@ public final class Fractal {
 
 	public void ensureDepth(
 			final List<Layer> layers,
-			final int maxDepth) {
-
-		final int depth = this.getDepth();
+			final int depth) {
 		
-		if (depth >= layers.size()) {
+		if (depth > layers.size()) {
 
 			// checking here that there are enough
-			// layers for the created fractal, in
-			// particular important for layer 0
+			// layers for the created fractal
 			throw new IllegalStateException(
-					"Created fractal depth is " + depth +
+					"Requested fractal depth is " + depth +
 					", but there are not enough layers (" + 
 					layers.size() + ")");
 		}
+
+		final int currDepth = this.getDepth();
+		final int nextDepth = currDepth + 1;
 		
-		final int nextDepth = depth + 1;
-		
-		if (nextDepth <= maxDepth) {
-			
-			if (nextDepth >= layers.size()) {
-				
-				// checking here that maxDepth always
-				// fits the number of layers, to avoid
-				// situations when caller expects there
-				// to be enough layers in the model
-				throw new IllegalStateException(
-						"Not enough layers (" + layers.size() + 
-						") to support depth " + nextDepth);
-			}
+		if (nextDepth <= depth) {
 			
 			if (!this.hasLegs()) {
 				
 				// we are only ensuring the depth, 
 				// so creating fractal legs only
 				// if they don't already exist				
-				Layer nextLayer = layers.get(nextDepth);
+				Layer nextLayer = layers.get(nextDepth-1);
 				this.createLegs(nextLayer);
 			}
 			
 			// we are now sure that this has legs
 			final Fractal[] legs = this.getLegs();
 			for (int i=0; i<legs.length; i++) {
-				legs[i].ensureDepth(layers, maxDepth);
+				legs[i].ensureDepth(layers, depth);
 			}
 		}
 	}
 	
-	public void calcPatchProbs(
+	public void calculatePatchProbs(
 			final Image image,
 			final double centerX,
 			final double centerY,
@@ -144,14 +135,14 @@ public final class Fractal {
 						"exactly, but got " + _legs.length);
 			}
 			
-			_legs[0].calcPatchProbs(image, centerX - _size / 2.0, centerY - _size / 2.0, maxDepth);
-			_legs[1].calcPatchProbs(image, centerX + _size / 2.0, centerY - _size / 2.0, maxDepth);
-			_legs[2].calcPatchProbs(image, centerX - _size / 2.0, centerY + _size / 2.0, maxDepth);
-			_legs[3].calcPatchProbs(image, centerX + _size / 2.0, centerY + _size / 2.0, maxDepth);
+			_legs[0].calculatePatchProbs(image, centerX - _size / 2.0, centerY - _size / 2.0, maxDepth);
+			_legs[1].calculatePatchProbs(image, centerX + _size / 2.0, centerY - _size / 2.0, maxDepth);
+			_legs[2].calculatePatchProbs(image, centerX - _size / 2.0, centerY + _size / 2.0, maxDepth);
+			_legs[3].calculatePatchProbs(image, centerX + _size / 2.0, centerY + _size / 2.0, maxDepth);
 		}
 	
 		// covered intensity
-		final double intensity = image.getIntensity(centerX, centerY, _size);
+		_patchProbsIntensity = image.getIntensity(centerX, centerY, _size);
 
 		// calculate each patch log like
 		final DirDist layerPatchDist = _layer.getPatchDist();
@@ -167,7 +158,7 @@ public final class Fractal {
 			
 			_patchProbs[i] += Math.log(patchProbs[i]);
 			
-			_patchProbs[i] += Math.log(patch.getIntensityDist().getProb(intensity));
+			_patchProbs[i] += Math.log(patch.getIntensityDist().getProb(_patchProbsIntensity));
 			
 			if (depth < maxDepth) {
 				
@@ -190,6 +181,55 @@ public final class Fractal {
 		
 		StatsUtils.logLikesToProbsReplace(_patchProbs);
 		_isPatchProbsCalculated = true;
+	}
+
+	public void updatePatchProbs() {
+		
+		final double[] patchProbs = getPatchProbs();
+		final DirDist patchDist = _layer.getPatchDist();
+		final Patch[] patches = _layer.getPatches();
+		
+		// observe patch probs
+		patchDist.addObservation(patchProbs);
+		
+		for (int i=0; i<patchProbs.length; i++) {
+			
+			final double patchProb = patchProbs[i];
+			final Patch patch = patches[i];
+			
+			// observe patch intensity
+			patch.getIntensityDist().addObservation(_patchProbsIntensity, patchProb);
+			
+			if (this.hasLegs() || patch.hasLegs()) {
+				
+				if (!this.hasLegs() || patch.hasLegs()) {
+					throw new IllegalStateException(
+							"Fractal has legs, but patch doesn't");
+				}
+				
+				final Fractal[] fractalLegs = this.getLegs();
+				final DirDist[] patchLegsPatchDist = patch.getLegsPatchDist();
+				
+				if (fractalLegs.length != patchLegsPatchDist.length) {
+					throw new IllegalStateException(
+							"Fractal has " + fractalLegs.length +" legs, " + 
+							"but patch has " + patchLegsPatchDist.length);
+				}
+				
+				for (int k=0; k<fractalLegs.length; k++) {
+					patchLegsPatchDist[k].addObservation(
+							fractalLegs[k].getPatchProbs(), 
+							patchProb);
+				}
+			}
+		}
+		
+		// hierarchy
+		if (_legs != null) {
+			for (int k=0; k<_legs.length; k++) {
+				_legs[k].updatePatchProbs();
+			}
+		}
 	}
 
 }

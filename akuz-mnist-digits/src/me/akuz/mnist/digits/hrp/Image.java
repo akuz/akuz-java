@@ -1,5 +1,7 @@
 package me.akuz.mnist.digits.hrp;
 
+import org.apache.commons.lang3.NotImplementedException;
+
 import me.akuz.core.geom.ByteImage;
 
 /**
@@ -36,6 +38,6 @@ public final class Image {
 			final double centerY,
 			final double size) {
 		
-		return 0.5; // TODO
+		throw new NotImplementedException("Not Implemented");
 	}
 }
