@@ -17,6 +17,17 @@ public final class Model {
 		_layers = new ArrayList<>();
 	}
 	
+	public List<Layer> getLayers() {
+		return _layers;
+	}
+	
+	public Layer getFirstLayer() {
+		if (_layers.size() == 0) {
+			throw new IllegalStateException("There are no layers in the model");
+		}
+		return _layers.get(0);
+	}
+	
 	public void createNextLayer(final Random rnd, final int dim) {
 		final Layer nextLayer = new Layer(rnd, _layers.size(), dim);
 		if (_layers.size() > 0) {
@@ -25,32 +36,16 @@ public final class Model {
 		_layers.add(nextLayer);
 	}
 	
-	public Fractal createRootFractal(final Image image) {
-		if (_layers.size() == 0) {
-			throw new IllegalStateException("There are no layers in the model");
+	public void normalize() {
+		for (int i=0; i<_layers.size(); i++) {
+			_layers.get(i).normalize();
 		}
-		return new Fractal(_layers.get(0), image.getMinSize());
 	}
 	
-	public Fractal calculatePatchProbs(final Image image, final int maxDepth) {
-
-		if (_layers.size() == 0) {
-			throw new IllegalStateException("There are no layers in the model");
+	public void reset() {
+		for (int i=0; i<_layers.size(); i++) {
+			_layers.get(i).reset();
 		}
-		
-		// TODO: extend fractal
-		
-		// TODO: throw if model not deep enough
-		
-		// TODO: consider throwing in other methods with maxDepth
-		
-		Fractal fractal = new Fractal(_layers.get(0), image.getMinSize());
-		
-		Fractal.createHierarchy(_layers, fractal, maxDepth);
-		
-		fractal.calculatePatchProbs(image, image.getCenterX(), image.getCenterY(), maxDepth);
-		
-		return fractal;
 	}
 	
 }
