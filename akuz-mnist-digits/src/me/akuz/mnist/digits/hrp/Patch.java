@@ -13,13 +13,13 @@ public final class Patch {
 
 	public static final double INTENSITY_PRIOR_MEAN = 0.5;
 	public static final double INTENSITY_PRIOR_MEAN_NOISE = 0.1;
-	public static final double INTENSITY_PRIOR_MEAN_SAMPLES = 30.0;
-	public static final double INTENSITY_PRIOR_VARIANCE = Math.pow(0.5, 2);
-	public static final double INTENSITY_PRIOR_VARIANCE_SAMPLES = 30.0;
-	public static final double LEG_DIR_ALPHA_TOTAL = 10.0;
+	public static final double INTENSITY_PRIOR_MEAN_SAMPLES = 10.0;
+	public static final double INTENSITY_PRIOR_VARIANCE = Math.pow(0.2, 2);
+	public static final double INTENSITY_PRIOR_VARIANCE_SAMPLES = 10.0;
+	public static final double LEG_DIR_ALPHA_TOTAL = 1.0;
 
 	private final NIGDist _intensityDist;
-	private DirDist[] _legsPatchDist;
+	private DirDist[] _legPatchDists;
 
 	public Patch(final Random rnd) {
 		_intensityDist = new NIGDist(
@@ -34,39 +34,39 @@ public final class Patch {
 	}
 	
 	public boolean hasLegs() {
-		return _legsPatchDist != null;
+		return _legPatchDists != null;
 	}
 
-	public DirDist[] getLegsPatchDist() {
-		return _legsPatchDist;
+	public DirDist[] getLegPatchDists() {
+		return _legPatchDists;
 	}
 
 	public void onNextLayerCreated(final Layer nextLayer) {
-		if (_legsPatchDist != null) {
+		if (_legPatchDists != null) {
 			throw new IllegalStateException("This patch already has next layer");
 		}
 		final int nextDim = nextLayer.getDim();
-		_legsPatchDist = new DirDist[4];
-		for (int i=0; i<_legsPatchDist.length; i++) {
-			_legsPatchDist[i] = new DirDist(nextDim, LEG_DIR_ALPHA_TOTAL / nextDim);
-			_legsPatchDist[i].normalize();
+		_legPatchDists = new DirDist[4];
+		for (int k=0; k<_legPatchDists.length; k++) {
+			_legPatchDists[k] = new DirDist(nextDim, LEG_DIR_ALPHA_TOTAL / nextDim);
+			_legPatchDists[k].normalize();
 		}
 	}
 	
 	public void normalize() {
 		// no need to normalize intensity
-		if (_legsPatchDist != null) {
-			for (int i=0; i<_legsPatchDist.length; i++) {
-				_legsPatchDist[i].normalize();
+		if (_legPatchDists != null) {
+			for (int k=0; k<_legPatchDists.length; k++) {
+				_legPatchDists[k].normalize();
 			}
 		}
 	}
 	
 	public void reset() {
 		_intensityDist.reset();
-		if (_legsPatchDist != null) {
-			for (int i=0; i<_legsPatchDist.length; i++) {
-				_legsPatchDist[i].reset();
+		if (_legPatchDists != null) {
+			for (int k=0; k<_legPatchDists.length; k++) {
+				_legPatchDists[k].reset();
 			}
 		}
 	}
@@ -74,10 +74,10 @@ public final class Patch {
 	public void print() {
 		System.out.print("  Intensity: ");
 		System.out.println(_intensityDist);
-		if (_legsPatchDist != null) {
-			for (int i=0; i<_legsPatchDist.length; i++) {
-				System.out.print("  Leg " + (i+1) + ": ");
-				System.out.println(_legsPatchDist[i]);
+		if (_legPatchDists != null) {
+			for (int k=0; k<_legPatchDists.length; k++) {
+				System.out.print("  Leg " + (k+1) + ": ");
+				System.out.println(_legPatchDists[k]);
 			}
 		}
 	}

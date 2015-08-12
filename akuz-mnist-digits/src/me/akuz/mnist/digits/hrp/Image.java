@@ -61,6 +61,10 @@ public final class Image {
 				}
 			}
 		}
+		
+		if (counter == 0) {
+			throw new InternalError("This should not happen");
+		}
 
 		return counter > 0 ? intensitySum / counter : 0.0;
 	}

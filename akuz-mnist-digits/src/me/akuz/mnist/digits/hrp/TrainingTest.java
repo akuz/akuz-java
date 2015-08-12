@@ -14,8 +14,8 @@ public class TrainingTest {
 		final String fileName = "/Users/andrey/SkyDrive/Documents/Data/digits_input/train.csv";
 		final int maxImageCount = 500;
 		
-		final int[] dims = new int[] { 10, 10, 10, 10, 10 };
-		final int iterationsPerLayer = 10;
+		final int[] dims = new int[] { 8, 4, 2 };
+		final int iterationsPerLayer = 50;
 		
 		final MNIST mnist = MNIST.load(fileName, maxImageCount);
 		
@@ -26,8 +26,6 @@ public class TrainingTest {
 		
 		final Training training = new Training(dims, images, iterationsPerLayer);
 		training.execute();
-		
-		training.getModel().print();
 	}
 
 }

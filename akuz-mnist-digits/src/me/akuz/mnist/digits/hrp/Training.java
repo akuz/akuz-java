@@ -85,6 +85,8 @@ public final class Training {
 				_model.normalize();
 				System.out.println();
 			}
+			
+			_model.print();
 		}
 
 	}

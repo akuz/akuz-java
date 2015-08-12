@@ -43,7 +43,7 @@ public final class DirDist {
 		if (_isNormalized == false) {
 			throw new IllegalStateException("Cannot get posterior, call normalize() first");
 		}
-		return _sumLogGamma + getUnnormalisedPosteriorLogLike(value);
+		return getUnnormalisedPosteriorLogLike(value) - _sumLogGamma;
 	}
 
 	public double[] getUnnormalisedPosteriorMean() {
@@ -64,7 +64,7 @@ public final class DirDist {
 		for (int i=0; i<_data.length; i++) {
 			final double x = value[i];
 			if (!Double.isNaN(x)) {
-				logLike += (_data[i] - 1.0) * x;
+				logLike += (_data[i] - 1.0) * Math.log(x);
 			}
 		}
 		

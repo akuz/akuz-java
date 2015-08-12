@@ -10,8 +10,12 @@ import me.akuz.core.math.DirDist;
  */
 public final class Layer {
 
-	public static final double PATCH_DIR_ALPHA_TOTAL = 1000.0;
-	
+	// we want the probabilities of patches within layer
+	// to be as equal as possible, therefore we need to use
+	// a high value for the dirichlet alpha (perhaps could
+	// remove this distribution completely and assume flat)
+	public static final double PATCH_DIR_ALPHA_TOTAL = 1000000.0;
+
 	private final int _depth;
 	private final DirDist _patchDist;
 	private final Patch[] _patches;
