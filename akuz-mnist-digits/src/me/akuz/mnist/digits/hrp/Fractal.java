@@ -25,6 +25,8 @@ public final class Fractal {
 		_layer = layer;
 		_size = size;
 		_patchProbs = new double[layer.getDim()];
+		_patchProbsIntensity = Double.NaN;
+		_isPatchProbsCalculated = false;
 	}
 	
 	public int getDepth() {
@@ -42,6 +44,19 @@ public final class Fractal {
 					"calculated for this fractal");
 		}
 		return _patchProbs;
+	}
+	
+	public double getPatchProbsIntensity() {
+		if (!_isPatchProbsCalculated) {
+			throw new IllegalStateException(
+					"Patch probs have not been " + 
+					"calculated for this fractal");
+		}
+		if (Double.isNaN(_patchProbsIntensity)) {
+			throw new IllegalStateException(
+					"Intensity is NAN");
+		}
+		return _patchProbsIntensity;
 	}
 	
 	public boolean hasLegs() {
@@ -107,7 +122,7 @@ public final class Fractal {
 		
 		// check current depth
 		final int depth = _layer.getDepth();
-		if (maxDepth < depth) {
+		if (depth > maxDepth) {
 			throw new IllegalArgumentException(
 					"Encountered the fractal with depth " + depth +
 					" while calculating patch probs with maxDepth " + 
@@ -139,10 +154,23 @@ public final class Fractal {
 			_legs[1].calculatePatchProbs(image, centerX + _size / 2.0, centerY - _size / 2.0, maxDepth);
 			_legs[2].calculatePatchProbs(image, centerX - _size / 2.0, centerY + _size / 2.0, maxDepth);
 			_legs[3].calculatePatchProbs(image, centerX + _size / 2.0, centerY + _size / 2.0, maxDepth);
+			
+			// average intensity from legs
+			if (Double.isNaN(_patchProbsIntensity)) {
+				_patchProbsIntensity = 0.0;
+				for (int i=0; i<_legs.length; i++) {
+					_patchProbsIntensity += _legs[i].getPatchProbsIntensity();
+				}
+				_patchProbsIntensity /= _legs.length;
+			}
 		}
 	
-		// covered intensity
-		_patchProbsIntensity = image.getIntensity(centerX, centerY, _size);
+		// calculate intensity
+		if (Double.isNaN(_patchProbsIntensity)) {
+
+			// NOTE: this relies on the fact there is no Fractal jiggling
+			_patchProbsIntensity = image.getIntensity(centerX, centerY, _size);
+		}
 
 		// calculate each patch log like
 		final DirDist layerPatchDist = _layer.getPatchDist();

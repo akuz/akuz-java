@@ -10,7 +10,7 @@ import me.akuz.core.math.DirDist;
  */
 public final class Layer {
 
-	public static final double PATCH_DIR_ALPHA_TOTAL = 10.0;
+	public static final double PATCH_DIR_ALPHA_TOTAL = 1000.0;
 	
 	private final int _depth;
 	private final DirDist _patchDist;

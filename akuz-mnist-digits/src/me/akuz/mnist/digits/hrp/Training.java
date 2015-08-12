@@ -62,6 +62,7 @@ public final class Training {
 				System.out.print("Expectation... ");
 				for (int i=0; i<_images.size(); i++) {
 
+					//System.out.print((i+1)+ " ");
 					final Image image = _images.get(i);
 					final Fractal fractal = _fractals.get(i);
 					
@@ -71,16 +72,18 @@ public final class Training {
 							image.getCenterY(),
 							depth);
 				}
+				System.out.println();
 
 				// M: maximization
 				System.out.print("Maximization... ");
 				_model.reset();
-				for (final Fractal fractal : _fractals) {
+				for (int i=0; i<_fractals.size(); i++) {
 
-					fractal.updatePatchProbs();
+					//System.out.print((i+1)+ " ");
+					_fractals.get(i).updatePatchProbs();
 				}
 				_model.normalize();
-				System.out.println("Done.");
+				System.out.println();
 			}
 		}
 
