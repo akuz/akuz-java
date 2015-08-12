@@ -12,18 +12,15 @@ import me.akuz.core.math.StatsUtils;
 public final class Fractal {
 	
 	private final Layer _layer;
-	private final double _size;
 	private final double[] _patchProbs;
 	private double _patchProbsCalcIntensity;
 	private boolean _isPatchProbsCalculated;
 	private Fractal[] _legs;
 	
 	public Fractal(
-			final Layer layer,
-			final double size) {
+			final Layer layer) {
 
 		_layer = layer;
-		_size = size;
 		_patchProbs = new double[layer.getDim()];
 		_patchProbsCalcIntensity = Double.NaN;
 		_isPatchProbsCalculated = false;
@@ -31,10 +28,6 @@ public final class Fractal {
 	
 	public int getDepth() {
 		return _layer.getDepth();
-	}
-
-	public double getSize() {
-		return _size;
 	}
 	
 	public double[] getPatchProbs() {
@@ -71,10 +64,9 @@ public final class Fractal {
 		if (_legs != null) {
 			throw new IllegalStateException("This fractal already has legs");
 		}
-		final double nextSize = _size / 2.0;
 		_legs = new Fractal[4];
 		for (int i=0; i<_legs.length; i++) {
-			_legs[i] = new Fractal(layer, nextSize);
+			_legs[i] = new Fractal(layer);
 		}
 	}
 
@@ -118,6 +110,7 @@ public final class Fractal {
 			final Image image,
 			final double centerX,
 			final double centerY,
+			final double size,
 			final int maxDepth) {
 		
 		// check current depth
@@ -150,11 +143,12 @@ public final class Fractal {
 						"exactly, but got " + _legs.length);
 			}
 			
-			final double quatroSize = _size / 4.0;
-			_legs[0].calculatePatchProbs(image, centerX - quatroSize, centerY - quatroSize, maxDepth);
-			_legs[1].calculatePatchProbs(image, centerX + quatroSize, centerY - quatroSize, maxDepth);
-			_legs[2].calculatePatchProbs(image, centerX - quatroSize, centerY + quatroSize, maxDepth);
-			_legs[3].calculatePatchProbs(image, centerX + quatroSize, centerY + quatroSize, maxDepth);
+			final double halfSize = size / 2.0;
+			final double quarterSize = size / 4.0;
+			_legs[0].calculatePatchProbs(image, centerX - quarterSize, centerY - quarterSize, halfSize, maxDepth);
+			_legs[1].calculatePatchProbs(image, centerX + quarterSize, centerY - quarterSize, halfSize, maxDepth);
+			_legs[2].calculatePatchProbs(image, centerX - quarterSize, centerY + quarterSize, halfSize, maxDepth);
+			_legs[3].calculatePatchProbs(image, centerX + quarterSize, centerY + quarterSize, halfSize, maxDepth);
 			
 			// average intensity from legs
 			if (Double.isNaN(_patchProbsCalcIntensity)) {
@@ -170,7 +164,7 @@ public final class Fractal {
 		if (Double.isNaN(_patchProbsCalcIntensity)) {
 
 			// NOTE: this relies on the fact there is no Fractal jiggling
-			_patchProbsCalcIntensity = image.getIntensity(centerX, centerY, _size);
+			_patchProbsCalcIntensity = image.getIntensity(centerX, centerY, size);
 		}
 
 		// calculate each patch log like

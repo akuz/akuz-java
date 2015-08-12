@@ -21,6 +21,7 @@ public final class Patch {
 	private final NIGDist _intensityDist;
 	private DirDist[] _legPatchDists;
 
+	// TODO: replace with float
 	public Patch(final Random rnd) {
 		_intensityDist = new NIGDist(
 				INTENSITY_PRIOR_MEAN + (rnd.nextDouble() - 0.5) * INTENSITY_PRIOR_MEAN_NOISE, 

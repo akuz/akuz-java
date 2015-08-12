@@ -33,9 +33,9 @@ public final class Training {
 		final Layer firstLayer = _model.getFirstLayer();
 		
 		_fractals = new ArrayList<>(images.size());
-		for (final Image image : images) {
-			
-			final Fractal fractal = new Fractal(firstLayer, image.getMinSize());
+		for (int i=0; i<_images.size(); i++) {
+
+			final Fractal fractal = new Fractal(firstLayer);
 			_fractals.add(fractal);
 		}
 	}
@@ -46,7 +46,7 @@ public final class Training {
 	
 	public void execute() {
 		
-		for (int depth = 1; depth <= _model.getDepthMaximum(); depth++) {
+		for (int depth = _model.getDepthMaximum(); depth <= _model.getDepthMaximum(); depth++) {
 			
 			_model.ensureDepth(_rnd, depth);
 			
@@ -70,6 +70,7 @@ public final class Training {
 							image,
 							image.getCenterX(),
 							image.getCenterY(),
+							image.getMinSize(),
 							depth);
 				}
 				System.out.println();
