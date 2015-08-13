@@ -17,8 +17,7 @@ public final class Fractal {
 	private boolean _isPatchProbsCalculated;
 	private Fractal[] _legs;
 	
-	public Fractal(
-			final Layer layer) {
+	public Fractal(final Layer layer) {
 
 		_layer = layer;
 		_patchProbs = new double[layer.getDim()];
@@ -60,13 +59,14 @@ public final class Fractal {
 		return _legs;
 	}
 
-	private void createLegs(final Layer layer) {
+	private void createLegs(final Layer nextLayer) {
 		if (_legs != null) {
 			throw new IllegalStateException("This fractal already has legs");
 		}
-		_legs = new Fractal[4];
+		final Spread spread = _layer.getSpread();
+		_legs = new Fractal[spread.getLegCount()];
 		for (int i=0; i<_legs.length; i++) {
-			_legs[i] = new Fractal(layer);
+			_legs[i] = new Fractal(nextLayer);
 		}
 	}
 
@@ -137,27 +137,33 @@ public final class Fractal {
 						"already exist for consistency");
 			}
 			
-			if (_legs.length != 4) {
+			final Spread spread = _layer.getSpread();
+			
+			if (_legs.length != spread.getLegCount()) {
 				throw new InternalError(
-						"Expected fractal to have 4 legs " + 
-						"exactly, but got " + _legs.length);
+						"Expected fractal to have " + spread.getLegCount() +
+						" legs exactly, but got " + _legs.length);
 			}
+			
+			final SpreadLeg[] spreadLegs = spread.getLegs();
 			
 			final double halfSize = size / 2.0;
-			final double quarterSize = size / 4.0;
-			_legs[0].calculatePatchProbs(image, centerX - quarterSize, centerY - quarterSize, halfSize, maxDepth);
-			_legs[1].calculatePatchProbs(image, centerX + quarterSize, centerY - quarterSize, halfSize, maxDepth);
-			_legs[2].calculatePatchProbs(image, centerX - quarterSize, centerY + quarterSize, halfSize, maxDepth);
-			_legs[3].calculatePatchProbs(image, centerX + quarterSize, centerY + quarterSize, halfSize, maxDepth);
-			
-			// average intensity from legs
-			if (Double.isNaN(_patchProbsCalcIntensity)) {
-				_patchProbsCalcIntensity = 0.0;
-				for (int k=0; k<_legs.length; k++) {
-					_patchProbsCalcIntensity += _legs[k].getPatchProbsIntensity();
-				}
-				_patchProbsCalcIntensity /= _legs.length;
+			final double thisLeftX = centerX - halfSize;
+			final double thisLeftY = centerY - halfSize;
+
+			_patchProbsCalcIntensity = 0.0;
+			for (int k=0; k<_legs.length; k++) {
+				
+				final SpreadLeg spreadLeg = spreadLegs[k];
+				
+				final double legCenterX = thisLeftX + spreadLeg.getCenterX() * size;
+				final double legCenterY = thisLeftY + spreadLeg.getCenterY() * size;
+				final double legSize = spreadLeg.getSize() * size;
+				
+				_legs[k].calculatePatchProbs(image, legCenterX, legCenterY, legSize, maxDepth);
+				_patchProbsCalcIntensity += _legs[k].getPatchProbsIntensity();
 			}
+			_patchProbsCalcIntensity /= _legs.length;
 		}
 	
 		// calculate intensity
@@ -195,10 +201,10 @@ public final class Fractal {
 							"but the fractal has");
 				}
 				
-				_patchProbs[i] += patchLegPatchDists[0].getPosteriorLogProb(_legs[0].getPatchProbs());
-				_patchProbs[i] += patchLegPatchDists[1].getPosteriorLogProb(_legs[1].getPatchProbs());
-				_patchProbs[i] += patchLegPatchDists[2].getPosteriorLogProb(_legs[2].getPatchProbs());
-				_patchProbs[i] += patchLegPatchDists[3].getPosteriorLogProb(_legs[3].getPatchProbs());
+				for (int k=0; k<_legs.length; k++) {
+					
+					_patchProbs[i] += patchLegPatchDists[k].getPosteriorLogProb(_legs[k].getPatchProbs());
+				}
 			}
 		}
 		

@@ -15,22 +15,28 @@ public final class Layer {
 	public static final double PATCH_DIR_ALPHA_TOTAL = 1000000.0;
 
 	private final int _depth;
+	private final Spread _spread;
 	private final DirDist _patchDist;
 	private final Patch[] _patches;
 	private Layer _nextLayer;
 	
-	public Layer(final int depth, final int dim) {
+	public Layer(final int depth, final Spread spread, final int dim) {
 		_depth = depth;
+		_spread = spread;
 		_patchDist = new DirDist(dim, PATCH_DIR_ALPHA_TOTAL / dim);
 		_patches = new Patch[dim];
 		for (int i=0; i<dim; i++) {
-			_patches[i] = new Patch(1.0 - (double)i/(double)(dim - 1));
+			_patches[i] = new Patch(this, 1.0 - (double)i/(double)(dim - 1));
 		}
 		normalize();
 	}
 	
 	public int getDepth() {
 		return _depth;
+	}
+	
+	public Spread getSpread() {
+		return _spread;
 	}
 	
 	public int getDim() {

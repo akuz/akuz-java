@@ -11,43 +11,12 @@ import me.akuz.core.geom.ByteImage;
 public final class MNIST {
 	
 	private static final int IMAGE_SIZE = 28;
-
-	private final List<Integer> _digits;
-	private final List<ByteImage> _images;
 	
-	public MNIST(
-			List<Integer> digits,
-			List<ByteImage> images) {
-		
-		if (digits == null) {
-			throw new NullPointerException("digits");
-		}
-		if (images == null) {
-			throw new NullPointerException("images");
-		}
-		if (digits.size() != images.size()) {
-			throw new IllegalArgumentException(
-					"Digits size is " + digits.size() + 
-					", but images size is " + images.size());
-		}
-		_digits = digits;
-		_images = images;
-	}
-	
-	public List<Integer> getDigits() {
-		return _digits;
-	}
-	
-	public List<ByteImage> getImages() {
-		return _images;
-	}
-	
-	public static MNIST load(
+	public static List<MNISTImage> load(
 			final String fileName,
 			final int maxImageCount) throws IOException {
 		
-		List<Integer> digits = new ArrayList<>();
-		List<ByteImage> images = new ArrayList<>();
+		List<MNISTImage> images = new ArrayList<>();
 		try (Scanner scanner = FileUtils.openScanner(fileName)) {
 			
 			// skip first line
@@ -66,8 +35,7 @@ public final class MNIST {
 					if (parts.length != requiredEntryCount) {
 						throw new IOException("Incorrect number of entries in line #" + counter + ": " + line);
 					}
-					int number = Integer.parseInt(parts[0]);
-					digits.add(number);
+					int digit = Integer.parseInt(parts[0]);
 					byte[][] data = new byte[IMAGE_SIZE][IMAGE_SIZE];
 					for (int i=1; i<parts.length; i++) {
 						
@@ -77,8 +45,8 @@ public final class MNIST {
 						final int col = index % IMAGE_SIZE;
 						data[row][col] = (byte)val;
 					}
-					ByteImage digit = new ByteImage(data);
-					images.add(digit);
+					ByteImage byteImage = new ByteImage(data);
+					images.add(new MNISTImage(digit, byteImage));
 				}
 				counter += 1;
 				
@@ -88,7 +56,7 @@ public final class MNIST {
 			}
 		}
 		
-		return new MNIST(digits, images);
+		return images;
 	}
 	
 }

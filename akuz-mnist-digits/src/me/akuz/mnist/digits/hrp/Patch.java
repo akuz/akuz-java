@@ -20,6 +20,9 @@ public final class Patch {
 	// we want each leg distribution to be concentrated
 	// on a few new layer patches, so we need a low alpha
 	public static final double LEG_DIR_ALPHA_TOTAL = 1.0;
+	
+	// layer of this patch
+	private final Layer _layer;
 
 	// average intensity distribution of this patch
 	private final NIGDist _intensityDist;
@@ -33,11 +36,12 @@ public final class Patch {
 	 * 
 	 * @param initNoise - to differentiate patches, must be within [0, 1].
 	 */
-	public Patch(final double initNoise) {
+	public Patch(final Layer layer, final double initNoise) {
 		if (initNoise < 0.0 || initNoise > 1.0) {
 			throw new IllegalArgumentException(
 					"Initial noise must be within [0, 1], but got " + initNoise);
 		}
+		_layer = layer;
 		_intensityDist = new NIGDist(
 				INTENSITY_PRIOR_MEAN + (initNoise - 0.5) * INTENSITY_PRIOR_MEAN_RANGE, 
 				INTENSITY_PRIOR_MEAN_SAMPLES,
@@ -62,7 +66,8 @@ public final class Patch {
 			throw new IllegalStateException("This patch already has next layer");
 		}
 		final int nextDim = nextLayer.getDim();
-		_legPatchDists = new DirDist[4];
+		final Spread spread = _layer.getSpread();
+		_legPatchDists = new DirDist[spread.getLegCount()];
 		for (int k=0; k<_legPatchDists.length; k++) {
 			_legPatchDists[k] = new DirDist(nextDim, LEG_DIR_ALPHA_TOTAL / nextDim);
 			_legPatchDists[k].normalize();
@@ -97,7 +102,7 @@ public final class Patch {
 				System.out.println(_legPatchDists[k]);
 			}
 		}
-		Image recon = new Image(new ByteImage(10, 10));
+		Image recon = new Image(-1, new ByteImage(10, 10));
 		reconstruct(1.0, recon, recon.getCenterX(), recon.getCenterY(), recon.getMinSize());
 		System.out.println(recon.getByteImage().toAsciiArt());
 	}
@@ -119,7 +124,8 @@ public final class Patch {
 		if (nextPatches.length != legPatchDist.getDim()) {
 			throw new IllegalStateException(
 					"Next layer patch cound doesn't match legPatchDist dim");
-		}		
+		}
+
 		double[] legPatchProbs = legPatchDist.getPosteriorMean();
 		
 		for (int i=0; i<nextPatches.length; i++) {
@@ -146,18 +152,30 @@ public final class Patch {
 			
 		} else {
 			
-			if (_legPatchDists.length != 4) {
+			final Spread spread = _layer.getSpread();
+			
+			if (_legPatchDists.length != spread.getLegCount()) {
 				throw new IllegalStateException(
 						"Unexpected number of patch legs: " + 
-						_legPatchDists.length);
+						_legPatchDists.length + ", while " +
+						"layer spread has " + spread.getLegCount());
 			}
 			
 			final double halfSize = size / 2.0;
-			final double quarterSize = size / 4.0;
-			reconstructLeg(weight, _legPatchDists[0], image, centerX - quarterSize, centerY - quarterSize, halfSize);
-			reconstructLeg(weight, _legPatchDists[1], image, centerX + quarterSize, centerY - quarterSize, halfSize);
-			reconstructLeg(weight, _legPatchDists[2], image, centerX - quarterSize, centerY + quarterSize, halfSize);
-			reconstructLeg(weight, _legPatchDists[3], image, centerX + quarterSize, centerY + quarterSize, halfSize);
+			final double thisLeftX = centerX - halfSize;
+			final double thisLeftY = centerY - halfSize;
+
+			final SpreadLeg[] spreadLegs = spread.getLegs();
+			for (int k=0; k<_legPatchDists.length; k++) {
+				
+				final SpreadLeg spreadLeg = spreadLegs[k];
+				
+				final double legCenterX = thisLeftX + spreadLeg.getCenterX() * size;
+				final double legCenterY = thisLeftY + spreadLeg.getCenterY() * size;
+				final double legSize = spreadLeg.getSize() * size;
+				
+				reconstructLeg(weight, _legPatchDists[k], image, legCenterX, legCenterY, legSize);
+			}
 		}
 	}
 

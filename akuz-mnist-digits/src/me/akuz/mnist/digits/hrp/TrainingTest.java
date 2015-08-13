@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.akuz.core.geom.ByteImage;
 import me.akuz.mnist.digits.load.MNIST;
+import me.akuz.mnist.digits.load.MNISTImage;
 
 public class TrainingTest {
 
@@ -14,18 +14,16 @@ public class TrainingTest {
 		final String fileName = "/Users/andrey/SkyDrive/Documents/Data/digits_input/train.csv";
 		final int maxImageCount = 500;
 		
-		final int[] dims = new int[] { 10, 20, 10, 4 };
-		final int iterationsPerLayer = 50;
+		final List<MNISTImage> mnistImages = MNIST.load(fileName, maxImageCount);
 		
-		final MNIST mnist = MNIST.load(fileName, maxImageCount);
+		final List<LayerConfig> layerConfigs = new ArrayList<>();
+		layerConfigs.add(new LayerConfig(20, Spread.SPATIAL));
+		layerConfigs.add(new LayerConfig(20, Spread.SPATIAL));
+		layerConfigs.add(new LayerConfig(10, Spread.SPATIAL));
+		layerConfigs.add(new LayerConfig(4, Spread.CENTRAL));
 		
-		final List<Image> images = new ArrayList<>(mnist.getImages().size());
-		for (final ByteImage byteImage : mnist.getImages()) {
-			images.add(new Image(byteImage));
-		}
-		
-		final Training training = new Training(dims, images, iterationsPerLayer);
-		training.execute();
+		final Training training = new Training(mnistImages, layerConfigs);
+		training.execute(5000);
 	}
 
 }

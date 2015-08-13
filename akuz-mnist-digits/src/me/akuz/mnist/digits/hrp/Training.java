@@ -3,36 +3,56 @@ package me.akuz.mnist.digits.hrp;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.akuz.mnist.digits.load.MNISTImage;
+
 public final class Training {
 	
 	private final List<Image> _images;
-	private final int _iterations_per_layer;
 	private final Model _model;
 	private final List<Fractal> _fractals;
 	
 	public Training(
-			final int[] dims,
-			final List<Image> images,
-			final int iterationsPerLayer) {
+			final List<MNISTImage> images,
+			final List<LayerConfig> layerConfigs) {
 		
-		if (dims == null) {
-			throw new NullPointerException("dims");
+		if (images == null) {
+			throw new NullPointerException("images");
 		}
-		if (dims.length == 0) {
-			throw new IllegalArgumentException("Argument dims length must be > 0");
+		if (images.size() < 10) {
+			throw new IllegalArgumentException("There must be >= 10 images in the training set");
 		}
 		
-		_images = images;
-		_iterations_per_layer = iterationsPerLayer;
+		if (layerConfigs == null) {
+			throw new NullPointerException("layerConfigs");
+		}
+		if (layerConfigs.size() == 0) {
+			throw new IllegalArgumentException("There must be at least one layerConfig");
+		}
+		
+		// keep images
+		_images = new ArrayList<>(images.size());
+		for (final MNISTImage mnistImage : images) {
+			_images.add(new Image(mnistImage));
+		}
 
-		_model = new Model(dims);
-		_model.ensureDepth(1);
-		final Layer firstLayer = _model.getFirstLayer();
+		// create model to train
+		_model = new Model();
 		
+		// add first layer for 10 digits
+		final LayerConfig firstLayerConfig = new LayerConfig(10, Spread.CENTRAL);
+		final Layer firstLayer = _model.addLayer(firstLayerConfig);
+		
+		// add the rest of the layers based on specs
+		for (final LayerConfig layerConfig : layerConfigs) {
+			_model.addLayer(layerConfig);
+		}
+		
+		// create fractals for all images
 		_fractals = new ArrayList<>(images.size());
 		for (int i=0; i<_images.size(); i++) {
 
 			final Fractal fractal = new Fractal(firstLayer);
+			fractal.ensureDepth(_model.getLayers(), _model.getDepth());
 			_fractals.add(fractal);
 		}
 	}
@@ -41,52 +61,52 @@ public final class Training {
 		return _model;
 	}
 	
-	public void execute() {
+	public void execute(int iterations) {
 		
-		for (int depth = _model.getDepthMaximum(); depth <= _model.getDepthMaximum(); depth++) {
+		for (int iter=1; iter<=iterations; iter++) {
 			
-			_model.ensureDepth(depth);
+			System.out.println("Iteration: " + iter);
 			
-			for (final Fractal fractal : _fractals) {
-				fractal.ensureDepth(_model.getLayers(), depth);
-			}
-			
-			for (int iter=1; iter<=_iterations_per_layer; iter++) {
+			// E: expectation
+			System.out.print("Expectation... ");
+			for (int i=0; i<_images.size(); i++) {
+	
+				//System.out.print((i+1)+ " ");
+				final Image image = _images.get(i);
+				final int digit = image.getDigit();
+				final Fractal fractal = _fractals.get(i);
 				
-				System.out.println("Depth: " + depth + ", Iteration: " + iter);
+				fractal.calculatePatchProbs(
+						image,
+						image.getCenterX(),
+						image.getCenterY(),
+						image.getMinSize(),
+						_model.getDepth());
 				
-				// E: expectation
-				System.out.print("Expectation... ");
-				for (int i=0; i<_images.size(); i++) {
-
-					//System.out.print((i+1)+ " ");
-					final Image image = _images.get(i);
-					final Fractal fractal = _fractals.get(i);
-					
-					fractal.calculatePatchProbs(
-							image,
-							image.getCenterX(),
-							image.getCenterY(),
-							image.getMinSize(),
-							depth);
+				double[] patchProbs = fractal.getPatchProbs();
+				for (int d=0; d<=9; d++) {
+					if (d == digit) {
+						patchProbs[d] = 1.0;
+					} else {
+						patchProbs[d] = 0.0;
+					}
 				}
-				System.out.println();
-
-				// M: maximization
-				System.out.print("Maximization... ");
-				_model.reset();
-				for (int i=0; i<_fractals.size(); i++) {
-
-					//System.out.print((i+1)+ " ");
-					_fractals.get(i).updatePatchProbs();
-				}
-				_model.normalize();
-				System.out.println();
 			}
-			
-			_model.print();
+			System.out.println();
+	
+			// M: maximization
+			System.out.print("Maximization... ");
+			_model.reset();
+			for (int i=0; i<_fractals.size(); i++) {
+	
+				//System.out.print((i+1)+ " ");
+				_fractals.get(i).updatePatchProbs();
+			}
+			_model.normalize();
+			System.out.println();
 		}
-
+		
+		_model.print();
 	}
 
 }

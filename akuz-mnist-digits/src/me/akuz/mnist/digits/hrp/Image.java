@@ -1,16 +1,28 @@
 package me.akuz.mnist.digits.hrp;
 
 import me.akuz.core.geom.ByteImage;
+import me.akuz.mnist.digits.load.MNISTImage;
 
 /**
  * Specific image, which is being analyzed.
  */
 public final class Image {
 	
+	private final int _digit;
 	private final ByteImage _byteImage;
 	
-	public Image(final ByteImage byteImage) {
+	public Image(final int digit, final ByteImage byteImage) {
+		_digit = digit;
 		_byteImage = byteImage;
+	}
+	
+	public Image(final MNISTImage mnistImage) {
+		_digit = mnistImage.getDigit();
+		_byteImage = mnistImage.getByteImage();
+	}
+	
+	public int getDigit() {
+		return _digit;
 	}
 	
 	public ByteImage getByteImage() {

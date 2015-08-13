@@ -51,9 +51,12 @@ public final class ByteImage {
 		setIntensity(i, j, getIntensity(i, j) + intensity);
 	}
 
-	public void setIntensity(final int i, final int j, final double intensity) {
-		if (intensity < 0 || intensity > 1) {
-			throw new IllegalArgumentException("Intensity must be within interval [0,1]");
+	public void setIntensity(final int i, final int j, double intensity) {
+		if (intensity < 0) {
+			intensity = 0.0;
+		}
+		if (intensity > 1) {
+			intensity = 1;
 		}
 		_data[i][j] = (byte)Math.round(255.0 * intensity);
 	}
@@ -75,17 +78,17 @@ public final class ByteImage {
 			for (int j=0; j<getColCount(); j++) {
 				double intensity = getIntensity(i, j);
 				if (intensity < 0.1) {
-					sb.append(" ");
+					sb.append("  ");
 				} else if (intensity < 0.2) {
-					sb.append(".");
+					sb.append(" .");
 				} else if (intensity < 0.4) {
-					sb.append("-");
+					sb.append(" -");
 				} else if (intensity < 0.6) {
-					sb.append("+");
+					sb.append(" +");
 				} else if (intensity < 0.8) {
-					sb.append("*");
+					sb.append(" #");
 				} else {
-					sb.append("#");
+					sb.append(" *");
 				}
 			}
 			sb.append(System.lineSeparator());
