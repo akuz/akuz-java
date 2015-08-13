@@ -1,7 +1,5 @@
 package me.akuz.mnist.digits.hrp;
 
-import java.util.Random;
-
 import me.akuz.core.math.DirDist;
 
 /**
@@ -21,12 +19,12 @@ public final class Layer {
 	private final Patch[] _patches;
 	private Layer _nextLayer;
 	
-	public Layer(final Random rnd, final int depth, final int dim) {
+	public Layer(final int depth, final int dim) {
 		_depth = depth;
 		_patchDist = new DirDist(dim, PATCH_DIR_ALPHA_TOTAL / dim);
 		_patches = new Patch[dim];
 		for (int i=0; i<dim; i++) {
-			_patches[i] = new Patch(rnd);
+			_patches[i] = new Patch(1.0 - (double)i/(double)(dim - 1));
 		}
 		normalize();
 	}

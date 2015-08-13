@@ -48,8 +48,8 @@ public final class Image {
 		int counter = 0;
 		double intensitySum = 0.0;
 		
-		for (double x = startX; x <= endX; x += 1.0) {
-			for (double y = startY; y <= endY; y += 1.0) {
+		for (double x = startX; x < endX; x += 1.0) {
+			for (double y = startY; y < endY; y += 1.0) {
 				
 				int i = (int)x;
 				int j = (int)y;
@@ -68,4 +68,33 @@ public final class Image {
 
 		return counter > 0 ? intensitySum / counter : 0.0;
 	}
+	
+	public void addIntensity(
+			final double centerX,
+			final double centerY,
+			final double size,
+			final double intensity) {
+		
+		final double halfSize = size / 2.0;
+		final double startX = centerX - halfSize;
+		final double startY = centerY - halfSize;
+		final double endX = centerX + halfSize;
+		final double endY = centerY + halfSize;
+		
+		final int nrow = _byteImage.getRowCount();
+		final int ncol = _byteImage.getColCount();
+		
+		for (double x = startX; x < endX; x += 1.0) {
+			for (double y = startY; y < endY; y += 1.0) {
+				
+				int i = (int)x;
+				int j = (int)y;
+				
+				if (i >= 0 && i < nrow && j >=0 && j < ncol) {
+					
+					_byteImage.addIntensity(i, j, intensity);
+				}
+			}
+		}
+	}	
 }

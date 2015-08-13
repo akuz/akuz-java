@@ -2,7 +2,6 @@ package me.akuz.mnist.digits.hrp;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Image analysis model, containing layers for 
@@ -49,9 +48,7 @@ public final class Model {
 		return _layers.get(0);
 	}
 	
-	public void ensureDepth(
-			final Random rnd,
-			final int depth) {
+	public void ensureDepth(final int depth) {
 		
 		if (depth > _dims.length) {
 			throw new IllegalStateException(
@@ -62,7 +59,6 @@ public final class Model {
 		while (_layers.size() < depth) {
 			
 			final Layer nextLayer = new Layer(
-					rnd, 
 					_layers.size() + 1, 
 					_dims[_layers.size()]);
 			
