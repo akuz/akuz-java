@@ -18,12 +18,11 @@ public class TrainingTest {
 		
 		final List<LayerConfig> layerConfigs = new ArrayList<>();
 		layerConfigs.add(new LayerConfig(20, Spread.SPATIAL));
-		layerConfigs.add(new LayerConfig(20, Spread.SPATIAL));
 		layerConfigs.add(new LayerConfig(10, Spread.SPATIAL));
 		layerConfigs.add(new LayerConfig(4, Spread.CENTRAL));
 		
 		final Training training = new Training(mnistImages, layerConfigs);
-		training.execute(5000);
+		training.execute(500);
 	}
 
 }

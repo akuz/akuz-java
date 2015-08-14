@@ -12,21 +12,32 @@ import me.akuz.core.math.StatsUtils;
 public final class Fractal {
 	
 	private final Layer _layer;
-	private final double[] _patchProbs;
+	private final Fractal _parent;
+	private final int _parentLegIndex;
+	private double[] _patchProbs;
 	private double _patchProbsCalcIntensity;
 	private boolean _isPatchProbsCalculated;
 	private Fractal[] _legs;
+	private double[][] _legsPatchPriors;
 	
-	public Fractal(final Layer layer) {
+	public Fractal(
+			final Layer layer, 
+			final Fractal parent, 
+			int parentLegIndex) {
 
 		_layer = layer;
-		_patchProbs = new double[layer.getDim()];
+		_parent = parent;
+		_parentLegIndex = parentLegIndex;
 		_patchProbsCalcIntensity = Double.NaN;
 		_isPatchProbsCalculated = false;
 	}
 	
 	public int getDepth() {
 		return _layer.getDepth();
+	}
+	
+	public Layer getLayer() {
+		return _layer;
 	}
 	
 	public double[] getPatchProbs() {
@@ -36,6 +47,10 @@ public final class Fractal {
 					"calculated for this fractal");
 		}
 		return _patchProbs;
+	}
+	
+	public double[][] getLegsPatchPriors() {
+		return _legsPatchPriors;
 	}
 	
 	public double getPatchProbsIntensity() {
@@ -59,17 +74,6 @@ public final class Fractal {
 		return _legs;
 	}
 
-	private void createLegs(final Layer nextLayer) {
-		if (_legs != null) {
-			throw new IllegalStateException("This fractal already has legs");
-		}
-		final Spread spread = _layer.getSpread();
-		_legs = new Fractal[spread.getLegCount()];
-		for (int i=0; i<_legs.length; i++) {
-			_legs[i] = new Fractal(nextLayer);
-		}
-	}
-
 	public void ensureDepth(
 			final List<Layer> layers,
 			final int depth) {
@@ -89,19 +93,23 @@ public final class Fractal {
 		
 		if (nextDepth <= depth) {
 			
-			if (!this.hasLegs()) {
+			// ensure legs created
+			if (_legs == null) {
 				
-				// we are only ensuring the depth, 
-				// so creating fractal legs only
-				// if they don't already exist				
+				// legs spread
+				final Spread spread = _layer.getSpread();
 				Layer nextLayer = layers.get(nextDepth-1);
-				this.createLegs(nextLayer);
+				
+				// create the legs
+				_legs = new Fractal[spread.getLegCount()];
+				for (int k=0; k<_legs.length; k++) {
+					_legs[k] = new Fractal(nextLayer, this, k);
+				}
 			}
-			
-			// we are now sure that this has legs
-			final Fractal[] legs = this.getLegs();
-			for (int i=0; i<legs.length; i++) {
-				legs[i].ensureDepth(layers, depth);
+
+			// we are now sure legs created
+			for (int k=0; k<_legs.length; k++) {
+				_legs[k].ensureDepth(layers, depth);
 			}
 		}
 	}
@@ -173,19 +181,33 @@ public final class Fractal {
 			_patchProbsCalcIntensity = image.getIntensity(centerX, centerY, size);
 		}
 
-		// calculate each patch log like
-		final DirDist layerPatchDist = _layer.getPatchDist();
-		final double[] patchProbs = layerPatchDist.getPosteriorMean();
-		final Patch[] patches = _layer.getPatches();
+		// calculate patch priors
+		double[] patchPriorProbs;
+		if (_parent != null && _parent.getLegsPatchPriors() != null) {
+
+			patchPriorProbs = _parent.getLegsPatchPriors()[_parentLegIndex];
+
+		} else {
+
+			final DirDist layerPatchDist = _layer.getPatchDist();
+			patchPriorProbs = layerPatchDist.getPosteriorMean();
+		}
 		
+		// ensure created
+		if (_patchProbs == null) {
+			_patchProbs = new double[_layer.getDim()];
+		}
+
 		// reset current values
 		Arrays.fill(_patchProbs, 0.0);
 		
+		// calculate each patch log like
+		final Patch[] patches = _layer.getPatches();
 		for (int i=0; i<patches.length; i++) {
 			
 			final Patch patch = patches[i];
 			
-			_patchProbs[i] += Math.log(patchProbs[i]);
+			_patchProbs[i] += Math.log(patchPriorProbs[i]);
 			
 			_patchProbs[i] += Math.log(patch.getIntensityDist().getProb(_patchProbsCalcIntensity));
 			
@@ -208,7 +230,56 @@ public final class Fractal {
 			}
 		}
 		
+		// normalize patch probs
 		StatsUtils.logLikesToProbsReplace(_patchProbs);
+		
+		// aggregate leg patch priors
+		if (_legs != null) {
+			
+			// get and check next layer
+			final Layer nextLayer = _layer.getNextLayer();
+			if (nextLayer == null) {
+				throw new IllegalStateException(
+						"Expected non-null next layer");
+			}
+			
+			// create or reset leg priors
+			if (_legsPatchPriors == null) {
+				_legsPatchPriors = new double[_legs.length][];
+				for (int k=0; k<_legsPatchPriors.length; k++) {
+					_legsPatchPriors[k] = new double[nextLayer.getDim()];
+				}
+			} else {
+				for (int k=0; k<_legsPatchPriors.length; k++) {
+					Arrays.fill(_legsPatchPriors[k], 0);
+				}
+			}
+			
+			// aggregate leg prior probs
+			for (int i=0; i<patches.length; i++) {
+				
+				final Patch patch = patches[i];
+				final DirDist[] patchLegPatchDists = patch.getLegPatchDists();
+				
+				if (_legsPatchPriors.length != patchLegPatchDists.length) {
+					throw new IllegalStateException(
+							"Legs count " + _legsPatchPriors.length + 
+							" does not match patch leg dists count " + 
+							patchLegPatchDists.length);
+				}
+				
+				for (int k=0; k<_legsPatchPriors.length; k++) {
+					
+					final DirDist legPatchDist = patchLegPatchDists[k];
+					final double[] legPosteriorMean = legPatchDist.getPosteriorMean();
+					
+					for (int j=0; j<_legsPatchPriors[k].length; j++) {
+						_legsPatchPriors[k][j] += _patchProbs[i] * legPosteriorMean[j];
+					}
+				}
+			}
+		}
+		
 		_isPatchProbsCalculated = true;
 	}
 

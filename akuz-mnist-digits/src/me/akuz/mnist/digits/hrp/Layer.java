@@ -39,6 +39,10 @@ public final class Layer {
 		return _spread;
 	}
 	
+	public Layer getNextLayer() {
+		return _nextLayer;
+	}
+	
 	public int getDim() {
 		return _patches.length;
 	}

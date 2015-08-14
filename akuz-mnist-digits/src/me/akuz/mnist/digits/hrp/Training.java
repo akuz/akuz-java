@@ -51,7 +51,7 @@ public final class Training {
 		_fractals = new ArrayList<>(images.size());
 		for (int i=0; i<_images.size(); i++) {
 
-			final Fractal fractal = new Fractal(firstLayer);
+			final Fractal fractal = new Fractal(firstLayer, null, -1);
 			fractal.ensureDepth(_model.getLayers(), _model.getDepth());
 			_fractals.add(fractal);
 		}

@@ -85,8 +85,6 @@ public final class ByteImage {
 					sb.append(" -");
 				} else if (intensity < 0.6) {
 					sb.append(" +");
-				} else if (intensity < 0.8) {
-					sb.append(" #");
 				} else {
 					sb.append(" *");
 				}
