@@ -120,7 +120,8 @@ public final class Fractal {
 			final double centerY,
 			final double size,
 			final int minDepth,
-			final int maxDepth) {
+			final int maxDepth,
+			final double[] forcePatchProbs) {
 		
 		// check current depth
 		final int depth = _layer.getDepth();
@@ -174,7 +175,8 @@ public final class Fractal {
 						legCenterY,
 						legSize,
 						minDepth,
-						maxDepth);
+						maxDepth,
+						null);
 			}
 		}
 
@@ -186,59 +188,75 @@ public final class Fractal {
 				// NOTE: this relies on the fact there is no Fractal jiggling
 				_patchProbsCalcIntensity = image.getIntensity(centerX, centerY, size);
 			}
-			
-			// patch priors
-			double[] patchPriorProbs;
-			if (_parent != null && _parent.getLegsPatchPriors() != null) {
-	
-				patchPriorProbs = _parent.getLegsPatchPriors()[_parentLegIndex];
-	
-			} else {
-	
-				final DirDist layerPatchDist = _layer.getPatchDist();
-				patchPriorProbs = layerPatchDist.getPosteriorMean();
-			}
-			
-			// ensure created
-			if (_patchProbs == null) {
-				_patchProbs = new double[_layer.getDim()];
-			}
-	
-			// reset current values
-			Arrays.fill(_patchProbs, 0.0);
-			
-			// calculate each patch log like
+
 			final Patch[] patches = _layer.getPatches();
-			for (int i=0; i<patches.length; i++) {
+			
+			if (forcePatchProbs != null) {
 				
-				final Patch patch = patches[i];
+				if (patches.length != patches.length) {
+					throw new IllegalArgumentException(
+							"Expected forcePatchProbs to have length " + 
+							patches.length + ", but got " + forcePatchProbs.length);
+				}
 				
-				_patchProbs[i] += Math.log(patchPriorProbs[i]);
+				_patchProbs = forcePatchProbs;
+
+			} else {
+			
+				// patch priors
+				double[] patchPriorProbs;
+				if (_parent != null && _parent.getLegsPatchPriors() != null) {
+		
+					patchPriorProbs = _parent.getLegsPatchPriors()[_parentLegIndex];
+		
+				} else {
+		
+					final DirDist layerPatchDist = _layer.getPatchDist();
+					patchPriorProbs = layerPatchDist.getPosteriorMean();
+				}
 				
-				_patchProbs[i] += Math.log(patch.getIntensityDist().getProb(_patchProbsCalcIntensity));
-				
-				if (_legs != null) {
+				// ensure created
+				if (_patchProbs == null) {
+					_patchProbs = new double[_layer.getDim()];
 					
-					final DirDist[] patchLegPatchDists = patch.getLegPatchDists();
+				} else {
 
-					if (patchLegPatchDists == null) {
-						throw new InternalError(
-								"Patch doesn't have legs, " + 
-								"but the fractal has");
-					}
-
-					for (int k=0; k<_legs.length; k++) {
+					// reset current values
+					Arrays.fill(_patchProbs, 0.0);
+				}
+				
+				// calculate each patch log like
+				for (int i=0; i<patches.length; i++) {
+					
+					final Patch patch = patches[i];
+					
+					_patchProbs[i] += Math.log(patchPriorProbs[i]);
+					
+					_patchProbs[i] += Math.log(patch.getIntensityDist().getProb(_patchProbsCalcIntensity));
+					
+					if (_legs != null) {
 						
-						_patchProbs[i] += 
-							patchLegPatchDists[k]
-								.getPosteriorLogProb(
-									_legs[k].getPatchProbs());
+						final DirDist[] patchLegPatchDists = patch.getLegPatchDists();
+	
+						if (patchLegPatchDists == null) {
+							throw new InternalError(
+									"Patch doesn't have legs, " + 
+									"but the fractal has");
+						}
+	
+						for (int k=0; k<_legs.length; k++) {
+							
+							_patchProbs[i] += 
+								patchLegPatchDists[k]
+									.getPosteriorLogProb(
+										_legs[k].getPatchProbs());
+						}
 					}
 				}
+				
+				// normalize patch probs
+				StatsUtils.logLikesToProbsReplace(_patchProbs);
 			}
-			
-			// normalize patch probs
-			StatsUtils.logLikesToProbsReplace(_patchProbs);
 			
 			// aggregate leg patch priors
 			if (_legs != null) {
@@ -266,6 +284,7 @@ public final class Fractal {
 				for (int i=0; i<patches.length; i++) {
 					
 					final Patch patch = patches[i];
+					final double patchProb = _patchProbs[i];
 					final DirDist[] patchLegPatchDists = patch.getLegPatchDists();
 					
 					if (_legsPatchPriors.length != patchLegPatchDists.length) {
@@ -281,7 +300,7 @@ public final class Fractal {
 						final double[] legPosteriorMean = legPatchDist.getPosteriorMean();
 						
 						for (int j=0; j<_legsPatchPriors[k].length; j++) {
-							_legsPatchPriors[k][j] += _patchProbs[i] * legPosteriorMean[j];
+							_legsPatchPriors[k][j] += patchProb * legPosteriorMean[j];
 						}
 					}
 				}

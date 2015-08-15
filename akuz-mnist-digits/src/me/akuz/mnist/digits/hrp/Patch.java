@@ -1,8 +1,13 @@
 package me.akuz.mnist.digits.hrp;
 
+import java.util.List;
+
+import me.akuz.core.Pair;
+import me.akuz.core.SortOrder;
 import me.akuz.core.geom.ByteImage;
 import me.akuz.core.math.DirDist;
 import me.akuz.core.math.NIGDist;
+import me.akuz.core.sort.SelectK;
 
 /**
  * Patch of which the images are built 
@@ -96,42 +101,16 @@ public final class Patch {
 	public void print() {
 		System.out.print("  Intensity: ");
 		System.out.println(_intensityDist);
+		if (_legPatchDists != null) {
+			for (int k=0; k<_legPatchDists.length; k++) {
+				System.out.print("  Leg " + (k+1) +": ");
+				System.out.println(_legPatchDists[k]);
+			}
+		}
 		System.out.println();
-		Image recon = new Image(-1, new ByteImage(10, 10));
+		Image recon = new Image(-1, new ByteImage(20, 20));
 		reconstruct(1.0, recon, recon.getCenterX(), recon.getCenterY(), recon.getMinSize());
 		System.out.println(recon.getByteImage().toAsciiArt());
-	}
-	
-	private void reconstructLeg(
-			final double weight,
-			final DirDist legPatchDist,
-			final Image image,
-			final double centerX,
-			final double centerY,
-			final double size) {
-		
-		if (_nextLayer == null) {
-			throw new IllegalStateException(
-					"Expected next layer when reconstructing patch leg");
-		}
-		
-		Patch[] nextPatches = _nextLayer.getPatches();
-		if (nextPatches.length != legPatchDist.getDim()) {
-			throw new IllegalStateException(
-					"Next layer patch cound doesn't match legPatchDist dim");
-		}
-
-		double[] legPatchProbs = legPatchDist.getPosteriorMean();
-		
-		for (int i=0; i<nextPatches.length; i++) {
-			
-			nextPatches[i].reconstruct(
-					weight * legPatchProbs[i],
-					image,
-					centerX,
-					centerY,
-					size);
-		}
 	}
 	
 	public void reconstruct(
@@ -143,8 +122,12 @@ public final class Patch {
 		
 		if (_legPatchDists == null) {
 			
-			image.addIntensity(centerX, centerY, size, _intensityDist.getMeanMode() * weight);
-			
+			image.addIntensity(
+					centerX, 
+					centerY, 
+					size,
+					weight * _intensityDist.getMeanMode());
+
 		} else {
 			
 			final Spread spread = _layer.getSpread();
@@ -169,8 +152,65 @@ public final class Patch {
 				final double legCenterY = thisLeftY + spreadLeg.getCenterY() * size;
 				final double legSize = spreadLeg.getSize() * size;
 				
-				reconstructLeg(weight, _legPatchDists[k], image, legCenterX, legCenterY, legSize);
+				reconstructLeg(
+						weight, 
+						_legPatchDists[k], 
+						image, 
+						legCenterX, 
+						legCenterY, 
+						legSize);
 			}
+		}
+	}
+	
+	private void reconstructLeg(
+			final double weight,
+			final DirDist legPatchDist,
+			final Image image,
+			final double centerX,
+			final double centerY,
+			final double size) {
+		
+		if (_nextLayer == null) {
+			throw new IllegalStateException(
+					"Expected next layer when reconstructing patch leg");
+		}
+		
+		Patch[] nextPatches = _nextLayer.getPatches();
+		if (nextPatches.length != legPatchDist.getDim()) {
+			throw new IllegalStateException(
+					"Next layer patch cound doesn't match legPatchDist dim");
+		}
+
+		double[] legPatchProbs = legPatchDist.getPosteriorMean();
+		
+//		SelectK<Integer, Double> select = new SelectK<>(SortOrder.Desc, 4);
+//		for (int i=0; i<legPatchProbs.length; i++) {
+//			select.add(new Pair<Integer, Double> (i, legPatchProbs[i]));
+//		}
+//		
+//		final List<Pair<Integer,Double>> topPatchProbs = select.get();
+//		// TODO: normalize
+//		
+//		for (final Pair<Integer, Double> pair : topPatchProbs) {
+//			
+//			nextPatches[pair.v1()].reconstruct(
+//					weight * pair.v2(),
+//					image,
+//					centerX,
+//					centerY,
+//					size);
+//			
+//		}
+		
+		for (int i=0; i<nextPatches.length; i++) {
+			
+			nextPatches[i].reconstruct(
+					weight * legPatchProbs[i],
+					image,
+					centerX,
+					centerY,
+					size);
 		}
 	}
 

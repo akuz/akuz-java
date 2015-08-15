@@ -49,8 +49,8 @@ public final class Image {
 			final double size) {
 		
 		final double halfSize = size / 2.0;
-		final double startX = centerX - halfSize;
-		final double startY = centerY - halfSize;
+		final double startX = centerX - halfSize + 0.5;
+		final double startY = centerY - halfSize + 0.5;
 		final double endX = centerX + halfSize;
 		final double endY = centerY + halfSize;
 		
@@ -88,8 +88,8 @@ public final class Image {
 			final double intensity) {
 		
 		final double halfSize = size / 2.0;
-		final double startX = centerX - halfSize;
-		final double startY = centerY - halfSize;
+		final double startX = centerX - halfSize + 0.5;
+		final double startY = centerY - halfSize + 0.5;
 		final double endX = centerX + halfSize;
 		final double endY = centerY + halfSize;
 		

@@ -72,19 +72,29 @@ public final class ByteImage {
 		_data[i][j] = (byte)category;
 	}
 	
-	public String toAsciiArt() {
+	public String toAsciiArt() { 
 		StringBuilder sb = new StringBuilder();
 		for (int i=0; i<getRowCount(); i++) {
 			for (int j=0; j<getColCount(); j++) {
-				double intensity = getIntensity(i, j);
+				
+				final double intensity = getIntensity(i, j);
+
+				sb.append(" ");
+				sb.append((int)Math.floor(intensity * 10));
+			}
+			sb.append("  | ");
+			for (int j=0; j<getColCount(); j++) {
+				
+				final double intensity = getIntensity(i, j);
+				
 				if (intensity < 0.1) {
 					sb.append("  ");
 				} else if (intensity < 0.2) {
 					sb.append(" .");
 				} else if (intensity < 0.4) {
-					sb.append(" -");
-				} else if (intensity < 0.6) {
 					sb.append(" +");
+				} else if (intensity < 0.6) {
+					sb.append(" @");
 				} else {
 					sb.append(" *");
 				}

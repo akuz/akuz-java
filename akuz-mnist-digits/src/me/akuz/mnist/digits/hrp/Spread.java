@@ -8,7 +8,7 @@ public final class Spread {
 	/**
 	 * Defines one leg in the center, of the same size as the parent.
 	 */
-	public static final Spread CENTRAL;
+	public static final Spread ALTERNATE;
 	
 	/**
 	 * Defines four legs of 0.5 size of the parent, one in each quadrant.
@@ -18,7 +18,7 @@ public final class Spread {
 	static {
 		SpreadLeg[] legs = new SpreadLeg[1];
 		legs[0] = new SpreadLeg(0.5, 0.5, 1.0);
-		CENTRAL = new Spread(legs);
+		ALTERNATE = new Spread(legs);
 	}
 	
 	static {
