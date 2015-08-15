@@ -84,11 +84,11 @@ public final class Layer {
 	}
 
 	public void print() {
-		System.out.print("Patch Dist: ");
-		System.out.println(_patchDist);
 		for (int i=0; i<_patches.length; i++) {
 			System.out.println("Patch " + (i+1));
+			System.out.println();
 			_patches[i].print();
+			System.out.println();
 		}
 	}
 

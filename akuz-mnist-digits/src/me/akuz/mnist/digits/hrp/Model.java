@@ -53,23 +53,25 @@ public final class Model {
 		return nextLayer;
 	}
 	
-	public void normalize() {
-		for (int i=0; i<_layers.size(); i++) {
-			_layers.get(i).normalize();
+	public void normalize(final int minDepth, final int maxDepth) {
+		for (int depth=minDepth; depth<=maxDepth; depth++) {
+			_layers.get(depth-1).normalize();
 		}
 	}
 	
-	public void reset() {
-		for (int i=0; i<_layers.size(); i++) {
-			_layers.get(i).reset();
+	public void reset(final int minDepth, final int maxDepth) {
+		for (int depth=minDepth; depth<=maxDepth; depth++) {
+			_layers.get(depth-1).reset();
 		}
 	}
 	
 	public void print() {
-		for (int i=_layers.size()-1; i>=0; i--) {
-			System.out.println("---------------------------");
+//		for (int i=_layers.size()-1; i>=0; i--) {
+		for (int i=0; i<_layers.size(); i++) {
+			System.out.println("-----------------------------------------------");
 			System.out.println("----- layer " + (i + 1));
-			System.out.println("---------------------------");
+			System.out.println("-----------------------------------------------");
+			System.out.println();
 			_layers.get(i).print();
 		}
 	}

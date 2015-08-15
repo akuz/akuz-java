@@ -96,12 +96,7 @@ public final class Patch {
 	public void print() {
 		System.out.print("  Intensity: ");
 		System.out.println(_intensityDist);
-		if (_legPatchDists != null) {
-			for (int k=0; k<_legPatchDists.length; k++) {
-				System.out.print("  Leg " + (k+1) + ": ");
-				System.out.println(_legPatchDists[k]);
-			}
-		}
+		System.out.println();
 		Image recon = new Image(-1, new ByteImage(10, 10));
 		reconstruct(1.0, recon, recon.getCenterX(), recon.getCenterY(), recon.getMinSize());
 		System.out.println(recon.getByteImage().toAsciiArt());
