@@ -103,7 +103,7 @@ public final class Patch {
 			}
 		}
 		System.out.println();
-		Image recon = new Image(-1, new IntensImage(20, 20));
+		Image recon = new Image(-1, new IntensImage(16, 16));
 		reconstruct(1.0, recon, recon.getCenterX(), recon.getCenterY(), recon.getMinSize());
 		System.out.println(recon.getIntensImage().toAsciiArt());
 	}
