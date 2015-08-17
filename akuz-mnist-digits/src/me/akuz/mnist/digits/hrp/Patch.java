@@ -1,13 +1,8 @@
 package me.akuz.mnist.digits.hrp;
 
-import java.util.List;
-
-import me.akuz.core.Pair;
-import me.akuz.core.SortOrder;
-import me.akuz.core.geom.ByteImage;
+import me.akuz.core.geom.IntensImage;
 import me.akuz.core.math.DirDist;
 import me.akuz.core.math.NIGDist;
-import me.akuz.core.sort.SelectK;
 
 /**
  * Patch of which the images are built 
@@ -108,9 +103,9 @@ public final class Patch {
 			}
 		}
 		System.out.println();
-		Image recon = new Image(-1, new ByteImage(20, 20));
+		Image recon = new Image(-1, new IntensImage(20, 20));
 		reconstruct(1.0, recon, recon.getCenterX(), recon.getCenterY(), recon.getMinSize());
-		System.out.println(recon.getByteImage().toAsciiArt());
+		System.out.println(recon.getIntensImage().toAsciiArt());
 	}
 	
 	public void reconstruct(

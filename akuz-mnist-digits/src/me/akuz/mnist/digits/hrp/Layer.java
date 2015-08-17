@@ -12,7 +12,7 @@ public final class Layer {
 	// to be as equal as possible, therefore we need to use
 	// a high value for the dirichlet alpha (perhaps could
 	// remove this distribution completely and assume flat)
-	public static final double PATCH_DIR_ALPHA_TOTAL = 1000000.0;
+	public static final double PATCH_DIR_ALPHA_TOTAL = 100.0;
 
 	private final int _depth;
 	private final Spread _spread;
@@ -84,6 +84,10 @@ public final class Layer {
 	}
 
 	public void print() {
+
+		System.out.print("Patch Dist: ");
+		System.out.println(_patchDist);
+		
 		for (int i=0; i<_patches.length; i++) {
 			System.out.println("Patch " + (i+1));
 			System.out.println();

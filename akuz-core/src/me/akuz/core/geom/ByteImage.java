@@ -78,14 +78,6 @@ public final class ByteImage {
 			for (int j=0; j<getColCount(); j++) {
 				
 				final double intensity = getIntensity(i, j);
-
-				sb.append(" ");
-				sb.append((int)Math.floor(intensity * 10));
-			}
-			sb.append("  | ");
-			for (int j=0; j<getColCount(); j++) {
-				
-				final double intensity = getIntensity(i, j);
 				
 				if (intensity < 0.1) {
 					sb.append("  ");
@@ -98,6 +90,14 @@ public final class ByteImage {
 				} else {
 					sb.append(" *");
 				}
+			}
+			sb.append("  | ");
+			for (int j=0; j<getColCount(); j++) {
+				
+				final int category = getCategory(i, j);
+
+				sb.append(" ");
+				sb.append(String.format("%03d", category));
 			}
 			sb.append(System.lineSeparator());
 		}

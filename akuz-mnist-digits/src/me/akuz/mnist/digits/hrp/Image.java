@@ -1,6 +1,6 @@
 package me.akuz.mnist.digits.hrp;
 
-import me.akuz.core.geom.ByteImage;
+import me.akuz.core.geom.IntensImage;
 import me.akuz.mnist.digits.load.MNISTImage;
 
 /**
@@ -9,38 +9,38 @@ import me.akuz.mnist.digits.load.MNISTImage;
 public final class Image {
 	
 	private final int _digit;
-	private final ByteImage _byteImage;
+	private final IntensImage _intensImage;
 	
-	public Image(final int digit, final ByteImage byteImage) {
+	public Image(final int digit, final IntensImage byteImage) {
 		_digit = digit;
-		_byteImage = byteImage;
+		_intensImage = byteImage;
 	}
 	
 	public Image(final MNISTImage mnistImage) {
 		_digit = mnistImage.getDigit();
-		_byteImage = mnistImage.getByteImage();
+		_intensImage = new IntensImage(mnistImage.getByteImage());
 	}
 	
 	public int getDigit() {
 		return _digit;
 	}
 	
-	public ByteImage getByteImage() {
-		return _byteImage;
+	public IntensImage getIntensImage() {
+		return _intensImage;
 	}
 	
 	public int getMinSize() {
 		return Math.min(
-				_byteImage.getRowCount(),
-				_byteImage.getColCount());
+				_intensImage.getRowCount(),
+				_intensImage.getColCount());
 	}
 	
 	public double getCenterX() {
-		return (double)_byteImage.getRowCount() / 2.0;
+		return (double)_intensImage.getRowCount() / 2.0;
 	}
 	
 	public double getCenterY() {
-		return (double)_byteImage.getColCount() / 2.0;
+		return (double)_intensImage.getColCount() / 2.0;
 	}
 	
 	public double getIntensity(
@@ -54,8 +54,8 @@ public final class Image {
 		final double endX = centerX + halfSize;
 		final double endY = centerY + halfSize;
 		
-		final int nrow = _byteImage.getRowCount();
-		final int ncol = _byteImage.getColCount();
+		final int nrow = _intensImage.getRowCount();
+		final int ncol = _intensImage.getColCount();
 		
 		int counter = 0;
 		double intensitySum = 0.0;
@@ -69,7 +69,7 @@ public final class Image {
 				if (i >= 0 && i < nrow && j >=0 && j < ncol) {
 					
 					counter++;
-					intensitySum += _byteImage.getIntensity(i, j);
+					intensitySum += _intensImage.getIntensity(i, j);
 				}
 			}
 		}
@@ -93,8 +93,8 @@ public final class Image {
 		final double endX = centerX + halfSize;
 		final double endY = centerY + halfSize;
 		
-		final int nrow = _byteImage.getRowCount();
-		final int ncol = _byteImage.getColCount();
+		final int nrow = _intensImage.getRowCount();
+		final int ncol = _intensImage.getColCount();
 		
 		for (double x = startX; x < endX; x += 1.0) {
 			for (double y = startY; y < endY; y += 1.0) {
@@ -104,7 +104,7 @@ public final class Image {
 				
 				if (i >= 0 && i < nrow && j >=0 && j < ncol) {
 					
-					_byteImage.addIntensity(i, j, intensity);
+					_intensImage.addIntensity(i, j, intensity);
 				}
 			}
 		}
