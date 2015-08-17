@@ -17,8 +17,9 @@ public class TrainingTest {
 		final List<MNISTImage> mnistImages = MNIST.load(fileName, maxImageCount);
 		
 		final List<LayerConfig> layerConfigs = new ArrayList<>();
-		layerConfigs.add(new LayerConfig(20, Spread.SPATIAL));
-		layerConfigs.add(new LayerConfig(10, Spread.SPATIAL));
+		layerConfigs.add(new LayerConfig(64, Spread.SPATIAL));
+		layerConfigs.add(new LayerConfig(32, Spread.SPATIAL));
+		layerConfigs.add(new LayerConfig( 8, Spread.SPATIAL));
 		layerConfigs.add(new LayerConfig( 4, Spread.ALTERNATE));
 
 		final Training training = new Training(mnistImages, layerConfigs);

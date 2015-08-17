@@ -12,7 +12,7 @@ public final class Layer {
 	// to be as equal as possible, therefore we need to use
 	// a high value for the dirichlet alpha (perhaps could
 	// remove this distribution completely and assume flat)
-	public static final double PATCH_DIR_ALPHA_TOTAL = 100.0;
+	public static final double PATCH_DIR_ALPHA_TOTAL = 1000000.0;
 
 	private final int _depth;
 	private final Spread _spread;

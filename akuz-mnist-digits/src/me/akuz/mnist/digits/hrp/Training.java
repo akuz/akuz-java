@@ -43,7 +43,7 @@ public final class Training {
 		_model = new Model();
 		
 		// add first layer for 10 digits
-		final LayerConfig firstLayerConfig = new LayerConfig(10, Spread.SPATIAL);
+		final LayerConfig firstLayerConfig = new LayerConfig(10, Spread.ALTERNATE);
 		final Layer firstLayer = _model.addLayer(firstLayerConfig);
 		
 		// add the rest of the layers based on specs
