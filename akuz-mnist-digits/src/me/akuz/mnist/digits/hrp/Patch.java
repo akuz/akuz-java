@@ -1,6 +1,6 @@
 package me.akuz.mnist.digits.hrp;
 
-import me.akuz.core.geom.IntensImage;
+import me.akuz.core.geom.BWImage;
 import me.akuz.core.math.DirDist;
 import me.akuz.core.math.NIGDist;
 
@@ -57,8 +57,12 @@ public final class Patch {
 		return _legPatchDists != null;
 	}
 
-	public DirDist[] getLegPatchDists() {
-		return _legPatchDists;
+	public DirDist getChildrenFlagDist() {
+		return null; // FIXME
+	}
+
+	public DirDist[][] getChildrenPatchDists() {
+		return null; // _legPatchDists; // FIXME
 	}
 
 	public void onNextLayerCreated(final Layer nextLayer) {
@@ -103,9 +107,9 @@ public final class Patch {
 			}
 		}
 		System.out.println();
-		Image recon = new Image(-1, new IntensImage(16, 16));
+		Image recon = new Image(-1, new BWImage(16, 16));
 		reconstruct(1.0, recon, recon.getCenterX(), recon.getCenterY(), recon.getMinSize());
-		System.out.println(recon.getIntensImage().toAsciiArt());
+		System.out.println(recon.getBWImage().toAsciiArt());
 	}
 	
 	public void reconstruct(
@@ -117,7 +121,7 @@ public final class Patch {
 		
 		if (_legPatchDists == null) {
 			
-			image.addIntensity(
+			image.addColor(
 					centerX, 
 					centerY, 
 					size,
@@ -138,10 +142,10 @@ public final class Patch {
 			final double thisLeftX = centerX - halfSize;
 			final double thisLeftY = centerY - halfSize;
 
-			final SpreadLeg[] spreadLegs = spread.getLegs();
+			final Leg[] spreadLegs = spread.getLegs();
 			for (int k=0; k<_legPatchDists.length; k++) {
 				
-				final SpreadLeg spreadLeg = spreadLegs[k];
+				final Leg spreadLeg = spreadLegs[k];
 				
 				final double legCenterX = thisLeftX + spreadLeg.getCenterX() * size;
 				final double legCenterY = thisLeftY + spreadLeg.getCenterY() * size;

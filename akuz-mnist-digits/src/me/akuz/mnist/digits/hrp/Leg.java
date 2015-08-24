@@ -1,16 +1,12 @@
 package me.akuz.mnist.digits.hrp;
 
-/**
- * Defines a spread leg, with all coordinates
- * and the size defined relative to the parent.
- */
-public final class SpreadLeg {
+public final class Leg {
 	
 	private final double _centerX;
 	private final double _centerY;
 	private final double _size;
 	
-	public SpreadLeg(
+	public Leg(
 			final double centerX,
 			final double centerY,
 			final double size) {

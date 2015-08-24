@@ -13,7 +13,7 @@ public final class Training {
 	
 	private final List<Image> _images;
 	private final Model _model;
-	private final List<Fractal> _fractals;
+	private final List<FractalNode> _fractals;
 	
 	public Training(
 			final List<MNISTImage> images,
@@ -55,7 +55,7 @@ public final class Training {
 		_fractals = new ArrayList<>(images.size());
 		for (int i=0; i<_images.size(); i++) {
 
-			final Fractal fractal = new Fractal(firstLayer, null, -1);
+			final FractalNode fractal = new FractalNode(firstLayer, null, -1);
 			fractal.ensureDepth(_model.getLayers(), _model.getDepth());
 			_fractals.add(fractal);
 		}
@@ -89,7 +89,7 @@ public final class Training {
 	
 				final Image image = _images.get(i);
 				final int digit = image.getDigit();
-				final Fractal fractal = _fractals.get(i);
+				final FractalNode fractal = _fractals.get(i);
 				
 				double[] forcePatchProbs = _digitPatchProbs.get(digit);
 				

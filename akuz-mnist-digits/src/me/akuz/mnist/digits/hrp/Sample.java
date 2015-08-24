@@ -1,6 +1,6 @@
 package me.akuz.mnist.digits.hrp;
 
-import me.akuz.core.geom.ByteImage;
+import me.akuz.core.geom.BWImage;
 
 public final class Sample {
 	
@@ -25,14 +25,14 @@ public final class Sample {
 		_counts[i][j] += 1;
 	}
 	
-	public ByteImage get() {
+	public BWImage get() {
 		
-		ByteImage image = new ByteImage(_sum.length, _sum[0].length);
+		BWImage image = new BWImage(_sum.length, _sum[0].length);
 		for (int i=0; i<_sum.length; i++) {
 			for (int j=0; j<_sum[0].length; j++) {
 				
 				if (_counts[i][j] > 0) {
-					image.setIntensity(i, j, _sum[i][j] / _counts[i][j]);
+					image.setColor(i, j, _sum[i][j] / _counts[i][j]);
 				}
 			}
 		}

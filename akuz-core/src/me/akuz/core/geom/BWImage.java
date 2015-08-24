@@ -1,18 +1,22 @@
 package me.akuz.core.geom;
 
-public final class IntensImage {
+/**
+ * Black and white image.
+ *
+ */
+public final class BWImage {
 
 	private final double[][] _data;
 	
-	public IntensImage(int rowCount, int colCount) {
+	public BWImage(int rowCount, int colCount) {
 		_data = new double[rowCount][colCount];
 	}
 	
-	public IntensImage(ByteImage byteImage) {
+	public BWImage(ByteImage byteImage) {
 		this(byteImage.getRowCount(), byteImage.getColCount());
 		for (int i=0; i<getRowCount(); i++) {
 			for (int j=0; j<getColCount(); j++) {
-				setIntensity(i, j, byteImage.getIntensity(i, j));
+				setColor(i, j, byteImage.getIntensity(i, j));
 			}
 		}
 	}
@@ -29,22 +33,22 @@ public final class IntensImage {
 		return _data[0].length;
 	}
 	
-	public double getIntensity(final int i, final int j) {
+	public double getColor(final int i, final int j) {
 		return _data[i][j];
 	}
 
-	public void addIntensity(final int i, final int j, final double intensity) {
-		setIntensity(i, j, getIntensity(i, j) + intensity);
+	public void addColor(final int i, final int j, final double color) {
+		setColor(i, j, getColor(i, j) + color);
 	}
 
-	public void setIntensity(final int i, final int j, double intensity) {
-		if (intensity < 0) {
-			intensity = 0.0;
+	public void setColor(final int i, final int j, double color) {
+		if (color < 0) {
+			color = 0.0;
 		}
-		if (intensity > 1) {
-			intensity = 1;
+		if (color > 1) {
+			color = 1;
 		}
-		_data[i][j] = intensity;
+		_data[i][j] = color;
 	}
 	
 	public String toAsciiArt() { 
@@ -52,7 +56,7 @@ public final class IntensImage {
 		for (int i=0; i<getRowCount(); i++) {
 			for (int j=0; j<getColCount(); j++) {
 				
-				final double intensity = getIntensity(i, j);
+				final double intensity = getColor(i, j);
 				
 				if (intensity < 0.1) {
 					sb.append("  ");
@@ -69,7 +73,7 @@ public final class IntensImage {
 			sb.append("  | ");
 			for (int j=0; j<getColCount(); j++) {
 				
-				final double intensity = getIntensity(i, j);
+				final double intensity = getColor(i, j);
 
 				sb.append(" ");
 				sb.append(String.format("%.2f", intensity));
