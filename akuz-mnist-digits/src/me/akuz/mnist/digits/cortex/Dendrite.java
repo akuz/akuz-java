@@ -45,11 +45,11 @@ public final class Dendrite {
 		}
 	}
 	
-	public double calculateBottomLogLike(final Column column) {
+	public double calculateLowerLogLike(final Column lowerColumn) {
 		
 		double logLike = 0.0;
 		
-		final Neuron[] neurons = column.getNeurons();
+		final Neuron[] neurons = lowerColumn.getNeurons();
 		
 		if (_weights.length != neurons.length) {
 			throw new IllegalStateException(

@@ -32,10 +32,14 @@ public final class Layer {
 		}
 	}
 	
-	public void update(final Brain brain, final Layer nextLayer) {
+	public void update(
+			final Brain brain,
+			final Layer lowerLayer,
+			final Layer higherLayer) {
+		
 		for (int i=0; i<_columns.length; i++) {
 			for (int j=0; j<_columns[i].length; j++) {
-				_columns[i][j].update(brain, i, j, nextLayer);
+				_columns[i][j].update(brain, i, j, lowerLayer, higherLayer);
 			}
 		}
 	}

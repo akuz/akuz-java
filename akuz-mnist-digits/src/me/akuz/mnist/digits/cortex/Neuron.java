@@ -1,8 +1,9 @@
 package me.akuz.mnist.digits.cortex;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 public final class Neuron {
 	
-	private double _parentPotential;
 	private double _currentPotential;
 	private double _previousPotential;
 
@@ -10,8 +11,7 @@ public final class Neuron {
 	
 	public Neuron(final int lowerColumnHeight) {
 		
-		_parentPotential = Double.NaN;
-		_currentPotential = 0.5;
+		_currentPotential = ThreadLocalRandom.current().nextDouble();
 		_previousPotential = Double.NaN;
 		
 		if (lowerColumnHeight > 0) {
@@ -24,12 +24,12 @@ public final class Neuron {
 		}
 	}
 	
-	public double getParentPotential() {
-		return _parentPotential;
-	}
-	
 	public double getCurrentPotential() {
 		return _currentPotential;
+	}
+	
+	public void setCurrentPotential(double value) {
+		_currentPotential = value;
 	}
 	
 	public double getPreviousPotential() {
@@ -44,10 +44,10 @@ public final class Neuron {
 		_previousPotential = _currentPotential;
 	}
 
-	public double calculateBottomLogLike(
+	public double calculateLowerLogLike(
 			final int i0,
 			final int j0,
-			final Layer nextLayer) {
+			final Layer lowerLayer) {
 		
 		if (_dendrites == null) {
 			throw new IllegalStateException(
@@ -57,7 +57,7 @@ public final class Neuron {
 		
 		double logLike = 0.0;
 		
-		final Column[][] columns = nextLayer.getColumns();
+		final Column[][] columns = lowerLayer.getColumns();
 		
 		for (int i=0; i<=1; i++) {
 			final int ii = i0 + i;
@@ -65,12 +65,12 @@ public final class Neuron {
 				final Column[] iColumns = columns[ii];
 				for (int j=0; j<=1; j++) {
 					final int jj = j0 + j;
-					if (jj <= 0 && jj < iColumns.length) {
+					if (jj >= 0 && jj < iColumns.length) {
 						
 						final Column column = iColumns[jj];
 						logLike += 
 								_dendrites[1*i + j]
-										.calculateBottomLogLike(column);
+										.calculateLowerLogLike(column);
 					}
 				}
 			}
