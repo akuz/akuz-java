@@ -7,12 +7,15 @@ public final class Layer {
 	public Layer(
 			final int dim1,
 			final int dim2,
-			final int neuronsPerColumn) {
+			final int thisColumnHeight,
+			final int lowerColumnHeight) {
 		
 		_columns = new Column[dim1][dim2];
 		for (int i=0; i<dim1; i++) {
 			for (int j=0; j<dim2; j++) {
-				_columns[i][j] = new Column(neuronsPerColumn);
+				_columns[i][j] = new Column(
+						thisColumnHeight,
+						lowerColumnHeight);
 			}
 		}
 	}
@@ -21,20 +24,27 @@ public final class Layer {
 		return _columns;
 	}
 
-	public void preUpdate() {
+	public void beforeUpdate() {
 		for (int i=0; i<_columns.length; i++) {
 			for (int j=0; j<_columns[i].length; j++) {
-				_columns[i][j].preUpdate();
+				_columns[i][j].beforeUpdate();
 			}
 		}
 	}
 	
-	public void update(final Layer nextLayer) {
+	public void update(final Brain brain, final Layer nextLayer) {
 		for (int i=0; i<_columns.length; i++) {
 			for (int j=0; j<_columns[i].length; j++) {
-				_columns[i][j].update(i, j, nextLayer);
+				_columns[i][j].update(brain, i, j, nextLayer);
 			}
 		}
 	}
 
+	public void afterUpdate(final Brain brain) {
+		for (int i=0; i<_columns.length; i++) {
+			for (int j=0; j<_columns[i].length; j++) {
+				_columns[i][j].afterUpdate(brain);
+			}
+		}
+	}
 }

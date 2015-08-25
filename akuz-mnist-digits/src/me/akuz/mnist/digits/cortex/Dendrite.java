@@ -18,9 +18,9 @@ public final class Dendrite {
 	// otherwise each 0 is as important as 1, and
 	// uncertainty cannot be expressed
 
-	public Dendrite(final int nextColumnHeight) {
+	public Dendrite(final int lowerColumnHeight) {
 		
-		_weights = new double[nextColumnHeight];
+		_weights = new double[lowerColumnHeight];
 		
 		for (int i=0; i<_weights.length; i++) {
 			_weights[i] = 

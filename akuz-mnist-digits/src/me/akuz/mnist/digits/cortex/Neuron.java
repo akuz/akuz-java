@@ -8,15 +8,19 @@ public final class Neuron {
 
 	private final Dendrite[] _dendrites;
 	
-	public Neuron(final int neuronsPerColumn) {
+	public Neuron(final int lowerColumnHeight) {
 		
 		_parentPotential = Double.NaN;
 		_currentPotential = 0.5;
 		_previousPotential = Double.NaN;
 		
-		_dendrites = new Dendrite[4];
-		for (int i=0; i<_dendrites.length; i++) {
-			_dendrites[i] = new Dendrite(neuronsPerColumn);
+		if (lowerColumnHeight > 0) {
+			_dendrites = new Dendrite[4];
+			for (int i=0; i<_dendrites.length; i++) {
+				_dendrites[i] = new Dendrite(lowerColumnHeight);
+			}
+		} else {
+			_dendrites = null;
 		}
 	}
 	
@@ -36,7 +40,7 @@ public final class Neuron {
 		return _dendrites;
 	}
 	
-	public void preUpdate() {
+	public void beforeUpdate() {
 		_previousPotential = _currentPotential;
 	}
 
@@ -44,6 +48,12 @@ public final class Neuron {
 			final int i0,
 			final int j0,
 			final Layer nextLayer) {
+		
+		if (_dendrites == null) {
+			throw new IllegalStateException(
+					"Neuron does not have dendrites, " +
+					"cannot calculate bottom log like");
+		}
 		
 		double logLike = 0.0;
 		

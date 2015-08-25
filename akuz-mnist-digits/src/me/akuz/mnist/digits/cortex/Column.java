@@ -6,10 +6,13 @@ public final class Column {
 	
 	private final Neuron[] _neurons;
 	
-	public Column(final int neuronsPerColumn) {
-		_neurons = new Neuron[neuronsPerColumn];
-		for (int l=0; l<neuronsPerColumn; l++) {
-			_neurons[l] = new Neuron(neuronsPerColumn);
+	public Column(
+			final int thisColumnHeight,
+			final int lowerColumnHeight) {
+		
+		_neurons = new Neuron[thisColumnHeight];
+		for (int l=0; l<thisColumnHeight; l++) {
+			_neurons[l] = new Neuron(lowerColumnHeight);
 		}
 	}
 
@@ -17,20 +20,23 @@ public final class Column {
 		return _neurons;
 	}
 	
-	public void preUpdate() {
+	public void beforeUpdate() {
 		for (int i=0; i<_neurons.length; i++) {
-			_neurons[i].preUpdate();
+			_neurons[i].beforeUpdate();
 		}
 	}
 	
 	public void update(
+			final Brain brain,
 			final int i,
 			final int j,
 			final Layer nextLayer) {
 		
 		// TODO: persistence
+		// double[] timeProbs = new double[_neurons.length];
 		
 		// TODO: top log like
+		// double[] topLogLikes = new double[_neurons.length];
 		
 		// --------------------------
 		// bottom-up information flow
@@ -40,5 +46,10 @@ public final class Column {
 			bottomLogLikes[n] = _neurons[n].calculateBottomLogLike(i, j, nextLayer);
 		}
 		StatsUtils.logLikesToProbsReplace(bottomLogLikes);
+	}
+	
+	public void afterUpdate(final Brain brain) {
+		
+		// TODO: weights learning
 	}
 }
