@@ -30,9 +30,15 @@ public final class Brain {
 		return _layers[0];
 	}
 	
-	public void beginUpdate() {
+	public void preUpdate() {
 		for (int i=0; i<_layers.length; i++) {
-			_layers[i].beginUpdate();
+			_layers[i].preUpdate();
+		}
+	}
+	
+	public void update() {
+		for (int i=1; i<_layers.length; i++) {
+			_layers[i].update(_layers[i-1]);
 		}
 	}
 

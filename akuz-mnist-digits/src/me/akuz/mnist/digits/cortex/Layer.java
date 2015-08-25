@@ -21,10 +21,18 @@ public final class Layer {
 		return _columns;
 	}
 
-	public void beginUpdate() {
+	public void preUpdate() {
 		for (int i=0; i<_columns.length; i++) {
 			for (int j=0; j<_columns[i].length; j++) {
-				_columns[i][j].beginUpdate();
+				_columns[i][j].preUpdate();
+			}
+		}
+	}
+	
+	public void update(final Layer nextLayer) {
+		for (int i=0; i<_columns.length; i++) {
+			for (int j=0; j<_columns[i].length; j++) {
+				_columns[i][j].update(i, j, nextLayer);
 			}
 		}
 	}
