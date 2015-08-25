@@ -12,7 +12,8 @@ public final class Brain {
 	private double _combineLowerWeight = 0.67 / 5.0; // prioritize lower information flow over higher
 	private double _combineHigherWeight = 0.33 / 5.0; // higher information is 2 time less important than lower
 	
-	private double _randomActivationThreshold = 1.1; // multiplier of the probability of neuron in a flat distribution
+	private double _randomActivationThreshold = 2.0; // multiplier of the probability of neuron in a flat distribution
+	private double _randomActivationProbability = 0.8;
 
 	public Brain(
 			final int retinaDim1,
@@ -70,6 +71,10 @@ public final class Brain {
 	
 	public double getRandomActivationThreshold() {
 		return _randomActivationThreshold;
+	}
+	
+	public double getRandomActivationProbability() {
+		return _randomActivationProbability;
 	}
 	
 	public void tick() {

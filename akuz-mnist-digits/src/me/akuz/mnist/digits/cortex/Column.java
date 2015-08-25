@@ -150,7 +150,8 @@ public final class Column {
 				break;
 			}
 		}
-		if (allBelowThreshold) {
+		final double randomActivationProbability = brain.getRandomActivationProbability();
+		if (allBelowThreshold && ThreadLocalRandom.current().nextDouble() < randomActivationProbability) {
 			// activate random neuron in this column
 			final int randomNeuronIndex = ThreadLocalRandom.current().nextInt(_neurons.length);
 			for (int n=0; n<_neurons.length; n++) {
