@@ -41,7 +41,7 @@ public final class TestLoop implements Runnable {
 			currentTime = System.currentTimeMillis();
 			
 			// TODO: update retina
-			if ((counter / 50) % 2 == 0) {
+			if ((counter / 100) % 2 == 0) {
 				final Layer retina = _brain.getRetina();
 				final Column[][] columns = retina.getColumns();
 				for (int i=0; i<columns.length; i++) {

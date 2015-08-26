@@ -290,5 +290,32 @@ public final class StatsUtils {
 		
 		return svd.getU().times(S).times(svd.getV().transpose());
 	}
+	
+	public static final int maxValueIndex(final double[] values) {
+		
+		int index = -1;
+		double value = Double.NaN;
+		for (int i=0; i<values.length; i++) {
+			final double v = values[i];
+			if (!Double.isNaN(v)) {
+				if (index < 0 || value < v) {
+					index = i;
+					value = v;
+				}
+			}
+		}
+		
+		if (index < 0) {
+			throw new IllegalStateException(
+					"Could not find any finite value");
+		}
+		
+		return index;
+	}
+	
+	public static final double maxValue(final double[] values) {
+		
+		return values[maxValueIndex(values)];
+	}
 
 }

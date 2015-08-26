@@ -11,13 +11,11 @@ public final class Brain {
 	private double _tickDuration = 1.0 / 30.0; // Frequency 30 Hz
 	private double _decayLambda = Math.log(2) / 0.1; // Half-life 100 Ms
 
-	// below, dividing each weight by the total of all weights
-	private double _combineTimeWeight = 3.0 / 4.0;
-	private double _combineLowerWeight = 0.33 / 4.0;
-	private double _combineHigherWeight = 0.67 / 4.0;
+	private double _combineLowerWeight = 0.9;
+	private double _combineHigherWeight = 0.1;
 	
-	private double _randomActivationThreshold = 0.25;
-	private double _randomActivationProbability = 0.8;
+	private double _reactivationThreshold = 0.5;
+	private double _reactivationProbability = 0.5;
 
 	public Brain(
 			final int retinaDim1,
@@ -67,10 +65,6 @@ public final class Brain {
 		return _decayLambda;
 	}
 	
-	public double getCombineTimeWeight() {
-		return _combineTimeWeight;
-	}
-	
 	public double getCombineLowerWeight() {
 		return _combineLowerWeight;
 	}
@@ -79,12 +73,12 @@ public final class Brain {
 		return _combineHigherWeight;
 	}
 	
-	public double getRandomActivationThreshold() {
-		return _randomActivationThreshold;
+	public double getReactivationThreshold() {
+		return _reactivationThreshold;
 	}
 	
-	public double getRandomActivationProbability() {
-		return _randomActivationProbability;
+	public double getReactivationProbability() {
+		return _reactivationProbability;
 	}
 	
 	public void tick() {
