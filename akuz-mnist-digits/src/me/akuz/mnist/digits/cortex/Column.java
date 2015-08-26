@@ -121,11 +121,20 @@ public final class Column {
 			// --------------------------
 			// bottom-up information flow
 			//
-			final double[] lowerProbs = new double[_neurons.length];
-			for (int n=0; n<_neurons.length; n++) {
-				lowerProbs[n] = _neurons[n].calculateLowerLogLike(i0, j0, lowerLayer);
+			double[] lowerProbs = null;
+			if (lowerLayer != null) {
+				lowerProbs = new double[_neurons.length];
+				for (int n=0; n<_neurons.length; n++) {
+					lowerProbs[n] = _neurons[n].calculateLowerLogLike(i0, j0, lowerLayer);
+				}
+				StatsUtils.logLikesToProbsReplace(lowerProbs);
 			}
-			StatsUtils.logLikesToProbsReplace(lowerProbs);
+			
+			if (higherProbs == null && lowerProbs == null) {
+				throw new IllegalStateException(
+						"Column cannot be updated because both " +
+						"higher and lower layers not provided");
+			}
 			
 			// -------------------
 			// combine information
@@ -133,13 +142,12 @@ public final class Column {
 			final double combineLowerWeight = brain.getCombineLowerWeight();
 			final double combineHigherWeight = brain.getCombineHigherWeight();
 			for (int n=0; n<_neurons.length; n++) {
-				if (higherProbs == null) {
-					newPotentials[n] = 0.0;
-					newPotentials[n] += lowerProbs[n] * (combineLowerWeight + combineHigherWeight);
-				} else {
-					newPotentials[n] = 0.0;
-					newPotentials[n] += lowerProbs[n] * combineLowerWeight;
+				newPotentials[n] = 0.0;
+				if (higherProbs != null) {
 					newPotentials[n] += higherProbs[n] * combineHigherWeight;
+				}
+				if (lowerProbs != null) {
+					newPotentials[n] += lowerProbs[n] * combineLowerWeight;
 				}
 			}
 			
@@ -152,6 +160,7 @@ public final class Column {
 			for (int n=0; n<_neurons.length; n++) {
 				newPotentials[n] = (n == newActiveIndex) ? newActivePotential : newInactivePotential;
 			}
+			
 		}
 
 		// -------------------------

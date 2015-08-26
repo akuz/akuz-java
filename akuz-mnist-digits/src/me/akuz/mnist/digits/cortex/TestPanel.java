@@ -28,6 +28,7 @@ public class TestPanel extends JPanel {
 	
 	    Graphics2D g2 = (Graphics2D)g;
 	    
+	    final int px = 3;
 	    final int gap = 10;
 	    int xLayerStart = gap;
 	    int yLayerStart = gap;
@@ -47,8 +48,8 @@ public class TestPanel extends JPanel {
 			for (int i=0; i<columns.length; i++) {
 				for (int j=0; j<columns[i].length; j++) {
 
-					int yColumnStart = yLayerStart + i * (columnSize*2 + 1);
-					int xColumnStart = xLayerStart + j * (columnSize*2 + 1);
+					int yColumnStart = yLayerStart + i * (columnSize*px + 1);
+					int xColumnStart = xLayerStart + j * (columnSize*px + 1);
 
 					final Column column = columns[i][j];
 					
@@ -61,24 +62,24 @@ public class TestPanel extends JPanel {
 						
 						final Neuron neuron = neurons[n];
 						
-						final int yPixel = yColumnStart + yShift*2;
-						final int xPixel = xColumnStart + xShift*2;
+						final int yPixel = yColumnStart + yShift*px;
+						final int xPixel = xColumnStart + xShift*px;
 						
 						float color = (float)neuron.getCurrentPotential();
 						g2.setColor(new Color(color, color, color));
-						g2.drawLine(xPixel, yPixel, xPixel+1, yPixel);
-						g2.drawLine(xPixel, yPixel, xPixel, yPixel+1);
-						g2.drawLine(xPixel+1, yPixel, xPixel+1, yPixel+1);
-						g2.drawLine(xPixel, yPixel+1, xPixel+1, yPixel+1);
+						g2.drawLine(xPixel, yPixel, xPixel+px-1, yPixel);
+						g2.drawLine(xPixel, yPixel, xPixel, yPixel+px-1);
+						g2.drawLine(xPixel+px-1, yPixel, xPixel+px-1, yPixel+px-1);
+						g2.drawLine(xPixel, yPixel+px-1, xPixel+px-1, yPixel+px-1);
 					}
 				}
 			}
 			
-			xLayerStart += xColumnCount * (columnSize*2 + 2) + gap;
+			xLayerStart += xColumnCount * (columnSize*px + 1) + gap;
 			
 			if (l > 0 && l % 4 == 0) {
 				
-				yLayerStart += yColumnCount * (columnSize*2 + 2) + gap;
+				yLayerStart += yColumnCount * (columnSize*px + 1) + gap;
 				xLayerStart = gap;
 			}
 		}

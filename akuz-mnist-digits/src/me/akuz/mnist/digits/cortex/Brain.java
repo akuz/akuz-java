@@ -92,7 +92,7 @@ public final class Brain {
 		// layer (retina)
 
 		for (int i=1; i<_layers.length; i++) {
-			final Layer lowerLayer = _layers[i-1];
+			final Layer lowerLayer = (i > 0) ? _layers[i-1] : null;
 			final Layer higherLayer = (i < _layers.length-1) ? _layers[i+1] : null;
 			_layers[i].update(this, lowerLayer, higherLayer);
 		}

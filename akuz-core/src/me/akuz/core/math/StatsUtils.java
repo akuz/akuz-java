@@ -317,5 +317,36 @@ public final class StatsUtils {
 		
 		return values[maxValueIndex(values)];
 	}
+	
+	public static void rescaleMinMax(final double[] values, final double newMin, final double newMax) {
+
+		int minIndex = -1;
+		int maxIndex = -1;
+		double minValue = Double.NaN;
+		double maxValue = Double.NaN;
+		
+		for (int i=0; i<values.length; i++) {
+			final double v = values[i];
+			if (!Double.isNaN(v)) {
+				if (minIndex < 0 || minValue > v) {
+					minIndex = i;
+					minValue = v;
+				}
+				if (maxIndex < 0 || maxValue < v) {
+					maxIndex = i;
+					maxValue = v;
+				}
+			}
+		}
+		
+		if (minIndex == maxIndex) {
+			throw new IllegalStateException(
+					"Need at least two distinct values");
+		}
+		
+		for (int i=0; i<values.length; i++) {
+			values[i] = newMin + (values[i] - minValue) / (maxValue - minValue) * (newMax - newMin);
+		}
+	}
 
 }
