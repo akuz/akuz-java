@@ -49,7 +49,7 @@ public final class TestLoop implements Runnable {
 						final Column column = columns[i][j];
 						Neuron[] neurons = column.getNeurons();
 						for (int n=0; n<neurons.length; n++) {
-							neurons[n].setCurrentPotential(ThreadLocalRandom.current().nextDouble());
+							neurons[n].setCurrentPotential(_brain, ThreadLocalRandom.current().nextDouble());
 						}
 					}
 				}

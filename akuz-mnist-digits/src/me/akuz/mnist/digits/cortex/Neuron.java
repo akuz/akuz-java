@@ -6,6 +6,7 @@ public final class Neuron {
 	
 	private double _currentPotential;
 	private double _previousPotential;
+	private double _historicalPotential;
 
 	private final Dendrite[] _dendrites;
 	
@@ -13,6 +14,7 @@ public final class Neuron {
 		
 		_currentPotential = ThreadLocalRandom.current().nextDouble();
 		_previousPotential = Double.NaN;
+		_historicalPotential = 0.0;
 		
 		if (lowerColumnHeight > 0) {
 			_dendrites = new Dendrite[4];
@@ -28,8 +30,15 @@ public final class Neuron {
 		return _currentPotential;
 	}
 	
-	public void setCurrentPotential(double value) {
+	public void setCurrentPotential(final Brain brain, final double value) {
+		
+		final double decay = Math.exp(-brain.getHistoryLambda() * brain.getTickDuration());
+		_historicalPotential = decay * _historicalPotential + (1.0 - decay) * value;
 		_currentPotential = value;
+	}
+	
+	public double getHistoricalPotential() {
+		return _historicalPotential;
 	}
 	
 	public double getPreviousPotential() {

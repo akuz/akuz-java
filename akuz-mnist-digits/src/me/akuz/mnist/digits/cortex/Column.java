@@ -167,7 +167,7 @@ public final class Column {
 		// set new neuron potentials
 		//
 		for (int n=0; n<_neurons.length; n++) {
-			_neurons[n].setCurrentPotential(newPotentials[n]);
+			_neurons[n].setCurrentPotential(brain, newPotentials[n]);
 		}
 	}
 	
