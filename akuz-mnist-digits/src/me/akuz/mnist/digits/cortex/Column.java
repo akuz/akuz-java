@@ -2,6 +2,7 @@ package me.akuz.mnist.digits.cortex;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+import me.akuz.core.math.Randoms;
 import me.akuz.core.math.StatsUtils;
 
 public final class Column {
@@ -51,22 +52,21 @@ public final class Column {
 		//
 		double[] higherProbs = null;
 		if (higherLayer != null) {
-			
-			higherProbs = new double[_neurons.length];
 
 			final Column[][] higherColumns = higherLayer.getColumns();
 			
+			higherProbs = new double[_neurons.length];
 			int higherColumnCount = 0;
 			
-			for (int i=-1; i<=0; i++) {
+			for (int i=0; i<=1; i++) {
 				final int ii = i0 + i;
 				if (ii >= 0 && ii < higherColumns.length) {
-					final Column[] iColumns = higherColumns[ii];
-					for (int j=-1; j<=0; j++) {
+					final Column[] iiHigherColumns = higherColumns[ii];
+					for (int j=0; j<=1; j++) {
 						final int jj = j0 + j;
-						if (jj >= 0 && jj < iColumns.length) {
+						if (jj >= 0 && jj < iiHigherColumns.length) {
 							
-							final Column higherColumn = iColumns[jj];
+							final Column higherColumn = iiHigherColumns[jj];
 							final Neuron[] higherNeurons = higherColumn.getNeurons();
 							
 							for (int h=0; h<higherNeurons.length; h++) {
@@ -81,7 +81,7 @@ public final class Column {
 								// then we need to take its bottom-right dendrite,
 								// if it's on top-right, we need to take its
 								// bottom-left dendrite, and so on
-								final Dendrite higherDendrite = higherDendrites[-i*2 -j];
+								final Dendrite higherDendrite = higherDendrites[(1-i)*2 + 1-j];
 								final double[] higherWeights = higherDendrite.getWeights();
 								
 								if (higherWeights.length != _neurons.length) {
@@ -125,6 +125,11 @@ public final class Column {
 		// -------------------
 		// combine information
 		//
+//		System.out.println("Time: " + StringUtils.arrayToString(timeProbs, ", "));
+//		System.out.println("Lower: " + StringUtils.arrayToString(lowerProbs, ", "));
+//		if (higherProbs != null) {
+//			System.out.println("Higher: " + StringUtils.arrayToString(higherProbs, ", "));
+//		}
 		final double combineTimeWeight = brain.getCombineTimeWeight();
 		final double combineLowerWeight = brain.getCombineLowerWeight();
 		final double combineHigherWeight = brain.getCombineHigherWeight();
@@ -142,7 +147,7 @@ public final class Column {
 		// ----------------------------------
 		// activate at random, if all decayed
 		//
-		final double threshold = brain.getRandomActivationThreshold() / _neurons.length;
+		final double threshold = brain.getRandomActivationThreshold();
 		boolean allBelowThreshold = true;
 		for (int n=0; n<_neurons.length; n++) {
 			if (probs[n] > threshold) {
@@ -152,8 +157,11 @@ public final class Column {
 		}
 		final double randomActivationProbability = brain.getRandomActivationProbability();
 		if (allBelowThreshold && ThreadLocalRandom.current().nextDouble() < randomActivationProbability) {
+			
+			StatsUtils.normalize(probs);
+			
 			// activate random neuron in this column
-			final int randomNeuronIndex = ThreadLocalRandom.current().nextInt(_neurons.length);
+			final int randomNeuronIndex = brain.getRandoms().nextDiscrete(probs);
 			for (int n=0; n<_neurons.length; n++) {
 				probs[n] = (n == randomNeuronIndex) ? 1.0 : 0.0;
 			}

@@ -10,7 +10,7 @@ public final class TestLoop implements Runnable {
 	public TestLoop(final TestPanel panel) {
 
 		_panel = panel;
-		_brain = new Brain(10, 10, 12, 25);
+		_brain = new Brain(10, 10, 9, 16);
 		_panel.setBrain(_brain);
 	}
 
@@ -41,14 +41,16 @@ public final class TestLoop implements Runnable {
 			currentTime = System.currentTimeMillis();
 			
 			// TODO: update retina
-			final Layer retina = _brain.getRetina();
-			final Column[][] columns = retina.getColumns();
-			for (int i=0; i<columns.length; i++) {
-				for (int j=0; j<columns[i].length; j++) {
-					final Column column = columns[i][j];
-					Neuron[] neurons = column.getNeurons();
-					for (int n=0; n<neurons.length; n++) {
-						neurons[n].setCurrentPotential(ThreadLocalRandom.current().nextDouble());
+			if ((counter / 50) % 2 == 0) {
+				final Layer retina = _brain.getRetina();
+				final Column[][] columns = retina.getColumns();
+				for (int i=0; i<columns.length; i++) {
+					for (int j=0; j<columns[i].length; j++) {
+						final Column column = columns[i][j];
+						Neuron[] neurons = column.getNeurons();
+						for (int n=0; n<neurons.length; n++) {
+							neurons[n].setCurrentPotential(ThreadLocalRandom.current().nextDouble());
+						}
 					}
 				}
 			}
@@ -57,7 +59,6 @@ public final class TestLoop implements Runnable {
 
 			_brain.tick();
 			
-			_panel.invalidate();
 			_panel.repaint();
 			
 			lastTickTime = currentTime;

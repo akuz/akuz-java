@@ -56,24 +56,33 @@ public final class Neuron {
 		}
 		
 		double logLike = 0.0;
+		int lowerColumnCount = 0;
 		
-		final Column[][] columns = lowerLayer.getColumns();
+		final Column[][] lowerColumns = lowerLayer.getColumns();
 		
-		for (int i=0; i<=1; i++) {
+		for (int i=-1; i<=0; i++) {
 			final int ii = i0 + i;
-			if (ii >= 0 && ii < columns.length) {
-				final Column[] iColumns = columns[ii];
-				for (int j=0; j<=1; j++) {
+			if (ii >= 0 && ii < lowerColumns.length) {
+				final Column[] iiLowerColumns = lowerColumns[ii];
+				for (int j=-1; j<=0; j++) {
 					final int jj = j0 + j;
-					if (jj >= 0 && jj < iColumns.length) {
+					if (jj >= 0 && jj < iiLowerColumns.length) {
 						
-						final Column column = iColumns[jj];
+						final Column lowerColumn = iiLowerColumns[jj];
 						logLike += 
-								_dendrites[1*i + j]
-										.calculateLowerLogLike(column);
+								_dendrites[1*(i+1) + j+1]
+										.calculateLowerLogLike(lowerColumn);
+						
+						lowerColumnCount++;
 					}
 				}
 			}
+		}
+		
+		if (lowerColumnCount == 0) {
+			throw new IllegalStateException(
+					"Could not find any columns in the lower " +
+					"layer that could attach a dendrite to");
 		}
 		
 		return logLike;

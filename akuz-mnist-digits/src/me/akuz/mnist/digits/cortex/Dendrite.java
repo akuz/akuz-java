@@ -1,12 +1,14 @@
 package me.akuz.mnist.digits.cortex;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 import me.akuz.core.math.GammaFunction;
 import me.akuz.core.math.StatsUtils;
 
 public final class Dendrite {
 	
-	private static final double WEIGHTS_INIT_START = 0.9;
-	private static final double WEIGHTS_INIT_RANGE = 0.2;
+	private static final double WEIGHTS_INIT_START = 0.1;
+	private static final double WEIGHTS_INIT_RANGE = 0.9;
 	
 	private final double[] _weights;
 	private double _weightsSumLogGamma;
@@ -25,7 +27,7 @@ public final class Dendrite {
 		for (int i=0; i<_weights.length; i++) {
 			_weights[i] = 
 					WEIGHTS_INIT_START + 
-					WEIGHTS_INIT_RANGE / (_weights.length - 1) * i;
+					WEIGHTS_INIT_RANGE * ThreadLocalRandom.current().nextDouble();
 		}
 		
 		normalizeWeights();

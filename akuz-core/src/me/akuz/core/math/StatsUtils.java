@@ -1,6 +1,7 @@
 package me.akuz.core.math;
 
 import java.security.InvalidParameterException;
+import java.util.Arrays;
 import java.util.Random;
 
 import Jama.Matrix;
@@ -77,7 +78,7 @@ public final class StatsUtils {
 
 	public static final double[] logLikesToProbs(double[] loglikes) {
 
-		double[] probs = new double[loglikes.length];
+		double[] probs = Arrays.copyOf(loglikes, loglikes.length);
 		logLikesToProbsReplace(probs);
 		return probs;
 	}

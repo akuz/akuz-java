@@ -1,18 +1,22 @@
 package me.akuz.mnist.digits.cortex;
 
+import me.akuz.core.math.Randoms;
+
 public final class Brain {
 
+	private final Randoms _randoms;
+	
 	private final Layer[] _layers;
 	
 	private double _tickDuration = 1.0 / 30.0; // Frequency 30 Hz
 	private double _decayLambda = Math.log(2) / 0.1; // Half-life 100 Ms
 
 	// below, dividing each weight by the total of all weights
-	private double _combineTimeWeight = 4.0 / 5.0; // would take 4 time decays to go down to 1
-	private double _combineLowerWeight = 0.67 / 5.0; // prioritize lower information flow over higher
-	private double _combineHigherWeight = 0.33 / 5.0; // higher information is 2 time less important than lower
+	private double _combineTimeWeight = 3.0 / 4.0;
+	private double _combineLowerWeight = 0.33 / 4.0;
+	private double _combineHigherWeight = 0.67 / 4.0;
 	
-	private double _randomActivationThreshold = 2.0; // multiplier of the probability of neuron in a flat distribution
+	private double _randomActivationThreshold = 0.25;
 	private double _randomActivationProbability = 0.8;
 
 	public Brain(
@@ -20,6 +24,8 @@ public final class Brain {
 			final int retinaDim2,
 			final int layerCount,
 			final int columnHeight) {
+		
+		_randoms = new Randoms();
 
 		_layers = new Layer[layerCount];
 		for (int i=0; i<layerCount; i++) {
@@ -39,6 +45,10 @@ public final class Brain {
 					thisColumnHeight,
 					lowerColumnHeight);
 		}
+	}
+	
+	public Randoms getRandoms() {
+		return _randoms;
 	}
 	
 	public Layer getRetina() {
@@ -79,13 +89,13 @@ public final class Brain {
 	
 	public void tick() {
 
+		for (int i=0; i<_layers.length; i++) {
+			_layers[i].beforeUpdate();
+		}
+
 		// don't update layer 0,
 		// because it is an input
 		// layer (retina)
-
-		for (int i=1; i<_layers.length; i++) {
-			_layers[i].beforeUpdate();
-		}
 
 		for (int i=1; i<_layers.length; i++) {
 			final Layer lowerLayer = _layers[i-1];
