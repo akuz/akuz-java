@@ -110,10 +110,8 @@ public final class Brain {
 			_layers[i].beforeUpdate();
 		}
 
-		// don't update layer 0,
-		// because it is an input
-		// layer (retina)
-
+		// don't update layer 0, because 
+		// it is an input layer (retina):
 		for (int i=1; i<_layers.length; i++) {
 			final Layer lowerLayer = (i > 0) ? _layers[i-1] : null;
 			final Layer higherLayer = (i < _layers.length-1) ? _layers[i+1] : null;

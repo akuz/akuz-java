@@ -98,8 +98,7 @@ public class TestPanel extends JPanel {
 						g2.drawLine(xPixel+px-1, yPixel, xPixel+px-1, yPixel+px-1);
 						g2.drawLine(xPixel, yPixel+px-1, xPixel+px-1, yPixel+px-1);
 						
-						
-						// TODO max within column!
+						// max within column
 						if (maxCurrent < neuron.getCurrentPotential()) {
 							maxCurrent = neuron.getCurrentPotential();
 						}
