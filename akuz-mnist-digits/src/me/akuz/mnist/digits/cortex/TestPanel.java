@@ -3,6 +3,7 @@ package me.akuz.mnist.digits.cortex;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.text.DecimalFormat;
 
 import javax.swing.JPanel;
 
@@ -25,11 +26,13 @@ public class TestPanel extends JPanel {
 	public void paintComponent(Graphics g) {
 		
 	    super.paintComponent(g);
-	
+	    
+	    DecimalFormat fmt = new DecimalFormat("0.0000");
+	    
 	    Graphics2D g2 = (Graphics2D)g;
 	    
 	    final int px = 2;
-	    final int gap = 10;
+	    final int gap = 12;
 	    int xLayerStart = gap;
 	    int yLayerStart = gap;
 	    
@@ -44,6 +47,10 @@ public class TestPanel extends JPanel {
 			int yColumnCount = columns.length;
 			int xColumnCount = columns[0].length;
 			int columnSize = (int)Math.ceil(Math.sqrt(columns[0][0].getNeurons().length));
+			
+			int avgCount = 0;
+			double avgCurrent = 0.0;
+			double avgHistorical = 0.0;
 			
 			for (int i=0; i<columns.length; i++) {
 				for (int j=0; j<columns[i].length; j++) {
@@ -80,9 +87,25 @@ public class TestPanel extends JPanel {
 						g2.drawLine(xPixel, yPixel, xPixel, yPixel+px-1);
 						g2.drawLine(xPixel+px-1, yPixel, xPixel+px-1, yPixel+px-1);
 						g2.drawLine(xPixel, yPixel+px-1, xPixel+px-1, yPixel+px-1);
+						
+						
+						// TODO max within column!
+						
+						avgCount++;
+						avgCurrent += neuron.getCurrentPotential();
+						avgHistorical += neuron.getHistoricalPotential();
 					}
 				}
 			}
+			avgCurrent /= avgCount;
+			avgHistorical /= avgCount;
+			
+			final String avgCurrentStr = fmt.format(avgCurrent);
+			final String avgHistoricalStr = fmt.format(avgHistorical);
+			
+			g2.setColor(new Color(0.0f, 0.2f, 1.0f));
+			g2.drawChars(avgCurrentStr.toCharArray(), 0, avgCurrentStr.length(), xLayerStart, yLayerStart - 1);
+			g2.drawChars(avgHistoricalStr.toCharArray(), 0, avgHistoricalStr.length(), xLayerStart, yLayerStart - 1 + yColumnCount * (columnSize*px + 1) + gap);
 			
 			xLayerStart += xColumnCount * (columnSize*px + 1) + gap;
 			
