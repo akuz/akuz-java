@@ -8,16 +8,16 @@ public final class Brain {
 	
 	private final Layer[] _layers;
 	
-	private double _tickDuration = 1.0 / 30.0; // 30 Hz
+	private double _tickDuration = 1.0 / 30.0; // Hz
 	
-	private double _decayHalfLife = 0.1; // 100 Ms
+	private double _decayHalfLife = 0.100; // Ms
 	private double _decayLambda = Math.log(2) / _decayHalfLife;
 	
-	private double _historyHalfLife = 0.25; // 100 Ms
+	private double _historyHalfLife = 0.300; // Ms
 	private double _historyLambda = Math.log(2) / _historyHalfLife;
 
-	private double _combineLowerWeight = 0.9;
-	private double _combineHigherWeight = 0.1;
+	private double _combineLowerWeight = 0.7;
+	private double _combineHigherWeight = 0.3;
 	
 	private double _reactivationThreshold = 0.5;
 	private double _reactivationProbability = 0.5;
