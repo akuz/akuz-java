@@ -1,6 +1,7 @@
 package me.akuz.mnist.digits.cortex;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.text.DecimalFormat;
@@ -36,7 +37,9 @@ public class TestPanel extends JPanel {
 	    int xLayerStart = gap;
 	    int yLayerStart = gap;
 	    
-		final Layer[] layers = _brain.getLayers();
+	    g2.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, gap - 2));
+
+	    final Layer[] layers = _brain.getLayers();
 		
 		for (int l=0; l<layers.length; l++) {
 			
@@ -51,6 +54,10 @@ public class TestPanel extends JPanel {
 			int avgCount = 0;
 			double avgCurrent = 0.0;
 			double avgHistorical = 0.0;
+			
+			int midCount = 0;
+			double midCurrent = 0.0;
+			double midHistorical = 0.0;
 			
 			for (int i=0; i<columns.length; i++) {
 				for (int j=0; j<columns[i].length; j++) {
@@ -100,16 +107,32 @@ public class TestPanel extends JPanel {
 							maxHistorical = neuron.getHistoricalPotential();
 						}
 					}
+					
 					avgCount++;
 					avgCurrent += maxCurrent;
 					avgHistorical += maxHistorical;
+					
+					if (i >= columns.length / 3 && i < columns.length / 3 * 2 &&
+						j >= columns[i].length / 3 && j < columns[i].length / 3 * 2) {
+						
+						midCount++;
+						midCurrent += maxCurrent;
+						midHistorical += maxHistorical;
+					}
 				}
 			}
+			
 			avgCurrent /= avgCount;
 			avgHistorical /= avgCount;
+
+			midCurrent /= midCount;
+			midHistorical /= midCount;
 			
-			final String avgCurrentStr = fmt.format(avgCurrent);
-			final String avgHistoricalStr = fmt.format(avgHistorical);
+			String avgCurrentStr = fmt.format(avgCurrent);
+			String avgHistoricalStr = fmt.format(avgHistorical);
+			
+			avgCurrentStr += ", " + fmt.format(midCurrent);
+			avgHistoricalStr += ", " + fmt.format(midHistorical);
 			
 			g2.setColor(new Color(0.0f, 0.2f, 1.0f));
 			g2.drawChars(avgCurrentStr.toCharArray(), 0, avgCurrentStr.length(), xLayerStart, yLayerStart - 1);

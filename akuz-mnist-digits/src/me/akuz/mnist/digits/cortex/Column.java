@@ -173,6 +173,8 @@ public final class Column {
 	
 	public void afterUpdate(final Brain brain) {
 		
-		// TODO: weights learning
+		for (int n=0; n<_neurons.length; n++) {
+			_neurons[n].updateHistoricalPotential(brain);
+		}
 	}
 }

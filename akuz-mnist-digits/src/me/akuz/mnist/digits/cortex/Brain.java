@@ -120,7 +120,7 @@ public final class Brain {
 			_layers[i].update(this, lowerLayer, higherLayer);
 		}
 		
-		for (int i=1; i<_layers.length; i++) {
+		for (int i=0; i<_layers.length; i++) {
 			_layers[i].afterUpdate(this);
 		}
 	}

@@ -16,7 +16,7 @@ public final class TestLoopNumbers implements Runnable {
 	public TestLoopNumbers(final TestPanel panel) {
 
 		_panel = panel;
-		_brain = new Brain(14, 14, 4, 9, 9);
+		_brain = new Brain(14, 14, 4, 9, 16);
 		_panel.setBrain(_brain);
 	}
 

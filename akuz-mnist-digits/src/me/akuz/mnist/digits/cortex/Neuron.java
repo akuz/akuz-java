@@ -31,14 +31,16 @@ public final class Neuron {
 	}
 	
 	public void setCurrentPotential(final Brain brain, final double value) {
-		
-		final double decay = Math.exp(-brain.getHistoryLambda() * brain.getTickDuration());
-		_historicalPotential = decay * _historicalPotential + (1.0 - decay) * value;
 		_currentPotential = value;
 	}
 	
 	public double getHistoricalPotential() {
 		return _historicalPotential;
+	}
+	
+	public void updateHistoricalPotential(final Brain brain) {
+		final double decay = Math.exp(-brain.getHistoryLambda() * brain.getTickDuration());
+		_historicalPotential = decay * _historicalPotential + (1.0 - decay) * _currentPotential;
 	}
 	
 	public double getPreviousPotential() {
