@@ -62,6 +62,9 @@ public class TestPanel extends JPanel {
 					
 					final Neuron[] neurons = column.getNeurons();
 					
+					double maxCurrent = Double.NEGATIVE_INFINITY;
+					double maxHistorical = Double.NEGATIVE_INFINITY;
+					
 					for (int n=0; n<neurons.length; n++) {
 						
 						int yShift = n / columnSize;
@@ -90,11 +93,16 @@ public class TestPanel extends JPanel {
 						
 						
 						// TODO max within column!
-						
-						avgCount++;
-						avgCurrent += neuron.getCurrentPotential();
-						avgHistorical += neuron.getHistoricalPotential();
+						if (maxCurrent < neuron.getCurrentPotential()) {
+							maxCurrent = neuron.getCurrentPotential();
+						}
+						if (maxHistorical < neuron.getHistoricalPotential()) {
+							maxHistorical = neuron.getHistoricalPotential();
+						}
 					}
+					avgCount++;
+					avgCurrent += maxCurrent;
+					avgHistorical += maxHistorical;
 				}
 			}
 			avgCurrent /= avgCount;
