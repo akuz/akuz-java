@@ -25,16 +25,30 @@ public final class Brain {
 	public Brain(
 			final int retinaDim1,
 			final int retinaDim2,
+			final int retinaColumnHeight,
 			final int layerCount,
-			final int columnHeight) {
+			final int layerColumnHeight) {
 		
 		_randoms = new Randoms();
 
 		_layers = new Layer[layerCount];
 		for (int i=0; i<layerCount; i++) {
 			
-			final int thisColumnHeight = columnHeight;
-			final int lowerColumnHeight = i > 0 ? columnHeight : 0;
+			int thisColumnHeight;
+			if (i==0) {
+				thisColumnHeight = retinaColumnHeight;
+			} else {
+				thisColumnHeight = layerColumnHeight;
+			}
+
+			int lowerColumnHeight;
+			if (i==0) {
+				lowerColumnHeight = 0;
+			} else if (i==1) {
+				lowerColumnHeight = retinaColumnHeight;
+			} else {
+				lowerColumnHeight = layerColumnHeight;
+			}
 			
 			// each higher layer
 			// has one more dimension

@@ -2,15 +2,15 @@ package me.akuz.mnist.digits.cortex;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-public final class TestLoop implements Runnable {
+public final class TestLoopRandom implements Runnable {
 
 	private final TestPanel _panel;
 	private final Brain _brain;
 	
-	public TestLoop(final TestPanel panel) {
+	public TestLoopRandom(final TestPanel panel) {
 
 		_panel = panel;
-		_brain = new Brain(10, 10, 9, 16);
+		_brain = new Brain(10, 10, 16, 9, 16);
 		_panel.setBrain(_brain);
 	}
 
@@ -40,7 +40,7 @@ public final class TestLoop implements Runnable {
 			
 			currentTime = System.currentTimeMillis();
 			
-			// TODO: update retina
+			// update retina
 			if ((counter / 100) % 2 == 0) {
 				final Layer retina = _brain.getRetina();
 				final Column[][] columns = retina.getColumns();

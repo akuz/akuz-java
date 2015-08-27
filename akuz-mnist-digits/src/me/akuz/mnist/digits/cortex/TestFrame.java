@@ -27,7 +27,8 @@ public class TestFrame extends JFrame {
 				if (frame != null) {
 					
 					TestPanel panel = frame.getPanel();
-					Thread thread = new Thread(new TestLoop(panel));
+					Thread thread = new Thread(new TestLoopNumbers(panel));
+					//Thread thread = new Thread(new TestLoopRandom(panel));
 					thread.start();
 				}
 			}
