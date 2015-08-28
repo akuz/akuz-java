@@ -13,7 +13,7 @@ public final class Brain {
 	private double _decayHalfLife = 0.100; // seconds
 	private double _decayLambda = Math.log(2) / _decayHalfLife;
 	
-	private double _historyHalfLife = 0.300; // seconds
+	private double _historyHalfLife = 0.100; // seconds
 	private double _historyLambda = Math.log(2) / _historyHalfLife;
 
 	private double _combineLowerWeight = 0.7;

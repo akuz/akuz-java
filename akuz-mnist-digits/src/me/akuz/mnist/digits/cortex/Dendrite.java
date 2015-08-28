@@ -7,8 +7,8 @@ import me.akuz.core.math.StatsUtils;
 
 public final class Dendrite {
 	
-	private static final double WEIGHTS_INIT_START = 0.45;
-	private static final double WEIGHTS_INIT_RANGE = 0.10;
+	private static final double WEIGHTS_INIT_START = 0.49;
+	private static final double WEIGHTS_INIT_RANGE = 0.02;
 	
 	private final double[] _weights;
 	private double _weightsSumLogGamma;

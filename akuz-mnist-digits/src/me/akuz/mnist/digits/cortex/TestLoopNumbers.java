@@ -49,6 +49,7 @@ public final class TestLoopNumbers implements Runnable {
 		
 		long tickCounter = 1;
 		int loopDigit = -1;
+		final ByteImage emptyImage = new ByteImage(28, 28);
 		List<ByteImage> byteImages = null;
 		int byteImageIndex = -1;
 		while (true) {
@@ -80,7 +81,10 @@ public final class TestLoopNumbers implements Runnable {
 				
 				byteImageIndex = (byteImageIndex + 1) % byteImages.size();
 			}
-			final ByteImage byteImage = byteImages.get(byteImageIndex);
+			ByteImage byteImage = byteImages.get(byteImageIndex);
+			if (tickCounter % 100 > 80) {
+				byteImage = emptyImage;
+			}
 
 			// update retina
 			final Layer retina = _brain.getRetina();
