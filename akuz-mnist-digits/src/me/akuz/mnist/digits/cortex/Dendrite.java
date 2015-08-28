@@ -20,14 +20,17 @@ public final class Dendrite {
 	// otherwise each 0 is as important as 1, and
 	// uncertainty cannot be expressed
 
-	public Dendrite(final int lowerColumnHeight) {
+	public Dendrite(final Brain brain, final int lowerColumnHeight) {
 		
 		_weights = new double[lowerColumnHeight];
 		
+		final double minWeight = brain.getDendriteMinWeight();
+		final double maxWeight = brain.getDendriteMaxWeight();
+		
 		for (int i=0; i<_weights.length; i++) {
-			_weights[i] = 
-					WEIGHTS_INIT_START + 
-					WEIGHTS_INIT_RANGE * ThreadLocalRandom.current().nextDouble();
+			_weights[i] = minWeight +
+					(maxWeight - minWeight) *
+					(WEIGHTS_INIT_START + WEIGHTS_INIT_RANGE * ThreadLocalRandom.current().nextDouble());
 		}
 		
 		normalizeWeights();
@@ -69,5 +72,24 @@ public final class Dendrite {
 		logLike -= _weightsSumLogGamma;
 		
 		return logLike;
+	}
+
+	public void learnTick(final Column lowerColumn, final double learnWeightNow) {
+
+		final Neuron[] lowerNeurons = lowerColumn.getNeurons();
+
+		if (_weights.length != lowerNeurons.length) {
+			throw new IllegalStateException(
+					"Expected " + _weights.length + " neurons " +
+					"in the lower column, but found " + lowerNeurons.length);
+		}
+		
+		for (int w=0; w<_weights.length; w++) {
+			
+			_weights[w] += learnWeightNow * lowerNeurons[w].getPreviousPotential();
+		}
+		
+		normalizeWeights();
+
 	}
 }

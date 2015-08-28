@@ -8,12 +8,12 @@ public final class Brain {
 	
 	private final Layer[] _layers;
 	
-	private double _tickDuration = 1.0 / 30.0; // Hz
+	private double _tickDuration = 1.0 / 30.0; // seconds
 	
-	private double _decayHalfLife = 0.100; // Ms
+	private double _decayHalfLife = 0.100; // seconds
 	private double _decayLambda = Math.log(2) / _decayHalfLife;
 	
-	private double _historyHalfLife = 0.300; // Ms
+	private double _historyHalfLife = 0.300; // seconds
 	private double _historyLambda = Math.log(2) / _historyHalfLife;
 
 	private double _combineLowerWeight = 0.7;
@@ -21,6 +21,12 @@ public final class Brain {
 	
 	private double _reactivationThreshold = 0.5;
 	private double _reactivationProbability = 0.5;
+	
+	private double _dendriteMinWeight = 0.01;
+	private double _dendriteMaxWeight = 0.99;
+	
+	private double _learnFullWeightDuration = 60.0; // seconds
+	private double _learnWeightPerTick = _tickDuration / _learnFullWeightDuration;
 
 	public Brain(
 			final int retinaDim1,
@@ -57,6 +63,7 @@ public final class Brain {
 			// shape connections to
 			// complete at edges
 			_layers[i] = new Layer(
+					this,
 					retinaDim1 + i,
 					retinaDim2 + i,
 					thisColumnHeight,
@@ -104,6 +111,22 @@ public final class Brain {
 		return _reactivationProbability;
 	}
 	
+	public double getDendriteMinWeight() {
+		return _dendriteMinWeight;
+	}
+	
+	public double getDendriteMaxWeight() {
+		return _dendriteMaxWeight;
+	}
+	
+	public double getLearnFullWeightDuration() {
+		return _learnFullWeightDuration;
+	}
+	
+	public double getLearnWeightPerTick() {
+		return _learnWeightPerTick;
+	}
+	
 	public void tick() {
 
 		for (int i=0; i<_layers.length; i++) {
@@ -119,7 +142,8 @@ public final class Brain {
 		}
 		
 		for (int i=0; i<_layers.length; i++) {
-			_layers[i].afterUpdate(this);
+			final Layer lowerLayer = (i > 0) ? _layers[i-1] : null;
+			_layers[i].afterUpdate(this, lowerLayer);
 		}
 	}
 

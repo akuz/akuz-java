@@ -1,8 +1,8 @@
 package me.akuz.mnist.digits.cortex;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 import me.akuz.core.geom.ByteImage;
 import me.akuz.mnist.digits.load.MNIST;
@@ -34,12 +34,23 @@ public final class TestLoopNumbers implements Runnable {
 			return;
 		}
 		
+		// sort by digit
+		List<List<ByteImage>> byDigit = new ArrayList<>();
+		for (int d=0; d<10; d++) {
+			byDigit.add(new ArrayList<ByteImage>());
+		}
+		for (final MNISTImage mnistImage : mnistImages) {
+			byDigit.get(mnistImage.getDigit()).add(mnistImage.getByteImage());
+		}
+		
 		double slowDownFactor = 10.0;
 		
 		long lastTickTime = System.currentTimeMillis();
 		
-		long counter = 0;
-		ByteImage byteImage = null;
+		long tickCounter = 1;
+		int loopDigit = -1;
+		List<ByteImage> byteImages = null;
+		int byteImageIndex = -1;
 		while (true) {
 			
 			final long nextTickTime = lastTickTime + (long)(1000.0 * _brain.getTickDuration() * slowDownFactor);
@@ -59,12 +70,17 @@ public final class TestLoopNumbers implements Runnable {
 			currentTime = System.currentTimeMillis();
 			
 			// select image
-			if (byteImage == null || (counter / 100) % 2 == 0) {
+			if (byteImages == null || tickCounter % 100 == 0) {
 				
-				final int randomImageIndex = ThreadLocalRandom.current().nextInt(mnistImages.size());
-				final MNISTImage mnistImage = mnistImages.get(randomImageIndex);
-				byteImage = mnistImage.getByteImage();
+				loopDigit = (loopDigit + 1) % 10;
+				byteImages = byDigit.get(loopDigit);
+				byteImageIndex = 0;
+				
+			} else {
+				
+				byteImageIndex = (byteImageIndex + 1) % byteImages.size();
 			}
+			final ByteImage byteImage = byteImages.get(byteImageIndex);
 
 			// update retina
 			final Layer retina = _brain.getRetina();
@@ -83,7 +99,7 @@ public final class TestLoopNumbers implements Runnable {
 				}
 			}
 			
-			System.out.println("Tick " + (++counter));
+			System.out.println("Tick " + (++tickCounter));
 
 			_brain.tick();
 			

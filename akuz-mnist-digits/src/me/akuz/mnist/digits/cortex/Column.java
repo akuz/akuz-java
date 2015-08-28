@@ -9,12 +9,13 @@ public final class Column {
 	private final Neuron[] _neurons;
 	
 	public Column(
+			final Brain brain,
 			final int thisColumnHeight,
 			final int lowerColumnHeight) {
 		
 		_neurons = new Neuron[thisColumnHeight];
 		for (int l=0; l<thisColumnHeight; l++) {
-			_neurons[l] = new Neuron(lowerColumnHeight);
+			_neurons[l] = new Neuron(brain, lowerColumnHeight);
 		}
 	}
 
@@ -171,10 +172,21 @@ public final class Column {
 		}
 	}
 	
-	public void afterUpdate(final Brain brain) {
+	public void afterUpdate(
+			final Brain brain,
+			final int i0,
+			final int j0,
+			final Layer lowerLayer) {
 		
 		for (int n=0; n<_neurons.length; n++) {
+			
+			if (lowerLayer != null) {
+				_neurons[n].learnTick(brain, i0, j0, lowerLayer);
+			}
+			
 			_neurons[n].updateHistoricalPotential(brain);
+			
+			
 		}
 	}
 }
