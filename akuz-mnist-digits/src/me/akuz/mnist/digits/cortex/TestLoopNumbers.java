@@ -5,18 +5,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.akuz.core.geom.ByteImage;
+import me.akuz.core.math.StatsUtils;
 import me.akuz.mnist.digits.load.MNIST;
 import me.akuz.mnist.digits.load.MNISTImage;
 
 public final class TestLoopNumbers implements Runnable {
 
-	private final TestPanel _panel;
 	private final Brain _brain;
+	private final Classifier _classifier;
+	private final TestPanel _panel;
 	
 	public TestLoopNumbers(final TestPanel panel) {
 
-		_panel = panel;
 		_brain = new Brain(14, 14, 4, 9, 16);
+		_classifier = new Classifier(_brain.getHighestLayer(), 10);
+
+		_panel = panel;
 		_panel.setBrain(_brain);
 	}
 
@@ -84,6 +88,8 @@ public final class TestLoopNumbers implements Runnable {
 			ByteImage byteImage = byteImages.get(byteImageIndex);
 			if (tickCounter % 100 > 80) {
 				byteImage = emptyImage;
+			} else if (tickCounter % 100 > 20) {
+				_classifier.observe(loopDigit);
 			}
 
 			// update retina
@@ -103,7 +109,10 @@ public final class TestLoopNumbers implements Runnable {
 				}
 			}
 			
-			System.out.println("Tick " + (++tickCounter));
+			final double[] probs = _classifier.classify();
+			final int recognized = StatsUtils.maxValueIndex(probs);
+			
+			System.out.println("Tick " + (++tickCounter) + " => " + recognized);
 
 			_brain.tick();
 			

@@ -3,6 +3,8 @@ package me.akuz.core.math;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 
+import org.apache.commons.math3.special.Gamma;
+
 /**
  * Dirichlet distribution.
  *
@@ -12,7 +14,6 @@ public final class DirDist {
 	private final double _alpha;
 	private final double[] _data;
 	private boolean _isNormalized;
-	private double _sumLogGamma;
 	
 	public DirDist(final int dim, final double alpha) {
 		if (dim < 2) {
@@ -28,6 +29,11 @@ public final class DirDist {
 		Arrays.fill(_data, alpha);
 	}
 	
+	public DirDist(final DirDist unnormalized) {
+		_alpha = unnormalized._alpha;
+		_data = Arrays.copyOf(unnormalized._data, unnormalized._data.length);
+	}
+	
 	public int getDim() {
 		return _data.length;
 	}
@@ -40,17 +46,9 @@ public final class DirDist {
 	}
 	
 	public double getPosteriorLogProb(final double[] value) {
-		if (_isNormalized == false) {
-			throw new IllegalStateException("Cannot get posterior, call normalize() first");
+		if (_isNormalized) {
+			throw new IllegalStateException("Cannot get posterior log prob, already normalized");
 		}
-		return getUnnormalisedPosteriorLogLike(value) - _sumLogGamma;
-	}
-
-	public double[] getUnnormalisedPosteriorMean() {
-		return _data;
-	}
-	
-	public double getUnnormalisedPosteriorLogLike(final double[] value) {
 		if (value == null) {
 			throw new NullPointerException("value");
 		}
@@ -60,21 +58,34 @@ public final class DirDist {
 					", but the value has dimensionality " + value.length);
 		}
 		
-		double logLike = 0.0;
+		double sum = 0.0;
+		double sumLogLike = 0.0;
+		double sumLogGamma = 0.0;
 		for (int i=0; i<_data.length; i++) {
 			final double x = value[i];
 			if (!Double.isNaN(x)) {
-				logLike += (_data[i] - 1.0) * Math.log(x);
+				sum += _data[i];
+				sumLogLike += (_data[i] - 1.0) * Math.log(x);
+				sumLogGamma += GammaFunction.lnGamma(_data[i]);
 			}
 		}
 		
-		if (Double.isNaN(logLike)) {
-			throw new IllegalStateException("Log likelihood is NAN");
+		final double logProb = GammaFunction.lnGamma(sum) - sumLogGamma + sumLogLike;
+		
+		if (Double.isNaN(logProb)) {
+			throw new IllegalStateException("Log likeprobabilitylihood is NAN");
 		}
-
-		return logLike;
+		return logProb;
 	}
 
+	public double[] getUnnormalisedPosteriorMean() {
+		return _data;
+	}
+
+	public double getUnnormalisedPosteriorMean(int index) {
+		return _data[index];
+	}
+	
 	public double getPosteriorPredictiveProb(int index) {
 		if (_isNormalized == false) {
 			throw new IllegalStateException("Cannot get posterior, call normalize() first");

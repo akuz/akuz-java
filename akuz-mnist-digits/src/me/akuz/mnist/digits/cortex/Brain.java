@@ -79,6 +79,10 @@ public final class Brain {
 		return _layers[0];
 	}
 	
+	public Layer getHighestLayer() {
+		return _layers[_layers.length-1];
+	}
+	
 	public Layer[] getLayers() {
 		return _layers;
 	}
