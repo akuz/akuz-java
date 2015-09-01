@@ -46,7 +46,7 @@ public class Classifier {
 				final Neuron[] neurons = columns[i][j].getNeurons();
 				for (int n=0; n<neurons.length; n++) {
 					
-					inClassDist.addObservation(index, neurons[n].getHistoricalPotential());
+					inClassDist.addObservation(index, neurons[n].getCurrentPotential());
 					index++;
 				}
 			}
