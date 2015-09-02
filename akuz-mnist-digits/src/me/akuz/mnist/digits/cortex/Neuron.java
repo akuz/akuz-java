@@ -30,7 +30,10 @@ public final class Neuron {
 		return _currentPotential;
 	}
 	
-	public void setCurrentPotential(final Brain brain, final double value) {
+	public void setCurrentPotential(final Brain brain, double value) {
+		if (value < 0.01) {
+			value = 0.01; // FIXME
+		}
 		_currentPotential = value;
 	}
 	

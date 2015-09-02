@@ -2,16 +2,14 @@ package me.akuz.mnist.digits.cortex;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-import me.akuz.core.math.GammaFunction;
-import me.akuz.core.math.StatsUtils;
+import me.akuz.core.math.DirDist;
 
 public final class Dendrite {
 	
 	private static final double WEIGHTS_INIT_START = 0.49;
 	private static final double WEIGHTS_INIT_RANGE = 0.02;
 	
-	private final double[] _weights;
-	private double _weightsSumLogGamma;
+	private final DirDist _weightsDist;
 
 	// In the future:
 	// perhaps could use conjugate prior to Gamma
@@ -22,54 +20,42 @@ public final class Dendrite {
 
 	public Dendrite(final Brain brain, final int lowerColumnHeight) {
 		
-		_weights = new double[lowerColumnHeight];
+		final double alpha = WEIGHTS_INIT_START;
+		final double[] data = new double[lowerColumnHeight];
 		
 		final double minWeight = brain.getDendriteMinWeight();
 		final double maxWeight = brain.getDendriteMaxWeight();
 		
-		for (int i=0; i<_weights.length; i++) {
-			_weights[i] = minWeight +
+		for (int i=0; i<data.length; i++) {
+			data[i] = minWeight +
 					(maxWeight - minWeight) *
 					(WEIGHTS_INIT_START + WEIGHTS_INIT_RANGE * ThreadLocalRandom.current().nextDouble());
 		}
 		
-		normalizeWeights();
+		_weightsDist = new DirDist(data, alpha);
 	}
 
-	public double[] getWeights() {
-		return _weights;
-	}
-	
-	private void normalizeWeights() {
-		
-		StatsUtils.normalize(_weights);
-		
-		_weightsSumLogGamma = 0.0;
-		for (int i=0; i<_weights.length; i++) {
-			_weightsSumLogGamma += GammaFunction.lnGamma(_weights[i]);
-		}
+	public DirDist getWeightsDist() {
+		return _weightsDist;
 	}
 	
 	public double calculateLowerLogLike(final Column lowerColumn) {
 		
-		double logLike = 0.0;
+		final Neuron[] lowerNeurons = lowerColumn.getNeurons();
 		
-		final Neuron[] neurons = lowerColumn.getNeurons();
-		
-		if (_weights.length != neurons.length) {
+		if (_weightsDist.getDim() != lowerNeurons.length) {
 			throw new IllegalStateException(
 					"Dendrite expected a column of height " +
-					_weights.length + ", but got a column " +
-					"of height " + neurons.length);
+					_weightsDist.getDim() + ", but got a column " +
+					"of height " + lowerNeurons.length);
 		}
 		
-		for (int i=0; i<_weights.length; i++) {
-			logLike += 
-					(_weights[i] - 1.0) * 
-					Math.log(neurons[i].getPreviousPotential());
+		final double[] values = new double[lowerNeurons.length];
+		for (int i=0; i<lowerNeurons.length; i++) {
+			values[i] = lowerNeurons[i].getPreviousPotential();
 		}
 		
-		logLike -= _weightsSumLogGamma;
+		final double logLike = _weightsDist.getPosteriorLogProb(values);
 		
 		return logLike;
 	}
@@ -80,18 +66,18 @@ public final class Dendrite {
 
 		final Neuron[] lowerNeurons = lowerColumn.getNeurons();
 
-		if (_weights.length != lowerNeurons.length) {
+		if (_weightsDist.getDim() != lowerNeurons.length) {
 			throw new IllegalStateException(
-					"Expected " + _weights.length + " neurons " +
-					"in the lower column, but found " + lowerNeurons.length);
+					"Dendrite expected a column of height " +
+					_weightsDist.getDim() + ", but got a column " +
+					"of height " + lowerNeurons.length);
 		}
 		
-		for (int w=0; w<_weights.length; w++) {
-			
-			_weights[w] += learnWeightNow * lowerNeurons[w].getPreviousPotential();
+		final double[] values = new double[lowerNeurons.length];
+		for (int i=0; i<lowerNeurons.length; i++) {
+			values[i] = lowerNeurons[i].getPreviousPotential();
 		}
 		
-		normalizeWeights();
-
+		_weightsDist.addObservation(values, learnWeightNow);
 	}
 }

@@ -2,6 +2,7 @@ package me.akuz.mnist.digits.cortex;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+import me.akuz.core.math.DirDist;
 import me.akuz.core.math.StatsUtils;
 
 public final class Column {
@@ -88,11 +89,11 @@ public final class Column {
 									// if it's on top-right, we need to take its
 									// bottom-left dendrite, and so on
 									final Dendrite higherDendrite = higherDendrites[(1-i)*2 + 1-j];
-									final double[] higherWeights = higherDendrite.getWeights();
+									final DirDist higherWeightsDist = higherDendrite.getWeightsDist();
 									
-									if (higherWeights.length != _neurons.length) {
+									if (higherWeightsDist.getDim() != _neurons.length) {
 										throw new IllegalStateException(
-												"Higher layer dendrite has " + higherWeights.length +
+												"Higher layer dendrite has " + higherWeightsDist.getDim() +
 												" weights, but the lower column has " + _neurons.length +
 												" neurons.");
 									}
@@ -100,7 +101,7 @@ public final class Column {
 									// sum up dendrite weights, weighted by the
 									// higher neuron potential treated as probability
 									for (int n=0; n<_neurons.length; n++) {
-										higherProbs[n] += higherWeights[n] * higherPotential; 
+										higherProbs[n] += higherWeightsDist.getUnnormalisedPosteriorMean(n) * higherPotential; 
 									}
 								}
 								

@@ -3,8 +3,6 @@ package me.akuz.core.math;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 
-import org.apache.commons.math3.special.Gamma;
-
 /**
  * Dirichlet distribution.
  *
@@ -27,6 +25,11 @@ public final class DirDist {
 		_alpha = alpha;
 		_data = new double[dim];
 		Arrays.fill(_data, alpha);
+	}
+	
+	public DirDist(final double[] data, final double alpha) {
+		_alpha = alpha;
+		_data = data;
 	}
 	
 	public DirDist(final DirDist unnormalized) {
