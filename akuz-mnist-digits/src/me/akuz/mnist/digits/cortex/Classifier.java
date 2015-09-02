@@ -63,7 +63,7 @@ public class Classifier {
 				final Neuron[] neurons = columns[i][j].getNeurons();
 				for (int n=0; n<neurons.length; n++) {
 					
-					_lastClassInput[index] = neurons[n].getHistoricalPotential();
+					_lastClassInput[index] = neurons[n].getCurrentPotential();
 					if (Double.isNaN(_lastClassInput[index])) {
 						_lastClassInput[index] = 0.0; // FIXME
 					}

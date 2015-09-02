@@ -128,10 +128,6 @@ public final class DirDist {
 
 	public void normalize() {
 		StatsUtils.normalize(_data);
-		_sumLogGamma = 0.0;
-		for (int i=0; i<_data.length; i++) {
-			_sumLogGamma += GammaFunction.lnGamma(_data[i]);
-		}
 		_isNormalized = true;
 	}
 	

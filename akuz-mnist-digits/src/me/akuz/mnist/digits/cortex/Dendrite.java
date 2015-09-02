@@ -74,7 +74,9 @@ public final class Dendrite {
 		return logLike;
 	}
 
-	public void learnTick(final Column lowerColumn, final double learnWeightNow) {
+	public void learnTick(
+			final Column lowerColumn,
+			final double learnWeightNow) {
 
 		final Neuron[] lowerNeurons = lowerColumn.getNeurons();
 

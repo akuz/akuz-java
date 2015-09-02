@@ -83,7 +83,7 @@ public final class TestLoopNumbers implements Runnable {
 				
 			} else {
 				
-				byteImageIndex = (byteImageIndex + 1) % byteImages.size();
+				byteImageIndex = 0; // (byteImageIndex + 1) % byteImages.size();
 			}
 			ByteImage byteImage = byteImages.get(byteImageIndex);
 			if (tickCounter % 100 > 80) {
