@@ -6,7 +6,7 @@ import me.akuz.core.math.DirDist;
 
 public final class Dendrite {
 	
-	private static final double WEIGHTS_INIT_START = 0.49;
+	private static final double WEIGHTS_INIT_START = 9.48;
 	private static final double WEIGHTS_INIT_RANGE = 0.02;
 	
 	private final DirDist _weightsDist;

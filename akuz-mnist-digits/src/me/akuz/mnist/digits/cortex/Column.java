@@ -186,8 +186,6 @@ public final class Column {
 			}
 			
 			_neurons[n].updateHistoricalPotential(brain);
-			
-			
 		}
 	}
 }
