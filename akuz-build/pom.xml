@@ -25,6 +25,7 @@
   	<module>../akuz-nlp-run-lda</module>
   	<module>../akuz-qf</module>
   	<module>../akuz-ts</module>
+  	<module>../akuz-music</module>
   </modules>
   <url>http://akuz.me</url>
 </project>
