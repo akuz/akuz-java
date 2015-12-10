@@ -19,13 +19,13 @@ public final class Brain {
 	private double _combineLowerWeight = 0.7;
 	private double _combineHigherWeight = 0.3;
 	
-	private double _reactivationThreshold = 0.5;
-	private double _reactivationProbability = 0.5;
+	private double _activationThreshold = 0.5;
+	private double _activationProbability = 0.5;
 	
 	private double _dendriteMinWeight = 0.01;
 	private double _dendriteMaxWeight = 0.99;
 	
-	private double _learnFullWeightDuration = 60.0; // seconds
+	private double _learnFullWeightDuration = 3.0; // seconds
 	private double _learnWeightPerTick = _tickDuration / _learnFullWeightDuration;
 
 	public Brain(
@@ -107,12 +107,12 @@ public final class Brain {
 		return _combineHigherWeight;
 	}
 	
-	public double getReactivationThreshold() {
-		return _reactivationThreshold;
+	public double getActivationThreshold() {
+		return _activationThreshold;
 	}
 	
-	public double getReactivationProbability() {
-		return _reactivationProbability;
+	public double getActivationProbability() {
+		return _activationProbability;
 	}
 	
 	public double getDendriteMinWeight() {

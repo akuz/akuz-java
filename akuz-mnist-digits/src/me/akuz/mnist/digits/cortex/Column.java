@@ -51,8 +51,8 @@ public final class Column {
 		// determine if it's time to reactivate
 		//
 		final double maxPotential = StatsUtils.maxValue(newPotentials);
-		if (maxPotential < brain.getReactivationThreshold() && 
-			ThreadLocalRandom.current().nextDouble() < brain.getReactivationProbability()) {
+		if (maxPotential < brain.getActivationThreshold() && 
+			ThreadLocalRandom.current().nextDouble() < brain.getActivationProbability()) {
 			
 			// -------------------------
 			// top-down information flow
