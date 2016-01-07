@@ -6,7 +6,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import me.akuz.core.StringUtils;
 import me.akuz.core.geom.ByteImage;
 import me.akuz.mnist.digits.Feature;
-import me.akuz.mnist.digits.old.InferBlocks;
+import me.akuz.mnist.digits.InferBlocks;
 
 import org.junit.Test;
 

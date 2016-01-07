@@ -1,4 +1,4 @@
-package me.akuz.mnist.digits.old;
+package me.akuz.mnist.digits;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -13,7 +13,6 @@ import me.akuz.core.logs.Monitor;
 import me.akuz.core.math.DirDist;
 import me.akuz.core.math.NKPDist;
 import me.akuz.core.math.StatsUtils;
-import me.akuz.mnist.digits.ProbImage;
 
 public final class InferNKP {
 	

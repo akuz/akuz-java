@@ -1,4 +1,4 @@
-package me.akuz.mnist.digits.neo;
+package me.akuz.mnist.digits;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,7 +11,6 @@ import me.akuz.core.logs.Monitor;
 import me.akuz.core.math.NIGDist;
 import me.akuz.core.math.NIGDistUtils;
 import me.akuz.core.math.StatsUtils;
-import me.akuz.mnist.digits.ProbImage;
 
 /**
  * Infers pixel categories from pixel intensities.

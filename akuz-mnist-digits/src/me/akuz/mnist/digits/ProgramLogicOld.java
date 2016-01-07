@@ -1,4 +1,4 @@
-package me.akuz.mnist.digits.old;
+package me.akuz.mnist.digits;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -19,8 +19,6 @@ import me.akuz.core.logs.LocalMonitor;
 import me.akuz.core.logs.Monitor;
 import me.akuz.core.math.DirDist;
 import me.akuz.core.math.NKPDist;
-import me.akuz.mnist.digits.InferHDP;
-import me.akuz.mnist.digits.ProgramOptions;
 
 public final class ProgramLogicOld {
 

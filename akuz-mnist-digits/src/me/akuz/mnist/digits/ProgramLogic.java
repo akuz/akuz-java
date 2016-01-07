@@ -17,7 +17,6 @@ import me.akuz.core.logs.Monitor;
 import me.akuz.core.math.AvgArr;
 import me.akuz.core.math.MatrixUtils;
 import me.akuz.core.math.NIGDist;
-import me.akuz.mnist.digits.neo.InferCAT;
 
 public final class ProgramLogic {
 
