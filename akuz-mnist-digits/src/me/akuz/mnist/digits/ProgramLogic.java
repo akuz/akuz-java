@@ -6,21 +6,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 
 import Jama.Matrix;
 import me.akuz.core.FileUtils;
 import me.akuz.core.StringUtils;
-import me.akuz.core.geom.ByteImage;
+import me.akuz.core.geom.BWImage;
 import me.akuz.core.logs.LocalMonitor;
 import me.akuz.core.logs.Monitor;
 import me.akuz.core.math.AvgArr;
 import me.akuz.core.math.MatrixUtils;
 import me.akuz.core.math.NIGDist;
+import me.akuz.mnist.digits.load.MNIST;
 
 public final class ProgramLogic {
 
-	private static final int IMAGE_SIZE = 28;
 	private static final int MAX_IMAGE_COUNT = 500;
 	
 	private static final int LAYER_ITER_COUNT = 3;
@@ -54,48 +53,10 @@ public final class ProgramLogic {
 		}
 		
 		monitor.write("Loading training data...");
-		List<ByteImage> images = new ArrayList<>();
-		List<Integer> numbers = new ArrayList<>();
-		try (Scanner scanner = FileUtils.openScanner(options.getTrainFile())) {
-			
-			// skip first line
-			if (scanner.hasNextLine()) {
-				scanner.nextLine();
-			}
+		List<Integer> digits = new ArrayList<>();
+		List<BWImage> images = new ArrayList<>();
+		MNIST.load_train(options.getTrainFile(), digits, images, MAX_IMAGE_COUNT);
 
-			// load all other lines
-			int counter = 2;
-			final int requiredEntryCount = 1 + IMAGE_SIZE*IMAGE_SIZE;
-			while (scanner.hasNextLine()) {
-				
-				String line = scanner.nextLine().trim();
-				if (line.length() > 0) {
-					String[] parts = line.split(",");
-					if (parts.length != requiredEntryCount) {
-						throw new IOException("Incorrect number of entries in line #" + counter + ": " + line);
-					}
-					int number = Integer.parseInt(parts[0]);
-					numbers.add(number);
-					byte[][] data = new byte[IMAGE_SIZE][IMAGE_SIZE];
-					for (int i=1; i<parts.length; i++) {
-						
-						int val = Integer.parseInt(parts[i]);
-						final int index = i-1;
-						final int row = index / IMAGE_SIZE;
-						final int col = index % IMAGE_SIZE;
-						data[row][col] = (byte)val;
-					}
-					ByteImage digit = new ByteImage(data);
-					images.add(digit);
-				}
-				counter += 1;
-				
-				if (images.size() >= MAX_IMAGE_COUNT) {
-					break;
-				}
-			}
-		}
-		
 		monitor.write("Cleaning output dir...");
 		FileUtils.cleanDir(options.getOutputDir());
 		
@@ -244,7 +205,7 @@ public final class ProgramLogic {
 			final Map<Integer, Integer> orderMap = SaveBlocksNIG.getOrderMap(infer.getFeatureProbs());
 			for (int f=0; f<featureImages.size(); f++) {
 				
-				final Integer number = numbers.get(f);
+				final Integer number = digits.get(f);
 				final ProbImage featureImage = featureImages.get(f);
 				final AvgArr imageFeatureProbs = new AvgArr(infer.getFeatureDim());
 				
@@ -290,7 +251,7 @@ public final class ProgramLogic {
 				}
 				numberCounts.put(number, numberCount + 1.0);
 				
-				final String txtFileName = StringUtils.concatPath(txtOutputDir, fileFmt.format(f+1) + "_" + numbers.get(f) + ".txt");
+				final String txtFileName = StringUtils.concatPath(txtOutputDir, fileFmt.format(f+1) + "_" + digits.get(f) + ".txt");
 				FileUtils.writeEntireFile(txtFileName, sb.toString());
 			}
 		}
@@ -334,7 +295,7 @@ public final class ProgramLogic {
 				}
 			}
 			
-			int correctN = numbers.get(i).intValue();
+			int correctN = digits.get(i).intValue();
 			if (guessN == correctN) {
 				correctCount++;
 			}

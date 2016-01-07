@@ -72,35 +72,7 @@ public final class ByteImage {
 		_data[i][j] = (byte)category;
 	}
 	
-	public String toAsciiArt() { 
-		StringBuilder sb = new StringBuilder();
-		for (int i=0; i<getRowCount(); i++) {
-			for (int j=0; j<getColCount(); j++) {
-				
-				final double intensity = getIntensity(i, j);
-				
-				if (intensity < 0.1) {
-					sb.append("  ");
-				} else if (intensity < 0.2) {
-					sb.append(" .");
-				} else if (intensity < 0.4) {
-					sb.append(" +");
-				} else if (intensity < 0.6) {
-					sb.append(" @");
-				} else {
-					sb.append(" *");
-				}
-			}
-			sb.append("  | ");
-			for (int j=0; j<getColCount(); j++) {
-				
-				final int category = getCategory(i, j);
-
-				sb.append(" ");
-				sb.append(String.format("%03d", category));
-			}
-			sb.append(System.lineSeparator());
-		}
-		return sb.toString();
+	public String toAsciiArt() {
+		return new BWImage(this).toAsciiArt();
 	}
 }

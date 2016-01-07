@@ -33,6 +33,10 @@ public final class BWImage {
 		return _data[0].length;
 	}
 	
+	public int getSize() {
+		return getRowCount() * getColCount();
+	}
+	
 	public double getColor(final int i, final int j) {
 		return _data[i][j];
 	}
@@ -43,7 +47,7 @@ public final class BWImage {
 
 	public void setColor(final int i, final int j, double color) {
 		if (color < 0) {
-			color = 0.0;
+			color = 0;
 		}
 		if (color > 1) {
 			color = 1;
@@ -56,15 +60,15 @@ public final class BWImage {
 		for (int i=0; i<getRowCount(); i++) {
 			for (int j=0; j<getColCount(); j++) {
 				
-				final double intensity = getColor(i, j);
+				final double color = getColor(i, j);
 				
-				if (intensity < 0.1) {
+				if (color < 0.1) {
 					sb.append("  ");
-				} else if (intensity < 0.2) {
+				} else if (color < 0.2) {
 					sb.append(" .");
-				} else if (intensity < 0.4) {
+				} else if (color < 0.4) {
 					sb.append(" +");
-				} else if (intensity < 0.6) {
+				} else if (color < 0.6) {
 					sb.append(" @");
 				} else {
 					sb.append(" *");
@@ -73,10 +77,10 @@ public final class BWImage {
 			sb.append("  | ");
 			for (int j=0; j<getColCount(); j++) {
 				
-				final double intensity = getColor(i, j);
+				final double color = getColor(i, j);
 
 				sb.append(" ");
-				sb.append(String.format("%.2f", intensity));
+				sb.append(String.format("%.2f", color));
 			}
 			sb.append(System.lineSeparator());
 		}

@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import me.akuz.core.DecimalFmt;
-import me.akuz.core.geom.ByteImage;
+import me.akuz.core.geom.BWImage;
 import me.akuz.core.logs.LocalMonitor;
 import me.akuz.core.logs.Monitor;
 import me.akuz.core.math.NIGDist;
@@ -20,7 +20,7 @@ public final class InferCAT {
 	
 	private static final int PRIOR_SAMPLES = 1000;
 	
-	private final List<ByteImage> _pixelImages;
+	private final List<BWImage> _pixelImages;
 	private final List<ProbImage> _featureImages;
 
 //	private List<ProbImage> _parentFeatureImages;
@@ -31,7 +31,7 @@ public final class InferCAT {
 	private NIGDist[] _featureDists;
 	
 	public InferCAT(
-			final List<ByteImage> images,
+			final List<BWImage> images,
 			final int featureDim) {
 		
 		if (featureDim < 2 || featureDim > 255) {
@@ -44,7 +44,7 @@ public final class InferCAT {
 		
 		_featureImages = new ArrayList<>(images.size());
 		for (int i=0; i<images.size(); i++) {
-			final ByteImage pixelImage = images.get(i);
+			final BWImage pixelImage = images.get(i);
 			final ProbImage featureImage = new ProbImage(pixelImage.getRowCount(), pixelImage.getColCount(), featureDim);
 			_featureImages.add(featureImage);
 		}
@@ -105,7 +105,7 @@ public final class InferCAT {
 					}
 				}
 				
-				final ByteImage pixelImage = _pixelImages.get(imageIndex);
+				final BWImage pixelImage = _pixelImages.get(imageIndex);
 				final ProbImage featureImage = _featureImages.get(imageIndex);
 				
 				for (int row=0; row<pixelImage.getRowCount(); row++) {
@@ -115,7 +115,7 @@ public final class InferCAT {
 						for (int k=0; k<_featureDim; k++) {
 							logLikes[k] 
 									= Math.log(currFeatureProbs[k]) 
-									+ Math.log(currFeatureDists[k].getProb(pixelImage.getIntensity(row, col)));
+									+ Math.log(currFeatureDists[k].getProb(pixelImage.getColor(row, col)));
 						}
 						
 						// add to current log likelihood
@@ -136,7 +136,7 @@ public final class InferCAT {
 						}
 						for (int k=0; k<_featureDim; k++) {
 							if (featureProbs[k] > 0) {
-								nextFeatureDists[k].addObservation(pixelImage.getIntensity(row, col), featureProbs[k]);
+								nextFeatureDists[k].addObservation(pixelImage.getColor(row, col), featureProbs[k]);
 							}
 						}
 					}

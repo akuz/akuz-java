@@ -8,21 +8,20 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 import javax.imageio.ImageIO;
 
 import me.akuz.core.FileUtils;
 import me.akuz.core.StringUtils;
-import me.akuz.core.geom.ByteImage;
+import me.akuz.core.geom.BWImage;
 import me.akuz.core.logs.LocalMonitor;
 import me.akuz.core.logs.Monitor;
 import me.akuz.core.math.DirDist;
 import me.akuz.core.math.NKPDist;
+import me.akuz.mnist.digits.load.MNIST;
 
 public final class ProgramLogicOld {
 
-	private static final int IMAGE_SIZE = 28;
 	private static final int MAX_IMAGE_COUNT = 200;
 	
 	private static final int DIM2  = 12;
@@ -53,46 +52,10 @@ public final class ProgramLogicOld {
 		}
 		
 		monitor.write("Loading training data...");
-		List<ByteImage> images = new ArrayList<>();
-		try (Scanner scanner = FileUtils.openScanner(options.getTrainFile())) {
-			
-			// skip first line
-			if (scanner.hasNextLine()) {
-				scanner.nextLine();
-			}
+		List<Integer> digits = new ArrayList<>();
+		List<BWImage> images = new ArrayList<>();
+		MNIST.load_train(options.getTrainFile(), digits, images, MAX_IMAGE_COUNT);
 
-			// load all other lines
-			int counter = 2;
-			final int requiredEntryCount = 1 + IMAGE_SIZE*IMAGE_SIZE;
-			while (scanner.hasNextLine()) {
-				
-				String line = scanner.nextLine().trim();
-				if (line.length() > 0) {
-					String[] parts = line.split(",");
-					if (parts.length != requiredEntryCount) {
-						throw new IOException("Incorrect number of entries in line #" + counter + ": " + line);
-					}
-//					byte symbol = Byte.parseByte(parts[0]);
-					byte[][] data = new byte[IMAGE_SIZE][IMAGE_SIZE];
-					for (int i=1; i<parts.length; i++) {
-						
-						int val = Integer.parseInt(parts[i]);
-						final int index = i-1;
-						final int row = index / IMAGE_SIZE;
-						final int col = index % IMAGE_SIZE;
-						data[row][col] = (byte)val;
-					}
-					ByteImage digit = new ByteImage(data);
-					images.add(digit);
-				}
-				counter += 1;
-				
-				if (images.size() >= MAX_IMAGE_COUNT) {
-					break;
-				}
-			}
-		}
-		
 		monitor.write("Interring 2x2 blocks...");
 		InferNKP infer2x2 = new InferNKP(monitor, images, DIM2, 1);
 		infer2x2.execute(monitor, ITER2, LOG_LIKE_CHANGE_THRESHOLD);

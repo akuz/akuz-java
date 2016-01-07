@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
-import me.akuz.core.geom.ByteImage;
+import me.akuz.core.geom.BWImage;
 import me.akuz.core.logs.LocalMonitor;
 import me.akuz.core.logs.Monitor;
 import me.akuz.core.math.DirDist;
@@ -22,7 +22,7 @@ public final class InferNIG {
 	private static final double PRIOR_VAR_SAMPLES = 1.0;
 	private static final double INIT_WEIGHT = 0.1;
 	
-	private final List<ByteImage> _images;
+	private final List<BWImage> _images;
 	private int _parentFeatureShift;
 	private DirDist[][] _parentFeatureBlocks;
 	private List<ProbImage> _parentFeatureImages;
@@ -34,7 +34,7 @@ public final class InferNIG {
 	
 	public InferNIG(
 			final Monitor parentMonitor, 
-			final List<ByteImage> images, 
+			final List<BWImage> images, 
 			final int featureDim,
 			final int featureShift) {
 		
@@ -51,7 +51,7 @@ public final class InferNIG {
 		
 		_featureImages = new ArrayList<>();
 		for (int i=0; i<images.size(); i++) {
-			ByteImage image = images.get(i);
+			BWImage image = images.get(i);
 			ProbImage featureImage = new ProbImage(image.getRowCount()-featureShift, image.getColCount()-featureShift, featureDim);
 			_featureImages.add(featureImage);
 		}
@@ -162,7 +162,7 @@ public final class InferNIG {
 					}
 				}
 				
-				final ByteImage image = _images.get(imageIndex);
+				final BWImage image = _images.get(imageIndex);
 				final ProbImage featureImage = _featureImages.get(imageIndex);
 				final ProbImage parentFeatureImage = _parentFeatureImages != null ? _parentFeatureImages.get(imageIndex) : null;
 				
@@ -282,16 +282,16 @@ public final class InferNIG {
 						// add data log likes
 						for (int k=0; k<_featureDim; k++) {
 							{
-								logLikes[k] += Math.log(currBlocks[k][0].getProb(image.getIntensity(row, col)));
+								logLikes[k] += Math.log(currBlocks[k][0].getProb(image.getColor(row, col)));
 							}
 							{
-								logLikes[k] += Math.log(currBlocks[k][1].getProb(image.getIntensity(row, col+_featureShift)));
+								logLikes[k] += Math.log(currBlocks[k][1].getProb(image.getColor(row, col+_featureShift)));
 							}
 							{
-								logLikes[k] += Math.log(currBlocks[k][2].getProb(image.getIntensity(row+_featureShift, col)));
+								logLikes[k] += Math.log(currBlocks[k][2].getProb(image.getColor(row+_featureShift, col)));
 							}
 							{
-								logLikes[k] += Math.log(currBlocks[k][3].getProb(image.getIntensity(row+_featureShift, col+_featureShift)));
+								logLikes[k] += Math.log(currBlocks[k][3].getProb(image.getColor(row+_featureShift, col+_featureShift)));
 							}
 						}
 						
@@ -314,16 +314,16 @@ public final class InferNIG {
 						for (int k=0; k<_featureDim; k++) {
 							if (logLikes[k] > 0) {
 								{
-									nextBlocks[k][0].addObservation(image.getIntensity(row, col), logLikes[k]);
+									nextBlocks[k][0].addObservation(image.getColor(row, col), logLikes[k]);
 								}
 								{
-									nextBlocks[k][1].addObservation(image.getIntensity(row, col+_featureShift), logLikes[k]);
+									nextBlocks[k][1].addObservation(image.getColor(row, col+_featureShift), logLikes[k]);
 								}
 								{
-									nextBlocks[k][2].addObservation(image.getIntensity(row+_featureShift, col), logLikes[k]);
+									nextBlocks[k][2].addObservation(image.getColor(row+_featureShift, col), logLikes[k]);
 								}
 								{
-									nextBlocks[k][3].addObservation(image.getIntensity(row+_featureShift, col+_featureShift), logLikes[k]);
+									nextBlocks[k][3].addObservation(image.getColor(row+_featureShift, col+_featureShift), logLikes[k]);
 								}
 							}
 						}

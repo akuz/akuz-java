@@ -4,10 +4,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.akuz.core.geom.ByteImage;
+import me.akuz.core.geom.BWImage;
 import me.akuz.core.math.StatsUtils;
 import me.akuz.mnist.digits.load.MNIST;
-import me.akuz.mnist.digits.load.MNISTImage;
 
 public final class TestLoopNumbers implements Runnable {
 
@@ -30,21 +29,22 @@ public final class TestLoopNumbers implements Runnable {
 		final String fileName = "/Users/andrey/SkyDrive/Documents/Data/digits_input/train.csv";
 		final int maxImageCount = 500;
 		
-		List<MNISTImage> mnistImages = null;
+		List<Integer> digits = new ArrayList<>();
+		List<BWImage> images = new ArrayList<>();
 		try {
-			mnistImages = MNIST.load(fileName, maxImageCount);
-		} catch (IOException e1) {
-			e1.printStackTrace();
+			MNIST.load_train(fileName, digits, images, maxImageCount);
+		} catch (IOException e) {
+			e.printStackTrace();
 			return;
 		}
 		
 		// sort by digit
-		List<List<ByteImage>> byDigit = new ArrayList<>();
+		List<List<BWImage>> byDigit = new ArrayList<>();
 		for (int d=0; d<10; d++) {
-			byDigit.add(new ArrayList<ByteImage>());
+			byDigit.add(new ArrayList<BWImage>());
 		}
-		for (final MNISTImage mnistImage : mnistImages) {
-			byDigit.get(mnistImage.getDigit()).add(mnistImage.getByteImage());
+		for (int i=0; i<images.size(); i++) {
+			byDigit.get(digits.get(i)).add(images.get(i));
 		}
 		
 		double slowDownFactor = 10.0;
@@ -52,10 +52,10 @@ public final class TestLoopNumbers implements Runnable {
 		long lastTickTime = System.currentTimeMillis();
 		
 		long tickCounter = 1;
-		int loopDigit = -1;
-		final ByteImage emptyImage = new ByteImage(28, 28);
-		List<ByteImage> byteImages = null;
-		int byteImageIndex = -1;
+		int currentDigit = -1;
+		final BWImage emptyImage = new BWImage(28, 28);
+		List<BWImage> currentImages = null;
+		int currentImageIndex = -1;
 		while (true) {
 			
 			final long nextTickTime = lastTickTime + (long)(1000.0 * _brain.getTickDuration() * slowDownFactor);
@@ -75,21 +75,21 @@ public final class TestLoopNumbers implements Runnable {
 			currentTime = System.currentTimeMillis();
 			
 			// select image
-			if (byteImages == null || tickCounter % 100 == 0) {
+			if (currentImages == null || tickCounter % 100 == 0) {
 				
-				loopDigit = (loopDigit + 1) % 10;
-				byteImages = byDigit.get(loopDigit);
-				byteImageIndex = 0;
+				currentDigit = (currentDigit + 1) % 10;
+				currentImages = byDigit.get(currentDigit);
+				currentImageIndex = 0;
 				
 			} else {
 				
-				byteImageIndex = 0; // (byteImageIndex + 1) % byteImages.size();
+				currentImageIndex = 0; // (byteImageIndex + 1) % byteImages.size();
 			}
-			ByteImage byteImage = byteImages.get(byteImageIndex);
+			BWImage currentImage = currentImages.get(currentImageIndex);
 			if (tickCounter % 100 > 80) {
-				byteImage = emptyImage;
+				currentImage = emptyImage;
 			} else if (tickCounter % 100 > 20) {
-				_classifier.observe(loopDigit);
+				_classifier.observe(currentDigit);
 			}
 
 			// update retina
@@ -104,7 +104,7 @@ public final class TestLoopNumbers implements Runnable {
 						final int iImage = i*2 + n/2;
 						final int jImage = j*2 + n%2;
 						
-						neurons[n].setCurrentPotential(_brain, byteImage.getIntensity(iImage, jImage));
+						neurons[n].setCurrentPotential(_brain, currentImage.getColor(iImage, jImage));
 					}
 				}
 			}
