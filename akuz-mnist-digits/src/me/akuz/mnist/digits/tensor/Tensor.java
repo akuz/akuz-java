@@ -2,8 +2,8 @@ package me.akuz.mnist.digits.tensor;
 
 public interface Tensor {
 	
-	double get(Integer... location);
+	double get(Location location);
 	
-	double set(Integer... location);
+	void set(Location location, double value);
 
 }

@@ -4,12 +4,12 @@ package me.akuz.mnist.digits.tensor;
  * Dense tensor implementation.
  *
  */
-public final class DenseTensor implements Tensor {
+public final class TensorData implements Tensor {
 	
 	private final Shape _shape;
 	private final double[] _data;
 	
-	public DenseTensor(final Shape shape) {
+	public TensorData(final Shape shape) {
 		_shape = shape;
 		_data = new double[shape.size()];
 	}
@@ -19,15 +19,17 @@ public final class DenseTensor implements Tensor {
 	}
 
 	@Override
-	public double get(Integer... location) {
+	public double get(final Location location) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public double set(Integer... location) {
+	public void set(final Location location, final double value) {
 		// TODO Auto-generated method stub
-		return 0;
 	}
 	
+	public double[] data() {
+		return _data;
+	}
 }

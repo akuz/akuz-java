@@ -7,52 +7,27 @@ package me.akuz.mnist.digits.tensor;
 public final class Shape {
 	
 	private final int[] _dims;
-	private int _size;
+	private final int _size;
 	
-	public Shape() {
-		_dims = new int[0];
-		computeSize();
-	}
-
 	public Shape(Integer... dims) {
-		if (dims == null) {
-			throw new NullPointerException("Shape dims cannot be null");
+		if (dims.length == 0) {
+			throw new IllegalArgumentException(
+				"Shape must have at least one dimension");
 		}
-		// unbox integers to ints
 		_dims = new int[dims.length];
+		int size = 1;
 		for (int i=0; i<dims.length; i++) {
-			_dims[i] = dims[i];
+			final int dim_size = dims[i];
+			_dims[i] = dim_size;
+			size *= dim_size;
 		}
-		computeSize();
-	}
-	
-	public Shape(final int[] dims) {
-		if (dims == null) {
-			throw new NullPointerException("Shape dims cannot be null");
-		}
-		_dims = dims;
-		computeSize();
-	}
-	
-	private void computeSize() {
-		if (_dims.length == 0) {
-			_size = 0;
-		} else {
-			int size = 1;
-			for (int i=0; i<_dims.length; i++) {
-				size *= _dims[i];
-				if (size == 0) {
-					break;
-				}
-			}
-			_size = size;
-		}
+		_size = size;
 	}
 	
 	public int ndim() {
 		return _dims.length;
 	}
-	
+
 	public int[] dims() {
 		return _dims;
 	}
@@ -61,9 +36,44 @@ public final class Shape {
 		return _size;
 	}
 	
+	public void checkSameNdim(final Location location) {
+		if (_dims.length != location.ndim()) {
+			throw new IllegalArgumentException(
+				"Location " + location + 
+				" is inconsistent with" + 
+				" shape " + this);
+		}
+	}
+	
+	public boolean contains(final Location location) {
+		checkSameNdim(location);
+		final int[] indices = location.indices();
+		for (int i=0; i<indices.length; i++) {
+			final int dim_size = _dims[i];
+			final int loc = indices[i];
+			if (loc < dim_size || loc >= dim_size) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	public boolean endsWith(final Location location) {
+		checkSameNdim(location);
+		final int[] indices = location.indices();
+		for (int i=0; i<indices.length; i++) {
+			final int dim_size = _dims[i];
+			final int loc = indices[i];
+			if (loc != dim_size) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append("(");
 		for (int i=0; i<_dims.length; i++) {
 			if (i > 0) {
