@@ -1,5 +1,8 @@
 package me.akuz.mnist.digits.tensor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Location within a Tensor.
  *
@@ -8,16 +11,28 @@ public final class Location {
 	
 	private final int[] _indices;
 	
+	public Location(int[] indices) {
+		_indices = indices;
+		TensorUtils.checkNotEmpty(_indices);
+	}
+	
 	public Location(Integer... indices) {
-		if (indices.length == 0) {
+		_indices = TensorUtils.unboxIntegerArray(indices);
+		TensorUtils.checkNotEmpty(_indices);
+	}
+	
+	public Location add(final Shape shape) {
+		
+		int[] shapeDims = shape.dims();
+		if (_indices.length != shapeDims.length) {
 			throw new IllegalArgumentException(
-					"Location must specify at least one index");
+				"Shape " + shape + " doesn't match location " + this);
 		}
-		// unbox integers to ints
-		_indices = new int[indices.length];
-		for (int i=0; i<indices.length; i++) {
-			_indices[i] = indices[i];
+		final int[] result = new int[shapeDims.length];
+		for (int i=0; i<shapeDims.length; i++) {
+			result[i] = _indices[i] + shapeDims[i];
 		}
+		return new Location(result);
 	}
 
 	public void set(int dim, int index) {
