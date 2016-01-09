@@ -1,8 +1,5 @@
 package me.akuz.mnist.digits.tensor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Location within a Tensor.
  *
