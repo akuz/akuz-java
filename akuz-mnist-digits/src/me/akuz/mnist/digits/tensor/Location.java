@@ -1,61 +1,43 @@
 package me.akuz.mnist.digits.tensor;
 
 /**
- * Location within a Tensor.
+ * A single location within a Tensor.
  *
  */
 public final class Location {
 	
-	private final int[] _indices;
+	public final int ndim;
+	public final int[] indices;
 	
 	public Location(int[] indices) {
-		_indices = indices;
-		TensorUtils.checkNotEmpty(_indices);
+		UtilsForTensors.checkNotEmpty(indices);
+		this.ndim = indices.length;
+		this.indices = indices;
 	}
 	
 	public Location(Integer... indices) {
-		_indices = TensorUtils.unboxIntegerArray(indices);
-		TensorUtils.checkNotEmpty(_indices);
-	}
-	
-	public Location add(final Shape shape) {
-		
-		int[] shapeDims = shape.dims();
-		if (_indices.length != shapeDims.length) {
-			throw new IllegalArgumentException(
-				"Shape " + shape + " doesn't match location " + this);
+		UtilsForTensors.checkNotEmpty(indices);
+		this.ndim = indices.length;
+		this.indices = new int[indices.length];
+		for (int i=0; i<indices.length; i++) {
+			this.indices[i] = indices[i];
 		}
-		final int[] result = new int[shapeDims.length];
-		for (int i=0; i<shapeDims.length; i++) {
-			result[i] = _indices[i] + shapeDims[i];
-		}
-		return new Location(result);
-	}
-
-	public void set(int dim, int index) {
-		_indices[dim] = index;
-	}
-	
-	public int[] indices() {
-		return _indices;
-	}
-	
-	public int ndim() {
-		return _indices.length;
 	}
 	
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
 		sb.append("[");
-		for (int i=0; i<_indices.length; i++) {
+		for (int i=0; i<this.indices.length; i++) {
 			if (i > 0) {
 				sb.append(",");
 			}
-			sb.append(_indices[i]);
+			sb.append(this.indices[i]);
 		}
 		sb.append("]");
 		return sb.toString();
 	}
+	
+	// TODO: hash and equals
 
 }

@@ -1,11 +1,17 @@
 package me.akuz.mnist.digits.tensor;
 
-public interface Tensor {
+public abstract class Tensor {
 	
-	Shape shape();
+	public final int ndim;
+	public final Shape shape;
 	
-	double get(Location location);
+	public Tensor(final Shape shape) {
+		this.ndim = shape.ndim;
+		this.shape = shape;
+	}
 	
-	void set(Location location, double value);
+	public abstract double get(Location location);
+	
+	public abstract void set(Location location, double value);
 
 }

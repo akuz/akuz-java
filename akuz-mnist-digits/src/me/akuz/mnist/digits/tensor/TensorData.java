@@ -4,18 +4,15 @@ package me.akuz.mnist.digits.tensor;
  * Dense tensor implementation.
  *
  */
-public final class TensorData implements Tensor {
+public final class TensorData extends Tensor {
 	
-	private final Shape _shape;
 	private final double[] _data;
 	
 	public TensorData(final Shape shape) {
-		_shape = shape;
-		_data = new double[shape.size()];
-	}
-	
-	public Shape shape() {
-		return _shape;
+		
+		super(shape);
+		
+		_data = new double[shape.size];
 	}
 
 	@Override
