@@ -1,4 +1,4 @@
-package me.akuz.tensors;
+package me.akuz.ml.tensors;
 
 /**
  * View tensor looking at some other tensor.

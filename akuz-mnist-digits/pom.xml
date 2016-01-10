@@ -56,6 +56,11 @@
   		<artifactId>akuz-core</artifactId>
   		<version>0.0.3</version>
   	</dependency>
+  	<dependency>
+  		<groupId>me.akuz</groupId>
+  		<artifactId>akuz-ml</artifactId>
+  		<version>0.0.3</version>
+  	</dependency>
   </dependencies>
   <parent>
   	<groupId>me.akuz</groupId>

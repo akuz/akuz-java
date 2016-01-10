@@ -1,4 +1,4 @@
-package me.akuz.tensors;
+package me.akuz.ml.tensors;
 
 /**
  * Base class for tensors.

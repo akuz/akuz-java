@@ -1,15 +1,15 @@
-package me.akuz.tensors.test;
+package me.akuz.ml.tensors.test;
 
 import java.util.Random;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import me.akuz.tensors.DenseTensor;
-import me.akuz.tensors.Location;
-import me.akuz.tensors.Shape;
-import me.akuz.tensors.Tensor;
-import me.akuz.tensors.ViewTensor;
+import me.akuz.ml.tensors.DenseTensor;
+import me.akuz.ml.tensors.Location;
+import me.akuz.ml.tensors.Shape;
+import me.akuz.ml.tensors.Tensor;
+import me.akuz.ml.tensors.ViewTensor;
 
 public class TensorsTest {
 
