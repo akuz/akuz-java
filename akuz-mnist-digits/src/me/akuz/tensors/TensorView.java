@@ -1,4 +1,4 @@
-package me.akuz.mnist.digits.tensor;
+package me.akuz.tensors;
 
 /**
  * View tensor.

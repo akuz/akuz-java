@@ -1,7 +1,7 @@
-package me.akuz.mnist.digits.tensor;
+package me.akuz.tensors;
 
 /**
- * A single location within a Tensor.
+ * Location within a Tensor.
  *
  */
 public final class Location {
