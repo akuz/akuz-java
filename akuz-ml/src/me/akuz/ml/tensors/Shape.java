@@ -27,8 +27,8 @@ public final class Shape {
 	public final int[] multipliers;
 	
 	/**
-	 * Create a shape with specified 
-	 * sizes of dimensions.
+	 * Create a shape with the specified 
+	 * sizes for each dimension.
 	 */
 	public Shape(Integer... sizes) {
 		TensorUtils.checkNotEmpty(sizes);
