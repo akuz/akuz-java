@@ -1,8 +1,8 @@
 package me.akuz.mnist.digits.tensor;
 
 /**
- * Dense tensor implementation.
- *
+ * Data tensor.
+ * 
  */
 public final class TensorData extends Tensor {
 	
@@ -17,13 +17,22 @@ public final class TensorData extends Tensor {
 
 	@Override
 	public double get(final Location location) {
-		// TODO Auto-generated method stub
-		return 0;
+		return _data[this.shape.calcFlatIndexFromLocation(location)];
 	}
 
 	@Override
 	public void set(final Location location, final double value) {
-		// TODO Auto-generated method stub
+		_data[this.shape.calcFlatIndexFromLocation(location)] = value;
+	}
+
+	@Override
+	public double get(int flatIndex) {
+		return _data[flatIndex];
+	}
+
+	@Override
+	public void set(int flatIndex, double value) {
+		_data[flatIndex] = value;
 	}
 	
 	public double[] data() {

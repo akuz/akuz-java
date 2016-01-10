@@ -1,64 +1,92 @@
 package me.akuz.mnist.digits.tensor;
 
+/**
+ * View tensor.
+ *
+ */
 public final class TensorView extends Tensor {
 	
 	private final Tensor _underlying;
 	private final int[] _startIndices;
-	private final int[] _shapeSizes;
 	
 	public TensorView(
 			final Tensor underlying,
-			final Location startLoc,
+			final Location start,
 			final Shape shape) {
 		
 		super(shape);
 		
-		UtilsForTensors.checkNdimsMatch(underlying.ndim, startLoc.ndim);
+		UtilsForTensors.checkNdimsMatch(underlying.ndim, start.ndim);
 		UtilsForTensors.checkNdimsMatch(underlying.ndim, shape.ndim);
 		
 		_underlying = underlying;
-		_startIndices = startLoc.indices;
-		_shapeSizes = shape.sizes;
+		_startIndices = start.indices;
 		
-		// TODO: check the view doesn't go outside underlying
+		// check doesn't go outside of underlying
+		final int[] thisSizes = this.shape.sizes;
+		final int[] underSizes = _underlying.shape.sizes;
+		for (int i=0; i<this.ndim; i++) {
+			final int startIndex = _startIndices[i];
+			if (startIndex < 0 || startIndex >= underSizes[i]) {
+				throw new IndexOutOfBoundsException(
+					"Shape start index " + startIndex + " is out " +
+					"of bounds of underlying dimension of size " + 
+					underSizes[i]);
+			}
+			final int endIndex = startIndex + thisSizes[i];
+			if (endIndex < 0 || endIndex > underSizes[i]) {
+				throw new IndexOutOfBoundsException(
+					"Shape end index " + endIndex + " is out " +
+					"of bounds of underlying dimension of size " + 
+					underSizes[i]);
+			}
+		}
 	}
 	
-	private Location calculateUnderlyingLocation(final Location location) {
-
-		UtilsForTensors.checkNdimsMatch(_underlying.ndim, location.ndim);
+	private int calcUnderlyingFlatIndex(final int thisFlatIndex) {
 		
-		final int[] locationIndices = location.indices;
-		final int[] underlyingIndices = new int[_startIndices.length];
-		for (int i=0; i<underlyingIndices.length; i++) {
-			
-			final int locationIndex = locationIndices[i];
-
-			if (locationIndex < 0 || locationIndex >= _shapeSizes[i]) {
-				throw new IndexOutOfBoundsException(
-					"Index " + locationIndex + " is out of bounds [0," +
-					_shapeSizes[i] + ") in dimension " + i);
-			}
-			
-			underlyingIndices[i] = _startIndices[i] + locationIndex;
+		if (thisFlatIndex < 0 || thisFlatIndex >= this.size) {
+			throw new IndexOutOfBoundsException(
+				"Flat index " + thisFlatIndex + " is out of " +
+				"bounds (total size " + this.size + ")");
 		}
+
+		final int[] thisMultipliers = this.shape.multipliers;
+		final int[] underMultipliers = _underlying.shape.multipliers;
 		
-		return new Location(underlyingIndices);
+		int underFlatIndex = 0;
+		int remainder = thisFlatIndex;
+		for (int i=0; i<this.ndim; i++) {
+			final int thisMultiplier = thisMultipliers[i];
+			final int thisIndex = remainder / thisMultiplier;
+			underFlatIndex += underMultipliers[i] * (thisIndex + _startIndices[i]);
+			remainder = remainder % thisMultiplier;
+		}
+		return underFlatIndex;
 	}
 
 	@Override
 	public double get(final Location location) {
-		
-		// TODO: add location caching...
-
-		return _underlying.get(calculateUnderlyingLocation(location));
+		return _underlying.get(calcUnderlyingFlatIndex(
+				this.shape.calcFlatIndexFromLocation(
+						location)));
 	}
 
 	@Override
 	public void set(final Location location, final double value) {
-		
-		// TODO: add location caching...
+		_underlying.set(calcUnderlyingFlatIndex(
+				this.shape.calcFlatIndexFromLocation(
+						location)), value);
+	}
 
-		_underlying.set(calculateUnderlyingLocation(location), value);
+	@Override
+	public double get(int flatIndex) {
+		return _underlying.get(calcUnderlyingFlatIndex(flatIndex));
+	}
+
+	@Override
+	public void set(int flatIndex, double value) {
+		_underlying.set(calcUnderlyingFlatIndex(flatIndex), value);
 	}
 
 }
