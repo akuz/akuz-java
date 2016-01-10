@@ -1,14 +1,14 @@
 package me.akuz.tensors;
 
 /**
- * Data tensor.
+ * Dense tensor containing the data.
  * 
  */
-public final class TensorData extends Tensor {
+public final class DenseTensor extends Tensor {
 	
 	private final double[] _data;
 	
-	public TensorData(final Shape shape) {
+	public DenseTensor(final Shape shape) {
 		
 		super(shape);
 		

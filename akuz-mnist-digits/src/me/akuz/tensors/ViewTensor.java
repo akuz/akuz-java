@@ -1,23 +1,23 @@
 package me.akuz.tensors;
 
 /**
- * View tensor.
+ * View tensor looking at some other tensor.
  *
  */
-public final class TensorView extends Tensor {
+public final class ViewTensor extends Tensor {
 	
 	private final Tensor _underlying;
 	private final int[] _startIndices;
 	
-	public TensorView(
+	public ViewTensor(
 			final Tensor underlying,
 			final Location start,
 			final Shape shape) {
 		
 		super(shape);
 		
-		UtilsForTensors.checkNdimsMatch(underlying.ndim, start.ndim);
-		UtilsForTensors.checkNdimsMatch(underlying.ndim, shape.ndim);
+		TensorUtils.checkNdimsMatch(underlying.ndim, start.ndim);
+		TensorUtils.checkNdimsMatch(underlying.ndim, shape.ndim);
 		
 		_underlying = underlying;
 		_startIndices = start.indices;

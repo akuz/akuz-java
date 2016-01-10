@@ -31,7 +31,7 @@ public final class Shape {
 	 * sizes of dimensions.
 	 */
 	public Shape(Integer... sizes) {
-		UtilsForTensors.checkNotEmpty(sizes);
+		TensorUtils.checkNotEmpty(sizes);
 		this.ndim = sizes.length;
 		this.sizes = new int[sizes.length];
 		int size = 1;

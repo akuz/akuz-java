@@ -1,6 +1,6 @@
 package me.akuz.tensors;
 
-public final class UtilsForTensors {
+public final class TensorUtils {
 
 	public static final void checkNotEmpty(final Integer[] input) {
 		if (input == null) {
