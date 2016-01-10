@@ -49,5 +49,42 @@ public abstract class Tensor {
 	 * Set the value by tensor location.
 	 */
 	public abstract void set(Location location, double value);
+	
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder();
+		final int[] stack = new int[this.ndim];
+		final Location loc = new Location(stack);
+		while (true) {
+			
+			sb.append("[");
+			for (int i=0; i<this.ndim; i++) {
+				if (i != 0) {
+					sb.append(",");
+				}
+				sb.append(stack[i]);
+			}
+			sb.append("]: ");
+			sb.append(this.get(loc));
+			sb.append(System.lineSeparator());
+			
+			boolean keepGoing = false;
+			for (int i=this.ndim-1; i>=0; i--) {
+				stack[i] += 1;
+				if (stack[i] < this.shape.sizes[i]) {
+					keepGoing = true;
+					break;
+				}
+				else {
+					stack[i] = 0;
+				}
+			}
+			
+			if (!keepGoing) {
+				break;
+			}
+		}
+		return sb.toString();
+	}
 
 }

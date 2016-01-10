@@ -52,6 +52,7 @@ public final class Shape {
 	 * Calculate flat index from location.
 	 */
 	public int calcFlatIndexFromLocation(final Location location) {
+		TensorUtils.checkNdimsMatch(this.ndim, location.ndim, "requested location doesn't match tensor shape");
 		int flatIndex = 0;
 		final int[] indices = location.indices;
 		for (int i=0; i<indices.length; i++) {

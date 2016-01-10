@@ -22,10 +22,15 @@ public final class TensorUtils {
 		}
 	}
 
-	public static final void checkNdimsMatch(final int ndim1, final int ndim2) {
-		if (ndim1 != ndim2) {
+	public static final void checkNdimsMatch(
+			final int expected, 
+			final int actual,
+			final String message) {
+		
+		if (expected != actual) {
 			throw new IllegalArgumentException(
-				"Dimensionality mismatch: " + ndim1 + " vs " + ndim2);
+				"Dimensionality mismatch (" + message + 
+				"): expected ndim " + expected + ", got ndim " + actual);
 		}
 	}
 

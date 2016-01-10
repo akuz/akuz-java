@@ -16,8 +16,8 @@ public final class ViewTensor extends Tensor {
 		
 		super(shape);
 		
-		TensorUtils.checkNdimsMatch(underlying.ndim, start.ndim);
-		TensorUtils.checkNdimsMatch(underlying.ndim, shape.ndim);
+		TensorUtils.checkNdimsMatch(underlying.ndim, start.ndim, "view start location doesn't match underlying tensor");
+		TensorUtils.checkNdimsMatch(underlying.ndim, shape.ndim, "view shape doesn't match underlying tensor");
 		
 		_underlying = underlying;
 		_startIndices = start.indices;
@@ -29,15 +29,17 @@ public final class ViewTensor extends Tensor {
 			final int startIndex = _startIndices[i];
 			if (startIndex < 0 || startIndex >= underSizes[i]) {
 				throw new IndexOutOfBoundsException(
-					"Shape start index " + startIndex + " is out " +
-					"of bounds of underlying dimension of size " + 
+					"View out of bounds: start index " + startIndex + 
+					" in dimension " + i + " is out of bounds of the" + 
+					" underlying tensor dimension " + i + " of size " + 
 					underSizes[i]);
 			}
 			final int endIndex = startIndex + thisSizes[i];
 			if (endIndex < 0 || endIndex > underSizes[i]) {
 				throw new IndexOutOfBoundsException(
-					"Shape end index " + endIndex + " is out " +
-					"of bounds of underlying dimension of size " + 
+					"View out of bounds: end index " + endIndex + 
+					" in dimension " + i + " is out of bounds of the" + 
+					" underlying tensor dimension " + i + " of size " + 
 					underSizes[i]);
 			}
 		}
