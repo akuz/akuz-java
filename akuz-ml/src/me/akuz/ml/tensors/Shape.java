@@ -81,5 +81,30 @@ public final class Shape {
 		sb.append(")");
 		return sb.toString();
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		if (obj == this) {
+			return true;
+		}
+		if (!(obj instanceof Shape)) {
+			return false;
+		}
+		final Shape other = (Shape)obj;
+		if (this.ndim != other.ndim) {
+			return false;
+		}
+		final int[] thisSizes = this.sizes;
+		final int[] otherSizes = other.sizes;
+		for (int i=0; i<thisSizes.length; i++) {
+			if (thisSizes[i] != otherSizes[i]) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 }

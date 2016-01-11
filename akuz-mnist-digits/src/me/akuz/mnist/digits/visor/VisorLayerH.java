@@ -1,5 +1,5 @@
 package me.akuz.mnist.digits.visor;
 
-public class VisorLayerPatterns {
+public class VisorLayerH {
 
 }

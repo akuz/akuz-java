@@ -1,5 +1,8 @@
 package me.akuz.mnist.digits.visor;
 
+import me.akuz.ml.tensors.Shape;
+import me.akuz.ml.tensors.Tensor;
+
 /**
  * Visor looks at an image and performs
  * the inference of its hidden states.
@@ -8,24 +11,17 @@ package me.akuz.mnist.digits.visor;
 public final class Visor {
 
 	private boolean _configured;
-	private final int _height;
-	private final int _width;
-	private final int _depth;
-	private Image _image;
+	private final Shape _shape;
+	private Tensor _image;
 
-	public Visor(int width, int height, int depth) {
-		if (height <= 0) {
-			throw new IllegalArgumentException("Visor height must be positive, got " + height);
+	public Visor(final Shape shape) {
+		if (shape == null) {
+			throw new NullPointerException("shape");
 		}
-		if (width <= 0) {
-			throw new IllegalArgumentException("Visor width must be positive, got " + width);
+		if (shape.ndim != 3) {
+			throw new IllegalArgumentException("Visor shape must have ndim 3");
 		}
-		if (depth <= 0) {
-			throw new IllegalArgumentException("Visor depth must be positive, got " + depth);
-		}
-		_height = height;
-		_width = width;
-		_depth = depth;
+		_shape = shape;
 	}
 	
 	public void configure() {
@@ -38,27 +34,19 @@ public final class Visor {
 		_configured = true;
 	}
 
-	public void setImage(final Image image) {
-		if (image.getHeight() != _height) {
-			throw new IllegalArgumentException(
-					"Image must be of height " + _height + 
-					", got " + image.getHeight());
-		}
-		if (image.getWidth() != _width) {
-			throw new IllegalArgumentException(
-					"Image must be of width " + _width + 
-					", got " + image.getWidth());
-		}
-		if (image.getDepth() != _depth) {
-			throw new IllegalArgumentException(
-					"Image must be of depth " + _depth + 
-					", got " + image.getDepth());
+	public void setImage(final Tensor image) {
+		if (image != null) {
+			if (!_shape.equals(image.shape)) {
+				throw new IllegalArgumentException(
+					"Illegal image shape " + image.shape + 
+					" for visor of shape " + _shape);
+			}
 		}
 		_image = image;
 	}
 	
 	public void infer() {
-		Image image = _image;
+		Tensor image = _image;
 		if (image != null) {
 			
 			// TODO: infer values of hidden states
