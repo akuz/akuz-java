@@ -49,6 +49,16 @@ public abstract class Tensor {
 	 * Set the value by tensor location.
 	 */
 	public abstract void set(Location location, double value);
+
+	/**
+	 * Add the value by flat index.
+	 */
+	public abstract void add(int flatIndex, double value);
+	
+	/**
+	 * Add the value by tensor location.
+	 */
+	public abstract void add(Location location, double value);
 	
 	@Override
 	public String toString() {

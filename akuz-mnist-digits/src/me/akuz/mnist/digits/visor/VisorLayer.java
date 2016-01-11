@@ -32,15 +32,8 @@ public abstract class VisorLayer {
 
 	/**
 	 * Record the inferred probabilities of hidden
-	 * states in the memory (but don't optimize
-	 * the inference parameters yet).
+	 * states in the memory for future recognition.
 	 */
 	public abstract void record();
-	
-	/**
-	 * Optimize the inference parameters based 
-	 * on the accumulated memory of recognition.
-	 */
-	public abstract void optimize();
 
 }
