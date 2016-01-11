@@ -25,15 +25,20 @@ public abstract class VisorLayer {
 
 	/**
 	 * Infer the probabilities of the hidden variables, 
-	 * based on the current states of the neighboring
-	 * variables.
+	 * based on the current states of the other layers.
 	 */
 	public abstract void infer();
 
 	/**
-	 * Record the inferred probabilities of hidden
+	 * Dream the values in the lower layer, given the 
+	 * current probabilities of the hidden variables.
+	 */
+	public abstract void dream();
+
+	/**
+	 * Learn the inferred probabilities of hidden
 	 * states in the memory for future recognition.
 	 */
-	public abstract void record();
+	public abstract void learn();
 
 }
