@@ -1,6 +1,8 @@
 package me.akuz.mnist.digits.visor;
 
 import java.util.Arrays;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import me.akuz.core.math.GammaFunction;
 import me.akuz.core.math.StatsUtils;
@@ -18,13 +20,13 @@ import me.akuz.ml.tensors.Tensor;
  */
 public final class VisorLayerC extends VisorLayer {
 	
-	public static final double COLOR_ALPHA = 1.0;
-	public static final double COLOR_CHANNEL_ALPHA = 1.0;
-	public static final double COLOR_CHANNEL_ALPHA_NOISE = 0.1;
+	public static final double PATTERN_ALPHA = 1.0;
+	public static final double PATTERN_CHANNEL_ALPHA = 0.9;
+	public static final double PATTERN_CHANNEL_ALPHA_NOISE = 0.1;
 
 	private Tensor _input;
 	private Tensor _patterns;
-	private Tensor _patternObs;
+	private Tensor _patternCounts;
 
 	/**
 	 * Height of the input image tensor (size of dim 0).
@@ -103,19 +105,30 @@ public final class VisorLayerC extends VisorLayer {
 		
 		this.output = new DenseTensor(outputShape);
 
-		// patterns: 2D Dirichlet for each color/channel
+		// patterns: 2D Dirichlet per color/channel
 		_patterns = new DenseTensor(
 				new Shape(
 						this.outputColorCount, 
 						this.inputChannelCount,
 						2));
+		
+		// patterns: initialize
+		final Random rnd = ThreadLocalRandom.current();
+		for (int idx=0; idx<_patterns.size; idx++) {
+			_patterns.set(idx, 
+					PATTERN_CHANNEL_ALPHA + 
+					rnd.nextDouble()*PATTERN_CHANNEL_ALPHA_NOISE);
+		}
 
-		// patterns: observation counts
-		_patternObs = new DenseTensor(
+		// pattern counts:
+		_patternCounts = new DenseTensor(
 				new Shape(
 						this.outputColorCount));
 		
-		// TODO: initialize patterns with prior noise
+		// pattern counts: initialize
+		for (int idx=0; idx<_patternCounts.size; idx++) {
+			_patternCounts.set(idx, PATTERN_ALPHA);
+		}
 	}
 	
 	public void setInput(final Tensor input) {
@@ -159,9 +172,8 @@ public final class VisorLayerC extends VisorLayer {
 				// calculate color log probs
 				for (int colorIdx=0; colorIdx<this.outputColorCount; colorIdx++) {
 					
-					// FIXME: need normalized?
 					// prior observation probability 
-					colors[colorIdx] += Math.log(_patternObs.get(colorIdx));
+					colors[colorIdx] += Math.log(_patternCounts.get(colorIdx));
 					
 					// set first pattern index
 					patternIndices[0] = colorIdx;
@@ -313,7 +325,7 @@ public final class VisorLayerC extends VisorLayer {
 					final double colorProb = this.output.get(outputLoc);
 
 					// add to pattern observations
-					_patternObs.add(colorIdx, colorProb);
+					_patternCounts.add(colorIdx, colorProb);
 
 					// update pattern channels
 					patternIndices[0] = colorIdx;
