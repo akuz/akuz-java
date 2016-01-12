@@ -6,6 +6,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import me.akuz.core.math.GammaFunction;
 import me.akuz.core.math.StatsUtils;
+import me.akuz.ml.tensors.AddTensor;
 import me.akuz.ml.tensors.DenseTensor;
 import me.akuz.ml.tensors.Location;
 import me.akuz.ml.tensors.Shape;
@@ -21,7 +22,7 @@ import me.akuz.ml.tensors.Tensor;
 public final class VisorLayerC extends VisorLayer {
 	
 	public static final double PATTERN_ALPHA = 1.0;
-	public static final double PATTERN_CHANNEL_ALPHA = 0.9;
+	public static final double PATTERN_CHANNEL_ALPHA = 1.0;
 	public static final double PATTERN_CHANNEL_ALPHA_NOISE = 0.1;
 
 	private Tensor _input;
@@ -105,30 +106,36 @@ public final class VisorLayerC extends VisorLayer {
 		
 		this.output = new DenseTensor(outputShape);
 
-		// patterns: 2D Dirichlet per color/channel
-		_patterns = new DenseTensor(
+		final Random rnd = ThreadLocalRandom.current();
+
+		// patterns: prior
+		Tensor patternsPrior = new DenseTensor(
 				new Shape(
 						this.outputColorCount, 
 						this.inputChannelCount,
 						2));
 		
-		// patterns: initialize
-		final Random rnd = ThreadLocalRandom.current();
-		for (int idx=0; idx<_patterns.size; idx++) {
-			_patterns.set(idx, 
+		// patterns: prior init
+		for (int idx=0; idx<patternsPrior.size; idx++) {
+			patternsPrior.set(idx, 
 					PATTERN_CHANNEL_ALPHA + 
 					rnd.nextDouble()*PATTERN_CHANNEL_ALPHA_NOISE);
 		}
-
-		// pattern counts:
-		_patternCounts = new DenseTensor(
-				new Shape(
-						this.outputColorCount));
 		
-		// pattern counts: initialize
-		for (int idx=0; idx<_patternCounts.size; idx++) {
-			_patternCounts.set(idx, PATTERN_ALPHA);
+		// patterns: posterior
+		_patterns = new AddTensor(patternsPrior);
+
+		// pattern probs: prior
+		Tensor patternCountsPrior = new DenseTensor(
+				new Shape(this.outputColorCount));
+		
+		// pattern probs: prior init
+		for (int idx=0; idx<patternCountsPrior.size; idx++) {
+			patternCountsPrior.set(idx, PATTERN_ALPHA);
 		}
+		
+		// pattern counts: posterior
+		_patternCounts = new AddTensor(patternCountsPrior);
 	}
 	
 	public void setInput(final Tensor input) {

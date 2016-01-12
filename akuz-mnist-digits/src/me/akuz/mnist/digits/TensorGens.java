@@ -5,7 +5,7 @@ import me.akuz.ml.tensors.Location;
 import me.akuz.ml.tensors.Shape;
 import me.akuz.ml.tensors.Tensor;
 
-public final class TensorGenerate {
+public final class TensorGens {
 
 	public static Tensor colourSineImage(int height, int width) {
 
@@ -18,7 +18,8 @@ public final class TensorGenerate {
 			for (int j=0; j<width; j++) {
 				final double x = (2*j - width)/(double)width;
 				
-				double radius = Math.pow(2*x*x + y*y, 0.95) * 10.0;
+				double ymul = y > 0 ? 1.0 : (1.0 - Math.pow(-y, 0.5));
+				double radius = Math.pow(2*x*x + ymul*y*y, 0.95) * 10.0;
 				double z = (1.01 + Math.cos(radius)) / 2.02;
 				
 				if (z <= 0.0 || z >= 1.0) {

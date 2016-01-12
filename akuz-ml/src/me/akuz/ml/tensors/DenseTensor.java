@@ -1,5 +1,7 @@
 package me.akuz.ml.tensors;
 
+import java.util.Arrays;
+
 /**
  * Dense tensor containing the data.
  * 
@@ -43,6 +45,11 @@ public final class DenseTensor extends Tensor {
 	@Override
 	public void add(final Location location, final double value) {
 		_data[this.shape.calcFlatIndexFromLocation(location)] += value;
+	}
+
+	@Override
+	public void fill(final double value) {
+		Arrays.fill(_data, value);
 	}
 	
 	public double[] data() {

@@ -103,4 +103,11 @@ public final class ViewTensor extends Tensor {
 		_underlying.add(calcUnderlyingFlatIndex(flatIndex), value);
 	}
 
+	@Override
+	public void fill(double value) {
+		for (int flatIndex=0; flatIndex<this.size; flatIndex++) {
+			_underlying.set(calcUnderlyingFlatIndex(flatIndex), value);
+		}
+	}
+
 }

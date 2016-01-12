@@ -12,7 +12,7 @@ import me.akuz.ml.tensors.Location;
 import me.akuz.ml.tensors.Shape;
 import me.akuz.ml.tensors.Tensor;
 
-public final class TensorSave {
+public final class TensorFiles {
 
 	public static void saveColourPNG(
 			final Tensor image,

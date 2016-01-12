@@ -29,13 +29,13 @@ public class ProgramVisor0 {
 		layer.setInput(dream);
 		layer.dream();
 		
-		TensorSave.saveColourPNG(dream, PREFIX + colorCount + ".png");
+		TensorFiles.saveColourPNG(dream, PREFIX + colorCount + ".png");
 	}
 	
 	public static void main(String[] args) throws IOException {
 		
-		final Tensor image = TensorGenerate.colourSineImage(150, 200);
-		TensorSave.saveColourPNG(image, PREFIX + "0.png");
+		final Tensor image = TensorGens.colourSineImage(150, 200);
+		TensorFiles.saveColourPNG(image, PREFIX + "0.png");
 		approximate(image, 6);
 		approximate(image, 5);
 		approximate(image, 4);

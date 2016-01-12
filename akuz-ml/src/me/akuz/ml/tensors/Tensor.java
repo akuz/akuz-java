@@ -60,6 +60,11 @@ public abstract class Tensor {
 	 */
 	public abstract void add(Location location, double value);
 	
+	/**
+	 * Fill tensor with the value.
+	 */
+	public abstract void fill(double value);
+	
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
