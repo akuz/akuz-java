@@ -348,5 +348,13 @@ public final class StatsUtils {
 			values[i] = newMin + (values[i] - minValue) / (maxValue - minValue) * (newMax - newMin);
 		}
 	}
+	
+	public static double checkFinite(final double value) {
+		if (!Double.isFinite(value)) {
+			throw new IllegalStateException(
+				"Value not finite: " + value);
+		}
+		return value;
+	}
 
 }

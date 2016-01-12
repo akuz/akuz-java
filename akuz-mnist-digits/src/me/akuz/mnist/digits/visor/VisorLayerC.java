@@ -133,7 +133,7 @@ public final class VisorLayerC extends VisorLayer {
 	
 	public void setInput(final Tensor input) {
 		if (input != null) {
-			if (this.inputShape.equals(input.shape)) {
+			if (!this.inputShape.equals(input.shape)) {
 				throw new IllegalArgumentException(
 					"Input shape " + input.shape + " doesn't match " +
 					"layer input shape " + this.inputShape);
@@ -173,7 +173,8 @@ public final class VisorLayerC extends VisorLayer {
 				for (int colorIdx=0; colorIdx<this.outputColorCount; colorIdx++) {
 					
 					// prior observation probability 
-					colors[colorIdx] += Math.log(_patternCounts.get(colorIdx));
+					colors[colorIdx] += StatsUtils.checkFinite(
+							Math.log(_patternCounts.get(colorIdx)));
 					
 					// set first pattern index
 					patternIndices[0] = colorIdx;
@@ -193,12 +194,12 @@ public final class VisorLayerC extends VisorLayer {
 						patternIndices[2] = 1;
 						final double alpha1 = _patterns.get(patternLocation);
 						
-						colors[colorIdx] += 
+						colors[colorIdx] += StatsUtils.checkFinite(
 								GammaFunction.lnGamma(alpha0 + alpha1) -
 								GammaFunction.lnGamma(alpha0) -
 								GammaFunction.lnGamma(alpha1) + 
 								(alpha0 - 1.0) * Math.log(value0) + 
-								(alpha1 - 1.0) * Math.log(value1);
+								(alpha1 - 1.0) * Math.log(value1));
 					}
 				}
 				

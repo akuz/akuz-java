@@ -19,9 +19,9 @@ public final class TensorGenerate {
 				final double x = (2*j - width)/(double)width;
 				
 				double radius = Math.pow(2*x*x + y*y, 0.95) * 10.0;
-				double z = (1.0 + Math.cos(radius)) / 2.0;
+				double z = (1.01 + Math.cos(radius)) / 2.02;
 				
-				if (z < 0.0 || z > 1.0) {
+				if (z <= 0.0 || z >= 1.0) {
 					throw new IllegalStateException("Bad function: " + z);
 				}
 
