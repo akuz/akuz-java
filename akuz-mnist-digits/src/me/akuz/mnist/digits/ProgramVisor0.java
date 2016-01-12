@@ -30,6 +30,8 @@ public class ProgramVisor0 {
 		layer.dream();
 		
 		TensorFiles.saveColourPNG(dream, PREFIX + colorCount + ".png");
+		
+		layer.print();
 	}
 	
 	public static void main(String[] args) throws IOException {

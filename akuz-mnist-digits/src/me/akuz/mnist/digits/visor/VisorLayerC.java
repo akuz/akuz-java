@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
+import me.akuz.core.StringUtils;
 import me.akuz.core.math.GammaFunction;
 import me.akuz.core.math.StatsUtils;
 import me.akuz.ml.tensors.AddTensor;
@@ -355,6 +356,13 @@ public final class VisorLayerC extends VisorLayer {
 				}
 			}
 		}
+	}
+	
+	public void print() {
+		System.out.println("------ pattern probs ------");
+		System.out.println(_patternCounts.toString());
+		System.out.println("------ patterns ------");
+		System.out.println(_patterns.toString());
 	}
 
 }
