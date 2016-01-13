@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
-import me.akuz.core.StringUtils;
 import me.akuz.core.math.GammaFunction;
 import me.akuz.core.math.StatsUtils;
 import me.akuz.ml.tensors.AddTensor;
@@ -21,6 +20,9 @@ import me.akuz.ml.tensors.Tensor;
  *
  */
 public final class VisorLayerC extends VisorLayer {
+
+	public static final double HDP_ALPHA = 1.0;
+	public static final double LOG_INSURANCE = 1e-24;
 	
 	public static final double PATTERN_ALPHA = 1.0;
 	public static final double PATTERN_CHANNEL_ALPHA = 1.0;
