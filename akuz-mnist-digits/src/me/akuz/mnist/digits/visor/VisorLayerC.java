@@ -21,16 +21,17 @@ import me.akuz.ml.tensors.Tensor;
  */
 public final class VisorLayerC extends VisorLayer {
 
-	public static final double HDP_ALPHA = 1.0;
-	public static final double LOG_INSURANCE = 1e-24;
-	
-	public static final double PATTERN_ALPHA = 1.0;
-	public static final double PATTERN_CHANNEL_ALPHA = 1.0;
-	public static final double PATTERN_CHANNEL_ALPHA_NOISE = 0.1;
+	// base distribution for colors
+	public static final double COLOR_BASE_DIR_ALPHA = 1.0;
+	public static final double COLOR_BASE_DIR_NOISE = 0.1;
+
+	// base distribution for channels within colors
+	public static final double CHANNEL_BASE_DIR_ALPHA = 1.0;
+	public static final double CHANNEL_BASE_DIR_NOISE = 0.1;
 
 	private Tensor _input;
-	private Tensor _patterns;
-	private Tensor _patternCounts;
+	private Tensor _colors;
+	private Tensor _colorCounts;
 
 	/**
 	 * Height of the input image tensor (size of dim 0).
@@ -111,34 +112,36 @@ public final class VisorLayerC extends VisorLayer {
 
 		final Random rnd = ThreadLocalRandom.current();
 
-		// patterns: prior
-		Tensor patternsPrior = new DenseTensor(
+		// colors: prior
+		final Tensor colorsPrior = new DenseTensor(
 				new Shape(
 						this.outputColorCount, 
 						this.inputChannelCount,
 						2));
 		
-		// patterns: prior init
-		for (int idx=0; idx<patternsPrior.size; idx++) {
-			patternsPrior.set(idx, 
-					PATTERN_CHANNEL_ALPHA + 
-					rnd.nextDouble()*PATTERN_CHANNEL_ALPHA_NOISE);
+		// colors: prior init
+		for (int idx=0; idx<colorsPrior.size; idx++) {
+			colorsPrior.set(idx, 
+					CHANNEL_BASE_DIR_ALPHA + 
+					rnd.nextDouble()*CHANNEL_BASE_DIR_NOISE);
 		}
 		
-		// patterns: posterior
-		_patterns = new AddTensor(patternsPrior);
+		// colors: posterior
+		_colors = new AddTensor(colorsPrior);
 
-		// pattern probs: prior
-		Tensor patternCountsPrior = new DenseTensor(
+		// color counts: prior
+		final Tensor colorCountsPrior = new DenseTensor(
 				new Shape(this.outputColorCount));
 		
-		// pattern probs: prior init
-		for (int idx=0; idx<patternCountsPrior.size; idx++) {
-			patternCountsPrior.set(idx, PATTERN_ALPHA);
+		// color counts: prior init
+		for (int idx=0; idx<colorCountsPrior.size; idx++) {
+			colorCountsPrior.set(idx, 
+					COLOR_BASE_DIR_ALPHA + 
+					rnd.nextDouble()*COLOR_BASE_DIR_NOISE);
 		}
 		
-		// pattern counts: posterior
-		_patternCounts = new AddTensor(patternCountsPrior);
+		// color counts: posterior
+		_colorCounts = new AddTensor(colorCountsPrior);
 	}
 	
 	public void setInput(final Tensor input) {
@@ -159,20 +162,20 @@ public final class VisorLayerC extends VisorLayer {
 			throw new IllegalStateException(
 				"Input image not set, cannot infer colors");
 		}
-		final int[] inputIndices = new int[3];
-		final int[] outputIndices = new int[3];
-		final int[] patternIndices = new int[3];
-		final Location inputLocation = new Location(inputIndices);
-		final Location outputLocation = new Location(outputIndices);
-		final Location patternLocation = new Location(patternIndices);
+		final int[] inputIdxs = new int[3];
+		final int[] outputIdxs = new int[3];
+		final int[] colorIdxs = new int[3];
+		final Location inputLoc = new Location(inputIdxs);
+		final Location outputLoc = new Location(outputIdxs);
+		final Location colorLoc = new Location(colorIdxs);
 		final double[] colors = new double[this.outputColorCount];
 		for (int i=0; i<this.inputHeight;i++) {
-			inputIndices[0] = i;
-			outputIndices[0] = i;
+			inputIdxs[0] = i;
+			outputIdxs[0] = i;
 			
 			for (int j=0; j<this.inputWidth; j++) {
-				inputIndices[1] = j;
-				outputIndices[1] = j;
+				inputIdxs[1] = j;
+				outputIdxs[1] = j;
 				
 				// FIXME: add "dreamed" prior from above
 				
@@ -184,25 +187,25 @@ public final class VisorLayerC extends VisorLayer {
 					
 					// prior observation probability 
 					colors[colorIdx] += StatsUtils.checkFinite(
-							Math.log(_patternCounts.get(colorIdx)));
+							Math.log(_colorCounts.get(colorIdx)));
 					
-					// set first pattern index
-					patternIndices[0] = colorIdx;
+					// set first color index
+					colorIdxs[0] = colorIdx;
 					
 					// now add channel observations probability
 					for (int channelIdx=0; channelIdx<this.inputChannelCount; channelIdx++) {
 						
-						inputIndices[2] = channelIdx;
-						patternIndices[1] = channelIdx;
+						inputIdxs[2] = channelIdx;
+						colorIdxs[1] = channelIdx;
 						
-						final double value1 = input.get(inputLocation);
+						final double value1 = input.get(inputLoc);
 						final double value0 = 1.0 - value1;
 						
-						patternIndices[2] = 0;
-						final double alpha0 = _patterns.get(patternLocation);
+						colorIdxs[2] = 0;
+						final double alpha0 = _colors.get(colorLoc);
 						
-						patternIndices[2] = 1;
-						final double alpha1 = _patterns.get(patternLocation);
+						colorIdxs[2] = 1;
+						final double alpha1 = _colors.get(colorLoc);
 						
 						colors[colorIdx] += StatsUtils.checkFinite(
 								GammaFunction.lnGamma(alpha0 + alpha1) -
@@ -220,8 +223,8 @@ public final class VisorLayerC extends VisorLayer {
 				for (int colorIdx=0; colorIdx<this.outputColorCount; colorIdx++) {
 					
 					// populate color prob
-					outputIndices[2] = colorIdx;
-					this.output.set(outputLocation, colors[colorIdx]);
+					outputIdxs[2] = colorIdx;
+					this.output.set(outputLoc, colors[colorIdx]);
 				}
 			}
 		}
@@ -235,20 +238,20 @@ public final class VisorLayerC extends VisorLayer {
 			throw new IllegalStateException(
 				"Input image not set, cannot dream colors");
 		}
-		final int[] inputIndices = new int[3];
-		final int[] outputIndices = new int[3];
-		final int[] patternIndices = new int[3];
-		final Location inputLocation = new Location(inputIndices);
-		final Location outputLocation = new Location(outputIndices);
-		final Location patternLocation = new Location(patternIndices);
+		final int[] inputIdxs = new int[3];
+		final int[] outputIdxs = new int[3];
+		final int[] colorIdxs = new int[3];
+		final Location inputLoc = new Location(inputIdxs);
+		final Location outputLoc = new Location(outputIdxs);
+		final Location colorLoc = new Location(colorIdxs);
 		final double[] channels = new double[this.inputChannelCount];
 		for (int i=0; i<this.inputHeight;i++) {
-			inputIndices[0] = i;
-			outputIndices[0] = i;
+			inputIdxs[0] = i;
+			outputIdxs[0] = i;
 			
 			for (int j=0; j<this.inputWidth; j++) {
-				inputIndices[1] = j;
-				outputIndices[1] = j;
+				inputIdxs[1] = j;
+				outputIdxs[1] = j;
 				
 				// reset channels array
 				Arrays.fill(channels, 0.0);
@@ -257,22 +260,22 @@ public final class VisorLayerC extends VisorLayer {
 				for (int colorIdx=0; colorIdx<this.outputColorCount; colorIdx++) {
 					
 					// get output color prob
-					outputIndices[2] = colorIdx;
-					final double colorProb = this.output.get(outputLocation);
+					outputIdxs[2] = colorIdx;
+					final double colorProb = this.output.get(outputLoc);
 					
-					// aggregate pattern channels
-					patternIndices[0] = colorIdx;
+					// aggregate color channels
+					colorIdxs[0] = colorIdx;
 					
 					// now add channel observations probability
 					for (int channelIdx=0; channelIdx<this.inputChannelCount; channelIdx++) {
 						
-						patternIndices[1] = channelIdx;
+						colorIdxs[1] = channelIdx;
 						
-						patternIndices[2] = 0;
-						final double alpha0 = _patterns.get(patternLocation);
+						colorIdxs[2] = 0;
+						final double alpha0 = _colors.get(colorLoc);
 						
-						patternIndices[2] = 1;
-						final double alpha1 = _patterns.get(patternLocation);
+						colorIdxs[2] = 1;
+						final double alpha1 = _colors.get(colorLoc);
 						
 						// calculate probability of 1
 						final double value1 = alpha1 / (alpha0 + alpha1);
@@ -286,8 +289,8 @@ public final class VisorLayerC extends VisorLayer {
 				for (int channelIdx=0; channelIdx<this.inputChannelCount; channelIdx++) {
 					
 					// populate channel value
-					inputIndices[2] = channelIdx;
-					input.set(inputLocation, channels[channelIdx]);
+					inputIdxs[2] = channelIdx;
+					input.set(inputLoc, channels[channelIdx]);
 				}
 			}
 		}
@@ -296,64 +299,70 @@ public final class VisorLayerC extends VisorLayer {
 	@Override
 	public void learn() {
 		
-		int[] inputIndices = new int[3];
-		int[] outputIndices = new int[3];
-		int[] patternIndices = new int[3];
-		Location inputLoc = new Location(inputIndices);
-		Location outputLoc = new Location(outputIndices);
-		Location patternLoc = new Location(patternIndices);
+		final Tensor input = _input;
+		if (input == null) {
+			throw new IllegalStateException(
+				"Input image not set, cannot learn colors");
+		}
+
+		final int[] inputIdxs = new int[3];
+		final int[] outputIdxs = new int[3];
+		final int[] colorIdxs = new int[3];
+		final Location inputLoc = new Location(inputIdxs);
+		final Location outputLoc = new Location(outputIdxs);
+		final Location colorLoc = new Location(colorIdxs);
 		
-		double[] channelValues = new double[this.inputChannelCount];
+		final double[] channels = new double[this.inputChannelCount];
 
 		for (int i=0; i<this.inputHeight; i++) {
-			inputIndices[0] = i;
-			outputIndices[0] = i;
+			inputIdxs[0] = i;
+			outputIdxs[0] = i;
 			
 			for (int j=0; j<this.inputWidth; j++) {
-				inputIndices[1] = j;
-				outputIndices[1] = j;
+				inputIdxs[1] = j;
+				outputIdxs[1] = j;
 
 				// collect channel values
 				for (int channelIdx=0; channelIdx<this.inputChannelCount; channelIdx++) {
 					
-					inputIndices[2] = channelIdx;
+					inputIdxs[2] = channelIdx;
 					
-					final double channelValue = this._input.get(inputLoc);
-					if (channelValue < 0.0 || channelValue > 1.0) {
+					final double channel = input.get(inputLoc);
+					if (channel < 0.0 || channel > 1.0) {
 						throw new IllegalStateException(
-							"Input image can only contain values " +
-							"within interval [0, 1], got " + channelValue);
+							"Input image channels can only contain values " +
+							"within interval [0, 1], got " + channel);
 					}
 					
-					channelValues[channelIdx] = channelValue;
+					channels[channelIdx] = channel;
 				}
 				
-				// update patterns for each color
+				// update each color
 				for (int colorIdx=0; colorIdx<this.outputColorCount; colorIdx++) {
 					
 					// get output color prob
-					outputIndices[2] = colorIdx;
+					outputIdxs[2] = colorIdx;
 					final double colorProb = this.output.get(outputLoc);
 
-					// add to pattern observations
-					_patternCounts.add(colorIdx, colorProb);
+					// add to color counts
+					_colorCounts.add(colorIdx, colorProb);
 
-					// update pattern channels
-					patternIndices[0] = colorIdx;
+					// update color channels
+					colorIdxs[0] = colorIdx;
 					for (int channelIdx=0; channelIdx<this.inputChannelCount; channelIdx++) {
 						
-						patternIndices[1] = channelIdx;
+						colorIdxs[1] = channelIdx;
 
 						// get channel value at this point
-						final double channelValue = channelValues[channelIdx];
+						final double channel = channels[channelIdx];
 
 						// update dim 0
-						patternIndices[2] = 0;
-						_patterns.add(patternLoc, colorProb*(1.0 - channelValue));
+						colorIdxs[2] = 0;
+						_colors.add(colorLoc, colorProb*(1.0 - channel));
 						
 						// update dim 1
-						patternIndices[2] = 1;
-						_patterns.add(patternLoc, colorProb*channelValue);
+						colorIdxs[2] = 1;
+						_colors.add(colorLoc, colorProb*channel);
 					}
 				}
 			}
@@ -361,10 +370,10 @@ public final class VisorLayerC extends VisorLayer {
 	}
 	
 	public void print() {
-		System.out.println("------ pattern probs ------");
-		System.out.println(_patternCounts.toString());
-		System.out.println("------ patterns ------");
-		System.out.println(_patterns.toString());
+		System.out.println("------ color counts ------");
+		System.out.println(_colorCounts.toString());
+		System.out.println("------ colors ------");
+		System.out.println(_colors.toString());
 	}
 
 }
