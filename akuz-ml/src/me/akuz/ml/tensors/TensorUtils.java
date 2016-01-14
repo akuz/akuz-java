@@ -21,6 +21,17 @@ public final class TensorUtils {
 				"Must specify at least one value in the int array");
 		}
 	}
+	
+	public static final int[] unwrapIntegerArray(final Integer[] values) {
+		if (values == null) {
+			throw new NullPointerException("values");
+		}
+		int[] result = new int[values.length];
+		for (int i=0; i<values.length; i++) {
+			result[i] = values[i];
+		}
+		return result;
+	}
 
 	public static final void checkNdimsMatch(
 			final int expected, 

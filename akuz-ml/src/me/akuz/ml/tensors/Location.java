@@ -29,12 +29,7 @@ public final class Location {
 	 * Create location from specified indices.
 	 */
 	public Location(Integer... indices) {
-		TensorUtils.checkNotEmpty(indices);
-		this.ndim = indices.length;
-		this.indices = new int[indices.length];
-		for (int i=0; i<indices.length; i++) {
-			this.indices[i] = indices[i];
-		}
+		this(TensorUtils.unwrapIntegerArray(indices));
 	}
 	
 	@Override

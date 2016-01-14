@@ -26,18 +26,18 @@ public final class Shape {
 	 */
 	public final int[] multipliers;
 	
+	
 	/**
 	 * Create a shape with the specified 
-	 * sizes for each dimension.
+	 * array of sizes for each dimension.
 	 */
-	public Shape(Integer... sizes) {
+	public Shape(int[] sizes) {
 		TensorUtils.checkNotEmpty(sizes);
 		this.ndim = sizes.length;
-		this.sizes = new int[sizes.length];
+		this.sizes = sizes;
 		int size = 1;
 		for (int i=0; i<sizes.length; i++) {
 			final int dim_size = sizes[i];
-			this.sizes[i] = dim_size;
 			size *= dim_size;
 		}
 		this.multipliers = new int[sizes.length];
@@ -45,7 +45,15 @@ public final class Shape {
 		for (int i=sizes.length-2; i>=0; i--) {
 			this.multipliers[i] = this.multipliers[i+1] * sizes[i+1];
 		}
-		this.size = size;
+		this.size = size;		
+	}
+	
+	/**
+	 * Create a shape with the specified 
+	 * sizes for each dimension.
+	 */
+	public Shape(Integer... sizes) {
+		this(TensorUtils.unwrapIntegerArray(sizes));
 	}
 	
 	/**
