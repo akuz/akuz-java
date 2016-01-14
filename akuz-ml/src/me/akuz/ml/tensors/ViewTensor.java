@@ -89,6 +89,13 @@ public final class ViewTensor extends Tensor {
 	}
 
 	@Override
+	public void mul(final Location location, final double value) {
+		_underlying.mul(calcUnderlyingFlatIndex(
+				this.shape.calcFlatIndexFromLocation(
+						location)), value);
+	}
+
+	@Override
 	public double get(int flatIndex) {
 		return _underlying.get(calcUnderlyingFlatIndex(flatIndex));
 	}
@@ -101,6 +108,11 @@ public final class ViewTensor extends Tensor {
 	@Override
 	public void add(int flatIndex, double value) {
 		_underlying.add(calcUnderlyingFlatIndex(flatIndex), value);
+	}
+
+	@Override
+	public void mul(int flatIndex, double value) {
+		_underlying.mul(calcUnderlyingFlatIndex(flatIndex), value);
 	}
 
 	@Override

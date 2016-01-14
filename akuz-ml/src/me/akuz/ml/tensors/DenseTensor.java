@@ -18,11 +18,6 @@ public final class DenseTensor extends Tensor {
 	}
 
 	@Override
-	public double get(final Location location) {
-		return _data[this.shape.calcFlatIndexFromLocation(location)];
-	}
-
-	@Override
 	public double get(int flatIndex) {
 		return _data[flatIndex];
 	}
@@ -33,8 +28,8 @@ public final class DenseTensor extends Tensor {
 	}
 
 	@Override
-	public void set(final Location location, final double value) {
-		_data[this.shape.calcFlatIndexFromLocation(location)] = value;
+	public double get(final Location location) {
+		return _data[this.shape.calcFlatIndexFromLocation(location)];
 	}
 
 	@Override
@@ -43,8 +38,23 @@ public final class DenseTensor extends Tensor {
 	}
 
 	@Override
+	public void mul(int flatIndex, double value) {
+		_data[flatIndex] *= value;
+	}
+
+	@Override
+	public void set(final Location location, final double value) {
+		_data[this.shape.calcFlatIndexFromLocation(location)] = value;
+	}
+
+	@Override
 	public void add(final Location location, final double value) {
 		_data[this.shape.calcFlatIndexFromLocation(location)] += value;
+	}
+
+	@Override
+	public void mul(final Location location, final double value) {
+		_data[this.shape.calcFlatIndexFromLocation(location)] *= value;
 	}
 
 	@Override

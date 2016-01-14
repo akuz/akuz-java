@@ -63,6 +63,16 @@ public abstract class Tensor {
 	 * Add the value by tensor location.
 	 */
 	public abstract void add(Location location, double value);
+
+	/**
+	 * Multiply with the value by flat index.
+	 */
+	public abstract void mul(int flatIndex, double value);
+	
+	/**
+	 * Multiply with the value by tensor location.
+	 */
+	public abstract void mul(Location location, double value);
 	
 	/**
 	 * Fill tensor with the value.

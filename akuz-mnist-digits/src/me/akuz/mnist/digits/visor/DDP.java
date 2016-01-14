@@ -58,11 +58,17 @@ public final class DDP {
 			// normalize the last dimension
 			if (indices[lastDim] == lastDimIdx) {
 				
+				if (lastDimSum <= 0.0) {
+					throw new IllegalStateException(
+						"Sum across last dimension must be > 0, " + 
+						"but got " + lastDimSum);
+				}
+				
 				// re-loop last dimension
+				final double normalizer = 1.0 / lastDimSum;
 				for (int i=0; i<=lastDimIdx; i++) {
 					indices[lastDim] = i;
-					// FIXME
-					// base.div(lastDimSum);
+					base.mul(loc, normalizer);
 				}
 				
 				// reset last dimension sum

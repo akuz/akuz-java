@@ -6,7 +6,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import me.akuz.core.math.GammaFunction;
 import me.akuz.core.math.StatsUtils;
-import me.akuz.ml.tensors.AddTensor;
 import me.akuz.ml.tensors.DenseTensor;
 import me.akuz.ml.tensors.Location;
 import me.akuz.ml.tensors.Shape;
@@ -117,36 +116,29 @@ public final class VisorLayerC extends VisorLayer {
 		final Random rnd = ThreadLocalRandom.current();
 
 		// color counts: prior
-		final Tensor colorCountsPrior = new DenseTensor(
+		_colorCounts = new DenseTensor(
 				new Shape(this.outputColorCount));
 		
 		// color counts: prior init
-		for (int idx=0; idx<colorCountsPrior.size; idx++) {
-			colorCountsPrior.set(idx, 
+		for (int idx=0; idx<_colorCounts.size; idx++) {
+			_colorCounts.set(idx, 
 					PIXEL_COLOR_DP_BASE_INIT + 
 					rnd.nextDouble()*PIXEL_COLOR_DP_BASE_NOISE);
 		}
 		
-		// color counts: posterior
-		_colorCounts = new AddTensor(colorCountsPrior);
-		
 		// color-channel counts: prior
-		final Tensor colorChannelCountsPrior = new DenseTensor(
+		_colorChannelCounts = new DenseTensor(
 				new Shape(
 						this.outputColorCount, 
 						this.inputChannelCount,
 						2));
 		
 		// color-channel counts: prior init
-		for (int idx=0; idx<colorChannelCountsPrior.size; idx++) {
-			colorChannelCountsPrior.set(idx, 
+		for (int idx=0; idx<_colorChannelCounts.size; idx++) {
+			_colorChannelCounts.set(idx, 
 					CHANNEL_DP_BASE_INIT + 
 					rnd.nextDouble()*CHANNEL_DP_BASE_NOISE);
 		}
-		
-		// color-channel counts: posterior
-		_colorChannelCounts = new AddTensor(colorChannelCountsPrior);
-
 	}
 	
 	public void setInput(final Tensor input) {
