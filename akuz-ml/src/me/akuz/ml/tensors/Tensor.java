@@ -1,10 +1,14 @@
 package me.akuz.ml.tensors;
 
+import java.text.DecimalFormat;
+
 /**
  * Base class for tensors.
  * 
  */
 public abstract class Tensor {
+	
+	public static final DecimalFormat DF = new DecimalFormat("#.########");
 	
 	/**
 	 * Number of dimensions.
@@ -68,36 +72,22 @@ public abstract class Tensor {
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
-		final int[] stack = new int[this.ndim];
-		final Location loc = new Location(stack);
-		while (true) {
+		final TensorIterator it = new TensorIterator(this.shape);
+		while (it.next()) {
+			
+			final Location loc = it.loc();
+			final int[] idxs = loc.indices;
 			
 			sb.append("[");
 			for (int i=0; i<this.ndim; i++) {
 				if (i != 0) {
 					sb.append(",");
 				}
-				sb.append(stack[i]);
+				sb.append(idxs[i]);
 			}
 			sb.append("]: ");
-			sb.append(this.get(loc));
+			sb.append(DF.format(this.get(loc)));
 			sb.append(System.lineSeparator());
-			
-			boolean keepGoing = false;
-			for (int i=this.ndim-1; i>=0; i--) {
-				stack[i] += 1;
-				if (stack[i] < this.shape.sizes[i]) {
-					keepGoing = true;
-					break;
-				}
-				else {
-					stack[i] = 0;
-				}
-			}
-			
-			if (!keepGoing) {
-				break;
-			}
 		}
 		return sb.toString();
 	}

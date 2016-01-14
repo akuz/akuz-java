@@ -27,7 +27,7 @@ public abstract class VisorLayer {
 	 * Infer the probabilities of the hidden variables, 
 	 * based on the current states of the other layers.
 	 */
-	public abstract void infer();
+	public abstract void infer(boolean useOutputAsBaseDist);
 
 	/**
 	 * Dream the values in the lower layer, given the 

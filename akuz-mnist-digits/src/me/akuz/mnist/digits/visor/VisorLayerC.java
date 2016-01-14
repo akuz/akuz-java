@@ -21,17 +21,21 @@ import me.akuz.ml.tensors.Tensor;
  */
 public final class VisorLayerC extends VisorLayer {
 
-	// base distribution for colors
-	public static final double COLOR_BASE_DIR_ALPHA = 1.0;
-	public static final double COLOR_BASE_DIR_NOISE = 0.1;
+	// base distribution a color at each pixel
+	public static final double PIXEL_COLOR_DP_BASE_INIT      = 1.0;
+	public static final double PIXEL_COLOR_DP_BASE_NOISE     = 0.1;
+	public static final double PIXEL_COLOR_DP_BASE_WEIGHT    = 10.0;
+	public static final double PIXEL_COLOR_DP_MAX_OBS_WEIGHT = 90.0;
 
-	// base distribution for channels within colors
-	public static final double CHANNEL_BASE_DIR_ALPHA = 1.0;
-	public static final double CHANNEL_BASE_DIR_NOISE = 0.1;
+	// base distribution for a channel in each color
+	public static final double CHANNEL_DP_BASE_INIT      = 1.0;
+	public static final double CHANNEL_DP_BASE_NOISE     = 0.1;
+	public static final double CHANNEL_DP_BASE_WEIGHT    = 10.0;
+	public static final double CHANNEL_DP_MAX_OBS_WEIGHT = 90.0;
 
 	private Tensor _input;
-	private Tensor _colors;
 	private Tensor _colorCounts;
+	private Tensor _colorChannelCounts;
 
 	/**
 	 * Height of the input image tensor (size of dim 0).
@@ -112,23 +116,6 @@ public final class VisorLayerC extends VisorLayer {
 
 		final Random rnd = ThreadLocalRandom.current();
 
-		// colors: prior
-		final Tensor colorsPrior = new DenseTensor(
-				new Shape(
-						this.outputColorCount, 
-						this.inputChannelCount,
-						2));
-		
-		// colors: prior init
-		for (int idx=0; idx<colorsPrior.size; idx++) {
-			colorsPrior.set(idx, 
-					CHANNEL_BASE_DIR_ALPHA + 
-					rnd.nextDouble()*CHANNEL_BASE_DIR_NOISE);
-		}
-		
-		// colors: posterior
-		_colors = new AddTensor(colorsPrior);
-
 		// color counts: prior
 		final Tensor colorCountsPrior = new DenseTensor(
 				new Shape(this.outputColorCount));
@@ -136,12 +123,30 @@ public final class VisorLayerC extends VisorLayer {
 		// color counts: prior init
 		for (int idx=0; idx<colorCountsPrior.size; idx++) {
 			colorCountsPrior.set(idx, 
-					COLOR_BASE_DIR_ALPHA + 
-					rnd.nextDouble()*COLOR_BASE_DIR_NOISE);
+					PIXEL_COLOR_DP_BASE_INIT + 
+					rnd.nextDouble()*PIXEL_COLOR_DP_BASE_NOISE);
 		}
 		
 		// color counts: posterior
 		_colorCounts = new AddTensor(colorCountsPrior);
+		
+		// color-channel counts: prior
+		final Tensor colorChannelCountsPrior = new DenseTensor(
+				new Shape(
+						this.outputColorCount, 
+						this.inputChannelCount,
+						2));
+		
+		// color-channel counts: prior init
+		for (int idx=0; idx<colorChannelCountsPrior.size; idx++) {
+			colorChannelCountsPrior.set(idx, 
+					CHANNEL_DP_BASE_INIT + 
+					rnd.nextDouble()*CHANNEL_DP_BASE_NOISE);
+		}
+		
+		// color-channel counts: posterior
+		_colorChannelCounts = new AddTensor(colorChannelCountsPrior);
+
 	}
 	
 	public void setInput(final Tensor input) {
@@ -156,12 +161,14 @@ public final class VisorLayerC extends VisorLayer {
 	}
 
 	@Override
-	public void infer() {
+	public void infer(final boolean useOutputAsBaseDist) {
+		
 		final Tensor input = _input;
 		if (input == null) {
 			throw new IllegalStateException(
 				"Input image not set, cannot infer colors");
 		}
+		
 		final int[] inputIdxs = new int[3];
 		final int[] outputIdxs = new int[3];
 		final int[] colorIdxs = new int[3];
@@ -176,8 +183,6 @@ public final class VisorLayerC extends VisorLayer {
 			for (int j=0; j<this.inputWidth; j++) {
 				inputIdxs[1] = j;
 				outputIdxs[1] = j;
-				
-				// FIXME: add "dreamed" prior from above
 				
 				// reset colors array
 				Arrays.fill(colors, 0.0);
@@ -202,10 +207,10 @@ public final class VisorLayerC extends VisorLayer {
 						final double value0 = 1.0 - value1;
 						
 						colorIdxs[2] = 0;
-						final double alpha0 = _colors.get(colorLoc);
+						final double alpha0 = _colorChannelCounts.get(colorLoc);
 						
 						colorIdxs[2] = 1;
-						final double alpha1 = _colors.get(colorLoc);
+						final double alpha1 = _colorChannelCounts.get(colorLoc);
 						
 						colors[colorIdx] += StatsUtils.checkFinite(
 								GammaFunction.lnGamma(alpha0 + alpha1) -
@@ -238,6 +243,7 @@ public final class VisorLayerC extends VisorLayer {
 			throw new IllegalStateException(
 				"Input image not set, cannot dream colors");
 		}
+		
 		final int[] inputIdxs = new int[3];
 		final int[] outputIdxs = new int[3];
 		final int[] colorIdxs = new int[3];
@@ -272,10 +278,10 @@ public final class VisorLayerC extends VisorLayer {
 						colorIdxs[1] = channelIdx;
 						
 						colorIdxs[2] = 0;
-						final double alpha0 = _colors.get(colorLoc);
+						final double alpha0 = _colorChannelCounts.get(colorLoc);
 						
 						colorIdxs[2] = 1;
-						final double alpha1 = _colors.get(colorLoc);
+						final double alpha1 = _colorChannelCounts.get(colorLoc);
 						
 						// calculate probability of 1
 						final double value1 = alpha1 / (alpha0 + alpha1);
@@ -358,11 +364,11 @@ public final class VisorLayerC extends VisorLayer {
 
 						// update dim 0
 						colorIdxs[2] = 0;
-						_colors.add(colorLoc, colorProb*(1.0 - channel));
+						_colorChannelCounts.add(colorLoc, colorProb*(1.0 - channel));
 						
 						// update dim 1
 						colorIdxs[2] = 1;
-						_colors.add(colorLoc, colorProb*channel);
+						_colorChannelCounts.add(colorLoc, colorProb*channel);
 					}
 				}
 			}
@@ -373,7 +379,7 @@ public final class VisorLayerC extends VisorLayer {
 		System.out.println("------ color counts ------");
 		System.out.println(_colorCounts.toString());
 		System.out.println("------ colors ------");
-		System.out.println(_colors.toString());
+		System.out.println(_colorChannelCounts.toString());
 	}
 
 }

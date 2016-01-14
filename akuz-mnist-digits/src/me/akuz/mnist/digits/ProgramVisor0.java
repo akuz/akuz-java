@@ -20,7 +20,7 @@ public class ProgramVisor0 {
 		
 		for (int i=0; i<colorCount*10; i++) {
 			System.out.println(i);
-			layer.infer();
+			layer.infer(false);
 			layer.learn();
 		}
 		
