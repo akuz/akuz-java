@@ -38,11 +38,9 @@ public class ProgramVisor0 {
 		
 		final Tensor image = TensorGens.colourSineImage(150, 200);
 		TensorFiles.saveColourPNG(image, PREFIX + "0.png");
-		approximate(image, 6);
-		approximate(image, 5);
-		approximate(image, 4);
-		approximate(image, 3);
-		approximate(image, 2);
+		for (int colorCount=2; colorCount<=16; colorCount*=2) {
+			approximate(image, colorCount);
+		}
 	}
 
 }

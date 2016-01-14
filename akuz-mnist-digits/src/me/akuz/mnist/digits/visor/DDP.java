@@ -146,9 +146,15 @@ public final class DDP {
 		// write the data, crash on out of bounds if passed data is bad
 		for (int i=0; i<_lastDimSize; i++) {
 			
+			final double prob = obsData[obsDataIndex];
+			
+			if (prob < 0.0 || prob > 1.0) {
+				throw new IllegalStateException("prob " + prob);
+			}
+			
 			_obs.add(
 					writeIndex, 
-					mass*obsData[obsDataIndex]);
+					mass*prob);
 
 			++obsDataIndex;
 			++writeIndex;
@@ -168,7 +174,7 @@ public final class DDP {
 	 * WARNING: the obsData must be the data of a
 	 * tensor with the LAST dimension to sample.
 	 */
-	public double posteriorLogLike(
+	public double calcPosteriorLogLike(
 			final Location subLoc,
 			final double[] obsData,
 			int obsDataIndex) {
@@ -181,21 +187,6 @@ public final class DDP {
 			obsMass = _obsMass.get(subLoc);
 		}
 		
-		// observations threshold
-		final double adjMultiplier;
-		final double adjObsMass;
-		if (obsMass > _maxObsMass) {
-
-			// discount observed sums by overshoot
-			adjMultiplier = _maxObsMass / obsMass;
-			adjObsMass = _maxObsMass;
-			
-		} else {
-			
-			adjMultiplier = 1.0;
-			adjObsMass = obsMass;
-		}
-		
 		// calculate read start index
 		final int [] readIndices = Arrays.copyOf(subLoc.indices, _ndim);
 		final Location readLocation = new Location(readIndices);
@@ -203,7 +194,7 @@ public final class DDP {
 		
 		// calculate posterior dirichlet alpha
 		final double a = _baseMass;
-		final double n = adjObsMass;
+		final double n = obsMass > _maxObsMass ? _maxObsMass : obsMass;
 		final double a_plus_n = a + n;
 		final double posterior_dp_alpha = a_plus_n;
 		
@@ -218,12 +209,12 @@ public final class DDP {
 			
 			// read the values at index
 			final double baseIdxMass = _base.get(readIndex);
-			final double adjObsIdxMass = adjMultiplier*_obs.get(readIndex);
+			final double obsIdxMass = obsMass > 0 ? _obs.get(readIndex)/obsMass : 0.0;
 			final double obsValue = obsData[obsDataIndex];
 			
 			final double posterior_dp_mass =
 					a / a_plus_n * baseIdxMass +
-					n / a_plus_n * adjObsIdxMass;
+					n / a_plus_n * obsIdxMass;
 			
 			final double posteriorDirAlpha =
 					posterior_dp_alpha *
@@ -244,4 +235,46 @@ public final class DDP {
 		return logLike;
 	}
 
+	// FIXME: unify with above
+	public void calcPosteriorMean(
+			final Location subLoc,
+			final double[] obsData,
+			int obsDataIndex) {
+
+		// handle root
+		final double obsMass; 
+		if (_ndim == 1) {
+			obsMass = _obsMass.get(0);
+		} else {
+			obsMass = _obsMass.get(subLoc);
+		}
+		
+		// calculate read start index
+		final int [] readIndices = Arrays.copyOf(subLoc.indices, _ndim);
+		final Location readLocation = new Location(readIndices);
+		int readIndex = _shape.calcFlatIndexFromLocation(readLocation);
+		
+		// calculate posterior dirichlet alpha
+		final double a = _baseMass;
+		final double n = obsMass > _maxObsMass ? _maxObsMass : obsMass;
+		final double a_plus_n = a + n;
+//		final double posterior_dp_alpha = a_plus_n;
+		
+		// read the data, crash on out of bounds if passed data is bad
+		for (int i=0; i<_lastDimSize; i++) {
+			
+			// read the values at index
+			final double baseIdxMass = _base.get(readIndex);
+			final double obsIdxMass = obsMass > 0 ? _obs.get(readIndex)/obsMass : 0.0;
+			
+			final double posterior_dp_mass =
+					a / a_plus_n * baseIdxMass +
+					n / a_plus_n * obsIdxMass;
+			
+			obsData[obsDataIndex] = posterior_dp_mass;
+			
+			++obsDataIndex;
+			++readIndex;
+		}
+	}
 }

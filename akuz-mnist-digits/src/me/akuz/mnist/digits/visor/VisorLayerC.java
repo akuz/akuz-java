@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
-import me.akuz.core.math.GammaFunction;
 import me.akuz.core.math.StatsUtils;
 import me.akuz.ml.tensors.DenseTensor;
 import me.akuz.ml.tensors.Location;
@@ -21,20 +20,20 @@ import me.akuz.ml.tensors.Tensor;
 public final class VisorLayerC extends VisorLayer {
 
 	// base distribution a color at each pixel
-	public static final double PIXEL_COLOR_DP_BASE_INIT      = 1.0;
-	public static final double PIXEL_COLOR_DP_BASE_NOISE     = 0.1;
-	public static final double PIXEL_COLOR_DP_BASE_WEIGHT    = 10.0;
-	public static final double PIXEL_COLOR_DP_MAX_OBS_WEIGHT = 90.0;
+	public static final double PIXEL_COLOR_DP_BASE_INIT    = 1.0;
+	public static final double PIXEL_COLOR_DP_BASE_NOISE   = 0.1;
+	public static final double PIXEL_COLOR_DP_BASE_MASS    = 10.0;
+	public static final double PIXEL_COLOR_DP_MAX_OBS_MASS = 90.0;
 
 	// base distribution for a channel in each color
-	public static final double CHANNEL_DP_BASE_INIT      = 1.0;
-	public static final double CHANNEL_DP_BASE_NOISE     = 0.1;
-	public static final double CHANNEL_DP_BASE_WEIGHT    = 10.0;
-	public static final double CHANNEL_DP_MAX_OBS_WEIGHT = 90.0;
+	public static final double COLOR_CHANNEL_DP_BASE_INIT    = 1.0;
+	public static final double COLOR_CHANNEL_DP_BASE_NOISE   = 0.1;
+	public static final double COLOR_CHANNEL_DP_BASE_MASS    = 10.0;
+	public static final double COLOR_CHANNEL_DP_MAX_OBS_MASS = 90.0;
 
 	private Tensor _input;
-	private Tensor _colorCounts;
-	private Tensor _colorChannelCounts;
+	private final Tensor _color;
+	private final DDP _colorChannel;
 
 	/**
 	 * Height of the input image tensor (size of dim 0).
@@ -115,30 +114,26 @@ public final class VisorLayerC extends VisorLayer {
 
 		final Random rnd = ThreadLocalRandom.current();
 
-		// color counts: prior
-		_colorCounts = new DenseTensor(
+		// colors: prior
+		_color = new DenseTensor(
 				new Shape(this.outputColorCount));
 		
-		// color counts: prior init
-		for (int idx=0; idx<_colorCounts.size; idx++) {
-			_colorCounts.set(idx, 
+		// colors: prior init
+		for (int idx=0; idx<_color.size; idx++) {
+			_color.set(idx, 
 					PIXEL_COLOR_DP_BASE_INIT + 
 					rnd.nextDouble()*PIXEL_COLOR_DP_BASE_NOISE);
 		}
 		
-		// color-channel counts: prior
-		_colorChannelCounts = new DenseTensor(
+		_colorChannel = new DDP(
 				new Shape(
 						this.outputColorCount, 
 						this.inputChannelCount,
-						2));
-		
-		// color-channel counts: prior init
-		for (int idx=0; idx<_colorChannelCounts.size; idx++) {
-			_colorChannelCounts.set(idx, 
-					CHANNEL_DP_BASE_INIT + 
-					rnd.nextDouble()*CHANNEL_DP_BASE_NOISE);
-		}
+						2),
+				COLOR_CHANNEL_DP_BASE_INIT,
+				COLOR_CHANNEL_DP_BASE_NOISE,
+				COLOR_CHANNEL_DP_BASE_MASS,
+				COLOR_CHANNEL_DP_MAX_OBS_MASS);
 	}
 	
 	public void setInput(final Tensor input) {
@@ -163,11 +158,12 @@ public final class VisorLayerC extends VisorLayer {
 		
 		final int[] inputIdxs = new int[3];
 		final int[] outputIdxs = new int[3];
-		final int[] colorIdxs = new int[3];
+		final int[] colorChannelIdxs = new int[2];
 		final Location inputLoc = new Location(inputIdxs);
 		final Location outputLoc = new Location(outputIdxs);
-		final Location colorLoc = new Location(colorIdxs);
+		final Location colorChannelLoc = new Location(colorChannelIdxs);
 		final double[] colors = new double[this.outputColorCount];
+		final double[] obsData = new double[2];
 		for (int i=0; i<this.inputHeight;i++) {
 			inputIdxs[0] = i;
 			outputIdxs[0] = i;
@@ -183,33 +179,28 @@ public final class VisorLayerC extends VisorLayer {
 				for (int colorIdx=0; colorIdx<this.outputColorCount; colorIdx++) {
 					
 					// prior observation probability 
-					colors[colorIdx] += StatsUtils.checkFinite(
-							Math.log(_colorCounts.get(colorIdx)));
+					colors[colorIdx] += 
+						StatsUtils.checkFinite(
+							Math.log(_color.get(colorIdx)));
 					
 					// set first color index
-					colorIdxs[0] = colorIdx;
+					colorChannelIdxs[0] = colorIdx;
 					
 					// now add channel observations probability
 					for (int channelIdx=0; channelIdx<this.inputChannelCount; channelIdx++) {
 						
 						inputIdxs[2] = channelIdx;
-						colorIdxs[1] = channelIdx;
+						colorChannelIdxs[1] = channelIdx;
 						
-						final double value1 = input.get(inputLoc);
-						final double value0 = 1.0 - value1;
-						
-						colorIdxs[2] = 0;
-						final double alpha0 = _colorChannelCounts.get(colorLoc);
-						
-						colorIdxs[2] = 1;
-						final double alpha1 = _colorChannelCounts.get(colorLoc);
-						
-						colors[colorIdx] += StatsUtils.checkFinite(
-								GammaFunction.lnGamma(alpha0 + alpha1) -
-								GammaFunction.lnGamma(alpha0) -
-								GammaFunction.lnGamma(alpha1) + 
-								(alpha0 - 1.0) * Math.log(value0) + 
-								(alpha1 - 1.0) * Math.log(value1));
+						obsData[1] = input.get(inputLoc);
+						obsData[0] = 1.0 - obsData[1];
+
+						colors[colorIdx] += 
+							StatsUtils.checkFinite(
+								_colorChannel.calcPosteriorLogLike(
+									colorChannelLoc, 
+									obsData, 
+									0));
 					}
 				}
 				
@@ -238,11 +229,12 @@ public final class VisorLayerC extends VisorLayer {
 		
 		final int[] inputIdxs = new int[3];
 		final int[] outputIdxs = new int[3];
-		final int[] colorIdxs = new int[3];
+		final int[] colorChannelIdxs = new int[2];
 		final Location inputLoc = new Location(inputIdxs);
 		final Location outputLoc = new Location(outputIdxs);
-		final Location colorLoc = new Location(colorIdxs);
-		final double[] channels = new double[this.inputChannelCount];
+		final Location colorChannelLoc = new Location(colorChannelIdxs);
+		final double[] channelValues = new double[this.inputChannelCount];
+		final double[] obsData = new double[2];
 		for (int i=0; i<this.inputHeight;i++) {
 			inputIdxs[0] = i;
 			outputIdxs[0] = i;
@@ -252,7 +244,7 @@ public final class VisorLayerC extends VisorLayer {
 				outputIdxs[1] = j;
 				
 				// reset channels array
-				Arrays.fill(channels, 0.0);
+				Arrays.fill(channelValues, 0.0);
 				
 				// aggregate color probs
 				for (int colorIdx=0; colorIdx<this.outputColorCount; colorIdx++) {
@@ -262,24 +254,21 @@ public final class VisorLayerC extends VisorLayer {
 					final double colorProb = this.output.get(outputLoc);
 					
 					// aggregate color channels
-					colorIdxs[0] = colorIdx;
+					colorChannelIdxs[0] = colorIdx;
 					
 					// now add channel observations probability
 					for (int channelIdx=0; channelIdx<this.inputChannelCount; channelIdx++) {
 						
-						colorIdxs[1] = channelIdx;
+						colorChannelIdxs[1] = channelIdx;
 						
-						colorIdxs[2] = 0;
-						final double alpha0 = _colorChannelCounts.get(colorLoc);
-						
-						colorIdxs[2] = 1;
-						final double alpha1 = _colorChannelCounts.get(colorLoc);
-						
-						// calculate probability of 1
-						final double value1 = alpha1 / (alpha0 + alpha1);
+						_colorChannel.calcPosteriorMean(
+								colorChannelLoc, 
+								obsData, 
+								0);
 						
 						// merge into the channel
-						channels[channelIdx] += colorProb * value1;
+						channelValues[channelIdx] += 
+								colorProb * obsData[1];
 					}
 				}
 				
@@ -288,7 +277,7 @@ public final class VisorLayerC extends VisorLayer {
 					
 					// populate channel value
 					inputIdxs[2] = channelIdx;
-					input.set(inputLoc, channels[channelIdx]);
+					input.set(inputLoc, channelValues[channelIdx]);
 				}
 			}
 		}
@@ -305,12 +294,13 @@ public final class VisorLayerC extends VisorLayer {
 
 		final int[] inputIdxs = new int[3];
 		final int[] outputIdxs = new int[3];
-		final int[] colorIdxs = new int[3];
+		final int[] colorChannelIdxs = new int[2];
 		final Location inputLoc = new Location(inputIdxs);
 		final Location outputLoc = new Location(outputIdxs);
-		final Location colorLoc = new Location(colorIdxs);
+		final Location colorChannelLoc = new Location(colorChannelIdxs);
 		
-		final double[] channels = new double[this.inputChannelCount];
+		final double[] channelValues = new double[this.inputChannelCount];
+		final double[] obsData = new double[2];
 
 		for (int i=0; i<this.inputHeight; i++) {
 			inputIdxs[0] = i;
@@ -325,14 +315,14 @@ public final class VisorLayerC extends VisorLayer {
 					
 					inputIdxs[2] = channelIdx;
 					
-					final double channel = input.get(inputLoc);
-					if (channel < 0.0 || channel > 1.0) {
+					final double channelValue = input.get(inputLoc);
+					if (channelValue < 0.0 || channelValue > 1.0) {
 						throw new IllegalStateException(
 							"Input image channels can only contain values " +
-							"within interval [0, 1], got " + channel);
+							"within interval [0, 1], got " + channelValue);
 					}
 					
-					channels[channelIdx] = channel;
+					channelValues[channelIdx] = channelValue;
 				}
 				
 				// update each color
@@ -343,24 +333,25 @@ public final class VisorLayerC extends VisorLayer {
 					final double colorProb = this.output.get(outputLoc);
 
 					// add to color counts
-					_colorCounts.add(colorIdx, colorProb);
+					_color.add(colorIdx, colorProb);
 
 					// update color channels
-					colorIdxs[0] = colorIdx;
+					colorChannelIdxs[0] = colorIdx;
 					for (int channelIdx=0; channelIdx<this.inputChannelCount; channelIdx++) {
 						
-						colorIdxs[1] = channelIdx;
+						colorChannelIdxs[1] = channelIdx;
 
 						// get channel value at this point
-						final double channel = channels[channelIdx];
+						final double channelValue = channelValues[channelIdx];
 
-						// update dim 0
-						colorIdxs[2] = 0;
-						_colorChannelCounts.add(colorLoc, colorProb*(1.0 - channel));
+						obsData[1] = channelValue;
+						obsData[0] = 1.0 - channelValue;
 						
-						// update dim 1
-						colorIdxs[2] = 1;
-						_colorChannelCounts.add(colorLoc, colorProb*channel);
+						_colorChannel.addObservation(
+								colorProb, 
+								colorChannelLoc, 
+								obsData, 
+								0);
 					}
 				}
 			}
@@ -369,9 +360,9 @@ public final class VisorLayerC extends VisorLayer {
 	
 	public void print() {
 		System.out.println("------ color counts ------");
-		System.out.println(_colorCounts.toString());
-		System.out.println("------ colors ------");
-		System.out.println(_colorChannelCounts.toString());
+		System.out.println(_color.toString());
+//		System.out.println("------ colors ------");
+//		System.out.println(_colorChannelCounts.toString());
 	}
 
 }
