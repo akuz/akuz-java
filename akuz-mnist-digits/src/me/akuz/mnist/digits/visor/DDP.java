@@ -139,7 +139,12 @@ public final class DDP {
 		}
 
 		// calculate write start index
-		final int [] writeIndices = Arrays.copyOf(subLoc.indices, _ndim);
+		final int[] writeIndices;
+		if (_ndim == 1) {
+			writeIndices = new int[1];
+		} else {
+			writeIndices = Arrays.copyOf(subLoc.indices, _ndim);
+		}
 		final Location writeLocation = new Location(writeIndices);
 		int writeIndex = _shape.calcFlatIndexFromLocation(writeLocation);
 		
@@ -188,7 +193,12 @@ public final class DDP {
 		}
 		
 		// calculate read start index
-		final int [] readIndices = Arrays.copyOf(subLoc.indices, _ndim);
+		final int[] readIndices;
+		if (_ndim == 1) {
+			readIndices = new int[1];
+		} else {
+			readIndices = Arrays.copyOf(subLoc.indices, _ndim);
+		}
 		final Location readLocation = new Location(readIndices);
 		int readIndex = _shape.calcFlatIndexFromLocation(readLocation);
 		
@@ -250,7 +260,12 @@ public final class DDP {
 		}
 		
 		// calculate read start index
-		final int [] readIndices = Arrays.copyOf(subLoc.indices, _ndim);
+		final int[] readIndices;
+		if (_ndim == 1) {
+			readIndices = new int[1];
+		} else {
+			readIndices = Arrays.copyOf(subLoc.indices, _ndim);
+		}
 		final Location readLocation = new Location(readIndices);
 		int readIndex = _shape.calcFlatIndexFromLocation(readLocation);
 		

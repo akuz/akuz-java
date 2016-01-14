@@ -1,8 +1,6 @@
 package me.akuz.mnist.digits.visor;
 
 import java.util.Arrays;
-import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 import me.akuz.core.math.StatsUtils;
 import me.akuz.ml.tensors.DenseTensor;
@@ -20,10 +18,10 @@ import me.akuz.ml.tensors.Tensor;
 public final class VisorLayerC extends VisorLayer {
 
 	// base distribution a color at each pixel
-	public static final double PIXEL_COLOR_DP_BASE_INIT    = 1.0;
-	public static final double PIXEL_COLOR_DP_BASE_NOISE   = 0.1;
-	public static final double PIXEL_COLOR_DP_BASE_MASS    = 10.0;
-	public static final double PIXEL_COLOR_DP_MAX_OBS_MASS = 90.0;
+	public static final double COLOR_DP_BASE_INIT    = 1.0;
+	public static final double COLOR_DP_BASE_NOISE   = 0.1;
+	public static final double COLOR_DP_BASE_MASS    = 10.0;
+	public static final double COLOR_DP_MAX_OBS_MASS = 1.0;
 
 	// base distribution for a channel in each color
 	public static final double COLOR_CHANNEL_DP_BASE_INIT    = 1.0;
@@ -32,8 +30,9 @@ public final class VisorLayerC extends VisorLayer {
 	public static final double COLOR_CHANNEL_DP_MAX_OBS_MASS = 90.0;
 
 	private Tensor _input;
-	private final Tensor _color;
+	private final DDP _color;
 	private final DDP _colorChannel;
+	private final double[] _outputData;
 
 	/**
 	 * Height of the input image tensor (size of dim 0).
@@ -110,20 +109,17 @@ public final class VisorLayerC extends VisorLayer {
 				this.inputWidth,
 				colorCount);
 		
-		this.output = new DenseTensor(outputShape);
-
-		final Random rnd = ThreadLocalRandom.current();
-
-		// colors: prior
-		_color = new DenseTensor(
-				new Shape(this.outputColorCount));
+		final DenseTensor output = new DenseTensor(outputShape);
+		_outputData = output.data();
+		this.output = output;
 		
-		// colors: prior init
-		for (int idx=0; idx<_color.size; idx++) {
-			_color.set(idx, 
-					PIXEL_COLOR_DP_BASE_INIT + 
-					rnd.nextDouble()*PIXEL_COLOR_DP_BASE_NOISE);
-		}
+		_color = new DDP(
+				new Shape(
+						this.outputColorCount),
+				COLOR_DP_BASE_INIT,
+				COLOR_DP_BASE_NOISE,
+				COLOR_DP_BASE_MASS,
+				COLOR_DP_MAX_OBS_MASS);
 		
 		_colorChannel = new DDP(
 				new Shape(
@@ -172,16 +168,13 @@ public final class VisorLayerC extends VisorLayer {
 				inputIdxs[1] = j;
 				outputIdxs[1] = j;
 				
-				// reset colors array
-				Arrays.fill(colors, 0.0);
+				// FIXME: ... call for [1, 0, 0, 0, 0]
+				
+				// start with colors log-likelihood
+				_color.calcPosteriorLogLike(null, colors, 0);
 				
 				// calculate color log probs
 				for (int colorIdx=0; colorIdx<this.outputColorCount; colorIdx++) {
-					
-					// prior observation probability 
-					colors[colorIdx] += 
-						StatsUtils.checkFinite(
-							Math.log(_color.get(colorIdx)));
 					
 					// set first color index
 					colorChannelIdxs[0] = colorIdx;
@@ -300,7 +293,7 @@ public final class VisorLayerC extends VisorLayer {
 		final Location colorChannelLoc = new Location(colorChannelIdxs);
 		
 		final double[] channelValues = new double[this.inputChannelCount];
-		final double[] obsData = new double[2];
+		final double[] channelSplit = new double[2];
 
 		for (int i=0; i<this.inputHeight; i++) {
 			inputIdxs[0] = i;
@@ -324,16 +317,15 @@ public final class VisorLayerC extends VisorLayer {
 					
 					channelValues[channelIdx] = channelValue;
 				}
-				
+
+				final int outputDataIndex = this.outputShape.calcFlatIndexFromLocation(outputLoc);
+				_color.addObservation(1.0, null, _outputData, outputDataIndex);
+
 				// update each color
 				for (int colorIdx=0; colorIdx<this.outputColorCount; colorIdx++) {
 					
 					// get output color prob
-					outputIdxs[2] = colorIdx;
-					final double colorProb = this.output.get(outputLoc);
-
-					// add to color counts
-					_color.add(colorIdx, colorProb);
+					final double colorProb = _outputData[outputDataIndex + colorIdx];
 
 					// update color channels
 					colorChannelIdxs[0] = colorIdx;
@@ -344,13 +336,13 @@ public final class VisorLayerC extends VisorLayer {
 						// get channel value at this point
 						final double channelValue = channelValues[channelIdx];
 
-						obsData[1] = channelValue;
-						obsData[0] = 1.0 - channelValue;
-						
+						channelSplit[1] = channelValue;
+						channelSplit[0] = 1.0 - channelValue;
+
 						_colorChannel.addObservation(
 								colorProb, 
 								colorChannelLoc, 
-								obsData, 
+								channelSplit, 
 								0);
 					}
 				}
@@ -359,10 +351,10 @@ public final class VisorLayerC extends VisorLayer {
 	}
 	
 	public void print() {
-		System.out.println("------ color counts ------");
+		System.out.println("------ color ------");
 		System.out.println(_color.toString());
-//		System.out.println("------ colors ------");
-//		System.out.println(_colorChannelCounts.toString());
+		System.out.println("------ color-channel ------");
+		System.out.println(_colorChannel.toString());
 	}
 
 }
