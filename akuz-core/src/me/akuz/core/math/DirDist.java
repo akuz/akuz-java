@@ -130,7 +130,7 @@ public final class DirDist {
 	}
 
 	public void normalize() {
-		StatsUtils.normalize(_data);
+		StatsUtils.normalizeInPlace(_data);
 		_isNormalized = true;
 	}
 	

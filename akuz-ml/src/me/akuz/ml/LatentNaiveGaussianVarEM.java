@@ -282,7 +282,7 @@ public final class LatentNaiveGaussianVarEM {
 		double docLogLike = StatsUtils.logSumExp(topicLogLikes);
 		
 		// normalize and output topic probs
-		StatsUtils.logLikesToProbsReplace(topicLogLikes);
+		StatsUtils.logLikesToProbsInPlace(topicLogLikes);
 		for (int topicIndex=0; topicIndex<_topicCount; topicIndex++) {
 			double topicProb = topicLogLikes[topicIndex];
 			outTopicByDocProbs.set(topicIndex, docIndex, topicProb);

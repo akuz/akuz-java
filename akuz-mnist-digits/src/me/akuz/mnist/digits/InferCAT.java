@@ -122,7 +122,7 @@ public final class InferCAT {
 						currLogLike += StatsUtils.logSumExp(logLikes);
 
 						// normalize probabilities of features
-						StatsUtils.logLikesToProbsReplace(logLikes);
+						StatsUtils.logLikesToProbsInPlace(logLikes);
 						
 						// save feature probs to feature image
 						final double[] featureProbs = featureImage.getFeatureProbs(row, col);
@@ -144,7 +144,7 @@ public final class InferCAT {
 			}
 			
 			// normalize next probs
-			StatsUtils.normalize(nextFeatureProbs);
+			StatsUtils.normalizeInPlace(nextFeatureProbs);
 			
 			// update current probs
 			{

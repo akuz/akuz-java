@@ -156,7 +156,7 @@ public final class LatentHierarchyGibbs {
 			}
 			
 			// normalize z topic probs
-			StatsUtils.logLikesToProbsReplace(_zCache);
+			StatsUtils.logLikesToProbsInPlace(_zCache);
 
 			// calculate CDF
 			StatsUtils.calcCDFReplace(_zCache);
@@ -259,7 +259,7 @@ public final class LatentHierarchyGibbs {
 			}
 			
 			// normalize w topic probs
-			StatsUtils.logLikesToProbsReplace(_wCache);
+			StatsUtils.logLikesToProbsInPlace(_wCache);
 
 			// calculate CDF
 			StatsUtils.calcCDFReplace(_wCache);

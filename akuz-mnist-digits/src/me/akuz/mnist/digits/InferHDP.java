@@ -322,7 +322,7 @@ public final class InferHDP {
 						currLogLike += StatsUtils.logSumExp(logLikes);
 
 						// normalize probabilities of features
-						StatsUtils.logLikesToProbsReplace(logLikes);
+						StatsUtils.logLikesToProbsInPlace(logLikes);
 						
 						// save feature probs to feature image
 						double[] featureProbs = featureImage.getFeatureProbs(row, col);
@@ -359,7 +359,7 @@ public final class InferHDP {
 			}
 			
 			// normalize next probs
-			StatsUtils.normalize(nextProbs);
+			StatsUtils.normalizeInPlace(nextProbs);
 			for (int k=0; k<nextBlocks.length; k++) {
 				for (int l=0; l<4; l++) {
 					nextBlocks[k][l].normalize();

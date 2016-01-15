@@ -46,7 +46,7 @@ public final class AreasSignal {
 		}
 		
 		// normalize probs
-		StatsUtils.normalize(_areasProbs);
+		StatsUtils.normalizeInPlace(_areasProbs);
 
 		// average signals
 		double signal = 0;

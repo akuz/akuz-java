@@ -289,7 +289,7 @@ public final class H2Layer {
 					currLogLike += StatsUtils.logSumExp(featureLogLikes);
 
 					// normalize probabilities of features
-					StatsUtils.logLikesToProbsReplace(featureLogLikes);
+					StatsUtils.logLikesToProbsInPlace(featureLogLikes);
 					
 					// save feature probs to feature image
 					PChar featureProbs = wordFeatures.getChar(i);
@@ -321,7 +321,7 @@ public final class H2Layer {
 			}
 			
 			// normalize next probs
-			StatsUtils.normalize(nextFeatureProbs);
+			StatsUtils.normalizeInPlace(nextFeatureProbs);
 			for (int k=0; k<nextFeatures.length; k++) {
 				for (int l=0; l<4; l++) {
 					nextFeatures[k].normalize();

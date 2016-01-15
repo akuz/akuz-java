@@ -21,7 +21,7 @@ public final class VisorLayerC extends VisorLayer {
 	public static final double COLOR_DP_BASE_INIT    = 1.0;
 	public static final double COLOR_DP_BASE_NOISE   = 0.1;
 	public static final double COLOR_DP_BASE_MASS    = 10.0;
-	public static final double COLOR_DP_MAX_OBS_MASS = 1.0;
+	public static final double COLOR_DP_MAX_OBS_MASS = 10.0;
 
 	// base distribution for a channel in each color
 	public static final double COLOR_CHANNEL_DP_BASE_INIT    = 1.0;
@@ -32,7 +32,6 @@ public final class VisorLayerC extends VisorLayer {
 	private Tensor _input;
 	private final DDP _color;
 	private final DDP _colorChannel;
-	private final double[] _outputData;
 
 	/**
 	 * Height of the input image tensor (size of dim 0).
@@ -62,7 +61,7 @@ public final class VisorLayerC extends VisorLayer {
 	/**
 	 * Output to be used at the next level.
 	 */
-	public final Tensor output;
+	public final DenseTensor output;
 	
 	/**
 	 * Create color visor layer with the shape of the
@@ -109,9 +108,7 @@ public final class VisorLayerC extends VisorLayer {
 				this.inputWidth,
 				colorCount);
 		
-		final DenseTensor output = new DenseTensor(outputShape);
-		_outputData = output.data();
-		this.output = output;
+		this.output = new DenseTensor(outputShape);
 		
 		_color = new DDP(
 				new Shape(
@@ -152,29 +149,39 @@ public final class VisorLayerC extends VisorLayer {
 				"Input image not set, cannot infer colors");
 		}
 		
-		final int[] inputIdxs = new int[3];
-		final int[] outputIdxs = new int[3];
+		final int[] inputDeepIdxs = new int[3];
+		final int[] outputDeepIdxs = new int[3];
 		final int[] colorChannelIdxs = new int[2];
-		final Location inputLoc = new Location(inputIdxs);
-		final Location outputLoc = new Location(outputIdxs);
+		final Location inputDeepLoc = new Location(inputDeepIdxs);
+		final Location outputDeepLoc = new Location(outputDeepIdxs);
 		final Location colorChannelLoc = new Location(colorChannelIdxs);
-		final double[] colors = new double[this.outputColorCount];
-		final double[] obsData = new double[2];
+		final double[] outputData = this.output.data();
+		final double[] channelData = new double[2];
+		
 		for (int i=0; i<this.inputHeight;i++) {
-			inputIdxs[0] = i;
-			outputIdxs[0] = i;
+			inputDeepIdxs[0] = i;
+			outputDeepIdxs[0] = i;
 			
 			for (int j=0; j<this.inputWidth; j++) {
-				inputIdxs[1] = j;
-				outputIdxs[1] = j;
+				inputDeepIdxs[1] = j;
+				outputDeepIdxs[1] = j;
 				
-				// FIXME: ... call for [1, 0, 0, 0, 0]
+				// get output index
+				outputDeepIdxs[2] = 0;
+				final int outputStartIdx = outputShape.calcFlatIndexFromLocation(outputDeepLoc);
 				
 				// start with colors log-likelihood
-				_color.calcPosteriorLogLike(null, colors, 0);
+				_color.fillPosteriorMean(null, outputData, outputStartIdx);
+				for (int colorIdx=0; colorIdx<this.outputColorCount; colorIdx++) {
+					final int outputIdx = outputStartIdx + colorIdx;
+					outputData[outputIdx] = Math.log(outputData[outputIdx]);
+				}
 				
 				// calculate color log probs
 				for (int colorIdx=0; colorIdx<this.outputColorCount; colorIdx++) {
+					
+					// output data index
+					final int outputIdx = outputStartIdx + colorIdx;
 					
 					// set first color index
 					colorChannelIdxs[0] = colorIdx;
@@ -182,31 +189,28 @@ public final class VisorLayerC extends VisorLayer {
 					// now add channel observations probability
 					for (int channelIdx=0; channelIdx<this.inputChannelCount; channelIdx++) {
 						
-						inputIdxs[2] = channelIdx;
+						inputDeepIdxs[2] = channelIdx;
 						colorChannelIdxs[1] = channelIdx;
 						
-						obsData[1] = input.get(inputLoc);
-						obsData[0] = 1.0 - obsData[1];
+						channelData[1] = input.get(inputDeepLoc);
+						channelData[0] = 1.0 - channelData[1];
 
-						colors[colorIdx] += 
+						final double colorChannelLogLike =
 							StatsUtils.checkFinite(
 								_colorChannel.calcPosteriorLogLike(
 									colorChannelLoc, 
-									obsData, 
+									channelData, 
 									0));
+						
+						outputData[outputIdx] += colorChannelLogLike;
 					}
 				}
 				
 				// normalize log probabilities
-				StatsUtils.logLikesToProbsReplace(colors);
-
-				// set output color probs at this location
-				for (int colorIdx=0; colorIdx<this.outputColorCount; colorIdx++) {
-					
-					// populate color prob
-					outputIdxs[2] = colorIdx;
-					this.output.set(outputLoc, colors[colorIdx]);
-				}
+				StatsUtils.logLikesToProbsInPlace(
+						outputData, 
+						outputStartIdx, 
+						this.outputColorCount);
 			}
 		}
 	}
@@ -227,7 +231,7 @@ public final class VisorLayerC extends VisorLayer {
 		final Location outputLoc = new Location(outputIdxs);
 		final Location colorChannelLoc = new Location(colorChannelIdxs);
 		final double[] channelValues = new double[this.inputChannelCount];
-		final double[] obsData = new double[2];
+		final double[] channelData = new double[2];
 		for (int i=0; i<this.inputHeight;i++) {
 			inputIdxs[0] = i;
 			outputIdxs[0] = i;
@@ -254,14 +258,14 @@ public final class VisorLayerC extends VisorLayer {
 						
 						colorChannelIdxs[1] = channelIdx;
 						
-						_colorChannel.calcPosteriorMean(
+						_colorChannel.fillPosteriorMean(
 								colorChannelLoc, 
-								obsData, 
+								channelData, 
 								0);
 						
 						// merge into the channel
 						channelValues[channelIdx] += 
-								colorProb * obsData[1];
+								colorProb * channelData[1];
 					}
 				}
 				
@@ -291,9 +295,9 @@ public final class VisorLayerC extends VisorLayer {
 		final Location inputLoc = new Location(inputIdxs);
 		final Location outputLoc = new Location(outputIdxs);
 		final Location colorChannelLoc = new Location(colorChannelIdxs);
-		
+		final double[] outputData = this.output.data();
 		final double[] channelValues = new double[this.inputChannelCount];
-		final double[] channelSplit = new double[2];
+		final double[] channelData = new double[2];
 
 		for (int i=0; i<this.inputHeight; i++) {
 			inputIdxs[0] = i;
@@ -318,14 +322,14 @@ public final class VisorLayerC extends VisorLayer {
 					channelValues[channelIdx] = channelValue;
 				}
 
-				final int outputDataIndex = this.outputShape.calcFlatIndexFromLocation(outputLoc);
-				_color.addObservation(1.0, null, _outputData, outputDataIndex);
+				final int outputStartIdx = this.outputShape.calcFlatIndexFromLocation(outputLoc);
+				_color.addObservation(1.0, null, outputData, outputStartIdx);
 
 				// update each color
 				for (int colorIdx=0; colorIdx<this.outputColorCount; colorIdx++) {
 					
 					// get output color prob
-					final double colorProb = _outputData[outputDataIndex + colorIdx];
+					final double colorProb = outputData[outputStartIdx + colorIdx];
 
 					// update color channels
 					colorChannelIdxs[0] = colorIdx;
@@ -336,13 +340,13 @@ public final class VisorLayerC extends VisorLayer {
 						// get channel value at this point
 						final double channelValue = channelValues[channelIdx];
 
-						channelSplit[1] = channelValue;
-						channelSplit[0] = 1.0 - channelValue;
+						channelData[1] = channelValue;
+						channelData[0] = 1.0 - channelValue;
 
 						_colorChannel.addObservation(
 								colorProb, 
 								colorChannelLoc, 
-								channelSplit, 
+								channelData, 
 								0);
 					}
 				}

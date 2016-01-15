@@ -246,7 +246,7 @@ public final class DDP {
 	}
 
 	// FIXME: unify with above
-	public void calcPosteriorMean(
+	public void fillPosteriorMean(
 			final Location subLoc,
 			final double[] obsData,
 			int obsDataIndex) {

@@ -59,47 +59,63 @@ public final class StatsUtils {
 		return (divKL1 + divKL2)/2.0;
 	}
 
-	public static final void normalize(double[] probs) {
+	public static final void normalizeInPlace(final double[] probs) {
+		normalizeInPlace(probs, 0, probs.length);
+	}
+
+	public static final void normalizeInPlace(
+			final double[] probs,
+			final int startIdx,
+			final int length) {
 		
 		double total = 0;
-		for (int i=0; i<probs.length; i++) {
-			total += Math.abs(probs[i]);
+		for (int i=0; i<length; i++) {
+			total += Math.abs(probs[startIdx + i]);
 		}
 		if (total > 0) {
-			for (int i=0; i<probs.length; i++) {
-				probs[i] = probs[i] / total;
+			for (int i=0; i<length; i++) {
+				final int idx = startIdx + i;
+				probs[idx] = probs[idx] / total;
 			}
 		} else {
-			for (int i=0; i<probs.length; i++) {
-				probs[i] = 1.0 / (double)probs.length;
+			for (int i=0; i<length; i++) {
+				final int idx = startIdx + i;
+				probs[idx] = 1.0 / (double)length;
 			}
 		}
 	}
 
 	public static final double[] logLikesToProbs(double[] loglikes) {
-
 		double[] probs = Arrays.copyOf(loglikes, loglikes.length);
-		logLikesToProbsReplace(probs);
+		logLikesToProbsInPlace(probs);
 		return probs;
 	}
 
-	public static final void logLikesToProbsReplace(double[] loglikes) {
+	public static final void logLikesToProbsInPlace(final double[] logLikes) {
+		logLikesToProbsInPlace(logLikes, 0, logLikes.length);
+	}
+
+	public static final void logLikesToProbsInPlace(
+			final double[] logLikes,
+			final int startIdx,
+			final int length) {
 		
-		double maxloglike = Double.NEGATIVE_INFINITY;
-		for (int i=0; i<loglikes.length; i++) {
-			double loglike = loglikes[i];
-			if (maxloglike < loglike) {
-				maxloglike = loglike;
+		double maxLogLike = Double.NEGATIVE_INFINITY;
+		for (int i=0; i<length; i++) {
+			double logLike = logLikes[startIdx + i];
+			if (maxLogLike < logLike) {
+				maxLogLike = logLike;
 			}
 		}
 		
-		if (maxloglike > Double.NEGATIVE_INFINITY) {
-			for (int i=0; i<loglikes.length; i++) {
-				loglikes[i] = Math.exp(loglikes[i] - maxloglike);
+		if (maxLogLike > Double.NEGATIVE_INFINITY) {
+			for (int i=0; i<length; i++) {
+				final int idx = startIdx + i;
+				logLikes[idx] = Math.exp(logLikes[idx] - maxLogLike);
 			}
 		}
 		
-		normalize(loglikes);
+		normalizeInPlace(logLikes, startIdx, length);
 	}
 	
 	/**

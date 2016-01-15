@@ -62,7 +62,7 @@ public final class InferBlocks {
 				for (int b=0; b<_blockCount; b++) {
 					_pixelBlockProbs[i][j][b] = PROB_INIT_BASE + rnd.nextDouble() * PROB_INIT_RAND;
 				}
-				StatsUtils.normalize(_pixelBlockProbs[i][j]);
+				StatsUtils.normalizeInPlace(_pixelBlockProbs[i][j]);
 			}
 		}
 		
@@ -92,7 +92,7 @@ public final class InferBlocks {
 			}
 			
 			// normalize block probs
-			StatsUtils.normalize(_blockProbs);
+			StatsUtils.normalizeInPlace(_blockProbs);
 			
 			// calculate block feature probs
 			for (int b=0; b<_blockCount; b++) {
@@ -116,7 +116,7 @@ public final class InferBlocks {
 					}
 				}
 				
-				StatsUtils.logLikesToProbsReplace(_blockFeatureProbs[b]);
+				StatsUtils.logLikesToProbsInPlace(_blockFeatureProbs[b]);
 			}
 			
 			// re-estimate pixel block probs
@@ -144,7 +144,7 @@ public final class InferBlocks {
 						_pixelBlockProbs[i][j][b] += StatsUtils.logSumExp(_tmpFeatureLogLikes);
 					}
 					
-					StatsUtils.logLikesToProbsReplace(_pixelBlockProbs[i][j]);
+					StatsUtils.logLikesToProbsInPlace(_pixelBlockProbs[i][j]);
 				}
 			}
 		}

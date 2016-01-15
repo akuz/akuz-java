@@ -122,7 +122,7 @@ public final class TopicsDetector {
 				}
 				
 				currLogLike += StatsUtils.logSumExp(placeTopicProb);
-				StatsUtils.logLikesToProbsReplace(placeTopicProb);
+				StatsUtils.logLikesToProbsInPlace(placeTopicProb);
 			}
 			
 			if (_monitor != null) {
@@ -166,7 +166,7 @@ public final class TopicsDetector {
 					}
 				}
 			}
-			StatsUtils.normalize(mTopicProb);
+			StatsUtils.normalizeInPlace(mTopicProb);
 			
 			prevLogLike = currLogLike;
 		}

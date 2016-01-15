@@ -80,7 +80,7 @@ public class Classifier {
 					= Math.log(_classDist.getUnnormalisedPosteriorMean(c))
 					+ _inClassDists[c].getPosteriorLogProb(_lastClassInput);
 		}
-		StatsUtils.logLikesToProbsReplace(_lastClassProbs);
+		StatsUtils.logLikesToProbsInPlace(_lastClassProbs);
 		
 		return _lastClassProbs;
 	}

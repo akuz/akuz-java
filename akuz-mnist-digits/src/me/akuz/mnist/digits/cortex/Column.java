@@ -117,7 +117,7 @@ public final class Column {
 							"which would have dendrites into this column");
 				}
 				
-				StatsUtils.normalize(higherProbs);
+				StatsUtils.normalizeInPlace(higherProbs);
 			}
 			
 			// --------------------------
@@ -129,7 +129,7 @@ public final class Column {
 				for (int n=0; n<_neurons.length; n++) {
 					lowerProbs[n] = _neurons[n].calculateLowerLogLike(i0, j0, lowerLayer);
 				}
-				StatsUtils.logLikesToProbsReplace(lowerProbs);
+				StatsUtils.logLikesToProbsInPlace(lowerProbs);
 			}
 			
 			if (higherProbs == null && lowerProbs == null) {

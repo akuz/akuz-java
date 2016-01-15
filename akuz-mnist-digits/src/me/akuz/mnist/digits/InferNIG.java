@@ -299,7 +299,7 @@ public final class InferNIG {
 						currLogLike += StatsUtils.logSumExp(logLikes);
 
 						// normalize probabilities of features
-						StatsUtils.logLikesToProbsReplace(logLikes);
+						StatsUtils.logLikesToProbsInPlace(logLikes);
 						
 						// save feature probs to feature image
 						double[] featureProbs = featureImage.getFeatureProbs(row, col);
@@ -332,7 +332,7 @@ public final class InferNIG {
 			}
 			
 			// normalize next probs
-			StatsUtils.normalize(nextProbs);
+			StatsUtils.normalizeInPlace(nextProbs);
 			
 			// update current probs
 			{

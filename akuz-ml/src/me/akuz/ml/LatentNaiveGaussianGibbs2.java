@@ -110,7 +110,7 @@ public class LatentNaiveGaussianGibbs2 {
 		}
 
 		// initialize topic log likes
-		StatsUtils.normalize(_tempTopicPDF);
+		StatsUtils.normalizeInPlace(_tempTopicPDF);
 		for (int topicIndex=0; topicIndex<_topicCount; topicIndex++) {
 			_tempTopicLogLike[topicIndex] = Math.log(_tempTopicPDF[topicIndex]);
 		}
@@ -173,7 +173,7 @@ public class LatentNaiveGaussianGibbs2 {
 		for (int topicIndex=0; topicIndex<_topicCount; topicIndex++) {
 			_tempTopicPDF[topicIndex] = Math.exp(_tempTopicLogLike[topicIndex] - maxLogLike);
 		}
-		StatsUtils.normalize(_tempTopicPDF);
+		StatsUtils.normalizeInPlace(_tempTopicPDF);
 		
 		return _tempTopicPDF;
 	}
