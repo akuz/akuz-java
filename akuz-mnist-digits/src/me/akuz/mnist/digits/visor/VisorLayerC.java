@@ -17,26 +17,19 @@ import me.akuz.ml.tensors.Tensor;
  */
 public final class VisorLayerC extends VisorLayer {
 
-	// base distribution at each pixel
-	public static final double OUT_DP_BASE_INIT    = 1.0;
-	public static final double OUT_DP_BASE_NOISE   = 0.0;
-	public static final double OUT_DP_BASE_MASS    = 1.0;
-	public static final double OUT_DP_MAX_OBS_MASS = 10.0;
-
 	// base distribution for colors
 	public static final double COLOR_DP_BASE_INIT    = 1.0;
-	public static final double COLOR_DP_BASE_NOISE   = 0.0;
-	public static final double COLOR_DP_BASE_MASS    = 10.0;
+	public static final double COLOR_DP_BASE_NOISE   = 0.1;
+	public static final double COLOR_DP_BASE_MASS    = 1.0;
 	public static final double COLOR_DP_MAX_OBS_MASS = 10.0;
 
 	// base distribution for a channel in each color
 	public static final double COLOR_CHANNEL_DP_BASE_INIT    = 1.0;
 	public static final double COLOR_CHANNEL_DP_BASE_NOISE   = 0.1;
-	public static final double COLOR_CHANNEL_DP_BASE_MASS    = 10.0;
-	public static final double COLOR_CHANNEL_DP_MAX_OBS_MASS = 100.0;
+	public static final double COLOR_CHANNEL_DP_BASE_MASS    = 100.0;
+	public static final double COLOR_CHANNEL_DP_MAX_OBS_MASS = 1000.0;
 
 	private Tensor _input;
-	private final DDP _out;
 	private final DDP _colors;
 	private final DDP _colorsChannels;
 
@@ -117,13 +110,6 @@ public final class VisorLayerC extends VisorLayer {
 		
 		this.output = new DenseTensor(outputShape);
 
-		_out = new DDP(
-				new Shape(this.outputColorCount),
-				OUT_DP_BASE_INIT,
-				OUT_DP_BASE_NOISE,
-				OUT_DP_BASE_MASS,
-				OUT_DP_MAX_OBS_MASS);
-
 		_colors = new DDP(
 				new Shape(this.outputColorCount),
 				COLOR_DP_BASE_INIT,
@@ -183,12 +169,8 @@ public final class VisorLayerC extends VisorLayer {
 				outputDeepIdxs[2] = 0;
 				final int outputStartIdx = outputShape.calcFlatIndexFromLocation(outputDeepLoc);
 				
-				// start with colors log-likelihood
-				_colors.fillPosteriorMean(null, outputData, outputStartIdx);
-				for (int colorIdx=0; colorIdx<this.outputColorCount; colorIdx++) {
-					final int outputIdx = outputStartIdx + colorIdx;
-					outputData[outputIdx] = Math.log(outputData[outputIdx]);
-				}
+				// fill color priors
+				_colors.fillPosteriorMean(colorChannelLoc, outputData, outputStartIdx);
 				
 				// calculate color log probs
 				for (int colorIdx=0; colorIdx<this.outputColorCount; colorIdx++) {
@@ -196,9 +178,12 @@ public final class VisorLayerC extends VisorLayer {
 					// output data index
 					final int outputIdx = outputStartIdx + colorIdx;
 					
+					// convert color prior to log space
+					outputData[outputIdx] = Math.log(outputData[outputIdx]);
+					
 					// set first color index
 					colorChannelIdxs[0] = colorIdx;
-					
+
 					// now add channel observations probability
 					for (int channelIdx=0; channelIdx<this.inputChannelCount; channelIdx++) {
 						
@@ -223,18 +208,6 @@ public final class VisorLayerC extends VisorLayer {
 						outputData, 
 						outputStartIdx, 
 						this.outputColorCount);
-
-				_out.addObservation(
-						true, 
-						OUT_DP_MAX_OBS_MASS,
-						null, 
-						outputData,
-						outputStartIdx);
-
-				_out.fillPosteriorMean(
-						null, 
-						outputData,
-						outputStartIdx);
 			}
 		}
 	}

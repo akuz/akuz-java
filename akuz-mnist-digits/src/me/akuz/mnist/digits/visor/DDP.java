@@ -221,7 +221,7 @@ public final class DDP {
 		final double a = _baseMass;
 		final double n = obsMass > _maxObsMass ? _maxObsMass : obsMass;
 		final double a_plus_n = a + n;
-		final double posterior_dp_alpha = a_plus_n;
+		final double posteriorDP_alpha = a_plus_n;
 		
 		// accumulate log-likelihood
 		double logLike = 0.0;
@@ -233,22 +233,22 @@ public final class DDP {
 		for (int i=0; i<_lastDimSize; i++) {
 			
 			// read the values at index
-			final double baseIdxMass = _base.get(readIndex);
-			final double obsIdxMass = obsMass > 0 ? _obs.get(readIndex)/obsMass : 0.0;
+			final double base_idxProb = _base.get(readIndex);
+			final double obs_idxProb = obsMass > 0 ? _obs.get(readIndex)/obsMass : 0.0;
 			final double obsValue = obsData[obsDataIndex];
 			
-			final double posterior_dp_mass =
-					a / a_plus_n * baseIdxMass +
-					n / a_plus_n * obsIdxMass;
+			final double posteriorDP_idxProb =
+					a / a_plus_n * base_idxProb +
+					n / a_plus_n * obs_idxProb;
 			
-			final double posteriorDirAlpha =
-					posterior_dp_alpha *
-					posterior_dp_mass;
+			final double posteriorDir_idxAlpha =
+					posteriorDP_alpha *
+					posteriorDP_idxProb;
 			
 			// accumulate results
-			logLike -= GammaFunction.lnGamma(posteriorDirAlpha);
-			logLike += (posteriorDirAlpha - 1.0) * Math.log(obsValue);
-			sumPosteriorDirAlpha += posteriorDirAlpha;
+			logLike += (posteriorDir_idxAlpha - 1.0) * Math.log(obsValue);
+			logLike -= GammaFunction.lnGamma(posteriorDir_idxAlpha);
+			sumPosteriorDirAlpha += posteriorDir_idxAlpha;
 			
 			++obsDataIndex;
 			++readIndex;
@@ -288,20 +288,19 @@ public final class DDP {
 		final double a = _baseMass;
 		final double n = obsMass > _maxObsMass ? _maxObsMass : obsMass;
 		final double a_plus_n = a + n;
-//		final double posterior_dp_alpha = a_plus_n;
 		
 		// read the data, crash on out of bounds if passed data is bad
 		for (int i=0; i<_lastDimSize; i++) {
 			
 			// read the values at index
-			final double baseIdxMass = _base.get(readIndex);
-			final double obsIdxMass = obsMass > 0 ? _obs.get(readIndex)/obsMass : 0.0;
+			final double base_idxProb = _base.get(readIndex);
+			final double obs_idxProb = obsMass > 0 ? _obs.get(readIndex)/obsMass : 0.0;
 			
-			final double posterior_dp_mass =
-					a / a_plus_n * baseIdxMass +
-					n / a_plus_n * obsIdxMass;
+			final double posteriorDP_idxProb =
+					a / a_plus_n * base_idxProb +
+					n / a_plus_n * obs_idxProb;
 			
-			obsData[obsDataIndex] = posterior_dp_mass;
+			obsData[obsDataIndex] = posteriorDP_idxProb;
 			
 			++obsDataIndex;
 			++readIndex;
