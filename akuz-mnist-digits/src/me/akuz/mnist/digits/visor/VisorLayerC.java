@@ -21,11 +21,11 @@ public final class VisorLayerC extends VisorLayer {
 	public static final double OUT_DP_BASE_INIT    = 1.0;
 	public static final double OUT_DP_BASE_NOISE   = 0.0;
 	public static final double OUT_DP_BASE_MASS    = 1.0;
-	public static final double OUT_DP_MAX_OBS_MASS = 1.0;
+	public static final double OUT_DP_MAX_OBS_MASS = 10.0;
 
-	// base distribution of colors
+	// base distribution for colors
 	public static final double COLOR_DP_BASE_INIT    = 1.0;
-	public static final double COLOR_DP_BASE_NOISE   = 0.1;
+	public static final double COLOR_DP_BASE_NOISE   = 0.0;
 	public static final double COLOR_DP_BASE_MASS    = 10.0;
 	public static final double COLOR_DP_MAX_OBS_MASS = 10.0;
 
@@ -33,7 +33,7 @@ public final class VisorLayerC extends VisorLayer {
 	public static final double COLOR_CHANNEL_DP_BASE_INIT    = 1.0;
 	public static final double COLOR_CHANNEL_DP_BASE_NOISE   = 0.1;
 	public static final double COLOR_CHANNEL_DP_BASE_MASS    = 10.0;
-	public static final double COLOR_CHANNEL_DP_MAX_OBS_MASS = 90.0;
+	public static final double COLOR_CHANNEL_DP_MAX_OBS_MASS = 100.0;
 
 	private Tensor _input;
 	private final DDP _out;
@@ -113,7 +113,7 @@ public final class VisorLayerC extends VisorLayer {
 		this.outputShape = new Shape(
 				this.inputHeight,
 				this.inputWidth,
-				colorCount);
+				outputColorCount);
 		
 		this.output = new DenseTensor(outputShape);
 
@@ -219,15 +219,22 @@ public final class VisorLayerC extends VisorLayer {
 					}
 				}
 				
-				// normalize log probabilities
 				StatsUtils.logLikesToProbsInPlace(
 						outputData, 
 						outputStartIdx, 
 						this.outputColorCount);
-				
-				if (_out != null) {
-					// TODO: remove !=, and do something
-				}
+
+				_out.addObservation(
+						true, 
+						OUT_DP_MAX_OBS_MASS,
+						null, 
+						outputData,
+						outputStartIdx);
+
+				_out.fillPosteriorMean(
+						null, 
+						outputData,
+						outputStartIdx);
 			}
 		}
 	}
@@ -340,7 +347,7 @@ public final class VisorLayerC extends VisorLayer {
 				}
 
 				final int outputStartIdx = this.outputShape.calcFlatIndexFromLocation(outputLoc);
-				_colors.addObservation(1.0, null, outputData, outputStartIdx);
+				_colors.addObservation(false, 1.0, null, outputData, outputStartIdx);
 
 				// update each color
 				for (int colorIdx=0; colorIdx<this.outputColorCount; colorIdx++) {
@@ -361,6 +368,7 @@ public final class VisorLayerC extends VisorLayer {
 						channelData[0] = 1.0 - channelValue;
 
 						_colorsChannels.addObservation(
+								false,
 								colorProb, 
 								colorChannelLoc, 
 								channelData, 

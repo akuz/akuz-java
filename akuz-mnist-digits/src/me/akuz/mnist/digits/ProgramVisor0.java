@@ -12,13 +12,14 @@ public class ProgramVisor0 {
 	
 	private static void approximate(
 			final Tensor image,
-			final int colorCount) throws IOException {
+			final int colorCount,
+			final int iterCount) throws IOException {
 
 		final VisorLayerC layer = new VisorLayerC(image.shape, colorCount);
 		
 		layer.setInput(image);
 		
-		for (int i=0; i<colorCount*10; i++) {
+		for (int i=0; i<iterCount; i++) {
 			System.out.println(i);
 			layer.infer(false);
 			layer.learn();
@@ -38,9 +39,10 @@ public class ProgramVisor0 {
 		
 		final Tensor image = TensorGens.colourSineImage(150, 200);
 		TensorFiles.saveColourPNG(image, PREFIX + "0.png");
-		for (int colorCount=2; colorCount<=16; colorCount*=2) {
-			approximate(image, colorCount);
+		for (int colorCount=2; colorCount<=8; colorCount*=2) {
+			approximate(image, colorCount, colorCount*10);
 		}
+//		approximate(image, 32, 50);
 	}
 
 }

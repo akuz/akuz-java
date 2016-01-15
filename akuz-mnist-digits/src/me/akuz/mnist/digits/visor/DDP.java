@@ -36,7 +36,7 @@ public final class DDP {
 			final double baseNoise,
 			final double baseMass,
 			final double maxObsMass) {
-		
+
 		if (shape == null) {
 			throw new NullPointerException("shape");
 		}
@@ -126,6 +126,7 @@ public final class DDP {
 	 * tensor with the LAST dimension to sample.
 	 */
 	public void addObservation(
+			final boolean replace,
 			final double mass,
 			final Location subLoc,
 			final double[] obsData,
@@ -133,9 +134,17 @@ public final class DDP {
 
 		// handle root
 		if (_ndim == 1) {
-			_obsMass.add(0, mass);
+			if (replace) {
+				_obsMass.set(0, mass);
+			} else {
+				_obsMass.add(0, mass);
+			}
 		} else {
-			_obsMass.add(subLoc, mass);
+			if (replace) {
+				_obsMass.set(subLoc, mass);
+			} else {
+				_obsMass.add(subLoc, mass);
+			}
 		}
 
 		// calculate write start index
@@ -157,9 +166,15 @@ public final class DDP {
 				throw new IllegalStateException("prob " + prob);
 			}
 			
-			_obs.add(
-					writeIndex, 
-					mass*prob);
+			if (replace) {
+				_obs.set(
+						writeIndex, 
+						mass*prob);
+			} else {
+				_obs.add(
+						writeIndex, 
+						mass*prob);
+			}
 
 			++obsDataIndex;
 			++writeIndex;
