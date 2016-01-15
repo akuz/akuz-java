@@ -17,7 +17,13 @@ import me.akuz.ml.tensors.Tensor;
  */
 public final class VisorLayerC extends VisorLayer {
 
-	// base distribution a color at each pixel
+	// base distribution at each pixel
+	public static final double OUT_DP_BASE_INIT    = 1.0;
+	public static final double OUT_DP_BASE_NOISE   = 0.0;
+	public static final double OUT_DP_BASE_MASS    = 1.0;
+	public static final double OUT_DP_MAX_OBS_MASS = 1.0;
+
+	// base distribution of colors
 	public static final double COLOR_DP_BASE_INIT    = 1.0;
 	public static final double COLOR_DP_BASE_NOISE   = 0.1;
 	public static final double COLOR_DP_BASE_MASS    = 10.0;
@@ -30,8 +36,9 @@ public final class VisorLayerC extends VisorLayer {
 	public static final double COLOR_CHANNEL_DP_MAX_OBS_MASS = 90.0;
 
 	private Tensor _input;
-	private final DDP _color;
-	private final DDP _colorChannel;
+	private final DDP _out;
+	private final DDP _colors;
+	private final DDP _colorsChannels;
 
 	/**
 	 * Height of the input image tensor (size of dim 0).
@@ -109,16 +116,22 @@ public final class VisorLayerC extends VisorLayer {
 				colorCount);
 		
 		this.output = new DenseTensor(outputShape);
-		
-		_color = new DDP(
-				new Shape(
-						this.outputColorCount),
+
+		_out = new DDP(
+				new Shape(this.outputColorCount),
+				OUT_DP_BASE_INIT,
+				OUT_DP_BASE_NOISE,
+				OUT_DP_BASE_MASS,
+				OUT_DP_MAX_OBS_MASS);
+
+		_colors = new DDP(
+				new Shape(this.outputColorCount),
 				COLOR_DP_BASE_INIT,
 				COLOR_DP_BASE_NOISE,
 				COLOR_DP_BASE_MASS,
 				COLOR_DP_MAX_OBS_MASS);
 		
-		_colorChannel = new DDP(
+		_colorsChannels = new DDP(
 				new Shape(
 						this.outputColorCount, 
 						this.inputChannelCount,
@@ -171,7 +184,7 @@ public final class VisorLayerC extends VisorLayer {
 				final int outputStartIdx = outputShape.calcFlatIndexFromLocation(outputDeepLoc);
 				
 				// start with colors log-likelihood
-				_color.fillPosteriorMean(null, outputData, outputStartIdx);
+				_colors.fillPosteriorMean(null, outputData, outputStartIdx);
 				for (int colorIdx=0; colorIdx<this.outputColorCount; colorIdx++) {
 					final int outputIdx = outputStartIdx + colorIdx;
 					outputData[outputIdx] = Math.log(outputData[outputIdx]);
@@ -197,7 +210,7 @@ public final class VisorLayerC extends VisorLayer {
 
 						final double colorChannelLogLike =
 							StatsUtils.checkFinite(
-								_colorChannel.calcPosteriorLogLike(
+								_colorsChannels.calcPosteriorLogLike(
 									colorChannelLoc, 
 									channelData, 
 									0));
@@ -211,6 +224,10 @@ public final class VisorLayerC extends VisorLayer {
 						outputData, 
 						outputStartIdx, 
 						this.outputColorCount);
+				
+				if (_out != null) {
+					// TODO: remove !=, and do something
+				}
 			}
 		}
 	}
@@ -258,7 +275,7 @@ public final class VisorLayerC extends VisorLayer {
 						
 						colorChannelIdxs[1] = channelIdx;
 						
-						_colorChannel.fillPosteriorMean(
+						_colorsChannels.fillPosteriorMean(
 								colorChannelLoc, 
 								channelData, 
 								0);
@@ -323,7 +340,7 @@ public final class VisorLayerC extends VisorLayer {
 				}
 
 				final int outputStartIdx = this.outputShape.calcFlatIndexFromLocation(outputLoc);
-				_color.addObservation(1.0, null, outputData, outputStartIdx);
+				_colors.addObservation(1.0, null, outputData, outputStartIdx);
 
 				// update each color
 				for (int colorIdx=0; colorIdx<this.outputColorCount; colorIdx++) {
@@ -343,7 +360,7 @@ public final class VisorLayerC extends VisorLayer {
 						channelData[1] = channelValue;
 						channelData[0] = 1.0 - channelValue;
 
-						_colorChannel.addObservation(
+						_colorsChannels.addObservation(
 								colorProb, 
 								colorChannelLoc, 
 								channelData, 
@@ -356,9 +373,9 @@ public final class VisorLayerC extends VisorLayer {
 	
 	public void print() {
 		System.out.println("------ color ------");
-		System.out.println(_color.toString());
+		System.out.println(_colors.toString());
 		System.out.println("------ color-channel ------");
-		System.out.println(_colorChannel.toString());
+		System.out.println(_colorsChannels.toString());
 	}
 
 }
