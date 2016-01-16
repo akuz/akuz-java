@@ -27,7 +27,7 @@ public final class VisorLayerC extends VisorLayer {
 	public static final double COLOR_CHANNEL_DP_BASE_INIT    = 1.0;
 	public static final double COLOR_CHANNEL_DP_BASE_NOISE   = 0.1;
 	public static final double COLOR_CHANNEL_DP_BASE_MASS    = 100.0;
-	public static final double COLOR_CHANNEL_DP_MAX_OBS_MASS = 1000.0;
+	public static final double COLOR_CHANNEL_DP_MAX_OBS_MASS = 10000.0;
 
 	private Tensor _input;
 	private final DDP _colors;
