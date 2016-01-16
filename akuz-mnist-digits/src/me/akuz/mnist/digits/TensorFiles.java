@@ -8,11 +8,45 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import me.akuz.ml.tensors.DenseTensor;
 import me.akuz.ml.tensors.Location;
 import me.akuz.ml.tensors.Shape;
 import me.akuz.ml.tensors.Tensor;
 
 public final class TensorFiles {
+	
+	public static Tensor loadImage(final String fileName) throws IOException {
+		
+		final BufferedImage img = ImageIO.read(new File(fileName));
+		
+		final Shape shape = new Shape(img.getHeight(), img.getWidth(), 3);
+		final Tensor tensor = new DenseTensor(shape);
+		
+		final int[] indices = new int[3];
+		final Location loc = new Location(indices);
+		for (int i=0; i<img.getHeight(); i++) {
+			indices[0] = i;
+			for (int j=0; j<img.getWidth(); j++) {
+				indices[1] = j;
+				
+				final Color color = new Color(img.getRGB(j, i));
+				final double r = (1 + color.getRed()) / 257.0;
+				final double g = (1 + color.getGreen()) / 257.0;
+				final double b = (1 + color.getBlue()) / 257.0;
+				
+				indices[2] = 0;
+				tensor.set(loc, r);
+				
+				indices[2] = 1;
+				tensor.set(loc, g);
+				
+				indices[2] = 2;
+				tensor.set(loc, b);
+			}
+		}
+		
+		return tensor;
+	}
 
 	public static void saveColourPNG(
 			final Tensor image,

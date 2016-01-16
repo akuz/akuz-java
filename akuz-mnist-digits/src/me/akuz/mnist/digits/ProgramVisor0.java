@@ -37,7 +37,10 @@ public class ProgramVisor0 {
 	
 	public static void main(String[] args) throws IOException {
 		
-		final Tensor image = TensorGen.colourSineImage(150, 200);
+//		final Tensor image = TensorGen.colourSineImage(150, 200);
+		final Tensor image = TensorFiles.loadImage("/Users/andrey/Desktop/baz.jpg");
+//		final Tensor image = TensorFiles.loadImage("/Users/andrey/Desktop/andrey.jpg");
+		
 		TensorFiles.saveColourPNG(image, PREFIX + "0.png");
 		for (int colorCount=2; colorCount<=32; colorCount*=2) {
 			approximate(image, colorCount, 50);
