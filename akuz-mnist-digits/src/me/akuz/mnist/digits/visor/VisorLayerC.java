@@ -51,7 +51,7 @@ public final class VisorLayerC extends VisorLayer {
 	/**
 	 * Number of colors recognized by the layer.
 	 */
-	public final int outputColorCount;
+	public final int colorCount;
 	
 	/**
 	 * Shape of the output tensor.
@@ -101,17 +101,17 @@ public final class VisorLayerC extends VisorLayer {
 			throw new IllegalArgumentException(
 				"Color count must be >= 2, got " + colorCount);
 		}
-		this.outputColorCount = colorCount;
+		this.colorCount = colorCount;
 		
 		this.outputShape = new Shape(
 				this.inputHeight,
 				this.inputWidth,
-				outputColorCount);
+				colorCount);
 		
 		this.output = new DenseTensor(outputShape);
 
 		_colors = new DDP(
-				new Shape(this.outputColorCount),
+				new Shape(this.colorCount),
 				COLOR_DP_BASE_INIT,
 				COLOR_DP_BASE_NOISE,
 				COLOR_DP_BASE_MASS,
@@ -119,7 +119,7 @@ public final class VisorLayerC extends VisorLayer {
 		
 		_colorsChannels = new DDP(
 				new Shape(
-						this.outputColorCount, 
+						this.colorCount, 
 						this.inputChannelCount,
 						2),
 				COLOR_CHANNEL_DP_BASE_INIT,
@@ -173,7 +173,7 @@ public final class VisorLayerC extends VisorLayer {
 				_colors.fillPosteriorMean(colorChannelLoc, outputData, outputStartIdx);
 				
 				// calculate color log probs
-				for (int colorIdx=0; colorIdx<this.outputColorCount; colorIdx++) {
+				for (int colorIdx=0; colorIdx<this.colorCount; colorIdx++) {
 					
 					// output data index
 					final int outputIdx = outputStartIdx + colorIdx;
@@ -207,72 +207,7 @@ public final class VisorLayerC extends VisorLayer {
 				StatsUtils.logLikesToProbsInPlace(
 						outputData, 
 						outputStartIdx, 
-						this.outputColorCount);
-			}
-		}
-	}
-
-	@Override
-	public void dream() {
-		
-		final Tensor input = _input;
-		if (input == null) {
-			throw new IllegalStateException(
-				"Input image not set, cannot dream colors");
-		}
-		
-		final int[] inputIdxs = new int[3];
-		final int[] outputIdxs = new int[3];
-		final int[] colorChannelIdxs = new int[2];
-		final Location inputLoc = new Location(inputIdxs);
-		final Location outputLoc = new Location(outputIdxs);
-		final Location colorChannelLoc = new Location(colorChannelIdxs);
-		final double[] channelValues = new double[this.inputChannelCount];
-		final double[] channelData = new double[2];
-		for (int i=0; i<this.inputHeight;i++) {
-			inputIdxs[0] = i;
-			outputIdxs[0] = i;
-			
-			for (int j=0; j<this.inputWidth; j++) {
-				inputIdxs[1] = j;
-				outputIdxs[1] = j;
-				
-				// reset channels array
-				Arrays.fill(channelValues, 0.0);
-				
-				// aggregate color probs
-				for (int colorIdx=0; colorIdx<this.outputColorCount; colorIdx++) {
-					
-					// get output color prob
-					outputIdxs[2] = colorIdx;
-					final double colorProb = this.output.get(outputLoc);
-					
-					// aggregate color channels
-					colorChannelIdxs[0] = colorIdx;
-					
-					// now add channel observations probability
-					for (int channelIdx=0; channelIdx<this.inputChannelCount; channelIdx++) {
-						
-						colorChannelIdxs[1] = channelIdx;
-						
-						_colorsChannels.fillPosteriorMean(
-								colorChannelLoc, 
-								channelData, 
-								0);
-						
-						// merge into the channel
-						channelValues[channelIdx] += 
-								colorProb * channelData[1];
-					}
-				}
-				
-				// set input channel values at this location
-				for (int channelIdx=0; channelIdx<this.inputChannelCount; channelIdx++) {
-					
-					// populate channel value
-					inputIdxs[2] = channelIdx;
-					input.set(inputLoc, channelValues[channelIdx]);
-				}
+						this.colorCount);
 			}
 		}
 	}
@@ -323,7 +258,7 @@ public final class VisorLayerC extends VisorLayer {
 				_colors.addObservation(false, 1.0, null, outputData, outputStartIdx);
 
 				// update each color
-				for (int colorIdx=0; colorIdx<this.outputColorCount; colorIdx++) {
+				for (int colorIdx=0; colorIdx<this.colorCount; colorIdx++) {
 					
 					// get output color prob
 					final double colorProb = outputData[outputStartIdx + colorIdx];
@@ -351,12 +286,70 @@ public final class VisorLayerC extends VisorLayer {
 			}
 		}
 	}
-	
-	public void print() {
-		System.out.println("------ color ------");
-		System.out.println(_colors.toString());
-		System.out.println("------ color-channel ------");
-		System.out.println(_colorsChannels.toString());
+
+	@Override
+	public void dream() {
+		
+		final Tensor input = _input;
+		if (input == null) {
+			throw new IllegalStateException(
+				"Input image not set, cannot dream colors");
+		}
+		
+		final int[] inputIdxs = new int[3];
+		final int[] outputIdxs = new int[3];
+		final int[] colorChannelIdxs = new int[2];
+		final Location inputLoc = new Location(inputIdxs);
+		final Location outputLoc = new Location(outputIdxs);
+		final Location colorChannelLoc = new Location(colorChannelIdxs);
+		final double[] channelValues = new double[this.inputChannelCount];
+		final double[] channelData = new double[2];
+		for (int i=0; i<this.inputHeight;i++) {
+			inputIdxs[0] = i;
+			outputIdxs[0] = i;
+			
+			for (int j=0; j<this.inputWidth; j++) {
+				inputIdxs[1] = j;
+				outputIdxs[1] = j;
+				
+				// reset channels array
+				Arrays.fill(channelValues, 0.0);
+				
+				// aggregate color probs
+				for (int colorIdx=0; colorIdx<this.colorCount; colorIdx++) {
+					
+					// get output color prob
+					outputIdxs[2] = colorIdx;
+					final double colorProb = this.output.get(outputLoc);
+					
+					// aggregate color channels
+					colorChannelIdxs[0] = colorIdx;
+					
+					// now add channel observations probability
+					for (int channelIdx=0; channelIdx<this.inputChannelCount; channelIdx++) {
+						
+						colorChannelIdxs[1] = channelIdx;
+						
+						_colorsChannels.fillPosteriorMean(
+								colorChannelLoc, 
+								channelData, 
+								0);
+						
+						// merge into the channel
+						channelValues[channelIdx] += 
+								colorProb * channelData[1];
+					}
+				}
+				
+				// set input channel values at this location
+				for (int channelIdx=0; channelIdx<this.inputChannelCount; channelIdx++) {
+					
+					// populate channel value
+					inputIdxs[2] = channelIdx;
+					input.set(inputLoc, channelValues[channelIdx]);
+				}
+			}
+		}
 	}
 
 }
