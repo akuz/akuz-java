@@ -30,9 +30,9 @@ public final class TensorFiles {
 				indices[1] = j;
 				
 				final Color color = new Color(img.getRGB(j, i));
-				final double r = (1 + color.getRed()) / 257.0;
-				final double g = (1 + color.getGreen()) / 257.0;
-				final double b = (1 + color.getBlue()) / 257.0;
+				final double r = Math.pow((1 + color.getRed()) / 257.0, 2.2);
+				final double g = Math.pow((1 + color.getGreen()) / 257.0, 2.2);
+				final double b = Math.pow((1 + color.getBlue()) / 257.0, 2.2);
 				
 				indices[2] = 0;
 				tensor.set(loc, r);
@@ -64,9 +64,9 @@ public final class TensorFiles {
 		for (int i=0; i<shape.sizes[0]; i++) {
 			for (int j=0; j<shape.sizes[1]; j++) {
 				
-				int r = (int)(image.get(new Location(i, j, 0)) * 255);
-				int g = (int)(image.get(new Location(i, j, 1)) * 255);
-				int b = (int)(image.get(new Location(i, j, 2)) * 255);
+				int r = (int)(Math.pow(image.get(new Location(i, j, 0)), 1/2.2) * 255);
+				int g = (int)(Math.pow(image.get(new Location(i, j, 1)), 1/2.2) * 255);
+				int b = (int)(Math.pow(image.get(new Location(i, j, 2)), 1/2.2) * 255);
 				
 				final Color color = new Color(r, g, b);
 				graphics.setColor(color);

@@ -122,15 +122,15 @@ public final class DDP {
 	 * Add observation of the provided discrete distribution 
 	 * with specified mass at the specified sub-location.
 	 * 
-	 * WARNING: the obsData must be the data of a
-	 * tensor with the LAST dimension to sample.
+	 * WARNING: the data array must be the data of a
+	 * tensor with the LAST dimension to observe.
 	 */
 	public void addObservation(
 			final boolean replace,
 			final double mass,
 			final Location subLoc,
-			final double[] obsData,
-			int obsDataIndex) {
+			final double[] data,
+			int dataIndex) {
 
 		// handle root
 		if (_ndim == 1) {
@@ -160,7 +160,7 @@ public final class DDP {
 		// write the data, crash on out of bounds if passed data is bad
 		for (int i=0; i<_lastDimSize; i++) {
 			
-			final double prob = obsData[obsDataIndex];
+			final double prob = data[dataIndex];
 			
 			if (prob < 0.0 || prob > 1.0) {
 				throw new IllegalStateException("prob " + prob);
@@ -176,7 +176,7 @@ public final class DDP {
 						mass*prob);
 			}
 
-			++obsDataIndex;
+			++dataIndex;
 			++writeIndex;
 		}
 	}
@@ -191,13 +191,13 @@ public final class DDP {
 	 * 
 	 * DP(a, M) = Dir(a*M(x1), ..., a*M(xK)).
 	 * 
-	 * WARNING: the obsData must be the data of a
-	 * tensor with the LAST dimension to sample.
+	 * WARNING: the data array must be the data of a
+	 * tensor with the LAST dimension to observe.
 	 */
 	public double calcPosteriorLogLike(
 			final Location subLoc,
-			final double[] obsData,
-			int obsDataIndex) {
+			final double[] data,
+			int dataIndex) {
 
 		// handle root
 		final double obsMass; 
@@ -235,7 +235,7 @@ public final class DDP {
 			// read the values at index
 			final double base_idxProb = _base.get(readIndex);
 			final double obs_idxProb = obsMass > 0 ? _obs.get(readIndex)/obsMass : 0.0;
-			final double obsValue = obsData[obsDataIndex];
+			final double obsValue = data[dataIndex];
 			
 			final double posteriorDP_idxProb =
 					a / a_plus_n * base_idxProb +
@@ -250,7 +250,7 @@ public final class DDP {
 			logLike -= GammaFunction.lnGamma(posteriorDir_idxAlpha);
 			sumPosteriorDirAlpha += posteriorDir_idxAlpha;
 			
-			++obsDataIndex;
+			++dataIndex;
 			++readIndex;
 		}
 		
@@ -260,11 +260,17 @@ public final class DDP {
 		return logLike;
 	}
 
-	// FIXME: unify with above
+	/**
+	 * Fill posterior mean into the provided output array
+	 * starting at the specified index in that array.
+	 *
+	 * WARNING: the data array must be the data of a
+	 * tensor with the LAST dimension to write to.
+	 */
 	public void fillPosteriorMean(
 			final Location subLoc,
-			final double[] obsData,
-			int obsDataIndex) {
+			final double[] data,
+			int dataIndex) {
 
 		// handle root
 		final double obsMass; 
@@ -300,9 +306,9 @@ public final class DDP {
 					a / a_plus_n * base_idxProb +
 					n / a_plus_n * obs_idxProb;
 			
-			obsData[obsDataIndex] = posteriorDP_idxProb;
+			data[dataIndex] = posteriorDP_idxProb;
 			
-			++obsDataIndex;
+			++dataIndex;
 			++readIndex;
 		}
 	}
