@@ -29,7 +29,6 @@ public final class VisorLayerC extends VisorLayer {
 	public static final double COLOR_CHANNEL_DP_BASE_MASS    = 100.0;
 	public static final double COLOR_CHANNEL_DP_MAX_OBS_MASS = 10000.0;
 
-	private Tensor _input;
 	private final DDP _colors;
 	private final DDP _colorsChannels;
 
@@ -126,17 +125,6 @@ public final class VisorLayerC extends VisorLayer {
 				COLOR_CHANNEL_DP_BASE_NOISE,
 				COLOR_CHANNEL_DP_BASE_MASS,
 				COLOR_CHANNEL_DP_MAX_OBS_MASS);
-	}
-	
-	public void setInput(final Tensor input) {
-		if (input != null) {
-			if (!this.inputShape.equals(input.shape)) {
-				throw new IllegalArgumentException(
-					"Input shape " + input.shape + " doesn't match " +
-					"layer input shape " + this.inputShape);
-			}
-		}
-		_input = input;
 	}
 
 	@Override

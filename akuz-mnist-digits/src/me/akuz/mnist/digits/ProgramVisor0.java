@@ -3,7 +3,6 @@ package me.akuz.mnist.digits;
 import java.io.IOException;
 
 import me.akuz.ml.tensors.DenseTensor;
-import me.akuz.ml.tensors.Tensor;
 import me.akuz.mnist.digits.visor.VisorLayerC;
 
 public class ProgramVisor0 {
@@ -11,7 +10,7 @@ public class ProgramVisor0 {
 	private static final String PREFIX = "/Users/andrey/Desktop/test";
 	
 	private static void approximate(
-			final Tensor image,
+			final DenseTensor image,
 			final int colorCount,
 			final int iterCount) throws IOException {
 
@@ -26,11 +25,11 @@ public class ProgramVisor0 {
 		}
 		
 		System.out.println("dream");
-		final Tensor dream = new DenseTensor(image.shape);
+		final DenseTensor dream = new DenseTensor(image.shape);
 		layer.setInput(dream);
 		layer.dream();
 		
-		TensorFiles.saveColourPNG(dream, PREFIX + colorCount + ".png");
+		TensorFiles.saveImage_sRGB(dream, PREFIX + colorCount + ".png");
 		
 		System.out.println();
 		System.out.println("DONE " + colorCount + " colors.");
@@ -40,10 +39,10 @@ public class ProgramVisor0 {
 	public static void main(String[] args) throws IOException {
 		
 //		final Tensor image = TensorGen.colourSineImage(150, 200);
-		final Tensor image = TensorFiles.loadImage("/Users/andrey/Desktop/baz.jpg");
+		final DenseTensor image = TensorFiles.loadImage_sRGB("/Users/andrey/Desktop/baz.jpg");
 //		final Tensor image = TensorFiles.loadImage("/Users/andrey/Desktop/andrey.jpg");
 		
-		TensorFiles.saveColourPNG(image, PREFIX + "0.png");
+		TensorFiles.saveImage_sRGB(image, PREFIX + "0.png");
 		for (int colorCount=2; colorCount<=32; colorCount*=2) {
 			approximate(image, colorCount, 50);
 		}

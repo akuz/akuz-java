@@ -11,16 +11,17 @@ import javax.imageio.ImageIO;
 import me.akuz.ml.tensors.DenseTensor;
 import me.akuz.ml.tensors.Location;
 import me.akuz.ml.tensors.Shape;
-import me.akuz.ml.tensors.Tensor;
+import me.akuz.mnist.digits.visor.ColorUtils;
 
 public final class TensorFiles {
 	
-	public static Tensor loadImage(final String fileName) throws IOException {
+	public static DenseTensor loadImage_sRGB(final String fileName) throws IOException {
 		
 		final BufferedImage img = ImageIO.read(new File(fileName));
 		
 		final Shape shape = new Shape(img.getHeight(), img.getWidth(), 3);
-		final Tensor tensor = new DenseTensor(shape);
+		final DenseTensor tensor = new DenseTensor(shape);
+		final double[] data = tensor.data();
 		
 		final int[] indices = new int[3];
 		final Location loc = new Location(indices);
@@ -30,51 +31,57 @@ public final class TensorFiles {
 				indices[1] = j;
 				
 				final Color color = new Color(img.getRGB(j, i));
-				final double r = Math.pow((1 + color.getRed()) / 257.0, 2.2);
-				final double g = Math.pow((1 + color.getGreen()) / 257.0, 2.2);
-				final double b = Math.pow((1 + color.getBlue()) / 257.0, 2.2);
+				final int idx = shape.calcFlatIndexFromLocation(loc);
 				
-				indices[2] = 0;
-				tensor.set(loc, r);
-				
-				indices[2] = 1;
-				tensor.set(loc, g);
-				
-				indices[2] = 2;
-				tensor.set(loc, b);
+				data[idx+0] = ColorUtils.clip01(color.getRed() / 255.0);
+				data[idx+1] = ColorUtils.clip01(color.getGreen() / 255.0);
+				data[idx+2] = ColorUtils.clip01(color.getBlue() / 255.0);
 			}
 		}
 		
 		return tensor;
 	}
 
-	public static void saveColourPNG(
-			final Tensor image,
+	public static void saveImage_sRGB(
+			final DenseTensor tensor,
 			final String fileName) throws IOException {
 
-		final Shape shape = image.shape;
+		final Shape shape = tensor.shape;
+		if (shape.ndim != 3) {
+			throw new IllegalArgumentException("Tensor ndim must be 3");
+		}
+		if (shape.sizes[2] != 3) {
+			throw new IllegalArgumentException("Tensor dim 2 size must be 3");
+		}
+		final double[] data = tensor.data();
 		
-		BufferedImage img = new BufferedImage(
-				shape.sizes[1], 
-				shape.sizes[0], 
+		final BufferedImage img = new BufferedImage(
+				shape.sizes[1],
+				shape.sizes[0],
 				BufferedImage.TYPE_INT_ARGB);
 		
-		Graphics2D graphics = img.createGraphics();
+		final Graphics2D graphics = img.createGraphics();
 		
+		final int[] indices = new int[3];
+		final Location loc = new Location(indices);
 		for (int i=0; i<shape.sizes[0]; i++) {
+			indices[0] = i;
 			for (int j=0; j<shape.sizes[1]; j++) {
+				indices[1] = j;
+
+				final int idx = shape.calcFlatIndexFromLocation(loc);
 				
-				int r = (int)(Math.pow(image.get(new Location(i, j, 0)), 1/2.2) * 255);
-				int g = (int)(Math.pow(image.get(new Location(i, j, 1)), 1/2.2) * 255);
-				int b = (int)(Math.pow(image.get(new Location(i, j, 2)), 1/2.2) * 255);
-				
-				final Color color = new Color(r, g, b);
+				final int R = (int)(255.0 * ColorUtils.clip01(data[idx+0]));
+				final int G = (int)(255.0 * ColorUtils.clip01(data[idx+1]));
+				final int B = (int)(255.0 * ColorUtils.clip01(data[idx+2]));
+
+				final Color color = new Color(R, G, B);
 				graphics.setColor(color);
 				graphics.fillRect(j, i, 1, 1);
 			}
 		}
 		
-		File imgFile = new File(fileName);
+		final File imgFile = new File(fileName);
 	    ImageIO.write(img, "png", imgFile);
 	}
 }
