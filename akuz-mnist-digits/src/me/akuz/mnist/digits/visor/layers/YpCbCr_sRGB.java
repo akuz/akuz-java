@@ -1,4 +1,4 @@
-package me.akuz.mnist.digits.visor.transforms;
+package me.akuz.mnist.digits.visor.layers;
 
 import me.akuz.ml.tensors.DenseTensor;
 import me.akuz.ml.tensors.Location;

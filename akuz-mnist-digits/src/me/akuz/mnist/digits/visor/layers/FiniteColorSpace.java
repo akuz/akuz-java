@@ -1,4 +1,4 @@
-package me.akuz.mnist.digits.visor;
+package me.akuz.mnist.digits.visor.layers;
 
 import java.util.Arrays;
 
@@ -7,6 +7,8 @@ import me.akuz.ml.tensors.DenseTensor;
 import me.akuz.ml.tensors.Location;
 import me.akuz.ml.tensors.Shape;
 import me.akuz.ml.tensors.Tensor;
+import me.akuz.mnist.digits.visor.DDP;
+import me.akuz.mnist.digits.visor.VisorLayer;
 
 /**
  * Color-inferring visor layer, which collapses
@@ -15,7 +17,7 @@ import me.akuz.ml.tensors.Tensor;
  * the visor can recognize.
  *
  */
-public final class VisorLayerC extends VisorLayer {
+public final class FiniteColorSpace extends VisorLayer {
 
 	// base distribution for colors
 	public static final double COLOR_DP_BASE_INIT    = 1.0;
@@ -68,7 +70,7 @@ public final class VisorLayerC extends VisorLayer {
 	 * dimension spanning the color channels) and 
 	 * a specified number of colors to recognize.
 	 */
-	public VisorLayerC(
+	public FiniteColorSpace(
 			final Shape inputShape, 
 			final int colorCount) {
 		
