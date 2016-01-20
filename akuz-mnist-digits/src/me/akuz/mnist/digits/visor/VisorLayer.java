@@ -1,6 +1,6 @@
 package me.akuz.mnist.digits.visor;
 
-import me.akuz.ml.tensors.DenseTensor;
+import me.akuz.ml.tensors.Tensor;
 import me.akuz.ml.tensors.Shape;
 
 /**
@@ -17,7 +17,7 @@ public abstract class VisorLayer {
 	/**
 	 * Input tensor (might be null).
 	 */
-	protected DenseTensor _input;
+	private Tensor _input;
 	
 	/**
 	 * Base constructor.
@@ -33,26 +33,38 @@ public abstract class VisorLayer {
 	 * Set new input tensor (must be the 
 	 * same shape as layer input shape).
 	 */
-	public final void setInput(final DenseTensor input) {
-		if (input == null) {
-			throw new NullPointerException("input");
-		}
-		if (!input.shape.equals(this.inputShape)) {
-			throw new IllegalArgumentException(
-					"Input tensor shape, got " + input.shape + 
-					", must match the tensor input shape " +
-					this.inputShape);
+	public final void setInput(final Tensor input) {
+		if (input != null) {
+			if (!input.shape.equals(this.inputShape)) {
+				throw new IllegalArgumentException(
+						"Input tensor shape, got " + input.shape + 
+						", must match the layer input shape " +
+						this.inputShape);
+			}
 		}
 		_input = input;
 	}
 	
 	/**
-	 * Get current input tensor.
+	 * Get current input tensor (can be null).
 	 */
-	public final DenseTensor getInput() {
+	public final Tensor getInput() {
 		return _input;
 	}
 
+	/**
+	 * Get current input tensor (throw exception if null).
+	 */
+	public final Tensor getInputNotNull() {
+		final Tensor input = _input;
+		if (input == null) {
+			throw new IllegalStateException(
+				"Input tensor is not set");
+		}
+		return input;
+	}
+	
+	
 	/**
 	 * Infer the probabilities of the hidden variables, 
 	 * based on the current states of the other layers.

@@ -1,105 +1,68 @@
 package me.akuz.ml.tensors;
 
-import java.text.DecimalFormat;
+import java.util.Arrays;
 
 /**
- * Base class for tensors.
+ * Dense tensor containing the data.
  * 
  */
-public abstract class Tensor {
+public final class Tensor extends TensorBase {
 	
-	public static final DecimalFormat DF = new DecimalFormat("#.########");
+	private final double[] _data;
 	
-	/**
-	 * Number of dimensions.
-	 */
-	public final int ndim;
-	
-	/**
-	 * Total size of the tensor.
-	 */
-	public final int size;
-	
-	/**
-	 * Shape of the tensor.
-	 */
-	public final Shape shape;
-	
-	/**
-	 * Create tensor of a fixed shape.
-	 */
 	public Tensor(final Shape shape) {
-		this.ndim = shape.ndim;
-		this.size = shape.size;
-		this.shape = shape;
+		
+		super(shape);
+		
+		_data = new double[shape.size];
 	}
-	
-	/**
-	 * Get the value by flat index.
-	 */
-	public abstract double get(int flatIndex);
-	
-	/**
-	 * Get the value by tensor location.
-	 */
-	public abstract double get(Location location);
-	
-	/**
-	 * Set the value by flat index.
-	 */
-	public abstract void set(int flatIndex, double value);
-	
-	/**
-	 * Set the value by tensor location.
-	 */
-	public abstract void set(Location location, double value);
 
-	/**
-	 * Add the value by flat index.
-	 */
-	public abstract void add(int flatIndex, double value);
-	
-	/**
-	 * Add the value by tensor location.
-	 */
-	public abstract void add(Location location, double value);
-
-	/**
-	 * Multiply with the value by flat index.
-	 */
-	public abstract void mul(int flatIndex, double value);
-	
-	/**
-	 * Multiply with the value by tensor location.
-	 */
-	public abstract void mul(Location location, double value);
-	
-	/**
-	 * Fill tensor with the value.
-	 */
-	public abstract void fill(double value);
-	
 	@Override
-	public String toString() {
-		final StringBuilder sb = new StringBuilder();
-		final TensorIterator it = new TensorIterator(this.shape);
-		while (it.next()) {
-			
-			final Location loc = it.loc();
-			final int[] idxs = loc.indices;
-			
-			sb.append("[");
-			for (int i=0; i<this.ndim; i++) {
-				if (i != 0) {
-					sb.append(",");
-				}
-				sb.append(idxs[i]);
-			}
-			sb.append("]: ");
-			sb.append(DF.format(this.get(loc)));
-			sb.append(System.lineSeparator());
-		}
-		return sb.toString();
+	public double get(int flatIndex) {
+		return _data[flatIndex];
 	}
 
+	@Override
+	public void set(int flatIndex, double value) {
+		_data[flatIndex] = value;
+	}
+
+	@Override
+	public double get(final Location location) {
+		return _data[this.shape.calcFlatIndexFromLocation(location)];
+	}
+
+	@Override
+	public void add(int flatIndex, double value) {
+		_data[flatIndex] += value;
+	}
+
+	@Override
+	public void mul(int flatIndex, double value) {
+		_data[flatIndex] *= value;
+	}
+
+	@Override
+	public void set(final Location location, final double value) {
+		_data[this.shape.calcFlatIndexFromLocation(location)] = value;
+	}
+
+	@Override
+	public void add(final Location location, final double value) {
+		_data[this.shape.calcFlatIndexFromLocation(location)] += value;
+	}
+
+	@Override
+	public void mul(final Location location, final double value) {
+		_data[this.shape.calcFlatIndexFromLocation(location)] *= value;
+	}
+
+	@Override
+	public void fill(final double value) {
+		Arrays.fill(_data, value);
+	}
+	
+	public double[] data() {
+		return _data;
+	}
 }

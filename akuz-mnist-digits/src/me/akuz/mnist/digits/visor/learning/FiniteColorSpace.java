@@ -1,12 +1,11 @@
-package me.akuz.mnist.digits.visor.layers;
+package me.akuz.mnist.digits.visor.learning;
 
 import java.util.Arrays;
 
 import me.akuz.core.math.StatsUtils;
-import me.akuz.ml.tensors.DenseTensor;
+import me.akuz.ml.tensors.Tensor;
 import me.akuz.ml.tensors.Location;
 import me.akuz.ml.tensors.Shape;
-import me.akuz.ml.tensors.Tensor;
 import me.akuz.mnist.digits.visor.DDP;
 import me.akuz.mnist.digits.visor.VisorLayer;
 
@@ -62,7 +61,7 @@ public final class FiniteColorSpace extends VisorLayer {
 	/**
 	 * Output to be used at the next level.
 	 */
-	public final DenseTensor output;
+	public final Tensor output;
 	
 	/**
 	 * Create color visor layer with the shape of the
@@ -109,7 +108,7 @@ public final class FiniteColorSpace extends VisorLayer {
 				this.inputWidth,
 				colorCount);
 		
-		this.output = new DenseTensor(outputShape);
+		this.output = new Tensor(outputShape);
 
 		_colors = new DDP(
 				new Shape(this.colorCount),
@@ -132,11 +131,7 @@ public final class FiniteColorSpace extends VisorLayer {
 	@Override
 	public void infer(final boolean useOutputAsPrior) {
 		
-		final Tensor input = _input;
-		if (input == null) {
-			throw new IllegalStateException(
-				"Input image not set, cannot infer colors");
-		}
+		final Tensor input = getInputNotNull();
 		
 		final int[] inputDeepIdxs = new int[3];
 		final int[] outputDeepIdxs = new int[3];
@@ -205,11 +200,7 @@ public final class FiniteColorSpace extends VisorLayer {
 	@Override
 	public void learn() {
 		
-		final Tensor input = _input;
-		if (input == null) {
-			throw new IllegalStateException(
-				"Input image not set, cannot learn colors");
-		}
+		final Tensor input = getInputNotNull();
 
 		final int[] inputIdxs = new int[3];
 		final int[] outputIdxs = new int[3];
@@ -280,11 +271,7 @@ public final class FiniteColorSpace extends VisorLayer {
 	@Override
 	public void dream() {
 		
-		final Tensor input = _input;
-		if (input == null) {
-			throw new IllegalStateException(
-				"Input image not set, cannot dream colors");
-		}
+		final Tensor input = getInputNotNull();
 		
 		final int[] inputIdxs = new int[3];
 		final int[] outputIdxs = new int[3];

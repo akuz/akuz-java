@@ -5,11 +5,11 @@ import java.util.Random;
 import org.junit.Assert;
 import org.junit.Test;
 
-import me.akuz.ml.tensors.DenseTensor;
+import me.akuz.ml.tensors.Tensor;
 import me.akuz.ml.tensors.Location;
 import me.akuz.ml.tensors.Shape;
-import me.akuz.ml.tensors.Tensor;
-import me.akuz.ml.tensors.ViewTensor;
+import me.akuz.ml.tensors.TensorBase;
+import me.akuz.ml.tensors.TensorView;
 
 public class TensorsTest {
 
@@ -18,7 +18,7 @@ public class TensorsTest {
 		
 		Random rnd = new Random();
 		
-		DenseTensor dense = new DenseTensor(new Shape(2, 3, 4));
+		Tensor dense = new Tensor(new Shape(2, 3, 4));
 		
 		Assert.assertEquals(dense.ndim, 3);
 		Assert.assertEquals(dense.shape.ndim, 3);
@@ -81,9 +81,9 @@ public class TensorsTest {
 		
 		Random rnd = new Random();
 
-		DenseTensor dense = new DenseTensor(new Shape(8, 8, 2));
+		Tensor dense = new Tensor(new Shape(8, 8, 2));
 
-		Tensor view = new ViewTensor(dense, new Location(2, 2, 0), new Shape(2, 3, 2));
+		TensorBase view = new TensorView(dense, new Location(2, 2, 0), new Shape(2, 3, 2));
 		
 		double sum1 = 0.0;
 		for (int k=0; k<50; k++) {
@@ -108,14 +108,14 @@ public class TensorsTest {
 		Assert.assertEquals(sum1, sum2, 1e-10);
 		
 		try {
-			new ViewTensor(dense, new Location(-1, 2, 0), view.shape);
+			new TensorView(dense, new Location(-1, 2, 0), view.shape);
 			Assert.fail();
 		} catch (IndexOutOfBoundsException e) {
 			// expected
 		}
 		
 		try {
-			new ViewTensor(dense, new Location(-1, 2, 1), view.shape);
+			new TensorView(dense, new Location(-1, 2, 1), view.shape);
 			Assert.fail();
 		} catch (IndexOutOfBoundsException e) {
 			// expected
@@ -125,8 +125,8 @@ public class TensorsTest {
 	@Test
 	public void testViewTensor2D() {
 		
-		Tensor dense = new DenseTensor(new Shape(5, 8));
-		Tensor view = new ViewTensor(dense, new Location(1, 2), new Shape(2, 3));
+		TensorBase dense = new Tensor(new Shape(5, 8));
+		TensorBase view = new TensorView(dense, new Location(1, 2), new Shape(2, 3));
 		
 		for (int i=0; i<view.size; i++) {
 			view.set(i, 1.0);
@@ -150,8 +150,8 @@ public class TensorsTest {
 	@Test
 	public void testViewTensor3D() {
 		
-		Tensor dense = new DenseTensor(new Shape(5, 8, 4));
-		Tensor view = new ViewTensor(dense, new Location(1, 2, 2), new Shape(2, 3, 2));
+		TensorBase dense = new Tensor(new Shape(5, 8, 4));
+		TensorBase view = new TensorView(dense, new Location(1, 2, 2), new Shape(2, 3, 2));
 		
 		for (int i=0; i<view.size; i++) {
 			view.set(i, 1.0);

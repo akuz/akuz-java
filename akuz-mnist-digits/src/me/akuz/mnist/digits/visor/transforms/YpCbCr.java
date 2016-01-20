@@ -1,6 +1,6 @@
-package me.akuz.mnist.digits.visor.layers;
+package me.akuz.mnist.digits.visor.transforms;
 
-import me.akuz.ml.tensors.DenseTensor;
+import me.akuz.ml.tensors.Tensor;
 import me.akuz.ml.tensors.Location;
 import me.akuz.ml.tensors.Shape;
 import me.akuz.mnist.digits.visor.ColorUtils;
@@ -12,7 +12,7 @@ import me.akuz.mnist.digits.visor.VisorLayer;
  * Yp stands for Y' (gamma adjusted).
  *
  */
-public class YpCbCr_sRGB extends VisorLayer {
+public class YpCbCr extends VisorLayer {
 	
 	public enum Mode {
 		STANDARD,
@@ -21,9 +21,9 @@ public class YpCbCr_sRGB extends VisorLayer {
 
 	public final Mode mode;
 	public final Shape outputShape;
-	public final DenseTensor output;
+	public final Tensor output;
 	
-	public YpCbCr_sRGB(final Mode mode, final Shape inputShape) {
+	public YpCbCr(final Mode mode, final Shape inputShape) {
 		super(inputShape);
 		
 		if (inputShape == null) {
@@ -34,16 +34,13 @@ public class YpCbCr_sRGB extends VisorLayer {
 		}
 		this.mode = mode;
 		this.outputShape = inputShape;
-		this.output = new DenseTensor(inputShape);
+		this.output = new Tensor(inputShape);
 	}
 
 	@Override
 	public void infer(boolean useOutputAsPrior) {
 		
-		final DenseTensor input = _input;
-		if (input == null) {
-			throw new IllegalStateException("Input tensor not set");
-		}
+		final Tensor input = getInputNotNull();
 		
 		final int[] sizes = this.outputShape.sizes;
 		final double[] outputData = this.output.data();
@@ -83,10 +80,7 @@ public class YpCbCr_sRGB extends VisorLayer {
 	@Override
 	public void dream() {
 
-		final DenseTensor input = _input;
-		if (input == null) {
-			throw new IllegalStateException("Input tensor not set");
-		}
+		final Tensor input = getInputNotNull();
 		
 		final int[] sizes = this.outputShape.sizes;
 		final double[] outputData = this.output.data();

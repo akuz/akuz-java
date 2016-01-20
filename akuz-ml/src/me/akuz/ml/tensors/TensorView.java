@@ -4,13 +4,13 @@ package me.akuz.ml.tensors;
  * View tensor looking at some other tensor.
  *
  */
-public final class ViewTensor extends Tensor {
+public final class TensorView extends TensorBase {
 	
-	private final Tensor _underlying;
+	private final TensorBase _underlying;
 	private final int[] _startIndices;
 	
-	public ViewTensor(
-			final Tensor underlying,
+	public TensorView(
+			final TensorBase underlying,
 			final Location start,
 			final Shape shape) {
 		

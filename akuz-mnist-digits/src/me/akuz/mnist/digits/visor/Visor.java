@@ -1,7 +1,7 @@
 package me.akuz.mnist.digits.visor;
 
 import me.akuz.ml.tensors.Shape;
-import me.akuz.ml.tensors.Tensor;
+import me.akuz.ml.tensors.TensorBase;
 
 /**
  * Visor looks at an image and performs
@@ -12,7 +12,7 @@ public final class Visor {
 
 	private boolean _configured;
 	private final Shape _shape;
-	private Tensor _image;
+	private TensorBase _image;
 
 	public Visor(final Shape shape) {
 		if (shape == null) {
@@ -34,7 +34,7 @@ public final class Visor {
 		_configured = true;
 	}
 
-	public void setImage(final Tensor image) {
+	public void setImage(final TensorBase image) {
 		if (image != null) {
 			if (!_shape.equals(image.shape)) {
 				throw new IllegalArgumentException(
@@ -46,7 +46,7 @@ public final class Visor {
 	}
 	
 	public void infer() {
-		Tensor image = _image;
+		TensorBase image = _image;
 		if (image != null) {
 			
 			// TODO: infer values of hidden states

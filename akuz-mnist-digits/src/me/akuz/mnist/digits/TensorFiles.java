@@ -8,19 +8,19 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import me.akuz.ml.tensors.DenseTensor;
+import me.akuz.ml.tensors.Tensor;
 import me.akuz.ml.tensors.Location;
 import me.akuz.ml.tensors.Shape;
 import me.akuz.mnist.digits.visor.ColorUtils;
 
 public final class TensorFiles {
 	
-	public static DenseTensor loadImage_sRGB(final String fileName) throws IOException {
+	public static Tensor loadImage_sRGB(final String fileName) throws IOException {
 		
 		final BufferedImage img = ImageIO.read(new File(fileName));
 		
 		final Shape shape = new Shape(img.getHeight(), img.getWidth(), 3);
-		final DenseTensor tensor = new DenseTensor(shape);
+		final Tensor tensor = new Tensor(shape);
 		final double[] data = tensor.data();
 		
 		final int[] indices = new int[3];
@@ -43,7 +43,7 @@ public final class TensorFiles {
 	}
 
 	public static void saveImage_sRGB(
-			final DenseTensor tensor,
+			final Tensor tensor,
 			final String fileName) throws IOException {
 
 		final Shape shape = tensor.shape;

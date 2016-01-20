@@ -1,9 +1,9 @@
 package me.akuz.mnist.digits;
 
-import me.akuz.ml.tensors.DenseTensor;
+import me.akuz.ml.tensors.Tensor;
 import me.akuz.ml.tensors.Location;
 import me.akuz.ml.tensors.Shape;
-import me.akuz.ml.tensors.Tensor;
+import me.akuz.ml.tensors.TensorBase;
 
 public final class TensorGen {
 	
@@ -28,10 +28,10 @@ public final class TensorGen {
 		outputData[startIdx+2] = b;
 	}
 
-	public static Tensor colourSineImage(int height, int width) {
+	public static TensorBase colourSineImage(int height, int width) {
 
 		final Shape shape = new Shape(height, width, 3);
-		final DenseTensor image = new DenseTensor(shape);
+		final Tensor image = new Tensor(shape);
 		
 		// y and x: -1.0 to 1.0
 		for (int i=0; i<height; i++) {

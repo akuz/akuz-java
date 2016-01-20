@@ -5,10 +5,10 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import me.akuz.core.math.GammaFunction;
-import me.akuz.ml.tensors.DenseTensor;
+import me.akuz.ml.tensors.Tensor;
 import me.akuz.ml.tensors.Location;
 import me.akuz.ml.tensors.Shape;
-import me.akuz.ml.tensors.Tensor;
+import me.akuz.ml.tensors.TensorBase;
 import me.akuz.ml.tensors.TensorIterator;
 
 /**
@@ -24,10 +24,10 @@ public final class DDP {
 	final int _lastDimSize;
 	final int _lastDimLastIdx;
 	
-	final Tensor _base;
+	final TensorBase _base;
 	final double _baseMass;
-	final Tensor _obs;
-	final Tensor _obsMass;
+	final TensorBase _obs;
+	final TensorBase _obsMass;
 	final double _maxObsMass;
 
 	public DDP(
@@ -62,7 +62,7 @@ public final class DDP {
 		_lastDim = shape.ndim-1;
 		_lastDimSize = shape.sizes[_lastDim];
 		_lastDimLastIdx = _lastDimSize-1;
-		_base = new DenseTensor(shape);
+		_base = new Tensor(shape);
 		_baseMass = baseMass;
 		_maxObsMass = maxObsMass;
 		final TensorIterator it = new TensorIterator(_base.shape);
@@ -103,7 +103,7 @@ public final class DDP {
 		}
 		
 		// observed distributions sum
-		_obs = new DenseTensor(shape);
+		_obs = new Tensor(shape);
 		
 		// observed mass shape
 		final Shape obsMassShape;
@@ -115,7 +115,7 @@ public final class DDP {
 		}
 		
 		// observed mass tensor
-		_obsMass = new DenseTensor(obsMassShape);
+		_obsMass = new Tensor(obsMassShape);
 	}
 	
 	/**
