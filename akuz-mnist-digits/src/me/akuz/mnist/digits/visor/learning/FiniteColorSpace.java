@@ -21,8 +21,8 @@ public final class FiniteColorSpace extends VisorLayer {
 	// base distribution for colors
 	public static final double COLOR_DP_BASE_INIT    = 1.0;
 	public static final double COLOR_DP_BASE_NOISE   = 0.1;
-	public static final double COLOR_DP_BASE_MASS    = 1.0;
-	public static final double COLOR_DP_MAX_OBS_MASS = 10.0;
+	public static final double COLOR_DP_BASE_MASS    = 10.0;
+	public static final double COLOR_DP_MAX_OBS_MASS = 100.0;
 
 	// base distribution for a channel in each color
 	public static final double COLOR_CHANNEL_DP_BASE_INIT    = 1.0;

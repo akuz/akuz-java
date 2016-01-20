@@ -62,7 +62,7 @@ public class ProgramVisor0 {
 		
 		TensorFiles.saveImage_sRGB(image, PREFIX + "0.png");
 		for (int colorCount=2; colorCount<=32; colorCount*=2) {
-			approximate(image, colorCount, 50);
+			approximate(image, colorCount, 10);
 		}
 	}
 
