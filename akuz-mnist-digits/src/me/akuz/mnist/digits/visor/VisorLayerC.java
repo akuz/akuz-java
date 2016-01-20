@@ -128,7 +128,7 @@ public final class VisorLayerC extends VisorLayer {
 	}
 
 	@Override
-	public void infer(final boolean useOutputAsBaseDist) {
+	public void infer(final boolean useOutputAsPrior) {
 		
 		final Tensor input = _input;
 		if (input == null) {

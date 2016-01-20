@@ -13,11 +13,17 @@ import me.akuz.mnist.digits.visor.VisorLayer;
  *
  */
 public class YpCbCr_sRGB extends VisorLayer {
+	
+	public enum Mode {
+		STANDARD,
+		NORMALIZE,
+	}
 
+	public final Mode mode;
 	public final Shape outputShape;
 	public final DenseTensor output;
 	
-	public YpCbCr_sRGB(final Shape inputShape) {
+	public YpCbCr_sRGB(final Mode mode, final Shape inputShape) {
 		super(inputShape);
 		
 		if (inputShape == null) {
@@ -26,12 +32,13 @@ public class YpCbCr_sRGB extends VisorLayer {
 		if (inputShape.ndim != 3) {
 			throw new IllegalArgumentException("inputShape.ndim must be 3, got " + inputShape.ndim);
 		}
+		this.mode = mode;
 		this.outputShape = inputShape;
 		this.output = new DenseTensor(inputShape);
 	}
 
 	@Override
-	public void infer(boolean useOutputAsBaseDist) {
+	public void infer(boolean useOutputAsPrior) {
 		
 		final DenseTensor input = _input;
 		if (input == null) {
@@ -54,14 +61,16 @@ public class YpCbCr_sRGB extends VisorLayer {
 				final double R = ColorUtils.clip01(inputData[idx+0]);
 				final double G = ColorUtils.clip01(inputData[idx+1]);
 				final double B = ColorUtils.clip01(inputData[idx+2]);
-				
-				final double Yp =  0.299*R    + 0.587*G    + 0.114*B;
-				final double Cb = -0.168736*R - 0.331264*G + 0.5*B;
-				final double Cr =  0.5*R      - 0.418688*G - 0.081312*B;
 
-				outputData[idx+0] = ColorUtils.clip01(Yp);
-				outputData[idx+1] = ColorUtils.clip55(Cb);
-				outputData[idx+2] = ColorUtils.clip55(Cr);
+				final double adj = this.mode == Mode.NORMALIZE ? 0.5 : 0.0;
+
+				final double Yp = ColorUtils.clip01(  0.299*R    + 0.587*G    + 0.114*B    );
+				final double Cb = ColorUtils.clip55( -0.168736*R - 0.331264*G + 0.5*B      ) + adj;
+				final double Cr = ColorUtils.clip55(  0.5*R      - 0.418688*G - 0.081312*B ) + adj;
+				
+				outputData[idx+0] = Yp;
+				outputData[idx+1] = Cb;
+				outputData[idx+2] = Cr;
 			}
 		}
 	}
@@ -92,9 +101,11 @@ public class YpCbCr_sRGB extends VisorLayer {
 				
 				int idx = this.outputShape.calcFlatIndexFromLocation(loc);
 				
+				final double adj = this.mode == Mode.NORMALIZE ? 0.5 : 0.0;
+				
 				final double Yp = ColorUtils.clip01(outputData[idx+0]);
-				final double Cb = ColorUtils.clip55(outputData[idx+1]);
-				final double Cr = ColorUtils.clip55(outputData[idx+2]);
+				final double Cb = ColorUtils.clip55(outputData[idx+1] - adj);
+				final double Cr = ColorUtils.clip55(outputData[idx+2] - adj);
 				
 				final double r = Yp               + 1.4019996*Cr;
 				final double g = Yp - 0.344136*Cb - 0.714136*Cr;

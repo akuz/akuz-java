@@ -2,7 +2,6 @@ package me.akuz.mnist.digits.visor;
 
 import me.akuz.ml.tensors.DenseTensor;
 import me.akuz.ml.tensors.Shape;
-import me.akuz.ml.tensors.Tensor;
 
 /**
  * Base class for layers within a visor.
@@ -30,6 +29,10 @@ public abstract class VisorLayer {
 		this.inputShape = inputShape;
 	}
 	
+	/**
+	 * Set new input tensor (must be the 
+	 * same shape as layer input shape).
+	 */
 	public final void setInput(final DenseTensor input) {
 		if (input == null) {
 			throw new NullPointerException("input");
@@ -43,7 +46,10 @@ public abstract class VisorLayer {
 		_input = input;
 	}
 	
-	public final Tensor getInput() {
+	/**
+	 * Get current input tensor.
+	 */
+	public final DenseTensor getInput() {
 		return _input;
 	}
 
@@ -51,7 +57,7 @@ public abstract class VisorLayer {
 	 * Infer the probabilities of the hidden variables, 
 	 * based on the current states of the other layers.
 	 */
-	public abstract void infer(boolean useOutputAsBaseDist);
+	public abstract void infer(boolean useOutputAsPrior);
 
 	/**
 	 * Learn the inferred probabilities of hidden

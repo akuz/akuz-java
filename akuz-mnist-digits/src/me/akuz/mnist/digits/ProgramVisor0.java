@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import me.akuz.ml.tensors.DenseTensor;
 import me.akuz.mnist.digits.visor.VisorLayerC;
+import me.akuz.mnist.digits.visor.transforms.YpCbCr_sRGB;
 
 public class ProgramVisor0 {
 	
@@ -13,21 +14,29 @@ public class ProgramVisor0 {
 			final DenseTensor image,
 			final int colorCount,
 			final int iterCount) throws IOException {
+		
+		// transform colors layer
+		final YpCbCr_sRGB layer0 = new YpCbCr_sRGB(
+				YpCbCr_sRGB.Mode.NORMALIZE, image.shape);
+		layer0.setInput(image);
+		layer0.infer(false);
 
-		final VisorLayerC layer = new VisorLayerC(image.shape, colorCount);
+		// infer finite colors layer
+		final VisorLayerC layer1 = new VisorLayerC(image.shape, colorCount);
+		layer1.setInput(layer0.output);
 		
-		layer.setInput(image);
-		
+		// perform learning
 		for (int i=0; i<iterCount; i++) {
 			System.out.println(i);
-			layer.infer(false);
-			layer.learn();
+			layer1.infer(false);
+			layer1.learn();
 		}
 		
 		System.out.println("dream");
 		final DenseTensor dream = new DenseTensor(image.shape);
-		layer.setInput(dream);
-		layer.dream();
+		layer0.setInput(dream);
+		layer1.dream();
+		layer0.dream();
 		
 		TensorFiles.saveImage_sRGB(dream, PREFIX + colorCount + ".png");
 		
