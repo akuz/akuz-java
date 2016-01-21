@@ -16,7 +16,7 @@ import me.akuz.mnist.digits.visor.VisorLayer;
  * the visor can recognize.
  *
  */
-public final class FiniteColorSpace extends VisorLayer {
+public final class FiniteColors extends VisorLayer {
 
 	// base distribution for colors
 	public static final double COLOR_DP_BASE_INIT    = 1.0;
@@ -69,7 +69,7 @@ public final class FiniteColorSpace extends VisorLayer {
 	 * dimension spanning the color channels) and 
 	 * a specified number of colors to recognize.
 	 */
-	public FiniteColorSpace(
+	public FiniteColors(
 			final Shape inputShape, 
 			final int colorCount) {
 		
