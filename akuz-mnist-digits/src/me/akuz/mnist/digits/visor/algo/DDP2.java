@@ -16,7 +16,7 @@ import me.akuz.ml.tensors.TensorIterator;
  * dimension of the specified tensor shape.
  *
  */
-public final class DDP {
+public final class DDP2 {
 	
 	final Shape _shape;
 	final int _ndim;
@@ -25,17 +25,15 @@ public final class DDP {
 	final int _lastDimLastIdx;
 	
 	final TensorBase _base;
-	final double _baseMass;
 	final TensorBase _obs;
 	final TensorBase _obsMass;
-	final double _maxObsMass;
+	double _temperature;
 
-	public DDP(
+	public DDP2(
 			final Shape shape, 
 			final double baseInit,
 			final double baseNoise,
-			final double baseMass,
-			final double maxObsMass) {
+			final double temperature) {
 
 		if (shape == null) {
 			throw new NullPointerException("shape");
@@ -46,12 +44,7 @@ public final class DDP {
 		if (baseNoise < 0.0) {
 			throw new IllegalArgumentException("baseInit must be >= 0, got " + baseNoise);
 		}
-		if (baseMass <= 0.0) {
-			throw new IllegalArgumentException("baseMass must be > 0, got " + baseMass);
-		}
-		if (maxObsMass <= 0.0) {
-			throw new IllegalArgumentException("maxObservedMass must be > 0, got " + maxObsMass);
-		}
+		setTemperature(temperature);
 		
 		// initialize base discrete distributions
 		// using the provided baseInit and baseNoise 
@@ -63,8 +56,6 @@ public final class DDP {
 		_lastDimSize = shape.sizes[_lastDim];
 		_lastDimLastIdx = _lastDimSize-1;
 		_base = new Tensor(shape);
-		_baseMass = baseMass;
-		_maxObsMass = maxObsMass;
 		final TensorIterator it = new TensorIterator(_base.shape);
 		final Random rnd = ThreadLocalRandom.current();
 		double lastDimSum = 0.0;
@@ -116,6 +107,25 @@ public final class DDP {
 		
 		// observed mass tensor
 		_obsMass = new Tensor(obsMassShape);
+	}
+	
+	/**
+	 * Get temperature.
+	 */
+	public double getTemperature() {
+		return _temperature;
+	}
+	
+	/**
+	 * Set temperature.
+	 */
+	public void setTemperature(final double temperature) {
+		if (temperature <= 0.0 || temperature >= 1.0) {
+			throw new IllegalArgumentException(
+					"Temperature must be within the open " + 
+					"interval (0.0,1.0), got " + temperature);
+		}
+		_temperature = temperature;
 	}
 	
 	/**
@@ -226,9 +236,9 @@ public final class DDP {
 		int readIndex = _shape.calcFlatIndexFromLocation(readLocation);
 		
 		// calculate posterior dirichlet alpha
-		final double a = _baseMass;
-		final double n = obsMass > _maxObsMass ? _maxObsMass : obsMass;
-		final double a_plus_n = a + n;
+		final double a = _temperature;
+		final double n = (1.0 - _temperature);
+		final double a_plus_n = a + n; // TODO: scaling
 		final double posteriorDP_alpha = a_plus_n;
 		
 		// accumulate log-likelihood
@@ -299,9 +309,9 @@ public final class DDP {
 		int readIndex = _shape.calcFlatIndexFromLocation(readLocation);
 		
 		// calculate posterior dirichlet alpha
-		final double a = _baseMass;
-		final double n = obsMass > _maxObsMass ? _maxObsMass : obsMass;
-		final double a_plus_n = a + n;
+		final double a = _temperature;
+		final double n = (1.0 - _temperature);
+		final double a_plus_n = a + n; // TODO: scaling
 		
 		// read the data, crash on out of bounds if passed data is bad
 		for (int i=0; i<_lastDimSize; i++) {
