@@ -1,4 +1,4 @@
-package me.akuz.mnist.digits.visor;
+package me.akuz.mnist.digits.visor.algo;
 
 import java.util.Arrays;
 import java.util.Random;

@@ -1,6 +1,6 @@
 package me.akuz.mnist.digits.visor;
 
-public final class ColorUtils {
+public final class VisorUtils {
 
 	public static final double clip01(final double value) {
 		if (value < 0.000001) {

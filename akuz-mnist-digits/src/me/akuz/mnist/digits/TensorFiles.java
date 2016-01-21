@@ -11,7 +11,7 @@ import javax.imageio.ImageIO;
 import me.akuz.ml.tensors.Tensor;
 import me.akuz.ml.tensors.Location;
 import me.akuz.ml.tensors.Shape;
-import me.akuz.mnist.digits.visor.ColorUtils;
+import me.akuz.mnist.digits.visor.VisorUtils;
 
 public final class TensorFiles {
 	
@@ -33,9 +33,9 @@ public final class TensorFiles {
 				final Color color = new Color(img.getRGB(j, i));
 				final int idx = shape.calcFlatIndexFromLocation(loc);
 				
-				data[idx+0] = ColorUtils.clip01(color.getRed() / 255.0);
-				data[idx+1] = ColorUtils.clip01(color.getGreen() / 255.0);
-				data[idx+2] = ColorUtils.clip01(color.getBlue() / 255.0);
+				data[idx+0] = VisorUtils.clip01(color.getRed() / 255.0);
+				data[idx+1] = VisorUtils.clip01(color.getGreen() / 255.0);
+				data[idx+2] = VisorUtils.clip01(color.getBlue() / 255.0);
 			}
 		}
 		
@@ -71,9 +71,9 @@ public final class TensorFiles {
 
 				final int idx = shape.calcFlatIndexFromLocation(loc);
 				
-				final int R = (int)(255.0 * ColorUtils.clip01(data[idx+0]));
-				final int G = (int)(255.0 * ColorUtils.clip01(data[idx+1]));
-				final int B = (int)(255.0 * ColorUtils.clip01(data[idx+2]));
+				final int R = (int)(255.0 * VisorUtils.clip01(data[idx+0]));
+				final int G = (int)(255.0 * VisorUtils.clip01(data[idx+1]));
+				final int B = (int)(255.0 * VisorUtils.clip01(data[idx+2]));
 
 				final Color color = new Color(R, G, B);
 				graphics.setColor(color);

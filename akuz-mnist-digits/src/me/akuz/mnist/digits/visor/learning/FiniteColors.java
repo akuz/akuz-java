@@ -6,8 +6,8 @@ import me.akuz.core.math.StatsUtils;
 import me.akuz.ml.tensors.Tensor;
 import me.akuz.ml.tensors.Location;
 import me.akuz.ml.tensors.Shape;
-import me.akuz.mnist.digits.visor.DDP;
 import me.akuz.mnist.digits.visor.VisorLayer;
+import me.akuz.mnist.digits.visor.algo.DDP;
 
 /**
  * Color-inferring visor layer, which collapses

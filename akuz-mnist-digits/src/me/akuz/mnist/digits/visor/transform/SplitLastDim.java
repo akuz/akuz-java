@@ -1,4 +1,4 @@
-package me.akuz.mnist.digits.visor.transforms;
+package me.akuz.mnist.digits.visor.transform;
 
 import java.util.Arrays;
 

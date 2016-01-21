@@ -1,9 +1,9 @@
-package me.akuz.mnist.digits.visor.transforms;
+package me.akuz.mnist.digits.visor.transform;
 
 import me.akuz.ml.tensors.Tensor;
 import me.akuz.ml.tensors.Location;
 import me.akuz.ml.tensors.Shape;
-import me.akuz.mnist.digits.visor.ColorUtils;
+import me.akuz.mnist.digits.visor.VisorUtils;
 import me.akuz.mnist.digits.visor.VisorLayer;
 
 /**
@@ -55,15 +55,15 @@ public class YpCbCr extends VisorLayer {
 				
 				int idx = this.outputShape.calcFlatIndexFromLocation(loc);
 				
-				final double R = ColorUtils.clip01(inputData[idx+0]);
-				final double G = ColorUtils.clip01(inputData[idx+1]);
-				final double B = ColorUtils.clip01(inputData[idx+2]);
+				final double R = VisorUtils.clip01(inputData[idx+0]);
+				final double G = VisorUtils.clip01(inputData[idx+1]);
+				final double B = VisorUtils.clip01(inputData[idx+2]);
 
 				final double adj = this.mode == Mode.NORMALIZE ? 0.5 : 0.0;
 
-				final double Yp = ColorUtils.clip01(  0.299*R    + 0.587*G    + 0.114*B    );
-				final double Cb = ColorUtils.clip55( -0.168736*R - 0.331264*G + 0.5*B      ) + adj;
-				final double Cr = ColorUtils.clip55(  0.5*R      - 0.418688*G - 0.081312*B ) + adj;
+				final double Yp = VisorUtils.clip01(  0.299*R    + 0.587*G    + 0.114*B    );
+				final double Cb = VisorUtils.clip55( -0.168736*R - 0.331264*G + 0.5*B      ) + adj;
+				final double Cr = VisorUtils.clip55(  0.5*R      - 0.418688*G - 0.081312*B ) + adj;
 				
 				outputData[idx+0] = Yp;
 				outputData[idx+1] = Cb;
@@ -97,17 +97,17 @@ public class YpCbCr extends VisorLayer {
 				
 				final double adj = this.mode == Mode.NORMALIZE ? 0.5 : 0.0;
 				
-				final double Yp = ColorUtils.clip01(outputData[idx+0]);
-				final double Cb = ColorUtils.clip55(outputData[idx+1] - adj);
-				final double Cr = ColorUtils.clip55(outputData[idx+2] - adj);
+				final double Yp = VisorUtils.clip01(outputData[idx+0]);
+				final double Cb = VisorUtils.clip55(outputData[idx+1] - adj);
+				final double Cr = VisorUtils.clip55(outputData[idx+2] - adj);
 				
 				final double r = Yp               + 1.4019996*Cr;
 				final double g = Yp - 0.344136*Cb - 0.714136*Cr;
 				final double b = Yp + 1.772000*Cb;
 
-				inputData[idx+0] = ColorUtils.clip01(r);
-				inputData[idx+1] = ColorUtils.clip01(g);
-				inputData[idx+2] = ColorUtils.clip01(b);
+				inputData[idx+0] = VisorUtils.clip01(r);
+				inputData[idx+1] = VisorUtils.clip01(g);
+				inputData[idx+2] = VisorUtils.clip01(b);
 			}
 		}
 	}
