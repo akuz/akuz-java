@@ -239,7 +239,7 @@ public final class DDP2 {
 		final double a = _temperature;
 		final double n = (1.0 - _temperature);
 		final double a_plus_n = a + n; // TODO: scaling
-		final double posteriorDP_alpha = a_plus_n;
+		final double posteriorDP_alpha = a_plus_n / _temperature * 5.0;
 		
 		// accumulate log-likelihood
 		double logLike = 0.0;
