@@ -28,12 +28,14 @@ public final class DDP2 {
 	final TensorBase _obs;
 	final TensorBase _obsMass;
 	double _temperature;
+	double _confidence;
 
 	public DDP2(
 			final Shape shape, 
 			final double baseInit,
 			final double baseNoise,
-			final double temperature) {
+			final double startTemperature,
+			final double startConfidence) {
 
 		if (shape == null) {
 			throw new NullPointerException("shape");
@@ -44,7 +46,8 @@ public final class DDP2 {
 		if (baseNoise < 0.0) {
 			throw new IllegalArgumentException("baseInit must be >= 0, got " + baseNoise);
 		}
-		setTemperature(temperature);
+		setTemperature(startTemperature);
+		setConfidence(startConfidence);
 		
 		// initialize base discrete distributions
 		// using the provided baseInit and baseNoise 
@@ -108,7 +111,7 @@ public final class DDP2 {
 		// observed mass tensor
 		_obsMass = new Tensor(obsMassShape);
 	}
-	
+
 	/**
 	 * Get temperature.
 	 */
@@ -126,6 +129,25 @@ public final class DDP2 {
 					"interval (0.0,1.0), got " + temperature);
 		}
 		_temperature = temperature;
+	}
+
+	/**
+	 * Get confidence.
+	 */
+	public double getConfidence() {
+		return _confidence;
+	}
+	
+	/**
+	 * Set confidence.
+	 */
+	public void setConfidence(final double confidence) {
+		if (confidence <= 0.0) {
+			throw new IllegalArgumentException(
+					"Confidence must be > 0, got " + 
+					confidence);
+		}
+		_confidence = confidence;
 	}
 	
 	/**
@@ -238,8 +260,8 @@ public final class DDP2 {
 		// calculate posterior dirichlet alpha
 		final double a = _temperature;
 		final double n = (1.0 - _temperature);
-		final double a_plus_n = a + n; // TODO: scaling
-		final double posteriorDP_alpha = a_plus_n / _temperature * 5.0;
+		final double a_plus_n = a + n; 
+		final double posteriorDP_alpha = a_plus_n * _confidence;
 		
 		// accumulate log-likelihood
 		double logLike = 0.0;

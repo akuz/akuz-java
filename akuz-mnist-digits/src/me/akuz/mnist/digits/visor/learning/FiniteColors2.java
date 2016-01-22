@@ -68,7 +68,8 @@ public final class FiniteColors2 extends VisorLayer {
 	public FiniteColors2(
 			final Shape inputShape, 
 			final int colorCount,
-			final double temperature) {
+			final double startTemperature,
+			final double startConfidence) {
 		
 		super(inputShape);
 		
@@ -111,7 +112,8 @@ public final class FiniteColors2 extends VisorLayer {
 				new Shape(this.colorCount),
 				COLOR_DP_BASE_INIT,
 				COLOR_DP_BASE_NOISE,
-				temperature);
+				startTemperature,
+				startConfidence);
 		
 		_colorsChannels = new DDP2(
 				new Shape(
@@ -120,12 +122,18 @@ public final class FiniteColors2 extends VisorLayer {
 						2),
 				COLOR_CHANNEL_DP_BASE_INIT,
 				COLOR_CHANNEL_DP_BASE_NOISE,
-				temperature);
+				startTemperature,
+				startConfidence);
 	}
 	
 	public void setTemperature(final double temperature) {
 		_colors.setTemperature(temperature);
 		_colorsChannels.setTemperature(temperature);
+	}
+	
+	public void setConfidence(final double confidence) {
+		_colors.setConfidence(confidence);
+		_colorsChannels.setConfidence(confidence);
 	}
 
 	@Override
