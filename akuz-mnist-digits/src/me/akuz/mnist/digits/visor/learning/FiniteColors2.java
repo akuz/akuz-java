@@ -26,6 +26,7 @@ public final class FiniteColors2 extends VisorLayer {
 	public static final double COLOR_CHANNEL_DP_BASE_INIT  = 1.0;
 	public static final double COLOR_CHANNEL_DP_BASE_NOISE = 0.1;
 
+	private final int _specialColors;
 	private final DDP2 _colors;
 	private final DDP2 _colorsChannels;
 
@@ -67,6 +68,7 @@ public final class FiniteColors2 extends VisorLayer {
 	 */
 	public FiniteColors2(
 			final Shape inputShape, 
+			final int specialColors,
 			final int colorCount,
 			final double startTemperature,
 			final double startConfidence) {
@@ -77,6 +79,8 @@ public final class FiniteColors2 extends VisorLayer {
 			throw new IllegalArgumentException(
 				"Shape of the color input must have ndim 3");
 		}
+		
+		_specialColors = specialColors;
 		
 		this.inputHeight = inputShape.sizes[0];
 		this.inputWidth = inputShape.sizes[1];
@@ -131,9 +135,9 @@ public final class FiniteColors2 extends VisorLayer {
 		_colorsChannels.setTemperature(temperature);
 	}
 	
-	public void setConfidence(final double confidence) {
-		_colors.setConfidence(confidence);
-		_colorsChannels.setConfidence(confidence);
+	public void setContrast(final double contrast) {
+		_colors.setContrast(contrast);
+		_colorsChannels.setContrast(contrast);
 	}
 
 	@Override
@@ -247,7 +251,7 @@ public final class FiniteColors2 extends VisorLayer {
 				}
 
 				final int outputStartIdx = this.outputShape.calcFlatIndexFromLocation(outputLoc);
-				_colors.addObservation(false, 1.0, null, outputData, outputStartIdx);
+				_colors.addObservation(1.0, null, outputData, outputStartIdx);
 
 				// update each color
 				for (int colorIdx=0; colorIdx<this.colorCount; colorIdx++) {
@@ -264,14 +268,27 @@ public final class FiniteColors2 extends VisorLayer {
 						// get channel value at this point
 						final double channelValue = channelValues[channelIdx];
 
-						channelData[1] = channelValue;
-						channelData[0] = 1.0 - channelValue;
+						if (_specialColors == 1 && colorIdx == 0) {
+							channelData[1] = 0.5;
+							channelData[0] = 0.5;
+
+						} if (_specialColors == 2 && colorIdx == 0) {
+							channelData[1] = 1.0;
+							channelData[0] = 0.0;
+							
+						} else if (_specialColors == 2 && colorIdx == 1) {
+							channelData[1] = 0.0;
+							channelData[0] = 1.0;
+							
+						} else {
+							channelData[1] = channelValue;
+							channelData[0] = 1.0 - channelValue;
+						}
 
 						_colorsChannels.addObservation(
-								false,
-								colorProb, 
-								colorChannelLoc, 
-								channelData, 
+								colorProb,
+								colorChannelLoc,
+								channelData,
 								0);
 					}
 				}

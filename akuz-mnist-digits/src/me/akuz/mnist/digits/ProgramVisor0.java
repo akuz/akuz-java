@@ -28,27 +28,29 @@ public class ProgramVisor0 {
 
 		// finite colors (Y)
 		final FiniteColors2 layer2Y = new FiniteColors2(
-				layer1.output1.shape, colorCountY, 0.99, 0.01);
+				layer1.output1.shape, 2, colorCountY, 0.99, 0.01);
 		layer2Y.setInput(layer1.output1);
 
 		// finite colors (C)
 		final FiniteColors2 layer2C = new FiniteColors2(
-				layer1.output2.shape, colorCountC, 0.99, 0.01);
+				layer1.output2.shape, 0, colorCountC, 0.99, 0.01);
 		layer2C.setInput(layer1.output2);
 		
 		// perform learning
 		for (double temperature = 0.99; temperature > 0.01; temperature *= 0.5){
-			final double confidenceY = Math.pow(temperature, -2.0);
-			final double confidenceC = Math.pow(temperature, -4.0);
+			
 			System.out.println(
-					colorCountY + " " + colorCountC + " " + 
-					temperature + " " + confidenceY + " " + confidenceC);
+					colorCountY + " " + 
+					colorCountC + " " + 
+					temperature);
+			
 			layer2Y.setTemperature(temperature);
-			layer2Y.setConfidence(confidenceY);
+			layer2Y.setContrast(Math.pow(temperature, -0.5));
 			layer2Y.infer(false);
 			layer2Y.learn();
+			
 			layer2C.setTemperature(temperature);
-			layer2C.setConfidence(confidenceC);
+			layer2C.setContrast(Math.pow(temperature, -0.5));
 			layer2C.infer(false);
 			layer2C.learn();
 		}
@@ -74,16 +76,17 @@ public class ProgramVisor0 {
 	public static void main(String[] args) throws IOException {
 		
 //		final Tensor image = TensorGen.colourSineImage(150, 200);
-		final Tensor image = TensorFiles.loadImage_sRGB("/Users/andrey/Desktop/Inputs/baz.jpg");
-//		final Tensor image = TensorFiles.loadImage_sRGB("/Users/andrey/Desktop/Inputs/mount.png");
+//		final Tensor image = TensorFiles.loadImage_sRGB("/Users/andrey/Desktop/Inputs/baz.jpg");
+		final Tensor image = TensorFiles.loadImage_sRGB("/Users/andrey/Desktop/Inputs/mount.png");
 //		final Tensor image = TensorFiles.loadImage_sRGB("/Users/andrey/Desktop/Inputs/andrey.jpg");
 		
 		TensorFiles.saveImage_sRGB(image, PREFIX + "0.png");
 		for (int colorCount=2; colorCount<=64; colorCount*=2) {
 			approximate(
 					image, 
-					colorCount, 
-					Math.max(2, colorCount / 4));
+					colorCount,
+					colorCount);
+//					Math.max(2, colorCount / 4));
 		}
 	}
 

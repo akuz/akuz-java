@@ -28,14 +28,14 @@ public final class DDP2 {
 	final TensorBase _obs;
 	final TensorBase _obsMass;
 	double _temperature;
-	double _confidence;
+	double _contrast;
 
 	public DDP2(
 			final Shape shape, 
 			final double baseInit,
 			final double baseNoise,
 			final double startTemperature,
-			final double startConfidence) {
+			final double startContrast) {
 
 		if (shape == null) {
 			throw new NullPointerException("shape");
@@ -47,7 +47,7 @@ public final class DDP2 {
 			throw new IllegalArgumentException("baseInit must be >= 0, got " + baseNoise);
 		}
 		setTemperature(startTemperature);
-		setConfidence(startConfidence);
+		setContrast(startContrast);
 		
 		// initialize base discrete distributions
 		// using the provided baseInit and baseNoise 
@@ -132,22 +132,22 @@ public final class DDP2 {
 	}
 
 	/**
-	 * Get confidence.
+	 * Get contrast.
 	 */
-	public double getConfidence() {
-		return _confidence;
+	public double getContrast() {
+		return _contrast;
 	}
 	
 	/**
-	 * Set confidence.
+	 * Set contrast.
 	 */
-	public void setConfidence(final double confidence) {
-		if (confidence <= 0.0) {
+	public void setContrast(final double contrast) {
+		if (contrast <= 0.0) {
 			throw new IllegalArgumentException(
-					"Confidence must be > 0, got " + 
-					confidence);
+					"Contrast must be > 0, got " + 
+					contrast);
 		}
-		_confidence = confidence;
+		_contrast = contrast;
 	}
 	
 	/**
@@ -166,7 +166,6 @@ public final class DDP2 {
 	 * tensor with the LAST dimension to observe.
 	 */
 	public void addObservation(
-			final boolean replace,
 			final double mass,
 			final Location subLoc,
 			final double[] data,
@@ -174,17 +173,9 @@ public final class DDP2 {
 
 		// handle root
 		if (_ndim == 1) {
-			if (replace) {
-				_obsMass.set(0, mass);
-			} else {
-				_obsMass.add(0, mass);
-			}
+			_obsMass.add(0, mass);
 		} else {
-			if (replace) {
-				_obsMass.set(subLoc, mass);
-			} else {
-				_obsMass.add(subLoc, mass);
-			}
+			_obsMass.add(subLoc, mass);
 		}
 
 		// calculate write start index
@@ -205,16 +196,10 @@ public final class DDP2 {
 			if (prob < 0.0 || prob > 1.0) {
 				throw new IllegalStateException("prob " + prob);
 			}
-			
-			if (replace) {
-				_obs.set(
-						writeIndex, 
-						mass*prob);
-			} else {
-				_obs.add(
-						writeIndex, 
-						mass*prob);
-			}
+
+			_obs.add(
+					writeIndex, 
+					mass*prob);
 
 			++dataIndex;
 			++writeIndex;
@@ -261,7 +246,7 @@ public final class DDP2 {
 		final double a = _temperature;
 		final double n = (1.0 - _temperature);
 		final double a_plus_n = a + n; 
-		final double posteriorDP_alpha = a_plus_n * _confidence;
+		final double posteriorDP_alpha = a_plus_n * Math.pow(_contrast, Math.pow(_lastDimSize, 2));
 		
 		// accumulate log-likelihood
 		double logLike = 0.0;
@@ -333,7 +318,7 @@ public final class DDP2 {
 		// calculate posterior dirichlet alpha
 		final double a = _temperature;
 		final double n = (1.0 - _temperature);
-		final double a_plus_n = a + n; // TODO: scaling
+		final double a_plus_n = a + n;
 		
 		// read the data, crash on out of bounds if passed data is bad
 		for (int i=0; i<_lastDimSize; i++) {
