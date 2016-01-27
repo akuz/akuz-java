@@ -44,7 +44,8 @@ public final class TensorFiles {
 
 	public static void saveImage_sRGB(
 			final Tensor tensor,
-			final String fileName) throws IOException {
+			final String fileName,
+			final String formatName) throws IOException {
 
 		final Shape shape = tensor.shape;
 		if (shape.ndim != 3) {
@@ -58,7 +59,7 @@ public final class TensorFiles {
 		final BufferedImage img = new BufferedImage(
 				shape.sizes[1],
 				shape.sizes[0],
-				BufferedImage.TYPE_INT_ARGB);
+				BufferedImage.TYPE_INT_RGB);
 		
 		final Graphics2D graphics = img.createGraphics();
 		
@@ -82,6 +83,6 @@ public final class TensorFiles {
 		}
 		
 		final File imgFile = new File(fileName);
-	    ImageIO.write(img, "png", imgFile);
+	    ImageIO.write(img, formatName, imgFile);
 	}
 }

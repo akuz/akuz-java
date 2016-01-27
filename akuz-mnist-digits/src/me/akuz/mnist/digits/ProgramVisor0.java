@@ -28,7 +28,7 @@ public class ProgramVisor0 {
 
 		// finite colors (Y)
 		final FiniteColors2 layer2Y = new FiniteColors2(
-				layer1.output1.shape, 2, colorCountY, 0.99, 0.01);
+				layer1.output1.shape, 0, colorCountY, 0.99, 0.01);
 		layer2Y.setInput(layer1.output1);
 
 		// finite colors (C)
@@ -50,7 +50,7 @@ public class ProgramVisor0 {
 			layer2Y.learn();
 			
 			layer2C.setTemperature(temperature);
-			layer2C.setContrast(Math.pow(temperature, -0.5));
+			layer2C.setContrast(Math.pow(temperature, -1.0));
 			layer2C.infer(false);
 			layer2C.learn();
 		}
@@ -66,7 +66,8 @@ public class ProgramVisor0 {
 		TensorFiles.saveImage_sRGB(dream, PREFIX + 
 				"_" + colorCountY + 
 				"_" + colorCountC + 
-				".png");
+				".bmp",
+				"bmp");
 		
 		System.out.println();
 		System.out.println("DONE " + colorCountY + " x " + colorCountC + " colors.");
@@ -80,7 +81,7 @@ public class ProgramVisor0 {
 		final Tensor image = TensorFiles.loadImage_sRGB("/Users/andrey/Desktop/Inputs/mount.png");
 //		final Tensor image = TensorFiles.loadImage_sRGB("/Users/andrey/Desktop/Inputs/andrey.jpg");
 		
-		TensorFiles.saveImage_sRGB(image, PREFIX + "0.png");
+		TensorFiles.saveImage_sRGB(image, PREFIX + "0.bmp", "bmp");
 		for (int colorCount=2; colorCount<=64; colorCount*=2) {
 			approximate(
 					image, 

@@ -12,11 +12,11 @@ import me.akuz.ml.tensors.TensorBase;
 import me.akuz.ml.tensors.TensorIterator;
 
 /**
- * Discrete Dirichlet Process(es) along the last 
- * dimension of the specified tensor shape.
+ * Multiple Discrete Dirichlet Processes along the 
+ * last dimension of the specified tensor shape.
  *
  */
-public final class DDP {
+public final class MDDP2 {
 	
 	final Shape _shape;
 	final int _ndim;
@@ -25,17 +25,17 @@ public final class DDP {
 	final int _lastDimLastIdx;
 	
 	final TensorBase _base;
-	final double _baseMass;
 	final TensorBase _obs;
 	final TensorBase _obsMass;
-	final double _maxObsMass;
+	double _temperature;
+	double _contrast;
 
-	public DDP(
+	public MDDP2(
 			final Shape shape, 
 			final double baseInit,
 			final double baseNoise,
-			final double baseMass,
-			final double maxObsMass) {
+			final double startTemperature,
+			final double startContrast) {
 
 		if (shape == null) {
 			throw new NullPointerException("shape");
@@ -46,12 +46,8 @@ public final class DDP {
 		if (baseNoise < 0.0) {
 			throw new IllegalArgumentException("baseInit must be >= 0, got " + baseNoise);
 		}
-		if (baseMass <= 0.0) {
-			throw new IllegalArgumentException("baseMass must be > 0, got " + baseMass);
-		}
-		if (maxObsMass <= 0.0) {
-			throw new IllegalArgumentException("maxObservedMass must be > 0, got " + maxObsMass);
-		}
+		setTemperature(startTemperature);
+		setContrast(startContrast);
 		
 		// initialize base discrete distributions
 		// using the provided baseInit and baseNoise 
@@ -63,8 +59,6 @@ public final class DDP {
 		_lastDimSize = shape.sizes[_lastDim];
 		_lastDimLastIdx = _lastDimSize-1;
 		_base = new Tensor(shape);
-		_baseMass = baseMass;
-		_maxObsMass = maxObsMass;
 		final TensorIterator it = new TensorIterator(_base.shape);
 		final Random rnd = ThreadLocalRandom.current();
 		double lastDimSum = 0.0;
@@ -117,6 +111,44 @@ public final class DDP {
 		// observed mass tensor
 		_obsMass = new Tensor(obsMassShape);
 	}
+
+	/**
+	 * Get temperature.
+	 */
+	public double getTemperature() {
+		return _temperature;
+	}
+	
+	/**
+	 * Set temperature.
+	 */
+	public void setTemperature(final double temperature) {
+		if (temperature <= 0.0 || temperature >= 1.0) {
+			throw new IllegalArgumentException(
+					"Temperature must be within the open " + 
+					"interval (0.0,1.0), got " + temperature);
+		}
+		_temperature = temperature;
+	}
+
+	/**
+	 * Get contrast.
+	 */
+	public double getContrast() {
+		return _contrast;
+	}
+	
+	/**
+	 * Set contrast.
+	 */
+	public void setContrast(final double contrast) {
+		if (contrast <= 0.0) {
+			throw new IllegalArgumentException(
+					"Contrast must be > 0, got " + 
+					contrast);
+		}
+		_contrast = contrast;
+	}
 	
 	/**
 	 * Clear all observations.
@@ -134,7 +166,6 @@ public final class DDP {
 	 * tensor with the LAST dimension to observe.
 	 */
 	public void addObservation(
-			final boolean replace,
 			final double mass,
 			final Location subLoc,
 			final double[] data,
@@ -142,17 +173,9 @@ public final class DDP {
 
 		// handle root
 		if (_ndim == 1) {
-			if (replace) {
-				_obsMass.set(0, mass);
-			} else {
-				_obsMass.add(0, mass);
-			}
+			_obsMass.add(0, mass);
 		} else {
-			if (replace) {
-				_obsMass.set(subLoc, mass);
-			} else {
-				_obsMass.add(subLoc, mass);
-			}
+			_obsMass.add(subLoc, mass);
 		}
 
 		// calculate write start index
@@ -173,16 +196,10 @@ public final class DDP {
 			if (prob < 0.0 || prob > 1.0) {
 				throw new IllegalStateException("prob " + prob);
 			}
-			
-			if (replace) {
-				_obs.set(
-						writeIndex, 
-						mass*prob);
-			} else {
-				_obs.add(
-						writeIndex, 
-						mass*prob);
-			}
+
+			_obs.add(
+					writeIndex, 
+					mass*prob);
 
 			++dataIndex;
 			++writeIndex;
@@ -226,10 +243,10 @@ public final class DDP {
 		int readIndex = _shape.calcFlatIndexFromLocation(readLocation);
 		
 		// calculate posterior dirichlet alpha
-		final double a = _baseMass;
-		final double n = obsMass > _maxObsMass ? _maxObsMass : obsMass;
-		final double a_plus_n = a + n;
-		final double posteriorDP_alpha = a_plus_n;
+		final double a = _temperature;
+		final double n = (1.0 - _temperature);
+		final double a_plus_n = a + n; 
+		final double posteriorDP_alpha = a_plus_n * Math.pow(_contrast, Math.pow(_lastDimSize, 2));
 		
 		// accumulate log-likelihood
 		double logLike = 0.0;
@@ -299,8 +316,8 @@ public final class DDP {
 		int readIndex = _shape.calcFlatIndexFromLocation(readLocation);
 		
 		// calculate posterior dirichlet alpha
-		final double a = _baseMass;
-		final double n = obsMass > _maxObsMass ? _maxObsMass : obsMass;
+		final double a = _temperature;
+		final double n = (1.0 - _temperature);
 		final double a_plus_n = a + n;
 		
 		// read the data, crash on out of bounds if passed data is bad

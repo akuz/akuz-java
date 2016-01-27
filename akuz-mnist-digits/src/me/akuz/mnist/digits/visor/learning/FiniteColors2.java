@@ -7,7 +7,7 @@ import me.akuz.ml.tensors.Tensor;
 import me.akuz.ml.tensors.Location;
 import me.akuz.ml.tensors.Shape;
 import me.akuz.mnist.digits.visor.VisorLayer;
-import me.akuz.mnist.digits.visor.algo.DDP2;
+import me.akuz.mnist.digits.visor.algo.MDDP2;
 
 /**
  * Color-inferring visor layer, which collapses
@@ -27,8 +27,8 @@ public final class FiniteColors2 extends VisorLayer {
 	public static final double COLOR_CHANNEL_DP_BASE_NOISE = 0.1;
 
 	private final int _specialColors;
-	private final DDP2 _colors;
-	private final DDP2 _colorsChannels;
+	private final MDDP2 _colors;
+	private final MDDP2 _colorsChannels;
 
 	/**
 	 * Height of the input image tensor (size of dim 0).
@@ -112,14 +112,14 @@ public final class FiniteColors2 extends VisorLayer {
 		
 		this.output = new Tensor(outputShape);
 
-		_colors = new DDP2(
+		_colors = new MDDP2(
 				new Shape(this.colorCount),
 				COLOR_DP_BASE_INIT,
 				COLOR_DP_BASE_NOISE,
 				startTemperature,
 				startConfidence);
 		
-		_colorsChannels = new DDP2(
+		_colorsChannels = new MDDP2(
 				new Shape(
 						this.colorCount, 
 						this.inputChannelCount,
