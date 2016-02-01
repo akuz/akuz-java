@@ -32,6 +32,9 @@ public class YpCbCr extends VisorLayer {
 		if (inputShape.ndim != 3) {
 			throw new IllegalArgumentException("inputShape.ndim must be 3, got " + inputShape.ndim);
 		}
+		if (inputShape.sizes[2] != 3) {
+			throw new IllegalArgumentException("inputShape.sizes[2] must be 3, got " + inputShape.sizes[2]);
+		}
 		this.mode = mode;
 		this.outputShape = inputShape;
 		this.output = new Tensor(inputShape);
