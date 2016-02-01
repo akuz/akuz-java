@@ -9,11 +9,10 @@ import me.akuz.ml.tensors.Shape;
 import me.akuz.ml.tensors.Tensor;
 
 /**
- * Multiple Normal Inverse-Gamma processes along
- * the last dimension of the specified tensor shape.
+ * Gaussian multi-channel classes.
  *
  */
-public final class MNIGClasses {
+public final class GaussClasses {
 	
 	public static final int STAT_SUM = 0;
 	public static final int STAT_SUM_SQ = 1;
@@ -30,7 +29,7 @@ public final class MNIGClasses {
 	private final Tensor _classStatsPrior;
 	private final Tensor _classStatsAdded;
 	
-	public MNIGClasses(
+	public GaussClasses(
 			final int outputClassCount,
 			final int inputChannelCount) {
 		
@@ -57,25 +56,31 @@ public final class MNIGClasses {
 		_classStatsPrior = new Tensor(_classStatsShape);
 		_classStatsAdded = new Tensor(_classStatsShape);
 		
-		// set class priors
-		for (int classIdx=0; classIdx<_outputClassCount; classIdx++) {
-			// TODO from arguments
-			_classCountPrior.set(classIdx, 1.0);
-		}
-		
-		// set class stats priors
+		// set class and class stats priors
 		final Random rnd = ThreadLocalRandom.current();
 		final int[] statsIndices = new int[_classStatsShape.ndim];
 		final Location statsLoc = new Location(statsIndices);
 		for (int classIdx=0; classIdx<_outputClassCount; classIdx++) {
 			statsIndices[0] = classIdx;
+			
+			// TODO from arguments
+			final double priorSamples = 1.0; 
+			_classCountPrior.set(classIdx, priorSamples);
+
 			for (int channelIdx=0; channelIdx<_inputChannelCount; channelIdx++) {
 				statsIndices[1] = channelIdx;
 				final int statsIdx = _classStatsShape.calcFlatIndexFromLocation(statsLoc);
 				
 				// TODO from arguments
-				_classStatsPrior.set(statsIdx + STAT_SUM, 0.5 + rnd.nextDouble()*0.1);
-				_classStatsPrior.set(statsIdx + STAT_SUM_SQ, 1.0);
+				final double priorMean = 0.5 + rnd.nextDouble()*0.1;
+				_classStatsPrior.set(statsIdx + STAT_SUM, 
+						priorSamples*priorMean);
+
+				// TODO from arguments
+				final double priorSigma = 1.0;
+				_classStatsPrior.set(statsIdx + STAT_SUM_SQ, 
+						priorSamples*Math.pow(priorSigma, 2) +
+						priorSamples*Math.pow(priorMean, 2));
 			}
 		}
 	}
@@ -153,24 +158,72 @@ public final class MNIGClasses {
 			final double priorSamples = _classCountPrior.get(classIdx);
 			final double addedSamples = _classCountAdded.get(classIdx);
 			
+			// calculate prior nyu
+			final double priorNyu = priorSamples;
+
+			// calculate posterior nyu
+			final double posteriorNyu = priorNyu + addedSamples;
+			
 			// add class stats likelihoods
 			for (int channelIdx = 0; channelIdx < _inputChannelCount; channelIdx++) {
 				
 				statsIndices[1] = channelIdx;
+				final double channelValue = channelData[channelDataStart + channelIdx];
 				
 				// calculate stats index
 				final int statsStartIdx = _classStatsShape.calcFlatIndexFromLocation(statsLocation);
 				
 				// get accumulated stats
 				final double priorSum = _classStatsPrior.get(statsStartIdx + STAT_SUM);
-				final double priorSumSq = _classStatsPrior.get(statsStartIdx + STAT_SUM);
+				final double priorSumSq = _classStatsPrior.get(statsStartIdx + STAT_SUM_SQ);
 				
 				// get accumulated stats
 				final double addedSum = _classStatsAdded.get(statsStartIdx + STAT_SUM);
-				final double addedSumSq = _classStatsAdded.get(statsStartIdx + STAT_SUM);
+				final double addedSumSq = _classStatsAdded.get(statsStartIdx + STAT_SUM_SQ);
 				
-				// TODO
+				// calculate prior mean
+				final double priorMean = 
+						priorSum /
+						priorSamples;
 				
+				// calculate posterior mean
+				final double posteriorMean = 
+						(priorSum + addedSum) /
+						(priorSamples + addedSamples);
+
+				// calculate prior alpha
+				final double priorAlpha = priorSamples / 2.0;
+
+				// calculate posterior alpha
+				final double posteriorAlpha = priorAlpha + addedSamples / 2.0;
+
+				// calculate prior beta
+				final double priorBeta = (
+						priorSumSq - 
+						priorSamples * Math.pow(priorMean, 2)
+						) / 2.0;
+
+				// calculate posterior beta
+				final double posteriorBeta;
+				if (addedSamples > 0.0) {
+					posteriorBeta = priorBeta 
+							+ 0.5 * (addedSumSq - addedSamples*Math.pow(addedSum/addedSamples, 2))
+							+ 0.5 * (priorNyu*addedSamples) / (priorNyu + addedSamples) 
+							* Math.pow(addedSum/addedSamples - priorMean, 2);
+				} else {
+					posteriorBeta = priorBeta;
+				}
+
+				// student log like params
+				final double studentNyu = 2.0 * posteriorAlpha;
+				final double studentMean = posteriorMean;
+				final double studentSigma = 
+						posteriorBeta * (posteriorNyu + 1.0) 
+						/ posteriorAlpha 
+						/ posteriorNyu;
+				
+				// TODO student log like (channelValue)
+				classProbs[classIdx] += 0.0;
 			}
 		}
 		
