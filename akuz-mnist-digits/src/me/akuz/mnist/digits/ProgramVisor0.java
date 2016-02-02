@@ -75,8 +75,8 @@ public class ProgramVisor0 {
 	public static void main(String[] args) throws IOException {
 		
 //		final Tensor image = TensorGen.colourSineImage(150, 200);
-//		final Tensor image = TensorFiles.loadImage_sRGB("/Users/andrey/Desktop/Inputs/baz.jpg");
-		final Tensor image = TensorFiles.loadImage_sRGB("/Users/andrey/Desktop/Inputs/mount.png");
+		final Tensor image = TensorFiles.loadImage_sRGB("/Users/andrey/Desktop/Inputs/baz.jpg");
+//		final Tensor image = TensorFiles.loadImage_sRGB("/Users/andrey/Desktop/Inputs/mount.png");
 //		final Tensor image = TensorFiles.loadImage_sRGB("/Users/andrey/Desktop/Inputs/andrey.jpg");
 		
 		TensorFiles.saveImage_sRGB(image, PREFIX + "0.bmp", "bmp");
