@@ -1,6 +1,8 @@
 package me.akuz.mnist.digits.visor.learning;
 
 import java.util.Arrays;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import me.akuz.core.math.StatsUtils;
 import me.akuz.ml.tensors.Tensor;
@@ -111,6 +113,21 @@ public final class FiniteColors2 extends VisorLayer {
 				colorCount);
 		
 		this.output = new Tensor(outputShape);
+		final Random rnd = ThreadLocalRandom.current();
+		final int[] outputIndices = new int[3];
+		final Location outputLoc = new Location(outputIndices);
+		final double[] outputData = this.output.data();
+		for (int i=0; i<this.inputHeight; i++) {
+			outputIndices[0] = i;
+			for (int j=0; j<this.inputWidth; j++) {
+				outputIndices[1] = j;
+				final int idx = this.outputShape.calcFlatIndexFromLocation(outputLoc);
+				for (int k=0; k<colorCount; k++) {
+					outputData[idx + k] = rnd.nextDouble();
+				}
+				StatsUtils.normalizeInPlace(outputData, idx, colorCount);
+			}
+		}
 
 		_colors = new MDDP2(
 				new Shape(this.colorCount),
@@ -141,7 +158,7 @@ public final class FiniteColors2 extends VisorLayer {
 	}
 
 	@Override
-	public void infer(final boolean useOutputAsPrior) {
+	public void infer() {
 		
 		final Tensor input = getInputNotNull();
 		

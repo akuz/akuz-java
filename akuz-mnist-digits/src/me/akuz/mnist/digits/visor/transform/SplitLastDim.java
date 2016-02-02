@@ -47,7 +47,7 @@ public final class SplitLastDim extends VisorLayer {
 	}
 
 	@Override
-	public void infer(boolean useOutputAsPrior) {
+	public void infer() {
 		
 		final Tensor input = getInputNotNull();
 		final TensorIterator it = new TensorIterator(input.shape);

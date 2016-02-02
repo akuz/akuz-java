@@ -41,7 +41,7 @@ public class YpCbCr extends VisorLayer {
 	}
 
 	@Override
-	public void infer(boolean useOutputAsPrior) {
+	public void infer() {
 		
 		final Tensor input = getInputNotNull();
 		

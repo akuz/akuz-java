@@ -4,6 +4,7 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import me.akuz.core.math.StatsUtils;
+import me.akuz.core.math.StudentT;
 import me.akuz.ml.tensors.Location;
 import me.akuz.ml.tensors.Shape;
 import me.akuz.ml.tensors.Tensor;
@@ -13,6 +14,13 @@ import me.akuz.ml.tensors.Tensor;
  *
  */
 public final class GaussClasses {
+	
+	private static final double LOG_INSURANCE = 1e-9;
+	
+	public enum PriorUse {
+		INNER,
+		OUTER
+	}
 	
 	public static final int STAT_SUM = 0;
 	public static final int STAT_SUM_SQ = 1;
@@ -72,7 +80,7 @@ public final class GaussClasses {
 				final int statsIdx = _classStatsShape.calcFlatIndexFromLocation(statsLoc);
 				
 				// TODO from arguments
-				final double priorMean = 0.5 + rnd.nextDouble()*0.1;
+				final double priorMean = 0.5 + rnd.nextDouble()*0.01;
 				_classStatsPrior.set(statsIdx + STAT_SUM, 
 						priorSamples*priorMean);
 
@@ -130,7 +138,7 @@ public final class GaussClasses {
 		}
 	}
 	
-	final void fillClassProbs(
+	public void calculateClassProbs(
 			final double[] classProbs,
 			final int classProbsStart,
 			final double[] channelData,
@@ -144,16 +152,11 @@ public final class GaussClasses {
 		for (int classIdx = 0; classIdx < _outputClassCount; classIdx++) {
 			
 			statsIndices[0] = classIdx;
-			
-			final double priorClassCount = _classCountPrior.get(classIdx);
-			final double addedClassCount = _classCountAdded.get(classIdx);
-			
-			final double posteriorClassCount = 
-					priorClassCount +
-					addedClassCount;
-			
-			// init with class likelihood
-			classProbs[classIdx] = Math.log(posteriorClassCount);
+				
+			// init with log of the output
+			classProbs[classProbsStart + classIdx] = 
+					StatsUtils.checkFinite(
+							Math.log(LOG_INSURANCE + classProbs[classProbsStart + classIdx]));
 
 			final double priorSamples = _classCountPrior.get(classIdx);
 			final double addedSamples = _classCountAdded.get(classIdx);
@@ -222,8 +225,14 @@ public final class GaussClasses {
 						/ posteriorAlpha 
 						/ posteriorNyu;
 				
-				// TODO student log like (channelValue)
-				classProbs[classIdx] += 0.0;
+				// Student-t log like of channelValue
+				classProbs[classProbsStart + classIdx] += 
+						StatsUtils.checkFinite(
+								StudentT.logLike(
+										studentNyu, 
+										studentMean, 
+										studentSigma, 
+										channelValue));
 			}
 		}
 		
@@ -234,14 +243,14 @@ public final class GaussClasses {
 				_outputClassCount);
 	}
 	
-	final void fillPosteriorMean(
+	public void calculateChannelMeans(
 			final double[] classProbs,
 			final int classProbsStart,
 			final double[] channelData,
 			final int channelDataStart) {
 
 		if (classProbs == null) {
-			throw new NullPointerException("classWeights");
+			throw new NullPointerException("classProbs");
 		}
 		if (channelData == null) {
 			throw new NullPointerException("channelData");

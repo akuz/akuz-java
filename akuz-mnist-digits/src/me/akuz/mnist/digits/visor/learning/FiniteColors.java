@@ -129,7 +129,7 @@ public final class FiniteColors extends VisorLayer {
 	}
 
 	@Override
-	public void infer(final boolean useOutputAsPrior) {
+	public void infer() {
 		
 		final Tensor input = getInputNotNull();
 		

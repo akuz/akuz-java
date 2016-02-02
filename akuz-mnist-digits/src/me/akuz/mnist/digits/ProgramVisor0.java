@@ -3,7 +3,7 @@ package me.akuz.mnist.digits;
 import java.io.IOException;
 
 import me.akuz.ml.tensors.Tensor;
-import me.akuz.mnist.digits.visor.learning.FiniteColors2;
+import me.akuz.mnist.digits.visor.learning.GaussColors;
 import me.akuz.mnist.digits.visor.transform.SplitLastDim;
 import me.akuz.mnist.digits.visor.transform.YpCbCr;
 
@@ -19,39 +19,37 @@ public class ProgramVisor0 {
 		// transform colors
 		final YpCbCr layer0 = new YpCbCr(YpCbCr.Mode.NORMALIZE, image.shape);
 		layer0.setInput(image);
-		layer0.infer(false);
+		layer0.infer();
 		
 		// split channels
 		final SplitLastDim layer1 = new SplitLastDim(layer0.output.shape, 1);
 		layer1.setInput(layer0.output);
-		layer1.infer(false);
+		layer1.infer();
 
 		// finite colors (Y)
-		final FiniteColors2 layer2Y = new FiniteColors2(
-				layer1.output1.shape, 0, colorCountY, 0.99, 0.01);
+		final GaussColors layer2Y = new GaussColors(
+				layer1.output1.shape, colorCountY);
 		layer2Y.setInput(layer1.output1);
 
 		// finite colors (C)
-		final FiniteColors2 layer2C = new FiniteColors2(
-				layer1.output2.shape, 0, colorCountC, 0.99, 0.01);
+		final GaussColors layer2C = new GaussColors(
+				layer1.output2.shape, colorCountC);
 		layer2C.setInput(layer1.output2);
 		
 		// perform learning
-		for (double temperature = 0.99; temperature > 0.01; temperature *= 0.5){
+		for (double temperature = 0.99; temperature > 0.1; temperature *= 0.5){
 			
 			System.out.println(
 					colorCountY + " " + 
 					colorCountC + " " + 
 					temperature);
 			
-			layer2Y.setTemperature(temperature);
-			layer2Y.setContrast(Math.pow(temperature, -0.5));
-			layer2Y.infer(false);
+			layer2Y.infer();
 			layer2Y.learn();
 			
-			layer2C.setTemperature(temperature);
-			layer2C.setContrast(Math.pow(temperature, -1.0));
-			layer2C.infer(false);
+//			layer2C.setTemperature(temperature);
+//			layer2C.setContrast(Math.pow(temperature, -1.0));
+			layer2C.infer();
 			layer2C.learn();
 		}
 		

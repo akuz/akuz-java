@@ -69,7 +69,7 @@ public abstract class VisorLayer {
 	 * Infer the probabilities of the hidden variables, 
 	 * based on the current states of the other layers.
 	 */
-	public abstract void infer(boolean useOutputAsPrior);
+	public abstract void infer();
 
 	/**
 	 * Learn the inferred probabilities of hidden
