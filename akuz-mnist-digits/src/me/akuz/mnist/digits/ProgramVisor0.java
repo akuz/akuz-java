@@ -72,7 +72,13 @@ public class ProgramVisor0 {
 		
 		System.out.println();
 		System.out.println("INTENSITY");
+		System.out.println();
 		layer2Y.getColors().print();
+		
+		System.out.println();
+		System.out.println("COLORS");
+		System.out.println();
+		layer2C.getColors().print();
 		
 		System.out.println();
 		System.out.println("DONE " + colorCountY + " x " + colorCountC + " colors.");
@@ -83,8 +89,8 @@ public class ProgramVisor0 {
 		
 //		final Tensor image = TensorGen.colourSineImage(150, 200);
 //		final Tensor image = TensorFiles.loadImage_sRGB("/Users/andrey/Desktop/Inputs/baz.jpg");
-//		final Tensor image = TensorFiles.loadImage_sRGB("/Users/andrey/Desktop/Inputs/mount.png");
-		final Tensor image = TensorFiles.loadImage_sRGB("/Users/andrey/Desktop/Inputs/andrey.jpg");
+		final Tensor image = TensorFiles.loadImage_sRGB("/Users/andrey/Desktop/Inputs/mount.png");
+//		final Tensor image = TensorFiles.loadImage_sRGB("/Users/andrey/Desktop/Inputs/andrey.jpg");
 		
 		TensorFiles.saveImage_sRGB(image, PREFIX + "0.bmp", "bmp");
 		for (int colorCount=2; colorCount<=64; colorCount*=2) {

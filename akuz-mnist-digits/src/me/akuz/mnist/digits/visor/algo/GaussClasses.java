@@ -46,7 +46,6 @@ public final class GaussClasses {
 	private final Tensor _classAddedStats;
 	
 	public void print() {
-		System.out.println("class prior & added");
 		double[] classProbs = new double[_classCount];
 		double[] channelMeans = new double[_channelCount];
 		for (int classIdx=0; classIdx<_classCount; classIdx++) {
