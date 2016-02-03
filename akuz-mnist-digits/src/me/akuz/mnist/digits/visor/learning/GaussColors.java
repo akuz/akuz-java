@@ -52,6 +52,13 @@ public final class GaussColors extends VisorLayer {
 	public final Tensor output;
 	
 	/**
+	 * Get color classes.
+	 */
+	public GaussClasses getColors() {
+		return _colors;
+	}
+	
+	/**
 	 * Create color visor layer with the shape of the
 	 * input tensor (must have ndim 3 with the last
 	 * dimension spanning the color channels) and 

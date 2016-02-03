@@ -27,28 +27,30 @@ public class ProgramVisor0 {
 		layer1.infer();
 
 		// finite colors (Y)
-		final GaussColors layer2Y = new GaussColors(
-				layer1.output1.shape, colorCountY);
+		final GaussColors layer2Y = new GaussColors(layer1.output1.shape, colorCountY);
 		layer2Y.setInput(layer1.output1);
 
 		// finite colors (C)
-		final GaussColors layer2C = new GaussColors(
-				layer1.output2.shape, colorCountC);
+		final GaussColors layer2C = new GaussColors(layer1.output2.shape, colorCountC);
 		layer2C.setInput(layer1.output2);
-		
+
 		// perform learning
-		for (double temperature = 0.99; temperature > 0.1; temperature *= 0.5){
+		for (double temperature = 0.99; temperature > 0.001; temperature *= 0.5){
 			
 			System.out.println(
 					colorCountY + " " + 
 					colorCountC + " " + 
 					temperature);
 			
+//			layer2Y.setTemperature(temperature);
+//			layer2Y.setContrast(Math.pow(temperature, -1.0));
+			
 			layer2Y.infer();
 			layer2Y.learn();
 			
 //			layer2C.setTemperature(temperature);
 //			layer2C.setContrast(Math.pow(temperature, -1.0));
+			
 			layer2C.infer();
 			layer2C.learn();
 		}
@@ -67,6 +69,11 @@ public class ProgramVisor0 {
 				".bmp",
 				"bmp");
 		
+		
+		System.out.println();
+		System.out.println("INTENSITY");
+		layer2Y.getColors().print();
+		
 		System.out.println();
 		System.out.println("DONE " + colorCountY + " x " + colorCountC + " colors.");
 		System.out.println();
@@ -75,9 +82,9 @@ public class ProgramVisor0 {
 	public static void main(String[] args) throws IOException {
 		
 //		final Tensor image = TensorGen.colourSineImage(150, 200);
-		final Tensor image = TensorFiles.loadImage_sRGB("/Users/andrey/Desktop/Inputs/baz.jpg");
+//		final Tensor image = TensorFiles.loadImage_sRGB("/Users/andrey/Desktop/Inputs/baz.jpg");
 //		final Tensor image = TensorFiles.loadImage_sRGB("/Users/andrey/Desktop/Inputs/mount.png");
-//		final Tensor image = TensorFiles.loadImage_sRGB("/Users/andrey/Desktop/Inputs/andrey.jpg");
+		final Tensor image = TensorFiles.loadImage_sRGB("/Users/andrey/Desktop/Inputs/andrey.jpg");
 		
 		TensorFiles.saveImage_sRGB(image, PREFIX + "0.bmp", "bmp");
 		for (int colorCount=2; colorCount<=64; colorCount*=2) {

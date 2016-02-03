@@ -1,8 +1,10 @@
 package me.akuz.mnist.digits.visor.algo;
 
+import java.text.DecimalFormat;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
+import me.akuz.core.StringUtils;
 import me.akuz.core.math.StatsUtils;
 import me.akuz.core.math.StudentT;
 import me.akuz.ml.tensors.Location;
@@ -15,6 +17,7 @@ import me.akuz.ml.tensors.Tensor;
  */
 public final class GaussClasses {
 	
+	private final DecimalFormat FMT = new DecimalFormat("#.00");
 	private static final double LOG_INSURANCE = 1e-9;
 	
 	public enum PriorUse {
@@ -41,6 +44,34 @@ public final class GaussClasses {
 	
 	private final Tensor _classPriorStats;
 	private final Tensor _classAddedStats;
+	
+	public void print() {
+		System.out.println("class prior & added");
+		double[] classProbs = new double[_classCount];
+		double[] channelMeans = new double[_channelCount];
+		for (int classIdx=0; classIdx<_classCount; classIdx++) {
+			System.out.print(StringUtils.trimOrFillSpaces(FMT.format(_classPrior.get(classIdx)), 8));
+			System.out.print(" ");
+			System.out.print(StringUtils.trimOrFillSpaces(FMT.format(_classAdded.get(classIdx)), 8));
+			System.out.print(" ");
+			
+			if (classIdx > 0) {
+				classProbs[classIdx-1] = 0.0;
+			}
+			classProbs[classIdx] = 1.0;
+			calculateChannelMeans(classProbs, 0, channelMeans, 0);
+			
+			for (int channelIdx=0; channelIdx<_channelCount; channelIdx++) {
+				if (channelIdx > 0) {
+					System.out.print(" ");
+				}
+				System.out.print(channelIdx);
+				System.out.print(":");
+				System.out.print(FMT.format(channelMeans[channelIdx]));
+			}
+			System.out.println();
+		}
+	}
 	
 	public GaussClasses(
 			final int classCount,
@@ -74,7 +105,7 @@ public final class GaussClasses {
 			priorStatsIndices[0] = classIdx;
 			
 			// TODO from arguments
-			final double classPriorSamples = 1.0;
+			final double classPriorSamples = 10.0;
 			_classPrior.set(classIdx, classPriorSamples);
 
 			for (int channelIdx=0; channelIdx<_channelCount; channelIdx++) {
@@ -84,7 +115,7 @@ public final class GaussClasses {
 
 				// TODO from arguments
 				final double priorMean = 0.5 + rnd.nextDouble()*0.01;
-				final double priorMeanSamples = 1.0;
+				final double priorMeanSamples = 10.0/_channelCount;
 				_classPriorStats.set(
 						priorStatsIdx + PRIOR_STAT_MEAN, 
 						priorMean);
@@ -94,7 +125,7 @@ public final class GaussClasses {
 
 				// TODO from arguments
 				final double priorVariance = Math.pow(1.0, 2);
-				final double priorVarianceSamples = 1.0;
+				final double priorVarianceSamples = 10.0/_channelCount;
 				_classPriorStats.set(
 						priorStatsIdx + PRIOR_STAT_ALPHA, 
 						priorVarianceSamples/2.0);
