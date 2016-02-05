@@ -20,6 +20,10 @@ public class ProgramVisor0 {
 		final YpCbCr layer0 = new YpCbCr(YpCbCr.Mode.NORMALIZE, image.shape);
 		layer0.setInput(image);
 		layer0.infer();
+
+//		// finite colors
+//		final GaussColors layer1 = new GaussColors(layer0.output.shape, colorCountY);
+//		layer1.setInput(layer0.output);
 		
 		// split channels
 		final SplitLastDim layer1 = new SplitLastDim(layer0.output.shape, 1);
@@ -42,17 +46,20 @@ public class ProgramVisor0 {
 					colorCountC + " " + 
 					temperature);
 			
+//			layer1.infer();
+//			layer1.learn();
+			
 //			layer2Y.setTemperature(temperature);
 //			layer2Y.setContrast(Math.pow(temperature, -1.0));
 			
-			layer2Y.infer();
 			layer2Y.learn();
+			layer2Y.infer();
 			
 //			layer2C.setTemperature(temperature);
 //			layer2C.setContrast(Math.pow(temperature, -1.0));
 			
-			layer2C.infer();
 			layer2C.learn();
+			layer2C.infer();
 		}
 		
 		System.out.println("dream");
@@ -69,6 +76,11 @@ public class ProgramVisor0 {
 				".bmp",
 				"bmp");
 		
+		
+//		System.out.println();
+//		System.out.println("COLORS");
+//		System.out.println();
+//		layer1.getColors().print();
 		
 		System.out.println();
 		System.out.println("INTENSITY");
@@ -88,12 +100,12 @@ public class ProgramVisor0 {
 	public static void main(String[] args) throws IOException {
 		
 //		final Tensor image = TensorGen.colourSineImage(150, 200);
-//		final Tensor image = TensorFiles.loadImage_sRGB("/Users/andrey/Desktop/Inputs/baz.jpg");
-		final Tensor image = TensorFiles.loadImage_sRGB("/Users/andrey/Desktop/Inputs/mount.png");
+		final Tensor image = TensorFiles.loadImage_sRGB("/Users/andrey/Desktop/Inputs/baz.jpg");
+//		final Tensor image = TensorFiles.loadImage_sRGB("/Users/andrey/Desktop/Inputs/mount.png");
 //		final Tensor image = TensorFiles.loadImage_sRGB("/Users/andrey/Desktop/Inputs/andrey.jpg");
 		
 		TensorFiles.saveImage_sRGB(image, PREFIX + "0.bmp", "bmp");
-		for (int colorCount=2; colorCount<=64; colorCount*=2) {
+		for (int colorCount=2; colorCount<=8; colorCount*=2) {
 			approximate(
 					image, 
 					colorCount,

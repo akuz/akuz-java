@@ -4,7 +4,6 @@ import java.text.DecimalFormat;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
-import me.akuz.core.StringUtils;
 import me.akuz.core.math.StatsUtils;
 import me.akuz.core.math.StudentT;
 import me.akuz.ml.tensors.Location;
@@ -19,11 +18,6 @@ public final class GaussClasses {
 	
 	private final DecimalFormat FMT = new DecimalFormat("#.00");
 	private static final double LOG_INSURANCE = 1e-9;
-	
-	public enum PriorUse {
-		INNER,
-		OUTER
-	}
 	
 	public static final int PRIOR_STAT_MEAN = 0;
 	public static final int PRIOR_STAT_NYU = 1;
@@ -49,9 +43,9 @@ public final class GaussClasses {
 		double[] classProbs = new double[_classCount];
 		double[] channelMeans = new double[_channelCount];
 		for (int classIdx=0; classIdx<_classCount; classIdx++) {
-			System.out.print(StringUtils.trimOrFillSpaces(FMT.format(_classPrior.get(classIdx)), 8));
+			System.out.print(FMT.format(_classPrior.get(classIdx)));
 			System.out.print(" ");
-			System.out.print(StringUtils.trimOrFillSpaces(FMT.format(_classAdded.get(classIdx)), 8));
+			System.out.print(FMT.format(_classAdded.get(classIdx)));
 			System.out.print(" ");
 			
 			if (classIdx > 0) {
@@ -104,7 +98,7 @@ public final class GaussClasses {
 			priorStatsIndices[0] = classIdx;
 			
 			// TODO from arguments
-			final double classPriorSamples = 10.0;
+			final double classPriorSamples = 100.0;
 			_classPrior.set(classIdx, classPriorSamples);
 
 			for (int channelIdx=0; channelIdx<_channelCount; channelIdx++) {
@@ -184,7 +178,7 @@ public final class GaussClasses {
 			}
 		}
 	}
-	
+
 	public void calculateClassProbs(
 			final double[] classProbs,
 			final int classProbsStart,
@@ -214,14 +208,15 @@ public final class GaussClasses {
 			
 			// start accumulating from zero
 			classProbs[classProbsStart + classIdx] = 0.0;
-			
-			// add likelihood from the arguments
-			{
-				classProbs[classProbsStart + classIdx] += 
-						StatsUtils.checkFinite(
-								Math.log(LOG_INSURANCE 
-										+ classProbs[classProbsStart + classIdx]));
-			}
+
+			// FIXME
+//			// add likelihood from the arguments
+//			{
+//				classProbs[classProbsStart + classIdx] += 
+//						StatsUtils.checkFinite(
+//								Math.log(LOG_INSURANCE 
+//										+ classProbs[classProbsStart + classIdx]));
+//			}
 			
 			// add likelihood from class observations
 			{
@@ -366,6 +361,5 @@ public final class GaussClasses {
 			}
 		}
 	}
-	
 
 }
