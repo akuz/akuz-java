@@ -15,12 +15,12 @@ import me.akuz.ml.tensors.Tensor;
  */
 public final class DPClasses {
 
-	public static final int ROOT_CLASS_PRIOR_DP_ALPHA = 0;
-	public static final int ROOT_CLASS_PRIOR_DP_LOG_NORM = 1;
-	public static final int ROOT_CLASS_ADDED_SAMPLES_SUM = 2;
+	public static final int ROOT_PRIOR_DP_ALPHA = 0;
+	public static final int ROOT_PRIOR_DP_LOG_NORM = 1;
+	public static final int ROOT_ADDED_SAMPLES_SUM = 2;
 	public static final int LENGTH_ROOT = 3;
 
-	public static final int CLASS_PRIOR_DB_PROB = 0;
+	public static final int CLASS_PRIOR_DP_PROB = 0;
 	public static final int CLASS_ADDED_SAMPLES = 1;
 	public static final int LENGTH_CLASS = 2;
 
@@ -118,7 +118,7 @@ public final class DPClasses {
 			final int classDataIdx = _classData.shape.calcFlatIndexFromLocation(classLoc);
 
 			_classData.set(
-					classDataIdx + CLASS_PRIOR_DB_PROB, 
+					classDataIdx + CLASS_PRIOR_DP_PROB, 
 					classPriorDPProbs[classIdx]);
 
 			for (int channelIdx=0; channelIdx<_channelCount; channelIdx++) {
@@ -195,7 +195,7 @@ public final class DPClasses {
 			final int classDataIdx = _classData.shape.calcFlatIndexFromLocation(classLoc);
 
 			// get prior class info
-			final double priorClassDPProb = _classData.get(classDataIdx + CLASS_PRIOR_DB_PROB);
+			final double priorClassDPProb = _classData.get(classDataIdx + CLASS_PRIOR_DP_PROB);
 			final double priorClassDPAlphaProb = _classPriorDPAlpha * priorClassDPProb;
 			
 			// compute absolute index
