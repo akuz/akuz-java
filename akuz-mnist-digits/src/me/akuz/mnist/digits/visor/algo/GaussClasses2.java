@@ -30,10 +30,11 @@ public final class GaussClasses2 {
 	
 	private final double _priorClassDPAlpha;
 	private final Tensor _priorClassDPProbs;
+	private final double _priorClassDPLogNorm;
 	private final Tensor _priorChannelParams;
 
-	private final Tensor _addedClassCount;
-	private       double _addedClassCountSum;
+	private final Tensor _addedClassSamples;
+	private       double _addedClassSamplesSum;
 	private final Tensor _addedChannelStats;
 
 	private double _temperature;
@@ -63,45 +64,45 @@ public final class GaussClasses2 {
 		
 		// set class and class stats priors
 		final Random rnd = ThreadLocalRandom.current();
-		final int[] priorPerClassParamsIndices = new int[_priorChannelParams.ndim];
-		final Location priorPerClassParamsLoc = new Location(priorPerClassParamsIndices);
+		final int[] priorChannelParamsIndices = new int[_priorChannelParams.ndim];
+		final Location priorChannelParamsLoc = new Location(priorChannelParamsIndices);
 		for (int classIdx=0; classIdx<_classCount; classIdx++) {
-			priorPerClassParamsIndices[0] = classIdx;
+			priorChannelParamsIndices[0] = classIdx;
 
 			// TODO from arguments
 			final double priorClassObs = 1.0 + rnd.nextDouble()*0.01;
 			_priorClassDPProbs.set(classIdx, priorClassObs);
 
 			for (int channelIdx=0; channelIdx<_channelCount; channelIdx++) {
-				priorPerClassParamsIndices[1] = channelIdx;
-				final int priorPerClassParamsIdx = _priorChannelParams.shape
-						.calcFlatIndexFromLocation(priorPerClassParamsLoc);
+				priorChannelParamsIndices[1] = channelIdx;
+				final int priorChannelParamsIdx = _priorChannelParams.shape
+						.calcFlatIndexFromLocation(priorChannelParamsLoc);
 
 				// TODO from arguments
 				final double priorMean = 0.5 + rnd.nextDouble()*0.01;
 				final double priorMeanSamples = 10.0;
 				_priorChannelParams.set(
-						priorPerClassParamsIdx + PARAM_MEAN, 
+						priorChannelParamsIdx + PARAM_MEAN, 
 						priorMean);
 				_priorChannelParams.set(
-						priorPerClassParamsIdx + PARAM_MEAN_SAMPLES, 
+						priorChannelParamsIdx + PARAM_MEAN_SAMPLES, 
 						priorMeanSamples);
 
 				// TODO from arguments
 				final double priorSigma = 1.0 + rnd.nextDouble()*0.01;
 				final double priorSigmaSamples = 10.0;
 				_priorChannelParams.set(
-						priorPerClassParamsIdx + PARAM_SIGMA, 
+						priorChannelParamsIdx + PARAM_SIGMA, 
 						priorSigma);
 				_priorChannelParams.set(
-						priorPerClassParamsIdx + PARAM_SIGMA_SAMPLES,
+						priorChannelParamsIdx + PARAM_SIGMA_SAMPLES,
 						priorSigmaSamples);
 			}
 		}
 		
 		StatsUtils.normalizeInPlace(_priorClassDPProbs.data());
 
-		_addedClassCount = new Tensor(new Shape(_classCount));
+		_addedClassSamples = new Tensor(new Shape(_classCount));
 		_addedChannelStats = new Tensor(new Shape(_classCount, _channelCount, LENGTH_STAT));
 
 		_temperature = 1.0;
@@ -131,12 +132,43 @@ public final class GaussClasses2 {
 		
 		// compute class assignment log-likelihoods
 		for (int classIdx=0; classIdx<_classCount; classIdx++) {
+
+			// get prior class info
+			final double priorClassDPProb = _priorClassDPProbs.get(classIdx);
+			final double priorClassDPAlphaProb = _priorClassDPAlpha * priorClassDPProb;
 			
 			// compute absolute index
 			final int classProbsIdx = classProbsStart + classIdx;
-
+			
 			// reset for log-likelihood calculation
 			classProbs[classProbsIdx] = 0.0;
+			
+			// would-be total number of class samples
+			final double wouldbeClassSamplesSum =
+					_addedClassSamplesSum + 1.0;
+			
+			for (int newClassIdx=0; newClassIdx<_classCount; newClassIdx++) {
+				
+				// would-be the number of samples of this class
+				final double wouldbeClassSamples = 
+						_addedClassSamples.get(classIdx) +
+						(classIdx == newClassIdx ? 1.0 : 0.0);
+				
+				// would-be sample probability of this class
+				final double wouldbeClassProb =
+						wouldbeClassSamples /
+						wouldbeClassSamplesSum;
+				
+				// apply simulated annealing
+				final double annealedClassProb =
+						_temperature * priorClassDPProb +
+						(1.0 - _temperature) * wouldbeClassProb;
+				
+				// add log-likelihood
+				classProbs[classProbsIdx] += 
+						(priorClassDPAlphaProb - 1.0) * 
+						Math.log(annealedClassProb);
+			}
 			
 			// TODO
 		}
@@ -174,8 +206,8 @@ public final class GaussClasses2 {
 			final double classProb = classProbs[classProbsStart + classIdx];
 			
 			// add to class counts
-			_addedClassCount.add(classIdx, multiplier*classProb);
-			_addedClassCountSum += multiplier*classProb;
+			_addedClassSamples.add(classIdx, multiplier*classProb);
+			_addedClassSamplesSum += multiplier*classProb;
 			
 			for (int channelIdx=0; channelIdx<_channelCount; channelIdx++) {
 				
