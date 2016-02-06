@@ -15,32 +15,32 @@ import me.akuz.ml.tensors.Tensor;
  */
 public final class DPClasses {
 
-	public static final int CLASSES_PRIOR_DP_ALPHA = 0;
-	public static final int CLASSES_PRIOR_DP_LOG_NORM = 1;
+	public static final int CLASS_PRIOR_DP_ALPHA = 0;
+	public static final int CLASS_PRIOR_DP_LOG_NORM = 1;
 	public static final int CLASS_ADDED_SAMPLES_SUM = 2;
-	public static final int STATS_CLASS = 3;
+	public static final int CLASS_STATS_COUNT = 3;
 
-	public static final int PER_CLASS_PRIOR_DP_PROB = 0;
-	public static final int PER_CLASS_ADDED_SAMPLES = 1;
-	public static final int STATS_PER_CLASS = 2;
+	public static final int DEEP_CLASS_PRIOR_DP_PROB = 0;
+	public static final int DEEP_CLASS_ADDED_SAMPLES = 1;
+	public static final int DEEP_CLASS_STATS_COUNT = 2;
 
 	public static final int CHANNEL_PRIOR_DP_ALPHA = 0;
 	public static final int CHANNEL_PRIOR_DP_LOG_NORM = 1;
 	public static final int CHANNEL_ADDED_SAMPLES_SUM = 2;
-	public static final int STATS_CHANNEL = 3;
+	public static final int CHANNEL_STATS_COUNT = 3;
 
-	public static final int PER_CHANNEL_PRIOR_DP_PROB = 0;
-	public static final int PER_CHANNEL_ADDED_SAMPLES = 1;
-	public static final int STATS_PER_CHANNEL = 2;
+	public static final int DEEP_CHANNEL_PRIOR_DP_PROB = 0;
+	public static final int DEEP_CHANNEL_ADDED_SAMPLES = 1;
+	public static final int DEEP_CHANNEL_STATS_COUNT = 2;
 
 	private final int _classCount;
 	private final int _channelCount;
 	private final int _channelDimCount;
 
 	private final Tensor _classData;
-	private final Tensor _perClassData;
+	private final Tensor _deepClassData;
 	private final Tensor _channelData;
-	private final Tensor _perChannelData;
+	private final Tensor _deepChannelData;
 
 	private double _temperature;
 	
@@ -70,104 +70,112 @@ public final class DPClasses {
 		}
 		_channelDimCount = channelDimCount;
 		
-		_classData = new Tensor(new Shape(STATS_CLASS));
-		_perClassData = new Tensor(new Shape(_classCount, STATS_PER_CLASS));
-		_channelData = new Tensor(new Shape(_classCount, _channelCount, STATS_CHANNEL));
-		_perChannelData = new Tensor(new Shape(_classCount, _channelCount, _channelDimCount, STATS_PER_CHANNEL));
+		_classData = new Tensor(new Shape(CLASS_STATS_COUNT));
+		_deepClassData = new Tensor(new Shape(_classCount, DEEP_CLASS_STATS_COUNT));
+		_channelData = new Tensor(new Shape(_classCount, _channelCount, CHANNEL_STATS_COUNT));
+		_deepChannelData = new Tensor(new Shape(_classCount, _channelCount, _channelDimCount, DEEP_CHANNEL_STATS_COUNT));
 		
-		// init class and channel priors
-		final Random rnd = ThreadLocalRandom.current();
-		final int[] classIndices = new int[_channelData.ndim];
-		final Location classLoc = new Location(classIndices);
+		final int[] deepClassIndices = new int[_deepClassData.ndim];
+		final Location deepClassLoc = new Location(deepClassIndices);
 		final int[] channelIndices = new int[_channelData.ndim];
 		final Location channelLoc = new Location(channelIndices);
-		final int[] underlyingIndices = new int[_perChannelData.ndim];
-		final Location underlyingLoc = new Location(underlyingIndices);
+		final int[] deepChannelIndices = new int[_deepChannelData.ndim];
+		final Location deepChannelLoc = new Location(deepChannelIndices);
+
+		// random noise initialization
+		final Random rnd = ThreadLocalRandom.current();
+
+		// reused arrays
+		final double[] deepClassPriorDPProbs = new double[_classCount];
+		final double[] deepChannelPriorDPProbs = new double[_channelDimCount];
 
 		// TODO from arguments
-		final double rootPriorDPAlpha = 100.0 * _classCount;
-		_classData.set(CLASSES_PRIOR_DP_ALPHA, rootPriorDPAlpha);
-		
-		// init class prior DP probs
-		final double[] classPriorDPProbs = new double[_classCount];
+		final double classPriorDPAlpha = 10.0;
+		_classData.set(
+				CLASS_PRIOR_DP_ALPHA, 
+				classPriorDPAlpha);
+
+		// initialize deep-class base distribution
 		for (int classIdx=0; classIdx<_classCount; classIdx++) {
 			
 			// TODO from arguments
-			final double priorClassObs = 1.0 + rnd.nextDouble()*0.01;
-			classPriorDPProbs[classIdx] = priorClassObs;
+			final double deepClassObs = 1.0 + rnd.nextDouble()*0.01;
+			deepClassPriorDPProbs[classIdx] = deepClassObs;
 		}
-		StatsUtils.normalizeInPlace(classPriorDPProbs);
-		
-		// reusable underlying prior DP probs
-		final double[] underlyingPriorDPProbs = new double[_channelDimCount];
+		StatsUtils.normalizeInPlace(deepClassPriorDPProbs);
 
-		double rootPriorDPLogNorm = 0.0;
-		double rootPriorDPAlphaProbSum = 0.0;
+		double classPriorDPLogNorm = 0.0;
+		double classPriorDPAlphaProbSum = 0.0;
 		for (int classIdx=0; classIdx<_classCount; classIdx++) {
 			
-			classIndices[0] = classIdx;
+			deepClassIndices[0] = classIdx;
 			channelIndices[0] = classIdx;
-			underlyingIndices[0] = classIdx;
+			deepChannelIndices[0] = classIdx;
 			
-			final double classPriorDPProb = classPriorDPProbs[classIdx];
-			final double rootPriorDPAlphaProb = rootPriorDPAlpha * classPriorDPProb;
+			final double deepClassPriorDPProb = deepClassPriorDPProbs[classIdx];
+			final double deepClassPriorDPAlphaProb = classPriorDPAlpha * deepClassPriorDPProb;
 			
-			rootPriorDPLogNorm -= GammaFunction.lnGamma(rootPriorDPAlphaProb);
-			rootPriorDPAlphaProbSum += rootPriorDPAlphaProb;
+			classPriorDPLogNorm -= GammaFunction.lnGamma(deepClassPriorDPAlphaProb);
+			classPriorDPAlphaProbSum += deepClassPriorDPAlphaProb;
 
-			final int classDataIdx = _perClassData.shape.calcFlatIndexFromLocation(classLoc);
+			final int deepClassDataIdx = 
+					_deepClassData.shape
+					.calcFlatIndexFromLocation(deepClassLoc);
 
-			_perClassData.set(
-					classDataIdx + PER_CLASS_PRIOR_DP_PROB, 
-					classPriorDPProbs[classIdx]);
+			_deepClassData.set(
+					deepClassDataIdx + DEEP_CLASS_PRIOR_DP_PROB, 
+					deepClassPriorDPProb);
 
 			for (int channelIdx=0; channelIdx<_channelCount; channelIdx++) {
-				
+
 				channelIndices[1] = channelIdx;
-				underlyingIndices[1] = channelIdx;
-				
-				final int channelDataIdx = _channelData.shape
+				deepChannelIndices[1] = channelIdx;
+
+				final int channelDataIdx = 
+						_channelData.shape
 						.calcFlatIndexFromLocation(channelLoc);
 
 				// TODO: from arguments
 				final double channelPriorDPAlpha = 10.0;
-				_channelData.set(channelDataIdx + CHANNEL_PRIOR_DP_ALPHA, channelPriorDPAlpha);
+				_channelData.set(
+						channelDataIdx + CHANNEL_PRIOR_DP_ALPHA,
+						channelPriorDPAlpha);
 
-				// init underlying DP probs
-				for (int underlyingIdx=0; underlyingIdx<_channelDimCount; underlyingIdx++) {
+				// initialize deep-channel base distribution
+				for (int channelDimIdx=0; channelDimIdx<_channelDimCount; channelDimIdx++) {
 					
 					// TODO from arguments
-					final double underlyingClassObs = 1.0 + rnd.nextDouble()*0.01;
-					underlyingPriorDPProbs[underlyingIdx] = underlyingClassObs;
+					final double deepChannelClassObs = 1.0 + rnd.nextDouble()*0.01;
+					deepChannelPriorDPProbs[channelDimIdx] = deepChannelClassObs;
 				}
-				StatsUtils.normalizeInPlace(underlyingPriorDPProbs);
+				StatsUtils.normalizeInPlace(deepChannelPriorDPProbs);
 				
-				// set underlying DP probs
 				double channelPriorDPLogNorm = 0.0;
 				double channelPriorDPAlphaProbSum = 0.0;
-				for (int underlyingIdx=0; underlyingIdx<_channelDimCount; underlyingIdx++) {
+				for (int dimIdx=0; dimIdx<_channelDimCount; dimIdx++) {
 					
-					underlyingIndices[2] = underlyingIdx;
+					deepChannelIndices[2] = dimIdx;
 					
-					final int underlyingDataIdx = _perChannelData.shape
-							.calcFlatIndexFromLocation(underlyingLoc);
+					final double deepChannelPriorDPProb = deepChannelPriorDPProbs[dimIdx];
+					final double deepChannelPriorDPAlphaProb = channelPriorDPAlpha * deepChannelPriorDPProb;
 					
-					final double underlyingPriorDPProb = underlyingPriorDPProbs[underlyingIdx];
-					final double channelPriorDPAlphaProb = channelPriorDPAlpha * underlyingPriorDPProb;
+					channelPriorDPLogNorm -= GammaFunction.lnGamma(deepChannelPriorDPAlphaProb);
+					channelPriorDPAlphaProbSum += deepChannelPriorDPAlphaProb;
 					
-					channelPriorDPLogNorm -= GammaFunction.lnGamma(channelPriorDPAlphaProb);
-					channelPriorDPAlphaProbSum += channelPriorDPAlphaProb;
+					final int deepChannelDataIdx = 
+							_deepChannelData.shape
+							.calcFlatIndexFromLocation(deepChannelLoc);
 
-					_perChannelData.set(
-							underlyingDataIdx + PER_CHANNEL_PRIOR_DP_PROB, 
-							underlyingPriorDPProb);
+					_deepChannelData.set(
+							deepChannelDataIdx + DEEP_CHANNEL_PRIOR_DP_PROB, 
+							deepChannelPriorDPProb);
 				}
 				channelPriorDPLogNorm += GammaFunction.lnGamma(channelPriorDPAlphaProbSum);
 				_channelData.set(channelDataIdx + CHANNEL_PRIOR_DP_LOG_NORM, channelPriorDPLogNorm);
 			}
 		}
-		rootPriorDPLogNorm += GammaFunction.lnGamma(rootPriorDPAlphaProbSum);
-		_classData.set(CLASSES_PRIOR_DP_LOG_NORM, rootPriorDPLogNorm);
+		classPriorDPLogNorm += GammaFunction.lnGamma(classPriorDPAlphaProbSum);
+		_classData.set(CLASS_PRIOR_DP_LOG_NORM, classPriorDPLogNorm);
 
 		_temperature = 1.0;
 	}
@@ -206,10 +214,10 @@ public final class DPClasses {
 			classIndices[0] = classIdx;
 			channelIndices[0] = classIdx;
 
-			final int classDataIdx = _perClassData.shape.calcFlatIndexFromLocation(classLoc);
+			final int classDataIdx = _deepClassData.shape.calcFlatIndexFromLocation(classLoc);
 
 			// get prior class info
-			final double priorClassDPProb = _perClassData.get(classDataIdx + PER_CLASS_PRIOR_DP_PROB);
+			final double priorClassDPProb = _deepClassData.get(classDataIdx + DEEP_CLASS_PRIOR_DP_PROB);
 			final double priorClassDPAlphaProb = _classPriorDPAlpha * priorClassDPProb;
 			
 			// compute absolute index
@@ -230,7 +238,7 @@ public final class DPClasses {
 				
 				// would-be the number of samples of this class
 				final double wouldbeClassSamples = 
-						_perClassData.get(classDataIdx + PER_CLASS_ADDED_SAMPLES) +
+						_deepClassData.get(classDataIdx + DEEP_CLASS_ADDED_SAMPLES) +
 						(classIdx == newClassIdx ? 1.0 : 0.0);
 				
 				// would-be sample probability of this class
@@ -289,14 +297,14 @@ public final class DPClasses {
 			classIndices[0] = classIdx;
 			channelIndices[0] = classIdx;
 			
-			final int classDataIdx = _perClassData.shape.calcFlatIndexFromLocation(classLoc);
+			final int classDataIdx = _deepClassData.shape.calcFlatIndexFromLocation(classLoc);
 
 			// get provided class probability
 			final double classProb = classProbs[classProbsStart + classIdx];
 			
 			// class stats
-			_perClassData.add(
-					classDataIdx + PER_CLASS_ADDED_SAMPLES, 
+			_deepClassData.add(
+					classDataIdx + DEEP_CLASS_ADDED_SAMPLES, 
 					multiplier*classProb);
 			_classAddedSamplesSum += 
 					multiplier*classProb;
