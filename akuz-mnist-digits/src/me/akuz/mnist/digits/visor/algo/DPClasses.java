@@ -1,9 +1,5 @@
 package me.akuz.mnist.digits.visor.algo;
 
-import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
-
-import me.akuz.core.math.GammaFunction;
 import me.akuz.core.math.StatsUtils;
 import me.akuz.ml.tensors.Location;
 import me.akuz.ml.tensors.Shape;
@@ -180,11 +176,26 @@ public final class DPClasses {
 	public void iterate(
 			final double[] classProbs,
 			final int classProbsStart,
-			final double[] channelDimData,
-			final int channelDimDataStart) {
+			final double[] channelData,
+			final int[] channelDataStarts) {
 		
+		if (classProbs == null) {
+			throw new NullPointerException("classWeights");
+		}
+		if (channelData == null) {
+			throw new NullPointerException("channelData");
+		}
+		if (channelDataStarts == null) {
+			throw new NullPointerException("channelDataStarts");
+		}
+		if (channelDataStarts.length != _channelCount) {
+			throw new IllegalArgumentException(
+					"Expected channelDataStarts length of " +
+					_channelCount + ", but got " + channelDataStarts.length);
+		}
+
 		// remove the provided observation
-		processObservation(-1.0, classProbs, classProbsStart, channelDimData, channelDimDataStart);
+		processObservation(-1.0, classProbs, classProbsStart, channelData, channelDataStarts);
 		
 		// for iterating through stats
 		final int[] classDimIndices = new int[_classDimData.ndim];
@@ -193,11 +204,6 @@ public final class DPClasses {
 		final Location classChannelLoc = new Location(classChannelIndices);
 		final int[] classChannelDimIndices = new int[_classChannelDimData.ndim];
 		final Location classChannelDimLoc = new Location(classChannelDimIndices);
-		
-		// for iterating through channel data
-		final Shape channelDimDataShape = new Shape(_channelCount, _channelDimCount);
-		final int[] channelDimDataIndices = new int[2];
-		final Location channelDimDataLoc = new Location(channelDimDataIndices);
 
 		// meta class information
 		final double classPriorDPAlpha = 
@@ -256,7 +262,6 @@ public final class DPClasses {
 				
 				classChannelIndices[1] = channelIdx;
 				classChannelDimIndices[1] = channelIdx;
-				channelDimDataIndices[0] = channelIdx;
 				
 				final int classChannelDataIdx = _classChannelData.shape
 						.calcFlatIndexFromLocation(classChannelLoc);
@@ -275,20 +280,18 @@ public final class DPClasses {
 				// add class DP normalization constant
 				classProbs[classProbsIdx] += classChannelPriorDPLogNorm;
 
-				// channel distribution log-likelihood
-				for (int channelDimIdx=0; channelDimIdx<_channelDimCount; channelDimIdx++) {
+				final int channelDataStart = channelDataStarts[channelIdx];
 
-					classChannelDimIndices[2] = channelDimIdx;
-					channelDimDataIndices[1] = channelDimIdx;
+				// channel distribution log-likelihood
+				for (int dimIdx=0; dimIdx<_channelDimCount; dimIdx++) {
+
+					classChannelDimIndices[2] = dimIdx;
 
 					final int classChannelDimDataIdx = _classChannelDimData.shape
 							.calcFlatIndexFromLocation(classChannelDimLoc);
 
-					final int channelDimDataIdx = channelDimDataShape
-							.calcFlatIndexFromLocation(channelDimDataLoc);
-					
-					final double channelDimDataValue =
-							channelDimData[channelDimDataStart + channelDimDataIdx];
+					final double channelDimValue =
+							channelData[channelDataStart + dimIdx];
 
 					// get prior info for dim
 					final double classChannelDimPriorDPProb = 
@@ -300,7 +303,7 @@ public final class DPClasses {
 					// would-be the number of samples of this dim
 					final double classChannelDimAddedSamples = 
 							_classChannelDimData.get(classChannelDimDataIdx + 
-									CLASS_CHANNEL_DIM_ADDED_SAMPLES) + channelDimDataValue;
+									CLASS_CHANNEL_DIM_ADDED_SAMPLES) + channelDimValue;
 					
 					// would-be sample probability of this dim
 					final double classChannelDimSampleProb =
@@ -324,67 +327,74 @@ public final class DPClasses {
 		StatsUtils.logLikesToProbsInPlace(classProbs, classProbsStart, _classCount);
 
 		// add the computed observation
-		processObservation(1.0, classProbs, classProbsStart, channelDimData, channelDimDataStart);
+		processObservation(1.0, classProbs, classProbsStart, channelData, channelDataStarts);
 	}
 	
 	private void processObservation(
 			final double multiplier,
 			final double[] classProbs,
 			final int classProbsStart,
-			final double[] channelDimData,
-			final int channelDimDataStart) {
+			final double[] channelData,
+			final int[] channelDataStarts) {
 		
-		if (classProbs == null) {
-			throw new NullPointerException("classWeights");
-		}
-		if (channelDimData == null) {
-			throw new NullPointerException("channelDimData");
-		}
-		
-		final int[] classIndices = new int[_classChannelData.ndim];
-		final Location classLoc = new Location(classIndices);
-		
-		final int[] channelIndices = new int[_classChannelData.ndim];
-		final Location channelLoc = new Location(channelIndices);
+		// for iterating through stats
+		final int[] classDimIndices = new int[_classDimData.ndim];
+		final Location classDimLoc = new Location(classDimIndices);
+		final int[] classChannelIndices = new int[_classChannelData.ndim];
+		final Location classChannelLoc = new Location(classChannelIndices);
+		final int[] classChannelDimIndices = new int[_classChannelDimData.ndim];
+		final Location classChannelDimLoc = new Location(classChannelDimIndices);
 		
 		for (int classIdx=0; classIdx<_classCount; classIdx++) {
 			
-			classIndices[0] = classIdx;
-			channelIndices[0] = classIdx;
+			classDimIndices[0] = classIdx;
+			classChannelIndices[0] = classIdx;
+			classChannelDimIndices[0] = classIdx;
 			
-			final int classDataIdx = _classDimData.shape
-					.calcFlatIndexFromLocation(classLoc);
+			final int classDimDataIdx = _classDimData.shape
+					.calcFlatIndexFromLocation(classDimLoc);
 
 			// get provided class probability
 			final double classProb = classProbs[classProbsStart + classIdx];
+			final double multipliedClassProb = multiplier*classProb;
 			
-			// class stats
+			_classData.add(
+					CLASS_ADDED_SAMPLES_SUM, 
+					multipliedClassProb);
+			
 			_classDimData.add(
-					classDataIdx + CLASS_DIM_ADDED_SAMPLES, 
-					multiplier*classProb);
-			_classAddedSamplesSum += 
-					multiplier*classProb;
+					classDimDataIdx + CLASS_DIM_ADDED_SAMPLES, 
+					multipliedClassProb);
 			
 			for (int channelIdx=0; channelIdx<_channelCount; channelIdx++) {
 				
-				channelIndices[1] = channelIdx;
+				classChannelIndices[1] = channelIdx;
+				classChannelDimIndices[1] = channelIdx;
 				
-				final int channelDataIdx = _classChannelData.shape
-						.calcFlatIndexFromLocation(channelLoc);
+				final int classChannelDataIdx = _classChannelData.shape
+						.calcFlatIndexFromLocation(classChannelLoc);
+				
+				_classChannelData.add(
+						classChannelDataIdx + CLASS_CHANNEL_ADDED_SAMPLES_SUM,
+						multipliedClassProb);
+				
+				final int channelDataStart = channelDataStarts[channelIdx];
+				
+				for (int dimIdx=0; dimIdx<_channelDimCount; dimIdx++) {
+					
+					classChannelDimIndices[2] = dimIdx;
 
-				// get provided channel value
-				final double channelValue = channelDimData[channelDimDataStart + channelIdx];
-				
-				// channel stats
-				_classChannelData.add(
-						channelDataIdx + CHANNEL_ADDED_SUM, 
-						multiplier*classProb*channelValue);
-				_classChannelData.add(
-						channelDataIdx + CHANNEL_ADDED_SUM_SQ, 
-						multiplier*classProb*channelValue*channelValue);
-				_classChannelData.add(
-						channelDataIdx + CHANNEL_ADDED_SAMPLES,
-						multiplier*classProb);
+					// get provided channel value
+					final double channelDimValue = 
+							channelData[channelDataStart + dimIdx];
+					
+					final int classChannelDimDataIdx = _classChannelDimData.shape
+							.calcFlatIndexFromLocation(classChannelDimLoc);
+					
+					_classChannelDimData.add(
+							classChannelDimDataIdx + CLASS_CHANNEL_DIM_ADDED_SAMPLES,
+							multipliedClassProb*channelDimValue);
+				}
 			}
 		}
 	}
@@ -393,56 +403,90 @@ public final class DPClasses {
 			final double[] classProbs,
 			final int classProbsStart,
 			final double[] channelData,
-			final int channelDataStart) {
+			final int[] channelDataStarts) {
 
 		if (classProbs == null) {
-			throw new NullPointerException("classProbs");
+			throw new NullPointerException("classWeights");
 		}
 		if (channelData == null) {
 			throw new NullPointerException("channelData");
 		}
-		
-		final int[] channelIndices = new int[_classChannelData.ndim];
-		final Location channelLoc = new Location(channelIndices);
-
-		// first reset means to zero
-		for (int channelIdx = 0; channelIdx < _channelCount; channelIdx++) {
-			channelData[channelDataStart + channelIdx] = 0.0;
+		if (channelDataStarts == null) {
+			throw new NullPointerException("channelDataStarts");
 		}
+		if (channelDataStarts.length != _channelCount) {
+			throw new IllegalArgumentException(
+					"Expected channelDataStarts length of " +
+					_channelCount + ", but got " + channelDataStarts.length);
+		}
+
+		// for iterating through stats
+		final int[] classChannelIndices = new int[_classChannelData.ndim];
+		final Location classChannelLoc = new Location(classChannelIndices);
+		final int[] classChannelDimIndices = new int[_classChannelDimData.ndim];
+		final Location classChannelDimLoc = new Location(classChannelDimIndices);
 		
-		// calculate posterior log likelihood
-		for (int classIdx = 0; classIdx < _classCount; classIdx++) {
+		// compute class assignment log-likelihoods
+		for (int classIdx=0; classIdx<_classCount; classIdx++) {
 			
-			channelIndices[0] = classIdx;
-			
-			// get provided class probability
 			final double classProb = classProbs[classProbsStart + classIdx];
 
-			// add class stats likelihoods
-			for (int channelIdx = 0; channelIdx < _channelCount; channelIdx++) {
+			classChannelIndices[0] = classIdx;
+			classChannelDimIndices[0] = classIdx;
+			
+			// channels distribution log-likelihood
+			for (int channelIdx=0; channelIdx<_channelCount; channelIdx++) {
 				
-				channelIndices[1] = channelIdx;
+				classChannelIndices[1] = channelIdx;
+				classChannelDimIndices[1] = channelIdx;
 				
-				final int channelDataIdx = _classChannelData.shape.calcFlatIndexFromLocation(channelLoc);
-				
-				final double priorMean = _classChannelData.get(channelDataIdx + CHANNEL_PRIOR_MEAN);
-				final double priorMeanSamples = _classChannelData.get(channelDataIdx + CHANNEL_PRIOR_MEAN_SAMPLES);
+				final int classChannelDataIdx = _classChannelData.shape
+						.calcFlatIndexFromLocation(classChannelLoc);
 
-				final double addedSum = _classChannelData.get(channelDataIdx + CHANNEL_ADDED_SUM);
-				final double addedSamples = _classChannelData.get(channelDataIdx + CHANNEL_ADDED_SAMPLES);
-				
-				// TODO: use temperature
-				
-				// calculate posterior mean
-				final double posteriorMean = 
-						(priorMeanSamples*priorMean + addedSum) /
-						(priorMeanSamples + addedSamples);
+				// meta channel information
+				final double classChannelAddedSamplesSum =
+						_classChannelData.get(classChannelDataIdx + 
+								CLASS_CHANNEL_ADDED_SAMPLES_SUM);
 
-				// add to the output channel data
-				channelData[channelDataStart + channelIdx] 
-						+= classProb*posteriorMean;
+				final int channelDataStart = channelDataStarts[channelIdx];
+
+				// channel distribution log-likelihood
+				for (int dimIdx=0; dimIdx<_channelDimCount; dimIdx++) {
+
+					classChannelDimIndices[2] = dimIdx;
+
+					final int classChannelDimDataIdx = _classChannelDimData.shape
+							.calcFlatIndexFromLocation(classChannelDimLoc);
+
+					// get prior info for dim
+					final double classChannelDimPriorDPProb = 
+							_classChannelDimData.get(classChannelDimDataIdx + 
+									CLASS_CHANNEL_DIM_PRIOR_DP_PROB);
+					
+					// would-be the number of samples of this dim
+					final double classChannelDimAddedSamples = 
+							_classChannelDimData.get(classChannelDimDataIdx + 
+									CLASS_CHANNEL_DIM_ADDED_SAMPLES);
+					
+					// would-be sample probability of this dim
+					final double classChannelDimSampleProb =
+							classChannelDimAddedSamples /
+							classChannelAddedSamplesSum;
+					
+					// apply simulated annealing
+					final double annealedClassChannelDimProb =
+							_temperature * classChannelDimPriorDPProb +
+							(1.0 - _temperature) * classChannelDimSampleProb;
+					
+					if (classIdx == 0) {
+						channelData[channelDataStart + dimIdx] = annealedClassChannelDimProb * classProb;
+					} else {
+						channelData[channelDataStart + dimIdx] += annealedClassChannelDimProb * classProb;
+					}
+				}
 			}
 		}
+
 	}
 
 }
