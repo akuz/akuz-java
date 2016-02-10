@@ -71,17 +71,20 @@ public class ProgramVisor0 {
 //			layer2C.infer();
 			
 			layer2.setTemperature(temperature);
-			layer2.learn();
-//			layer2.infer();
+			for (int i=0; i<2; i++) {
+				layer2.learn();
+	//			layer2.infer();
+			}
 		}
 		
 		System.out.println("dream");
-		final Tensor dream = new Tensor(image.shape);
-		layer0.setInput(dream);
 //		layer2Y.dream();
 //		layer2C.dream();
 		layer2.dream();
 		layer1.dream();
+		
+		final Tensor dream = new Tensor(image.shape);
+		layer0.setInput(dream);
 		layer0.dream();
 		
 		TensorFiles.saveImage_sRGB(dream, PREFIX + 
@@ -94,7 +97,7 @@ public class ProgramVisor0 {
 //		System.out.println("COLORS");
 //		System.out.println();
 //		layer1.getColors().print();
-		
+
 //		System.out.println();
 //		System.out.println("INTENSITY");
 //		System.out.println();

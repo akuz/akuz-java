@@ -15,8 +15,6 @@ import me.akuz.mnist.digits.visor.algo.DPClasses;
  */
 public final class DPColors extends VisorLayer {
 
-	private final DPClasses _colors;
-
 	/**
 	 * Height of the input image tensor (size of dim 0).
 	 */
@@ -51,7 +49,9 @@ public final class DPColors extends VisorLayer {
 	 * Output to be used at the next level.
 	 */
 	public final Tensor output;
-	
+
+	private final DPClasses _colors;
+
 	/**
 	 * Create color visor layer with the shape of the
 	 * input tensor (must have ndim 3 with the last
@@ -129,21 +129,26 @@ public final class DPColors extends VisorLayer {
 				
 		final int[] channelDataStarts = new int[this.inputChannels];
 		
-		for (int i=0; i<this.inputHeight; i++) {
-			inputIndices[0] = i;
-			outputIndices[0] = i;
-			for (int j=0; j<this.inputWidth; j++) {
-				inputIndices[1] = j;
-				outputIndices[1] = j;
+		for (int rowIdx=0; rowIdx<this.inputHeight; rowIdx++) {
+			
+			inputIndices[0] = rowIdx;
+			outputIndices[0] = rowIdx;
+			
+			for (int columnIdx=0; columnIdx<this.inputWidth; columnIdx++) {
 				
-				for (int c=0; c<this.inputChannels; c++) {
-					inputIndices[2] = c;
-					channelDataStarts[c] = inputShape.calcFlatIndexFromLocation(inputLoc);
+				inputIndices[1] = columnIdx;
+				outputIndices[1] = columnIdx;
+				
+				for (int channelIdx=0; channelIdx<this.inputChannels; channelIdx++) {
+					inputIndices[2] = channelIdx;
+					channelDataStarts[channelIdx] = inputShape.calcFlatIndexFromLocation(inputLoc);
 				}
 				
+				final int outputDataStart = outputShape.calcFlatIndexFromLocation(outputLoc);
+
 				_colors.iterate(
-						this.output.data(), 
-						this.outputShape.calcFlatIndexFromLocation(outputLoc), 
+						output.data(), 
+						outputDataStart, 
 						input.data(), 
 						channelDataStarts);
 			}
@@ -173,21 +178,26 @@ public final class DPColors extends VisorLayer {
 				
 		final int[] channelDataStarts = new int[this.inputChannels];
 		
-		for (int i=0; i<this.inputHeight; i++) {
-			inputIndices[0] = i;
-			outputIndices[0] = i;
-			for (int j=0; j<this.inputWidth; j++) {
-				inputIndices[1] = j;
-				outputIndices[1] = j;
+		for (int rowIdx=0; rowIdx<this.inputHeight; rowIdx++) {
+			
+			inputIndices[0] = rowIdx;
+			outputIndices[0] = rowIdx;
+			
+			for (int columnIdx=0; columnIdx<this.inputWidth; columnIdx++) {
 				
-				for (int c=0; c<this.inputChannels; c++) {
-					inputIndices[2] = c;
-					channelDataStarts[c] = inputShape.calcFlatIndexFromLocation(inputLoc);
+				inputIndices[1] = columnIdx;
+				outputIndices[1] = columnIdx;
+				
+				for (int channelIdx=0; channelIdx<this.inputChannels; channelIdx++) {
+					inputIndices[2] = channelIdx;
+					channelDataStarts[channelIdx] = inputShape.calcFlatIndexFromLocation(inputLoc);
 				}
 				
+				final int outputDataStart = this.outputShape.calcFlatIndexFromLocation(outputLoc);
+				
 				_colors.calculateChannelMeans(
-						this.output.data(), 
-						this.outputShape.calcFlatIndexFromLocation(outputLoc), 
+						output.data(), 
+						outputDataStart, 
 						input.data(), 
 						channelDataStarts);
 			}

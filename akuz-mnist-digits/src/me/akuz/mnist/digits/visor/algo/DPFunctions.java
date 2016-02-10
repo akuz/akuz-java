@@ -7,17 +7,8 @@ import me.akuz.core.math.GammaFunction;
 import me.akuz.core.math.StatsUtils;
 
 public final class DPFunctions {
-
-	public static final int ROOT_PRIOR_DP_ALPHA = 0;
-	public static final int ROOT_PRIOR_DP_LOG_NORM = 1;
-	public static final int ROOT_ADDED_SAMPLES_SUM = 2;
-	public static final int ROOT_STATS_COUNT = 3;
-
-	public static final int DEEP_CLASS_PRIOR_DP_PROB = 0;
-	public static final int DEEP_CLASS_ADDED_SAMPLES = 1;
-	public static final int DEEP_CLASS_STATS_COUNT = 2;
 	
-	public static final DPMetaInfo initDP(
+	public static final DPMetaInfo initNoisyFlatDP(
 			final double alpha,
 			final double[] probs,
 			final int startIdx,
@@ -29,11 +20,9 @@ public final class DPFunctions {
 		}
 		StatsUtils.normalizeInPlace(probs, startIdx, length);
 		
-		
 		double logNorm = 0.0;
 		double alphaProbSum = 0.0;
 		for (int idx=0; idx<length; idx++) {
-			
 			final double alphaProb = alpha*probs[startIdx + idx];
 			logNorm -= GammaFunction.lnGamma(alphaProb);
 			alphaProbSum += alphaProb;

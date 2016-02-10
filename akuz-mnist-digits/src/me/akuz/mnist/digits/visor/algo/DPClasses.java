@@ -86,8 +86,8 @@ public final class DPClasses {
 		final DPMetaInfo classDPMeta;
 		{
 			// TODO from arguments
-			final double classPriorDPAlpha = 1.0;
-			classDPMeta = DPFunctions.initDP(
+			final double classPriorDPAlpha = 5.0;
+			classDPMeta = DPFunctions.initNoisyFlatDP(
 					classPriorDPAlpha,
 					classDimPriorDPProbs,
 					0, 
@@ -127,8 +127,8 @@ public final class DPClasses {
 				final DPMetaInfo channelDPMeta;
 				{
 					// TODO: from arguments
-					final double channelPriorDPAlpha = 1.0;
-					channelDPMeta = DPFunctions.initDP(
+					final double channelPriorDPAlpha = 2.5;
+					channelDPMeta = DPFunctions.initNoisyFlatDP(
 							channelPriorDPAlpha,
 							channelDimPriorDPProbs,
 							0,
@@ -210,7 +210,7 @@ public final class DPClasses {
 				_classData.get(CLASS_PRIOR_DP_ALPHA);
 		final double classPriorDPLogNorm = 
 				_classData.get(CLASS_PRIOR_DP_LOG_NORM);
-		final double classAddedSamplesSum =
+		final double classWouldbeSamplesSum =
 				_classData.get(CLASS_ADDED_SAMPLES_SUM) + 1.0;
 		
 		// compute class assignment log-likelihoods
@@ -239,14 +239,14 @@ public final class DPClasses {
 						classDimPriorDPProb * classPriorDPAlpha;
 				
 				// would-be the number of samples of this class
-				final double classDimAddedSamples =
+				final double classDimWouldbeSamples =
 						_classDimData.get(classDimDataIdx + CLASS_DIM_ADDED_SAMPLES)
 						+ (classIdx == classIdx2 ? 1.0 : 0.0);
 				
 				// would-be sample probability of this class
 				final double classSampleProb =
-						classDimAddedSamples /
-						classAddedSamplesSum;
+						classDimWouldbeSamples /
+						classWouldbeSamplesSum;
 				
 				// apply simulated annealing
 				final double annealedClassProb =
@@ -279,7 +279,7 @@ public final class DPClasses {
 				final double classChannelPriorDPLogNorm = 
 						_classChannelData.get(classChannelDataIdx + 
 								CLASS_CHANNEL_PRIOR_DP_LOG_NORM);
-				final double classChannelAddedSamplesSum =
+				final double classChannelWouldbeSamplesSum =
 						_classChannelData.get(classChannelDataIdx + 
 								CLASS_CHANNEL_ADDED_SAMPLES_SUM) + 1.0;
 
@@ -307,14 +307,14 @@ public final class DPClasses {
 							classChannelDimPriorDPProb * classChannelPriorDPAlpha;
 					
 					// would-be the number of samples of this dim
-					final double classChannelDimAddedSamples = 
+					final double classChannelDimWouldbeSamples = 
 							_classChannelDimData.get(classChannelDimDataIdx + 
 									CLASS_CHANNEL_DIM_ADDED_SAMPLES) + channelDimValue;
 					
 					// would-be sample probability of this dim
 					final double classChannelDimSampleProb =
-							classChannelDimAddedSamples /
-							classChannelAddedSamplesSum;
+							classChannelDimWouldbeSamples /
+							classChannelWouldbeSamplesSum;
 					
 					// apply simulated annealing
 					final double annealedClassChannelDimProb =
