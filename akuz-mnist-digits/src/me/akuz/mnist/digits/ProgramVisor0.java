@@ -48,7 +48,7 @@ public class ProgramVisor0 {
 //		layer2C.setInput(layer1.output2);
 
 		// perform learning
-		for (double temperature = 0.99; temperature > 0.001; temperature *= 0.5){
+		for (double temperature = 0.99; temperature > 0.01; temperature *= 0.5){
 			
 			System.out.println(
 					colorCountY + " " + 

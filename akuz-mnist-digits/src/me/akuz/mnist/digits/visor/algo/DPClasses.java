@@ -86,7 +86,7 @@ public final class DPClasses {
 		final DPMetaInfo classDPMeta;
 		{
 			// TODO from arguments
-			final double classPriorDPAlpha = 10.0;
+			final double classPriorDPAlpha = 1.0;
 			classDPMeta = DPFunctions.initDP(
 					classPriorDPAlpha,
 					classDimPriorDPProbs,
@@ -127,7 +127,7 @@ public final class DPClasses {
 				final DPMetaInfo channelDPMeta;
 				{
 					// TODO: from arguments
-					final double channelPriorDPAlpha = 10.0;
+					final double channelPriorDPAlpha = 1.0;
 					channelDPMeta = DPFunctions.initDP(
 							channelPriorDPAlpha,
 							channelDimPriorDPProbs,
@@ -214,49 +214,55 @@ public final class DPClasses {
 				_classData.get(CLASS_ADDED_SAMPLES_SUM) + 1.0;
 		
 		// compute class assignment log-likelihoods
-		for (int newClassIdx=0; newClassIdx<_classCount; newClassIdx++) {
+		for (int classIdx=0; classIdx<_classCount; classIdx++) {
 			
 			// log-likelihood population index
-			final int classProbsIdx = classProbsStart + newClassIdx;
-
+			final int classProbsIdx = classProbsStart + classIdx;
+			
 			// init log-likelihood calculation
 			// with class DP normalization constant
 			classProbs[classProbsIdx] = classPriorDPLogNorm;
 
-			classDimIndices[0] = newClassIdx;
-			classChannelIndices[0] = newClassIdx;
-			classChannelDimIndices[0] = newClassIdx;
+			// calculate log-likelihood under the DP prior of assigning to this class
+			for (int classIdx2=0; classIdx2<_classCount; classIdx2++) {
 
-			final int classDimDataIdx = _classDimData.shape
-					.calcFlatIndexFromLocation(classDimLoc);
+				// would-be class index
+				classDimIndices[0] = classIdx2;
+				
+				final int classDimDataIdx = _classDimData.shape
+						.calcFlatIndexFromLocation(classDimLoc);
+	
+				// get prior class info
+				final double classDimPriorDPProb = 
+						_classDimData.get(classDimDataIdx + CLASS_DIM_PRIOR_DP_PROB);
+				final double classDimPriorDPProbAlpha = 
+						classDimPriorDPProb * classPriorDPAlpha;
+				
+				// would-be the number of samples of this class
+				final double classDimAddedSamples =
+						_classDimData.get(classDimDataIdx + CLASS_DIM_ADDED_SAMPLES)
+						+ (classIdx == classIdx2 ? 1.0 : 0.0);
+				
+				// would-be sample probability of this class
+				final double classSampleProb =
+						classDimAddedSamples /
+						classAddedSamplesSum;
+				
+				// apply simulated annealing
+				final double annealedClassProb =
+						_temperature * classDimPriorDPProb +
+						(1.0 - _temperature) * classSampleProb;
+				
+				// add DP log-likelihood
+				classProbs[classProbsIdx] += 
+						(classDimPriorDPProbAlpha - 1.0) * 
+						Math.log(annealedClassProb);
+			}
 
-			// get prior class info
-			final double classDimPriorDPProb = 
-					_classDimData.get(classDimDataIdx + 
-							CLASS_DIM_PRIOR_DP_PROB);
-			final double classDimPriorDPProbAlpha = 
-					classDimPriorDPProb * classPriorDPAlpha;
-			
-			// would-be the number of samples of this class
-			final double classDimAddedSamples =
-					_classDimData.get(classDimDataIdx + 
-							CLASS_DIM_ADDED_SAMPLES) + 1.0;
-			
-			// would-be sample probability of this class
-			final double classSampleProb =
-					classDimAddedSamples /
-					classAddedSamplesSum;
-			
-			// apply simulated annealing
-			final double annealedClassProb =
-					_temperature * classDimPriorDPProb +
-					(1.0 - _temperature) * classSampleProb;
-			
-			// add DP log-likelihood
-			classProbs[classProbsIdx] += 
-					(classDimPriorDPProbAlpha - 1.0) * 
-					Math.log(annealedClassProb);
-			
+			classDimIndices[0] = classIdx;
+			classChannelIndices[0] = classIdx;
+			classChannelDimIndices[0] = classIdx;
+
 			// channels distribution log-likelihood
 			for (int channelIdx=0; channelIdx<_channelCount; channelIdx++) {
 				
