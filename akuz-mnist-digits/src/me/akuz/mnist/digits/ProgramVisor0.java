@@ -71,7 +71,7 @@ public class ProgramVisor0 {
 //			layer2C.infer();
 			
 			layer2.setTemperature(temperature);
-			for (int i=0; i<2; i++) {
+			for (int i=0; i<10; i++) {
 				layer2.learn();
 	//			layer2.infer();
 			}

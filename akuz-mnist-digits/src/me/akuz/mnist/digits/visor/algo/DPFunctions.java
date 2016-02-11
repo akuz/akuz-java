@@ -8,28 +8,30 @@ import me.akuz.core.math.StatsUtils;
 
 public final class DPFunctions {
 	
-	public static final DPMetaInfo initNoisyFlatDP(
+	public static final double initNoisyFlatDP(
 			final double alpha,
-			final double[] probs,
-			final int startIdx,
-			final int length) {
+			final double[] fillAlphaProbs,
+			final int fillStartIdx,
+			final int fillLength) {
 		
 		Random rnd = ThreadLocalRandom.current();
-		for (int idx=0; idx<length; idx++) {
-			probs[idx] = 1.0 + rnd.nextDouble()*0.01;
+		for (int idx=0; idx<fillLength; idx++) {
+			fillAlphaProbs[idx] = 1.0 + rnd.nextDouble()*0.01;
 		}
-		StatsUtils.normalizeInPlace(probs, startIdx, length);
-		
+		StatsUtils.normalizeInPlace(fillAlphaProbs, fillStartIdx, fillLength);
+
 		double logNorm = 0.0;
 		double alphaProbSum = 0.0;
-		for (int idx=0; idx<length; idx++) {
-			final double alphaProb = alpha*probs[startIdx + idx];
+		for (int idx=0; idx<fillLength; idx++) {
+			final int fillIdx = fillStartIdx + idx;
+			final double alphaProb = alpha*fillAlphaProbs[fillIdx];
+			fillAlphaProbs[fillIdx] = alphaProb;
 			logNorm -= GammaFunction.lnGamma(alphaProb);
 			alphaProbSum += alphaProb;
 		}
 		logNorm += GammaFunction.lnGamma(alphaProbSum);
 		
-		return new DPMetaInfo(alpha, logNorm);
+		return logNorm;
 	}	
 
 }

@@ -11,21 +11,19 @@ import me.akuz.ml.tensors.Tensor;
  */
 public final class DPClasses {
 
-	public static final int CLASS_PRIOR_DP_ALPHA = 0;
-	public static final int CLASS_PRIOR_DP_LOG_NORM = 1;
-	public static final int CLASS_ADDED_SAMPLES_SUM = 2;
-	public static final int CLASS_STATS_COUNT = 3;
+	public static final int CLASS_PRIOR_DP_LOG_NORM = 0;
+	public static final int CLASS_ADDED_SAMPLES_SUM = 1;
+	public static final int CLASS_STATS_COUNT = 2;
 
-	public static final int CLASS_DIM_PRIOR_DP_PROB = 0;
+	public static final int CLASS_DIM_PRIOR_DP_ALPHA_PROB = 0;
 	public static final int CLASS_DIM_ADDED_SAMPLES = 1;
 	public static final int CLASS_DIM_STATS_COUNT = 2;
 
-	public static final int CLASS_CHANNEL_PRIOR_DP_ALPHA = 0;
-	public static final int CLASS_CHANNEL_PRIOR_DP_LOG_NORM = 1;
-	public static final int CLASS_CHANNEL_ADDED_SAMPLES_SUM = 2;
-	public static final int CLASS_CHANNEL_STATS_COUNT = 3;
+	public static final int CLASS_CHANNEL_PRIOR_DP_LOG_NORM = 0;
+	public static final int CLASS_CHANNEL_ADDED_SAMPLES_SUM = 1;
+	public static final int CLASS_CHANNEL_STATS_COUNT = 2;
 
-	public static final int CLASS_CHANNEL_DIM_PRIOR_DP_PROB = 0;
+	public static final int CLASS_CHANNEL_DIM_PRIOR_DP_ALPHA_PROB = 0;
 	public static final int CLASS_CHANNEL_DIM_ADDED_SAMPLES = 1;
 	public static final int CLASS_CHANNEL_DIM_STATS_COUNT = 2;
 
@@ -79,28 +77,25 @@ public final class DPClasses {
 		final Location classChannelDimLoc = new Location(classChannelDimIndices);
 
 		// reused arrays
-		final double[] classDimPriorDPProbs = new double[_classCount];
-		final double[] channelDimPriorDPProbs = new double[_channelDimCount];
+		final double[] classDimPriorDPAlphaProbs = new double[_classCount];
+		final double[] channelDimPriorDPAlphaProbs = new double[_channelDimCount];
 
 		// initialize deep-class base distribution
-		final DPMetaInfo classDPMeta;
+		final double classPriorDPLogNorm;
 		{
 			// TODO from arguments
-			final double classPriorDPAlpha = 5.0;
-			classDPMeta = DPFunctions.initNoisyFlatDP(
-					classPriorDPAlpha,
-					classDimPriorDPProbs,
-					0, 
-					classDimPriorDPProbs.length);
+			final double classPriorDPAlpha = 1.0;
+			classPriorDPLogNorm = 
+					DPFunctions.initNoisyFlatDP(
+							classPriorDPAlpha,
+							classDimPriorDPAlphaProbs,
+							0, 
+							classDimPriorDPAlphaProbs.length);
 		}
 
 		_classData.set(
-				CLASS_PRIOR_DP_ALPHA, 
-				classDPMeta.alpha());
-
-		_classData.set(
 				CLASS_PRIOR_DP_LOG_NORM, 
-				classDPMeta.logNorm());
+				classPriorDPLogNorm);
 
 		for (int classIdx=0; classIdx<_classCount; classIdx++) {
 			
@@ -112,8 +107,8 @@ public final class DPClasses {
 					.calcFlatIndexFromLocation(classDimLoc);
 
 			_classDimData.set(
-					classDimDataIdx + CLASS_DIM_PRIOR_DP_PROB, 
-					classDimPriorDPProbs[classIdx]);
+					classDimDataIdx + CLASS_DIM_PRIOR_DP_ALPHA_PROB, 
+					classDimPriorDPAlphaProbs[classIdx]);
 
 			for (int channelIdx=0; channelIdx<_channelCount; channelIdx++) {
 
@@ -124,24 +119,21 @@ public final class DPClasses {
 						.calcFlatIndexFromLocation(classChannelLoc);
 
 				// initialize deep-channel base distribution
-				final DPMetaInfo channelDPMeta;
+				final double channelPriorDPLogNorm;
 				{
 					// TODO: from arguments
-					final double channelPriorDPAlpha = 2.5;
-					channelDPMeta = DPFunctions.initNoisyFlatDP(
-							channelPriorDPAlpha,
-							channelDimPriorDPProbs,
-							0,
-							channelDimPriorDPProbs.length);
+					final double channelPriorDPAlpha = 0.1;
+					channelPriorDPLogNorm = 
+							DPFunctions.initNoisyFlatDP(
+									channelPriorDPAlpha,
+									channelDimPriorDPAlphaProbs,
+									0,
+									channelDimPriorDPAlphaProbs.length);
 				}
 
 				_classChannelData.set(
-						classChannelDataIdx + CLASS_CHANNEL_PRIOR_DP_ALPHA,
-						channelDPMeta.alpha());
-
-				_classChannelData.set(
 						classChannelDataIdx + CLASS_CHANNEL_PRIOR_DP_LOG_NORM,
-						channelDPMeta.logNorm());
+						channelPriorDPLogNorm);
 
 				for (int dimIdx=0; dimIdx<_channelDimCount; dimIdx++) {
 					
@@ -151,13 +143,13 @@ public final class DPClasses {
 							.calcFlatIndexFromLocation(classChannelDimLoc);
 
 					_classChannelDimData.set(
-							classChannelDimDataIdx + CLASS_CHANNEL_DIM_PRIOR_DP_PROB, 
-							channelDimPriorDPProbs[dimIdx]);
+							classChannelDimDataIdx + CLASS_CHANNEL_DIM_PRIOR_DP_ALPHA_PROB, 
+							channelDimPriorDPAlphaProbs[dimIdx]);
 				}
 			}
 		}
 
-		_temperature = 1.0;
+		_temperature = Double.NaN;
 	}
 	
 	public double getTemperature() {
@@ -165,10 +157,10 @@ public final class DPClasses {
 	}
 	
 	public void setTemperature(final double temperature) {
-		if (temperature < 0.0 || temperature > 1.0) {
+		if (temperature <= 0.0 || temperature >= 1.0) {
 			throw new IllegalArgumentException(
 					"Temperature must be within interval " + 
-					"[0.0, 1.0], but got " + temperature);
+					"(0.0, 1.0), but got " + temperature);
 		}
 		_temperature = temperature;
 	}
@@ -206,8 +198,6 @@ public final class DPClasses {
 		final Location classChannelDimLoc = new Location(classChannelDimIndices);
 
 		// meta class information
-		final double classPriorDPAlpha = 
-				_classData.get(CLASS_PRIOR_DP_ALPHA);
 		final double classPriorDPLogNorm = 
 				_classData.get(CLASS_PRIOR_DP_LOG_NORM);
 		final double classWouldbeSamplesSum =
@@ -233,10 +223,8 @@ public final class DPClasses {
 						.calcFlatIndexFromLocation(classDimLoc);
 	
 				// get prior class info
-				final double classDimPriorDPProb = 
-						_classDimData.get(classDimDataIdx + CLASS_DIM_PRIOR_DP_PROB);
-				final double classDimPriorDPProbAlpha = 
-						classDimPriorDPProb * classPriorDPAlpha;
+				final double classDimPriorDPAlphaProb = 
+						_classDimData.get(classDimDataIdx + CLASS_DIM_PRIOR_DP_ALPHA_PROB);
 				
 				// would-be the number of samples of this class
 				final double classDimWouldbeSamples =
@@ -250,12 +238,12 @@ public final class DPClasses {
 				
 				// apply simulated annealing
 				final double annealedClassProb =
-						_temperature * classDimPriorDPProb +
+						_temperature / _classCount +
 						(1.0 - _temperature) * classSampleProb;
 				
 				// add DP log-likelihood
 				classProbs[classProbsIdx] += 
-						(classDimPriorDPProbAlpha - 1.0) * 
+						(classDimPriorDPAlphaProb - 1.0) * 
 						Math.log(annealedClassProb);
 			}
 
@@ -273,9 +261,6 @@ public final class DPClasses {
 						.calcFlatIndexFromLocation(classChannelLoc);
 
 				// meta channel information
-				final double classChannelPriorDPAlpha = 
-						_classChannelData.get(classChannelDataIdx + 
-								CLASS_CHANNEL_PRIOR_DP_ALPHA);
 				final double classChannelPriorDPLogNorm = 
 						_classChannelData.get(classChannelDataIdx + 
 								CLASS_CHANNEL_PRIOR_DP_LOG_NORM);
@@ -300,11 +285,9 @@ public final class DPClasses {
 							channelData[channelDataStart + dimIdx];
 
 					// get prior info for dim
-					final double classChannelDimPriorDPProb = 
+					final double classChannelDimPriorDPAlphaProb = 
 							_classChannelDimData.get(classChannelDimDataIdx + 
-									CLASS_CHANNEL_DIM_PRIOR_DP_PROB);
-					final double classChannelDimPriorDPProbAlpha = 
-							classChannelDimPriorDPProb * classChannelPriorDPAlpha;
+									CLASS_CHANNEL_DIM_PRIOR_DP_ALPHA_PROB);
 					
 					// would-be the number of samples of this dim
 					final double classChannelDimWouldbeSamples = 
@@ -318,12 +301,12 @@ public final class DPClasses {
 					
 					// apply simulated annealing
 					final double annealedClassChannelDimProb =
-							_temperature * classChannelDimPriorDPProb +
+							_temperature / _channelDimCount +
 							(1.0 - _temperature) * classChannelDimSampleProb;
 					
 					// add log-likelihood
 					classProbs[classProbsIdx] += 
-							(classChannelDimPriorDPProbAlpha - 1.0) * 
+							(classChannelDimPriorDPAlphaProb - 1.0) * 
 							Math.log(annealedClassChannelDimProb);
 				}
 			}
@@ -467,7 +450,7 @@ public final class DPClasses {
 					// get prior info for dim
 					final double classChannelDimPriorDPProb = 
 							_classChannelDimData.get(classChannelDimDataIdx + 
-									CLASS_CHANNEL_DIM_PRIOR_DP_PROB);
+									CLASS_CHANNEL_DIM_PRIOR_DP_ALPHA_PROB);
 					
 					// would-be the number of samples of this dim
 					final double classChannelDimAddedSamples = 
