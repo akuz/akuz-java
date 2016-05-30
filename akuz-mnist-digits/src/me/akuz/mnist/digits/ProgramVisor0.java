@@ -4,9 +4,7 @@ import java.io.IOException;
 
 import me.akuz.ml.tensors.Tensor;
 import me.akuz.mnist.digits.visor.learning.DPColors;
-import me.akuz.mnist.digits.visor.learning.GaussColors;
 import me.akuz.mnist.digits.visor.transform.DiscretizeLastDim;
-import me.akuz.mnist.digits.visor.transform.SplitLastDim;
 import me.akuz.mnist.digits.visor.transform.YpCbCr;
 
 public class ProgramVisor0 {
