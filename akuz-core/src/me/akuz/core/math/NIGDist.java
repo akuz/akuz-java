@@ -189,6 +189,15 @@ public final class NIGDist implements Cloneable, Distribution {
 		return prob;
 	}
 	
+	public double logLike(double value) {
+		return StudentT.logLike(
+				_alphaPosterior * 2.0, 
+				_lyamdaPosterior, 
+				_betaPosterior * (_vegaPosterior + 1.0) 
+				/ _alphaPosterior / _vegaPosterior,
+				value);
+	}
+	
 	public String toString() {
 		DecimalFormat fmt = new DecimalFormat("' '0.00000000;'-'0.00000000");
 		double meanMode = getMeanMode();

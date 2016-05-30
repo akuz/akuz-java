@@ -40,6 +40,11 @@ public final class SelectK<TKey,TValue extends Comparable<TValue>> {
 		}
 	}
 	
+	public void add(TKey key, TValue value) {
+
+		add(new Pair<TKey, TValue>(key, value));
+	}
+	
 	public void add(Pair<TKey, TValue> pair) {
 
 		_queue.add(pair);
