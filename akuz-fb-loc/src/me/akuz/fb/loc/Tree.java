@@ -28,7 +28,7 @@ public final class Tree {
 			double toX,
 			double toY) {
 		
-		return Math.sqrt(Math.pow(fromX - toX, 2) + Math.pow(fromY, toY));
+		return Math.sqrt(Math.pow(fromX - toX, 2) + Math.pow(fromY - toY, 2));
 	}
 	
 	public List<Pair<Place, Double>> findTop(double x, double y, double accuracy, int k) {
@@ -68,6 +68,7 @@ public final class Tree {
 			
 			_x1 = xDist.getMeanMode() - Math.sqrt(xDist.getVarianceMode());
 			_x2 = xDist.getMeanMode() + Math.sqrt(xDist.getVarianceMode());
+			
 			_y1 = yDist.getMeanMode() - Math.sqrt(yDist.getVarianceMode());
 			_y2 = yDist.getMeanMode() + Math.sqrt(yDist.getVarianceMode());
 			
@@ -78,29 +79,13 @@ public final class Tree {
 			
 			for (Place place : places) {
 				
-				top1.add(place, distance(
-						_x1,
-						place.getXDist().getMeanMode(),
-						_y1,
-						place.getXDist().getMeanMode()));
+				final double x = place.getXDist().getMeanMode();
+				final double y = place.getYDist().getMeanMode();
 				
-				top2.add(place, distance(
-						_x2,
-						place.getXDist().getMeanMode(),
-						_y1,
-						place.getXDist().getMeanMode()));
-				
-				top3.add(place, distance(
-						_x1,
-						place.getXDist().getMeanMode(),
-						_y2,
-						place.getXDist().getMeanMode()));
-				
-				top4.add(place, distance(
-						_x2,
-						place.getXDist().getMeanMode(),
-						_y2,
-						place.getXDist().getMeanMode()));
+				top1.add(place, distance(_x1, x, _y1, y));
+				top2.add(place, distance(_x2, x, _y1, y));
+				top3.add(place, distance(_x1, x, _y2, y));
+				top4.add(place, distance(_x2, x, _y2, y));
 			}
 			
 			List<Place> subPlaces;

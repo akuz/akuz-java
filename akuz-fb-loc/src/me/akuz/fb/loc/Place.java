@@ -27,8 +27,8 @@ public final class Place {
 	}
 	
 	public void addObservation(double x, double y, double accuracy) {
-		_xDist.addObservation(x, 1.0/accuracy);
-		_yDist.addObservation(y, 1.0/accuracy);
+		_xDist.addObservation(x, accuracy);
+		_yDist.addObservation(y, accuracy);
 	}
 	
 	public double logLike(double x, double y, double accuracy) {
